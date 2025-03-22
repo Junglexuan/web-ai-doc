@@ -1,0 +1,71 @@
+{
+  "name": "@zov-ai/doc",
+  "version": "1.0.0",
+  "description": "",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "browserslist": [
+    "chrome >= 80"
+  ],
+  "scripts": {
+    "lint:type": "tsc --project ./src --noEmit --emitDeclarationOnly false",
+    "lint:es": "cross-env NODE_ENV=production eslint --fix --cache \"src/**/*.{js,ts,tsx}\"",
+    "lint:css": "cross-env NODE_ENV=production stylelint --fix --cache \"src/**/*.{css,less}\"",
+    "lint:json": "prettier --write **/*.json",
+    "test": "jest",
+    "commit": "git-cz",
+    "recommit": "git commit --amend --no-edit",
+    "demote": "elux demote",
+    "dev": "elux webpack-dev",
+    "build": "elux webpack-build",
+    "build:localhost": "cross-env APP_ENV=localhost elux webpack-build",
+    "build:analyzer": "elux webpack-build -a",
+    "build:mock": "tsc --project ./mock",
+    "mock": "elux mock --watch",
+    "start": "elux webpack-dev",
+    "dist": "node ./dist/local/start.js",
+    "demo": "run-p mock dist",
+    "publish:dev": "elux webpack-build dev && node ./dist/dev/publish.js",
+    "publish:test": "elux webpack-build test && node ./dist/test/publish.js",
+    "publish:sit": "elux webpack-build sit && node ./dist/sit/publish.js"
+  },
+  "config": {
+    "commitizen": {
+      "path": "cz-conventional-changelog"
+    }
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": "cross-env NODE_ENV=production eslint --fix --quiet --cache",
+    "*.{css,less}": "cross-env NODE_ENV=production stylelint --fix --quiet --cache",
+    "*.json": "prettier --write"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": ""
+    }
+  },
+  "bundledDependencies": [
+    "moment",
+    "@ant-design/icons"
+  ],
+  "dependencies": {},
+  "devDependencies": {},
+  "peerDependencies": {
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "react-redux": "^8.0.0",
+    "antd": "^5.0.0",
+    "axios": "^1.3.0",
+    "dayjs": "^1.11.0",
+    "classnames": "^2.0.0",
+    "query-string": "^7.1.1",
+    "path-to-regexp": "^6.2.0",
+    "immer": "*",
+    "jsencrypt": "^3.3.2",
+    "mockjs":"^1.1.0",
+    "@elux/react-web": "^2.6.3",
+    "@wangeditor-next/editor": "^5.6.0",
+    "@wangeditor-next/editor-for-react": "^1.0.9"
+  }
+}

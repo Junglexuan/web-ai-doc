@@ -1,0 +1,60 @@
+:global {
+  :local(.root) {
+    > .hd {
+      padding: 16px 20px;
+
+      .logo {
+        padding: 3px;
+        margin-right: 10px;
+        overflow: hidden;
+        vertical-align: middle;
+        background-color: #1b68fc;
+        border-radius: 5px;
+      }
+
+      .title {
+        font-size: 20px;
+        font-weight: bold;
+        vertical-align: middle;
+      }
+
+      .writer {
+        margin-top: 30px;
+      }
+    }
+
+    > .bd {
+      padding-top: 10px;
+      padding-right: 3px;
+
+      .recycle {
+        padding-left: 48px;
+        margin: 0 4px;
+        line-height: 40px;
+        cursor: pointer;
+        background: #e7ebef;
+        border-radius: 4px;
+      }
+
+      .ant-menu {
+        background-color: transparent;
+      }
+
+      .ant-menu-root {
+        border-inline-end: none !important;
+      }
+
+      .ant-menu-item-group-title {
+        padding-left: 47px;
+        margin: 0 5px;
+        color: inherit;
+        cursor: pointer;
+        background: #e7ebef;
+
+        &:hover {
+          background-color: #1b68fc14;
+        }
+      }
+    }
+  }
+}

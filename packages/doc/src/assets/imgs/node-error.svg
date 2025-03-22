@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="20px" height="20px" viewBox="0 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>图标/提示错误</title>
+    <g id="图标/提示错误" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <circle id="椭圆形" fill="#F25750" cx="10" cy="10" r="10"></circle>
+        <path d="M10,13 C10.5522847,13 11,13.4477153 11,14 C11,14.5522847 10.5522847,15 10,15 C9.44771525,15 9,14.5522847 9,14 C9,13.4477153 9.44771525,13 10,13 Z M10,4 C10.5522847,4 11,4.44771525 11,5 L11,11 C11,11.5522847 10.5522847,12 10,12 C9.44771525,12 9,11.5522847 9,11 L9,5 C9,4.44771525 9.44771525,4 10,4 Z" id="形状" fill="#FFFFFF"></path>
+    </g>
+</svg>

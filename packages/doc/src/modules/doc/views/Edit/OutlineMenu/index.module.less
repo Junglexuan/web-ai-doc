@@ -1,0 +1,70 @@
+:global {
+  :local(.root) {
+    position: fixed;
+    top: 50px;
+    right: 0;
+    bottom: 0;
+    width: 300px;
+    background: #fff;
+    box-shadow: -2px 0 10px #ddd;
+    transition: 0.2s ease-in transform;
+    transform: translateX(300px);
+
+    &.on {
+      display: block;
+      transform: none;
+    }
+
+    > .close {
+      position: absolute;
+      top: 5px;
+      right: 8px;
+      display: block;
+      width: 10px;
+      height: 10px;
+      cursor: pointer;
+      fill: var(--w-e-toolbar-color);
+    }
+
+    ul {
+      padding-left: 20px;
+      list-style-type: none;
+    }
+
+    li {
+      margin: 10px 0;
+      color: rgb(0, 101, 196);
+      cursor: pointer;
+    }
+
+    li:hover {
+      text-decoration: underline;
+    }
+
+    li[type='header1'] {
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    li[type='header2'] {
+      padding-left: 15px;
+      font-size: 16px;
+      font-weight: bold;
+    }
+
+    li[type='header3'] {
+      padding-left: 30px;
+      font-size: 14px;
+    }
+
+    li[type='header4'] {
+      padding-left: 45px;
+      font-size: 12px;
+    }
+
+    li[type='header5'] {
+      padding-left: 60px;
+      font-size: 12px;
+    }
+  }
+}

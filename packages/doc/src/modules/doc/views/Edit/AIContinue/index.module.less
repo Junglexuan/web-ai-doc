@@ -1,0 +1,133 @@
+:global {
+  :local(.root) {
+    > .g-ai-icon {
+      position: absolute;
+      top: 12px;
+      left: 10px;
+    }
+
+    > .input {
+      position: relative;
+      //display: none;
+      padding: 8px 30px 8px 25px;
+
+      > .g-enter-icon {
+        position: absolute;
+        top: 13px;
+        right: 13px;
+        cursor: pointer;
+
+        &:hover {
+          opacity: 0.7;
+        }
+      }
+    }
+
+    > .result {
+      position: relative;
+      display: none;
+      padding: 8px 0;
+
+      > .title {
+        padding: 5px 80px 5px 40px;
+        margin-bottom: 10px;
+        overflow: hidden;
+        color: #828384;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      > .pause-btn {
+        position: absolute;
+        top: 9px;
+        right: 10px;
+        color: #828384;
+      }
+
+      > .loading {
+        position: absolute;
+        top: 14px;
+        left: 18px;
+      }
+
+      > .article {
+        padding: 0 20px;
+        line-height: 1.8;
+        border-top: 1px solid #eee;
+      }
+    }
+
+    > .footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 20px;
+      color: #595959;
+      background: #fafbfb;
+
+      > .actions {
+        visibility: hidden;
+      }
+
+      .ant-space-gap-col-small {
+        column-gap: 5px;
+      }
+
+      .ant-btn {
+        gap: 5px;
+        height: 28px;
+        padding: 2px 12px;
+      }
+
+      .g-ai-icon {
+        color: #555;
+      }
+    }
+
+    &.Pending {
+      > .g-ai-icon {
+        display: none;
+      }
+
+      > .input {
+        display: none;
+      }
+
+      > .result {
+        display: block;
+      }
+
+      > .footer {
+        display: none;
+      }
+    }
+
+    &.Fulfilled {
+      > .g-ai-icon {
+        left: 18px;
+      }
+
+      > .input {
+        display: none;
+      }
+
+      > .result {
+        display: block;
+
+        > .loading {
+          display: none;
+        }
+
+        > .pause-btn {
+          display: none;
+        }
+      }
+
+      > .footer {
+        > .actions {
+          visibility: visible;
+        }
+      }
+    }
+  }
+}

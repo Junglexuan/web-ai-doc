@@ -1,0 +1,15 @@
+{
+  "extends": "@elux/babel-preset/tsconfig.esm.json",
+  "compilerOptions": {
+    "lib": ["es2020", "DOM"],
+    "types": ["jest"],
+    "emitDeclarationOnly": true,
+    "outDir": "../dist",
+    "rootDir": "./",
+    "baseUrl": "./",
+    "paths": {
+      "@/*": ["./*"]
+    }
+  },
+  "include": ["./"]
+}

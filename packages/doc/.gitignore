@@ -1,0 +1,6 @@
+node_modules/
+dist/
+types/
+.eslintcache
+.stylelintcache
+.DS_Store
