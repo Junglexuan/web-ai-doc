@@ -1,13 +1,5 @@
-import {
-  CheckOutlined,
-  DeleteOutlined,
-  EditOutlined,
-  PauseCircleOutlined,
-  QuestionCircleFilled,
-  SlidersOutlined,
-  SyncOutlined,
-} from '@ant-design/icons';
-import {Button, Input, Space, Spin} from 'antd';
+import {CheckOutlined, DeleteOutlined, EditOutlined, PauseCircleOutlined, QuestionCircleFilled, SyncOutlined} from '@ant-design/icons';
+import {Button, Checkbox, Input, Select, Space, Spin} from 'antd';
 import {FC, memo, useEffect, useMemo, useRef, useState} from 'react';
 import AdjustIcon from '@/assets/images/Adjust';
 import {useEvent} from '@/utils/tools';
@@ -18,11 +10,13 @@ import EnterIcon from '../EnterIcon';
 import type {IAIRef} from '../AILayer';
 
 interface Props {
+  template: string;
+  templateOptions: {value: string; label: string}[];
   aiRef: IAIRef;
   onRunningStateChange: (runningState: RunningState) => void;
 }
 
-const Component: FC<Props> = ({aiRef, onRunningStateChange}) => {
+const Component: FC<Props> = ({aiRef, template, templateOptions, onRunningStateChange}) => {
   const inputRef = useRef<any>();
   const fragmentRef = useRef<any>();
   const [runningState, setRunningState] = useState<RunningState>('');
@@ -33,7 +27,7 @@ const Component: FC<Props> = ({aiRef, onRunningStateChange}) => {
     const lastResult = {html: fragmentRef.current.innerHTML || '', text: fragmentRef.current.innerText || ''};
     setRunningState('Pending');
     onRunningStateChange('Pending');
-    AiAPI.continueWrite(aiRef.getDocId(), fragment ? aiRef.getContext() + lastResult.text : aiRef.getContext(), text).then(
+    AiAPI.byTemplate(aiRef.getDocId(), lastResult.text || text).then(
       (html) => {
         setFragment(lastResult.html + html);
         setRunningState('Fulfilled');
@@ -66,7 +60,13 @@ const Component: FC<Props> = ({aiRef, onRunningStateChange}) => {
       <ColorAIcon />
       <div className="input">
         <EnterIcon onClick={onPromptSubmit} />
-        <Input ref={inputRef} placeholder="请选择或输入指令，如：写一份工作报告" variant="borderless" onPressEnter={onPromptSubmit} />
+        <Input
+          ref={inputRef}
+          defaultValue={aiRef.getTitle()}
+          placeholder="请选择或输入指令，如：写一份工作报告"
+          variant="borderless"
+          onPressEnter={onPromptSubmit}
+        />
       </div>
       <div className="result">
         <Spin className="loading" size="small" />
@@ -87,13 +87,19 @@ const Component: FC<Props> = ({aiRef, onRunningStateChange}) => {
           <Button type="text" icon={<EditOutlined />} onClick={continueDo}>
             继续写
           </Button>
+          {/* <Button type="text" icon={<AdjustIcon />}>
+            调整内容
+          </Button> */}
           <Button type="text" icon={<DeleteOutlined />} onClick={aiRef.closeMenu}>
             弃用
           </Button>
         </Space>
-        <div>
-          <QuestionCircleFilled style={{color: '#aaa', cursor: 'pointer'}} />
-        </div>
+        <Space size="small" className="prompt">
+          <Checkbox defaultChecked />
+          <span>使用模版:</span>
+          <Select value={template} style={{width: 120}} options={templateOptions} />
+        </Space>
+        <QuestionCircleFilled style={{color: '#aaa', cursor: 'pointer'}} />
       </div>
     </div>
   );

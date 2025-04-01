@@ -1,7 +1,8 @@
 import {ClockCircleOutlined, CloudUploadOutlined, HomeOutlined, MenuOutlined, PlusOutlined, StarOutlined, UserOutlined} from '@ant-design/icons';
-import {Boot, DomEditor, IButtonMenu, IDomEditor, IEditorConfig, IToolbarConfig} from '@wangeditor-next/editor';
+import {Link} from '@elux/react-web';
+import {Boot, DomEditor, IButtonMenu, IDomEditor, IEditorConfig, IToolbarConfig, SlateEditor} from '@wangeditor-next/editor';
 import {Editor, Toolbar} from '@wangeditor-next/editor-for-react';
-import {Breadcrumb, Button, Drawer, Modal, Space, Spin} from 'antd';
+import {Breadcrumb, Button, Space, Spin} from 'antd';
 import {FC, memo, useEffect, useMemo, useState} from 'react';
 import BlurInput from '@/components/BlurInput';
 import DialogPage from '@/components/DialogPage';
@@ -10,28 +11,27 @@ import {confirm, debounce, getUrlParam, message, useEvent} from '@/utils/tools';
 import DocAPI from '../../api';
 import {ItemDetail} from '../../entity';
 import AIButton from './AIButton';
-import {SaveMgr} from './autoSave';
-import {ISource} from './autoSave';
+import './AIMenu';
+import {SaveMgr} from './AutoSave';
 import {editorConfig, toolbarConfig} from './editorConfig';
 import styles from './index.module.less';
 import Outline from './Outline';
-import '@wangeditor-next/editor/dist/css/style.css';
+import type {ISource} from './AutoSave';
 
 interface Props {
   itemDetail: ItemDetail;
 }
 
 const Component: FC<Props> = ({itemDetail}) => {
-  console.log(itemDetail);
-  const [editor, setEditor] = useState<IDomEditor>(); // 存储 editor 实例
+  const [editor, setEditor] = useState<IDomEditor>();
   const [docTitle, setDocTitle] = useState(itemDetail.title);
-  const [source, setSource] = useState<ISource>({id: itemDetail.id, dsl: '', html: itemDetail.contents});
+  const [source, setSource] = useState<ISource>({id: itemDetail.id, dsl: itemDetail.articleDsl, html: itemDetail.contents});
   const [autoSave] = useState(() => new SaveMgr());
   const [saving, setSaving] = useState(false);
 
   const onChange = useEvent((editor: IDomEditor) => {
     //JSON.stringify(editor.children, null, 2)
-    const newSource: ISource = {id: itemDetail.id, dsl: '', html: editor.getHtml()};
+    const newSource: ISource = {id: itemDetail.id, dsl: JSON.stringify(editor.children), html: editor.getHtml()};
     setSource(newSource);
     autoSave.onChange(newSource);
   });
@@ -62,7 +62,7 @@ const Component: FC<Props> = ({itemDetail}) => {
   const onCreated = useEvent((editor: IDomEditor) => {
     setEditor(editor);
     window['editor'] = editor;
-    setTimeout(() => (window['tools'] = DomEditor.getToolbar(editor)));
+    //setTimeout(() => (window['tools'] = DomEditor.getToolbar(editor)));
     editor.on('modalOrPanelShow', (modalOrPanel) => {
       // if (modalOrPanel.type !== 'modal') return;
       // const dom = modalOrPanel.$elem[0];
@@ -79,6 +79,26 @@ const Component: FC<Props> = ({itemDetail}) => {
     //editor?.emit('destroy', editor);
     editor?.destroy();
   });
+
+  const breadcrumb = useMemo(() => {
+    const arr = itemDetail.levelPath.map((item) => ({
+      title: (
+        <Link to={`/admin/doc/list/maintain?id=${item.id}`} action="relaunch" target="window">
+          {item.folderName}
+        </Link>
+      ),
+    }));
+    arr.unshift({
+      title: (
+        <Link to="/admin/doc/list/maintain" action="relaunch" target="window">
+          我的文档
+        </Link>
+      ),
+    });
+    arr.push({title: <span>{docTitle}</span>});
+    return <Breadcrumb items={arr} />;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [docTitle]);
 
   useEffect(() => {
     document.addEventListener('keyup', onKeyUp);
@@ -99,16 +119,7 @@ const Component: FC<Props> = ({itemDetail}) => {
             <HomeOutlined className="icon-link" onClick={() => GetClientRouter().relaunch({url: `/admin/doc/list/maintain`}, 'window')} />
             <PlusOutlined />
             <MenuOutlined />
-            <Breadcrumb
-              items={[
-                {
-                  title: <a href="">我的文档</a>,
-                },
-                {
-                  title: docTitle,
-                },
-              ]}
-            />
+            {breadcrumb}
             <StarOutlined />
           </Space>
           <Space>
@@ -125,7 +136,15 @@ const Component: FC<Props> = ({itemDetail}) => {
         </div>
         <div className="bd">
           <header>
-            <BlurInput size="large" key={docTitle} value={docTitle} className="doc-title" onChange={onDocTitleChange} />
+            <BlurInput
+              id="_doc_title"
+              data-doc={itemDetail.id}
+              size="large"
+              key={docTitle}
+              value={docTitle}
+              className="doc-title"
+              onChange={onDocTitleChange}
+            />
             <Space className="info">
               <div>
                 <UserOutlined />

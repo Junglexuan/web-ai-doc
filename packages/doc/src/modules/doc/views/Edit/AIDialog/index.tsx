@@ -1,4 +1,3 @@
-import {QuestionCircleFilled} from '@ant-design/icons';
 import {FC, ReactNode, memo} from 'react';
 import styles from './index.module.less';
 

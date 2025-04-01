@@ -33,7 +33,7 @@ const Component: FC<Props> = ({aiRef, onRunningStateChange}) => {
     const lastResult = {html: fragmentRef.current.innerHTML || '', text: fragmentRef.current.innerText || ''};
     setRunningState('Pending');
     onRunningStateChange('Pending');
-    AiAPI.continueWrite(aiRef.getDocId(), fragment ? aiRef.getContext() + lastResult.text : aiRef.getContext(), text).then(
+    AiAPI.createOutline(aiRef.getDocId(), lastResult.text || text).then(
       (html) => {
         setFragment(lastResult.html + html);
         setRunningState('Fulfilled');
@@ -66,11 +66,17 @@ const Component: FC<Props> = ({aiRef, onRunningStateChange}) => {
       <ColorAIcon />
       <div className="input">
         <EnterIcon onClick={onPromptSubmit} />
-        <Input ref={inputRef} placeholder="请选择或输入指令，如：写一份工作报告" variant="borderless" onPressEnter={onPromptSubmit} />
+        <Input
+          ref={inputRef}
+          placeholder="请输入提示词"
+          variant="borderless"
+          defaultValue={`围绕 “${aiRef.getTitle()}” 写一篇文章大纲`}
+          onPressEnter={onPromptSubmit}
+        />
       </div>
       <div className="result">
         <Spin className="loading" size="small" />
-        <div className="title">{inputRef.current?.input.value || '继续写'}...</div>
+        <div className="title">{inputRef.current?.input.value || '生成大纲'}...</div>
         <Button size="small" className="pause-btn" type="text" icon={<PauseCircleOutlined />}>
           停止
         </Button>
@@ -87,6 +93,9 @@ const Component: FC<Props> = ({aiRef, onRunningStateChange}) => {
           <Button type="text" icon={<EditOutlined />} onClick={continueDo}>
             继续写
           </Button>
+          {/* <Button type="text" icon={<AdjustIcon />}>
+            调整内容
+          </Button> */}
           <Button type="text" icon={<DeleteOutlined />} onClick={aiRef.closeMenu}>
             弃用
           </Button>

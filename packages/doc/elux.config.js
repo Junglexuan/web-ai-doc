@@ -14,7 +14,8 @@ module.exports = {
         '/upload/': 'http://172.16.8.151/app/',
         '/app/': 'http://172.16.8.151/brain/',
         '/meta/': 'http://172.16.8.151/brain/',
-        '/dream/': 'http://172.16.18.14:8081/',
+        '/dream/': 'http://331qy963dj35.vicp.fun:15537/',
+        '/ai/': 'http://8.130.107.206:7862/chat/api/zov/',
       },
       StaticPrefix: {
         '/imgs/': '/imgs/',

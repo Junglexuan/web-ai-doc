@@ -7,7 +7,7 @@ import {FC, MutableRefObject, memo, useCallback, useEffect, useMemo, useRef, use
 import {GetClientRouter, Modules} from '@/Global';
 import {confirm, message, useEvent} from '@/utils/tools';
 import {ItemDetail} from '../../entity';
-import AiMenu from './AiMenu';
+import AiMenu from './AIMenu';
 import OutlineMenu from './OutlineMenu';
 import '@wangeditor-next/editor/dist/css/style.css';
 

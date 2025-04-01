@@ -1,11 +1,12 @@
 import {QuestionCircleFilled} from '@ant-design/icons';
-import {Boot, IDomEditor, IModalMenu, SlateNode} from '@wangeditor-next/editor';
+import {Boot, IDomEditor, IModalMenu, SlateEditor} from '@wangeditor-next/editor';
 import {Button, Divider} from 'antd';
 import {FC, ReactNode, memo, useEffect, useMemo, useState} from 'react';
 import {createPortal} from 'react-dom';
-import {useEvent} from '@/utils/tools';
+import {eachTree, useEvent} from '@/utils/tools';
 import AILayer from '../AILayer';
 import AiIcon from '../ColorAIcon';
+import {getSelectionContext} from '../utils';
 import styles from './index.module.less';
 import type {IAIRef, ISelection} from '../AILayer';
 
@@ -68,7 +69,8 @@ const Component: FC<Props> = ({editor}) => {
     } else if (posNum.bottom) {
       selectionPos.y = containerRect.height - posNum.bottom + containerRect.top + 35;
     }
-    aiRef?.openMenu({pos: selectionPos});
+    const context = getSelectionContext(editor);
+    aiRef?.openMenu({pos: selectionPos, context});
   });
 
   const closeMenu = useEvent(() => aiRef?.closeMenu());

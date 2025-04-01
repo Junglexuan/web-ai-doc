@@ -16,7 +16,9 @@ export interface ListItem extends BaseListItem {
   articleSize: number;
   collect: number;
 }
-export interface ListSummary extends BaseListSummary {}
+export interface ListSummary extends BaseListSummary {
+  levelPath: {id: string; folderName: string; parent: string}[];
+}
 
 export interface ListResult {
   list: ListItem[];
@@ -27,6 +29,8 @@ export interface ItemDetail {
   id: string;
   title: string;
   contents: string;
+  articleDsl: string;
+  levelPath: {id: string; folderName: string; parent: string}[];
 }
 export interface EditItem extends BaseListItem {}
 

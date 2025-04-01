@@ -67,7 +67,7 @@ export function excludeDefaultParams(defaultParams: {[key: string]: any}, target
 }
 
 const instance = axios.create({
-  timeout: 15000,
+  timeout: 60 * 1000 * 5,
   headers: {
     'Content-type': 'application/json;charset=utf-8',
     'X-Requested-With': 'XMLHttpRequest',
@@ -79,7 +79,7 @@ instance.interceptors.request.use((req) => {
   if (token) {
     req.headers['Authorization'] = `Bearer ${token}`;
   }
-  req.url = req.url!.replace(/^\/(meta|user|app|dream)\//, (pre) => ApiPrefix[pre]);
+  req.url = req.url!.replace(/^\/(meta|user|app|dream|ai)\//, (pre) => ApiPrefix[pre]);
   if (req.method === 'post') {
     if (!req.data) {
       req.data = {};

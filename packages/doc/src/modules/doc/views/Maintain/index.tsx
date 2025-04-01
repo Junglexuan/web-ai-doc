@@ -1,21 +1,12 @@
 import {DeleteOutlined, DownOutlined, ExceptionOutlined, FolderAddOutlined, PlusOutlined, StarFilled, UploadOutlined} from '@ant-design/icons';
-import {DocumentHead} from '@elux/react-web';
-import {Breadcrumb, Button, Dropdown, Space, Table, TableProps, Upload} from 'antd';
+import {DocumentHead, Link} from '@elux/react-web';
+import {Breadcrumb, Button, Dropdown, Form, Input, Popover, Space, Table, TableProps, Upload} from 'antd';
 import {FC, memo, useEffect, useMemo, useState} from 'react';
 import {GetClientRouter} from '@/Global';
-import {getUrlParam, message, useEvent, useSingleWindow} from '@/utils/tools';
+import {confirm, getUrlParam, message, useEvent, useSingleWindow} from '@/utils/tools';
 import {DocAPI} from '../../api';
 import {ListItem, ListSearch, ListSummary} from '../../entity';
 import styles from './index.module.less';
-
-const moreActions = {
-  items: [
-    {key: '1', label: '分享'},
-    {key: '2', label: '移动到'},
-    {key: '3', label: '下载'},
-    {key: '4', label: '删除'},
-  ],
-};
 
 interface Props {
   listSearch: ListSearch;
@@ -32,6 +23,14 @@ const Component: FC<Props> = ({list, listSearch, listSummary}) => {
       GetClientRouter().push({url: `/admin/doc/item/edit/${id}?__c=_dialog`}, singleWindow);
     } else {
       GetClientRouter().push({url: `/admin/doc/list/maintain?id=${id}`}, 'page');
+    }
+  });
+
+  const onRename = useEvent((id: string, type: 'doc' | 'dir', name: string) => {
+    if (type === 'doc') {
+      DocAPI.updateDocName(id, name).then(() => GetClientRouter().back(0));
+    } else {
+      DocAPI.updateDirName(id, name).then(() => GetClientRouter().back(0));
     }
   });
 
@@ -75,12 +74,53 @@ const Component: FC<Props> = ({list, listSearch, listSummary}) => {
         title: '操作',
         key: 'action',
         width: 250,
-        render: (_: any, record: any) => (
+        render: (_: any, record) => (
           <Space size="middle">
-            <a>重命名</a>
+            <Popover
+              trigger="click"
+              content={
+                <Input
+                  allowClear
+                  style={{width: '200px'}}
+                  defaultValue={record.title}
+                  onKeyDown={(e: any) => {
+                    if (e.key === 'Enter') {
+                      const value = e.target.value.trim();
+                      if (value && value !== record.title) {
+                        onRename(record.id, record.type, e.target.value);
+                      }
+                    }
+                  }}
+                />
+              }
+            >
+              <a>重命名</a>
+            </Popover>
             <a>复制</a>
             <a>收藏</a>
-            <Dropdown menu={moreActions}>
+            <Dropdown
+              menu={{
+                onClick: ({key}: {key: string}) => {
+                  if (key === '删除') {
+                    confirm('您确定要删除吗？', (ok) => {
+                      if (ok) {
+                        if (record.type === 'doc') {
+                          DocAPI.deleteDoc(record.id).then(() => GetClientRouter().back(0));
+                        } else {
+                          DocAPI.deleteDir(record.id);
+                        }
+                      }
+                    });
+                  }
+                },
+                items: [
+                  {key: '分享', label: '分享'},
+                  {key: '移动到', label: '移动到'},
+                  {key: '下载', label: '下载'},
+                  {key: '删除', label: '删除'},
+                ],
+              }}
+            >
               <a>
                 更多 <DownOutlined style={{fontSize: 12}} />
               </a>
@@ -89,7 +129,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary}) => {
         ),
       },
     ];
-  }, [onShowDetail]);
+  }, [onRename, onShowDetail]);
 
   const onCreate = useEvent(() => {
     setLoading('create');
@@ -124,18 +164,34 @@ const Component: FC<Props> = ({list, listSearch, listSummary}) => {
     }),
   };
 
+  const breadcrumb = useMemo(() => {
+    const curDir = listSummary.levelPath.pop();
+    const arr = listSummary.levelPath.map((item) => ({
+      title: (
+        <Link to={`/admin/doc/list/maintain?id=${item.id}`} action="relaunch" target="window">
+          {item.folderName}
+        </Link>
+      ),
+    }));
+    arr.unshift({
+      title: (
+        <Link to="/admin/doc/list/maintain" action="relaunch" target="window">
+          我的文档
+        </Link>
+      ),
+    });
+    if (curDir) {
+      arr.push({title: <span>{curDir.folderName}</span>});
+    }
+
+    return <Breadcrumb items={arr} />;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [listSummary.levelPath]);
+
   return (
     <div className={'g-page-content ' + styles.root}>
       <DocumentHead title="我的文档" />
-      <div className="hd">
-        <Breadcrumb
-          items={[
-            {
-              title: '我的文档',
-            },
-          ]}
-        />
-      </div>
+      <div className="hd">{breadcrumb}</div>
       <div className="cd">
         <Space>
           <Button id="_create-doc-btn" loading={loading === 'create'} icon={<PlusOutlined />} onClick={onCreate}>

@@ -18,11 +18,15 @@ export class SaveMgr extends SimpleDispatcher<{loading: boolean}> {
   }
 
   onChange(source: ISource): void {
-    if (this.lasted === undefined || this.lasted === source.html) {
-      //屏蔽第一次onChange或者html没变化
+    if (this.lasted === undefined) {
+      //屏蔽第一次onChange
       this.lasted = source.html;
       return;
     }
+    if (this.lasted === source.html) {
+      return;
+    }
+    this.lasted = source.html;
     this.toBeSent = source;
     if (!this.sending) {
       this.send();
@@ -40,7 +44,7 @@ export class SaveMgr extends SimpleDispatcher<{loading: boolean}> {
       this.sending = this.toBeSent;
       this.toBeSent = undefined;
       this.dispatch('loading', true);
-      DocAPI.saveDSL(this.sending.id, this.sending.html).then(
+      DocAPI.saveDSL(this.sending.id, this.sending.dsl, this.sending.html).then(
         () => {
           this.sending = undefined;
           setTimeout(this.checkNext, this.cycleTime);

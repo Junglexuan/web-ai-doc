@@ -62,6 +62,25 @@ export const editorConfig: Partial<IEditorConfig> = {
   onFocus: (e) => {
     removeClass(document.getElementById('_ai_button')!, 'disabled');
   },
+  hoverbarKeys: {
+    text: {
+      menuKeys: [
+        'ai',
+        '|',
+        'headerSelect',
+        'bulletedList',
+        'numberedList',
+        '|',
+        'bold',
+        'through',
+        'color',
+        'bgColor',
+        '|',
+        'formatPainter',
+        'clearStyle',
+      ],
+    },
+  },
   MENU_CONF: {},
   // MENU_CONF: {
   //   fontSize: {

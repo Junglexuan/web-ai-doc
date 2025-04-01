@@ -1,4 +1,6 @@
+import '@wangeditor-next/editor/dist/css/style.css';
 import '@/assets/css/global.module.less';
+import '@/assets/css/editor.less';
 import {Dispatch, DocumentHead, LoadingState, Switch, connectStore} from '@elux/react-web';
 import {ConfigProvider, message} from 'antd';
 import zhCN from 'antd/es/locale/zh_CN';

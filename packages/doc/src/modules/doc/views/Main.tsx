@@ -23,7 +23,9 @@ function mapStateToProps(appState: APPState): StoreProps {
 const Component: FC<StoreProps & {dispatch: Dispatch}> = ({curView, curRender, itemDetail, listSearch, list, listSummary, dispatch}) => {
   return (
     <Switch elseView={<ErrorPage />}>
-      {curView === 'list' && curRender === 'maintain' && <Maintain listSearch={listSearch!} list={list!} listSummary={listSummary!} />}
+      {curView === 'list' &&
+        curRender === 'maintain' &&
+        (listSummary ? <Maintain listSearch={listSearch!} list={list!} listSummary={listSummary!} /> : <div></div>)}
       {curView === 'item' && (itemDetail ? <Edit itemDetail={itemDetail} /> : <div></div>)}
     </Switch>
   );

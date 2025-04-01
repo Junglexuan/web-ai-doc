@@ -1,5 +1,5 @@
 :global {
-  :local(.root) {
+  :local(.common) {
     > .g-ai-icon {
       position: absolute;
       top: 12px;
@@ -51,9 +51,39 @@
       }
 
       > .article {
+        max-height: 300px;
         padding: 0 20px;
+        overflow: auto;
         line-height: 1.8;
         border-top: 1px solid #eee;
+      }
+
+      h1 {
+        font-size: 22px;
+      }
+
+      h2 {
+        font-size: 20px;
+      }
+
+      h3 {
+        font-size: 18px;
+      }
+
+      h4 {
+        font-size: 16px;
+      }
+
+      h5 {
+        font-size: 14px;
+      }
+
+      h6 {
+        font-size: 14px;
+      }
+
+      p {
+        font-size: 12px;
       }
     }
 
@@ -66,7 +96,11 @@
       background: #fafbfb;
 
       > .actions {
-        visibility: hidden;
+        display: none;
+      }
+
+      > .prompt {
+        display: flex;
       }
 
       .ant-space-gap-col-small {
@@ -125,7 +159,11 @@
 
       > .footer {
         > .actions {
-          visibility: visible;
+          display: flex;
+        }
+
+        > .prompt {
+          display: none;
         }
       }
     }
