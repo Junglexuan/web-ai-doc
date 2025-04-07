@@ -8,7 +8,7 @@ import {
   SyncOutlined,
 } from '@ant-design/icons';
 import {Button, Input, Space, Spin} from 'antd';
-import {FC, memo, useEffect, useMemo, useRef, useState} from 'react';
+import {FC, memo, useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import AdjustIcon from '@/assets/images/Adjust';
 import {useEvent} from '@/utils/tools';
 import styles from '../aiDialog.module.less';
@@ -24,38 +24,68 @@ interface Props {
 
 const Component: FC<Props> = ({aiRef, onRunningStateChange}) => {
   const inputRef = useRef<any>();
-  const fragmentRef = useRef<any>();
+  const fragmentRef = useRef<HTMLDivElement>();
   const [runningState, setRunningState] = useState<RunningState>('');
   const [fragment, setFragment] = useState('');
+  const reqRef = useRef<AbortController>();
 
   const onPromptSubmit = useEvent(() => {
-    const text = inputRef.current.input.value;
-    const lastResult = {html: fragmentRef.current.innerHTML || '', text: fragmentRef.current.innerText || ''};
+    //const text = inputRef.current.input.value;
+
     setRunningState('Pending');
     onRunningStateChange('Pending');
-    AiAPI.continueWrite(aiRef.getDocId(), fragment ? aiRef.getContext() + lastResult.text : aiRef.getContext(), text).then(
-      (html) => {
-        setFragment(lastResult.html + html);
+    reqRef.current = AiAPI.continueWrite({
+      args: {
+        docId: aiRef.getDocId(),
+        context: fragment ? aiRef.getContext() + fragmentRef.current!.innerText : aiRef.getContext(),
+        continuedType: 'paragraph',
+      },
+      onMessage: (html) => {
+        console.log(html);
+        const scroller = fragmentRef.current!;
+        setFragment(scroller.innerHTML + html);
+        scroller.scrollTo({top: 999999999});
+      },
+      onError: (e) => {
+        console.log(e);
+        setRunningState('Rejected');
+        onRunningStateChange('Rejected');
+      },
+      onDone: () => {
         setRunningState('Fulfilled');
         onRunningStateChange('Fulfilled');
       },
-      () => {
-        setRunningState('Rejected');
-        onRunningStateChange('Rejected');
-      }
-    );
+    });
+    // .then(
+    //   (html) => {
+    //     setFragment(lastResult.html + html);
+    //     setRunningState('Fulfilled');
+    //     onRunningStateChange('Fulfilled');
+    //   },
+    //   () => {
+    //     setRunningState('Rejected');
+    //     onRunningStateChange('Rejected');
+    //   }
+    // );
   });
-  const reDo = useEvent(() => {
+  const reDo = useCallback(() => {
     setFragment('');
     setTimeout(onPromptSubmit);
-  });
-  const continueDo = useEvent(() => {
+  }, [onPromptSubmit]);
+
+  const continueDo = useCallback(() => {
     onPromptSubmit();
+  }, [onPromptSubmit]);
+
+  const onStop = useEvent(() => {
+    reqRef.current?.abort();
+    setRunningState('Fulfilled');
+    onRunningStateChange('Fulfilled');
   });
 
   const insert = useEvent(() => {
     aiRef.closeMenu();
-    aiRef.insertHtmlByAI(fragmentRef.current.innerHTML);
+    aiRef.insertHtmlByAI(fragmentRef.current!.innerHTML);
   });
 
   useEffect(() => {
@@ -71,10 +101,10 @@ const Component: FC<Props> = ({aiRef, onRunningStateChange}) => {
       <div className="result">
         <Spin className="loading" size="small" />
         <div className="title">{inputRef.current?.input.value || '继续写'}...</div>
-        <Button size="small" className="pause-btn" type="text" icon={<PauseCircleOutlined />}>
+        <Button size="small" className="pause-btn" type="text" icon={<PauseCircleOutlined />} onClick={onStop}>
           停止
         </Button>
-        <div className="article" ref={fragmentRef} dangerouslySetInnerHTML={{__html: fragment}}></div>
+        <div className="article" ref={fragmentRef as any} dangerouslySetInnerHTML={{__html: fragment}}></div>
       </div>
       <div className="footer">
         <Space size="small" className="actions">

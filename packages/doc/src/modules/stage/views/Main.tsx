@@ -71,7 +71,7 @@ const Component: FC<StoreProps & {dispatch: Dispatch}> = ({dispatch, subModule, 
         },
       }}
     >
-      <DocumentHead title="数据分析" />
+      <DocumentHead title="梦笔公文" />
       <Switch elseView={<ErrorPage />}>
         {!!error && <ErrorPage message={error} />}
         {subModule === 'admin' && <Admin />}

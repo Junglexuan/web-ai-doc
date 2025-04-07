@@ -2,8 +2,13 @@ import {IDomEditor, SlateEditor, createEditor} from '@wangeditor-next/editor';
 import {eachTree} from '@/utils/tools';
 
 export function dslToHtml(dsl: any): string {
-  const editor = createEditor({content: Array.isArray(dsl) ? dsl : [dsl]});
-  return editor.getHtml();
+  const arr = Array.isArray(dsl) ? dsl : [dsl];
+  if (arr[0]) {
+    const editor = createEditor({content: arr});
+    return editor.getHtml();
+  } else {
+    return '';
+  }
 }
 
 export function getSelectionContext(editor: IDomEditor): string {

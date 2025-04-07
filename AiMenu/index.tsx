@@ -1,0 +1,102 @@
+import {Boot, IDomEditor, IModalMenu, SlateNode} from '@wangeditor-next/editor';
+import {FC, memo} from 'react';
+import ReactDOM from 'react-dom/client';
+import AI from './AI';
+import styles from './index.module.less';
+import type {AIRef, Selection} from './AI';
+
+class Menu implements IModalMenu {
+  public title: string;
+  public tag: string;
+  public showModal: boolean;
+  public modalWidth: number;
+  public iconSvg: string;
+  public AIRef: AIRef | undefined;
+  public selection: Selection | null = null;
+  public scroller: HTMLElement = null as any;
+
+  constructor() {
+    this.title = 'AI创作';
+    this.iconSvg =
+      '<svg width="11.838465690612793" height="17.425655364990234" viewBox="0 0 11.838465690612793 17.425655364990234"><defs><linearGradient x1="0.5" y1="0" x2="0.5" y2="1" id="master_svg0_7_6021"><stop offset="29.285714030265808%" stop-color="#BF72FF" stop-opacity="1"/><stop offset="100%" stop-color="#1B68FC" stop-opacity="1"/></linearGradient></defs><g><path fill="#1b68fc" d="M4.78906,3.255C5.68489,3.44417,6.40406,3.81,6.94739,4.3525C7.48906,4.89417,7.85573,5.61417,8.04406,6.51C8.29406,5.67417,8.68989,4.985,9.2324,4.44333C9.77489,3.90083,10.4641,3.505,11.2991,3.255C10.4991,3.03417,9.82906,2.65333,9.28656,2.11083C8.7449,1.56833,8.3624,0.864167,8.1424,0C7.88739,0.83,7.48906,1.51667,6.94656,2.05833C6.4049,2.60083,5.68489,3,4.78906,3.255ZM0.797392,6.42C1.48989,6.56667,2.04739,6.85,2.46656,7.27C2.88656,7.68917,3.16906,8.245,3.31656,8.93917C3.50906,8.2925,3.81656,7.76,4.23573,7.33917C4.65489,6.92,5.18823,6.61417,5.83573,6.42C5.16573,6.25,4.62073,5.955,4.20239,5.535C3.78156,5.115,3.48656,4.57083,3.31573,3.90167C3.11823,4.54333,2.80989,5.075,2.39073,5.49417C1.97073,5.91417,1.43906,6.2225,0.797392,6.42ZM3.28323,5.28833L3.35489,5.39833C3.62274,5.78101,3.95555,6.11382,4.33823,6.38167L4.43989,6.44833L4.42823,6.45667C4.28739,6.555,4.15323,6.66083,4.02656,6.77333L3.84073,6.94833C3.72034,7.0686,3.60735,7.19605,3.50239,7.33L3.37156,7.505L3.27989,7.36417C3.19755,7.24692,3.10851,7.13451,3.01323,7.0275L2.86489,6.87167C2.7133,6.71964,2.5488,6.58106,2.37323,6.4575L2.22406,6.36L2.40156,6.22667C2.46823,6.175,2.53323,6.12,2.59656,6.06417L2.78156,5.88917C2.96211,5.70879,3.12661,5.51306,3.27323,5.30417L3.28323,5.28833ZM11.5924,6.36083L11.2207,5.98917C10.8989,5.66735,10.3784,5.66327,10.0516,5.98L0.253225,15.4633C-0.0811154,15.7875,-0.084869,16.3228,0.244892,16.6517L0.774059,17.1817C1.09948,17.507,1.62698,17.507,1.95239,17.1817L11.5941,7.54C11.9199,7.21449,11.9199,6.68635,11.5941,6.36083L11.5924,6.36083Z" /></g></svg>';
+
+    this.tag = 'button';
+    this.showModal = true;
+    this.modalWidth = 200;
+  }
+  isActive(editor: IDomEditor): boolean {
+    return false;
+  }
+  getValue(editor: IDomEditor): string | boolean {
+    return '';
+  }
+  isDisabled(editor: IDomEditor): boolean {
+    return false;
+  }
+  // 点击菜单时触发的函数
+  exec(editor: IDomEditor, value: string | boolean) {
+    //console.log()
+    //editor.insertText('/');
+  }
+  getModalPositionNode(editor: IDomEditor): SlateNode | null {
+    return null; // modal 依据选区定位
+  }
+
+  // 定义 modal 内部的 DOM Element
+  getModalContentElem(editor: IDomEditor): HTMLElement {
+    const pos = editor.getSelectionPosition() || {left: '0', top: '0'};
+    this.selection = {pos: {left: parseInt(pos.left || '0'), top: parseInt(pos.top || '0'), bottom: parseInt(pos.bottom || '0')}};
+    const container = document.getElementById('_ai_modal')!;
+    if (!this.AIRef) {
+      console.log('initAI...');
+      const root = ReactDOM.createRoot(container);
+      root.render(<AI editor={editor} initSelection={this.selection} onCreated={(ref) => (this.AIRef = ref)} />);
+      editor.on('modalOrPanelHide', this.onClose);
+      this.scroller = editor.getEditableContainer().parentNode!.parentNode as HTMLElement;
+    } else {
+      this.AIRef.setSelection(this.selection);
+    }
+    this.scroller.style.overflow = 'hidden';
+    return container;
+  }
+  onClose = () => {
+    this.selection = null;
+    this.AIRef!.setSelection(this.selection);
+    this.scroller.style.overflow = 'auto';
+  };
+}
+
+const aiMenu1Conf = {
+  key: '_ai',
+  factory() {
+    return new Menu();
+  },
+};
+
+Boot.registerMenu(aiMenu1Conf);
+
+function withAiModal<T extends IDomEditor>(editor: T): T {
+  const {insertText} = editor; // 获取当前 editor API
+  const newEditor = editor;
+
+  newEditor.insertText = (t) => {
+    if (t === '/') {
+      setTimeout(() => {
+        const menuButton = document.querySelector('button[data-menu-key="_ai"]') as any;
+        menuButton.click();
+      });
+    }
+    insertText(t);
+  };
+
+  return newEditor;
+}
+Boot.registerPlugin(withAiModal);
+
+interface Props {}
+
+const Component: FC<Props> = () => {
+  return <div id="_ai_modal" className={styles.root}></div>;
+};
+
+export default memo(Component);
