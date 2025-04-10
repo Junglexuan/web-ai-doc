@@ -13,7 +13,7 @@ export function dslToHtml(dsl: any): string {
 
 export function getSelectionContext(editor: IDomEditor): string {
   if (editor.selection) {
-    if (editor.selection.anchor === editor.selection.focus) {
+    if (JSON.stringify(editor.selection.anchor) === JSON.stringify(editor.selection.focus)) {
       const [curNode] = SlateEditor.node(editor, editor.selection);
       const dsl: any[] = editor.children;
       const text: string[] = [];

@@ -12,11 +12,17 @@ interface Props {
 }
 
 const Component: FC<Props> = ({aiRef, onRunningStateChange}) => {
-  const hooks = useAIDialog(aiRef, onRunningStateChange, AiAPI.continueWrite, {continuedType: 'paragraph'}, true);
+  const hooks = useAIDialog(aiRef, onRunningStateChange, AiAPI.createFullText);
 
   return (
-    <AIBase title="继续写" hooks={hooks}>
-      <Input ref={hooks.inputRef} onPressEnter={hooks.onPromptSubmit} placeholder="您可以输入“继续写”的各种要求..." variant="borderless" />
+    <AIBase title="生成全文" hooks={hooks}>
+      <Input
+        ref={hooks.inputRef}
+        onPressEnter={hooks.onPromptSubmit}
+        placeholder="请描述要“生成全文”的主题和各种要求..."
+        defaultValue={`围绕 “${aiRef.getTitle()}” 写一篇文章`}
+        variant="borderless"
+      />
     </AIBase>
   );
 };
