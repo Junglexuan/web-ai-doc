@@ -1,11 +1,13 @@
-import {Boot, IDomEditor, IModalMenu, SlateNode} from '@wangeditor-next/editor';
-import {FC, memo, useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {IDomEditor} from '@wangeditor-next/editor';
+import {FC, memo, useEffect, useMemo, useState} from 'react';
 import {message, useEvent} from '@/utils/tools';
+import AIAsk from '../AIAsk';
 import AIContinue from '../AIContinue';
 import AICreate from '../AICreate';
 import AIDialog from '../AIDialog';
-import AIMenu, {MenuHeight, applicationTemplates, officialTemplates} from '../AIMenu';
+import AIMenu, {MenuHeight, applicationTemplates, menuKeysMap, officialTemplates} from '../AIMenu';
 import AIOutline from '../AIOutline';
+import AIStylize from '../AIStylize';
 import AITemplate from '../AITemplate';
 import {RunningState} from '../api';
 import styles from './index.module.less';
@@ -13,6 +15,7 @@ import styles from './index.module.less';
 export interface ISelection {
   pos: {x: number; y: number};
   context: string;
+  content: string;
 }
 
 export interface IAIRef {
@@ -23,6 +26,7 @@ export interface IAIRef {
   getTitle: () => string;
   getDocId: () => string;
   getContext: () => string;
+  focusEditor: () => void;
 }
 
 interface Props {
@@ -75,7 +79,11 @@ const Component: FC<Props> = ({onCreated, editor}) => {
   });
 
   const getContext = useEvent(() => {
-    return selection!.context;
+    return selection!.context.replace(/\/$/g, '');
+  });
+
+  const focusEditor = useEvent(() => {
+    editor.focus();
   });
 
   const {menuPos, dialogPos} = useMemo(() => {
@@ -97,7 +105,7 @@ const Component: FC<Props> = ({onCreated, editor}) => {
   }, [selection]);
 
   const aiRef: IAIRef = useMemo(() => {
-    return {openMenu, closeMenu, menuIsOpen, insertHtmlByAI, getTitle, getDocId, getContext};
+    return {openMenu, closeMenu, menuIsOpen, insertHtmlByAI, getTitle, getDocId, getContext, focusEditor};
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -123,23 +131,49 @@ const Component: FC<Props> = ({onCreated, editor}) => {
         </AIDialog>
       );
     }
-    if (officialTemplates.some((item) => item.key === showDialog)) {
+    if (showDialog === 'T') {
+      return (
+        <AIDialog top={dialogPos.top} footer={true}>
+          <AIAsk aiRef={aiRef} onRunningStateChange={setRunningState} />
+        </AIDialog>
+      );
+    }
+    if (showDialog === 'J' || showDialog === 'Z' || showDialog === 'F') {
+      return (
+        <AIDialog top={dialogPos.top} footer={true}>
+          <AIStylize
+            title={showDialog === 'J' ? '精简内容' : showDialog === 'Z' ? '生成摘要' : '丰富内容'}
+            aiRef={aiRef}
+            onRunningStateChange={setRunningState}
+          />
+        </AIDialog>
+      );
+    }
+    if (menuKeysMap.styles[showDialog || '']) {
+      return (
+        <AIDialog top={dialogPos.top} footer={true}>
+          <AIStylize title={menuKeysMap.styles[showDialog || '']} aiRef={aiRef} onRunningStateChange={setRunningState} />
+        </AIDialog>
+      );
+    }
+    if (menuKeysMap.official[showDialog || '']) {
       return (
         <AIDialog top={dialogPos.top} footer={true}>
           <AITemplate templateOptions={officialTemplates} template={showDialog!} aiRef={aiRef} onRunningStateChange={setRunningState} />
         </AIDialog>
       );
     }
-    if (applicationTemplates.some((item) => item.key === showDialog)) {
+    if (menuKeysMap.application[showDialog || '']) {
       return (
         <AIDialog top={dialogPos.top} footer={true}>
           <AITemplate templateOptions={applicationTemplates} template={showDialog!} aiRef={aiRef} onRunningStateChange={setRunningState} />
         </AIDialog>
       );
     }
-    return <AIMenu menuPos={menuPos} onSelect={setShowDialog} onCancel={closeMenu} />;
+
+    return <AIMenu menuPos={menuPos} onSelect={setShowDialog} onCancel={closeMenu} hasSelection={!!selection?.content} />;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dialogPos.top, menuPos, showDialog]);
+  }, [dialogPos.top, menuPos, showDialog, selection]);
 
   useEffect(() => {
     onCreated(aiRef);

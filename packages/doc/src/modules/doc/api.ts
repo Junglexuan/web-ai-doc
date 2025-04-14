@@ -6,31 +6,31 @@ export const DocAPI = {
   createDoc({contents, folder}: {contents: string; folder: string}): Promise<{id: string}> {
     contents = contents || '<p style="line-height: 1.5;"><span style="font-size: 16px; font-family: 微软雅黑;"></span></p>';
     return request
-      .post(`/dream/dream/pen/article/save`, {title: `新建文档 ${dayjs().format('YYYY-MM-DD HH:mm:ss')}`, articleDsl: '', contents, folder})
+      .post(`/dream/pen/article/save`, {title: `新建文档 ${dayjs().format('YYYY-MM-DD HH:mm:ss')}`, articleDsl: '', contents, folder})
       .then((res) => res.data.data);
   },
   createDir({folder}: {folder: string}): Promise<{id: string}> {
     return request
-      .post(`/dream/dream/pen/dFolder/save`, {folderName: `新建文件夹 ${dayjs().format('YYYY-MM-DD HH:mm:ss')}`, parent: folder})
+      .post(`/dream/pen/dFolder/save`, {folderName: `新建文件夹 ${dayjs().format('YYYY-MM-DD HH:mm:ss')}`, parent: folder})
       .then((res) => res.data.data);
   },
   saveDSL(id: string, dsl: string, html: string): Promise<void> {
-    return request.post(`/dream/dream/pen/article/save`, {id, contents: html, articleDsl: dsl});
+    return request.post(`/dream/pen/article/save`, {id, contents: html, articleDsl: dsl});
   },
   updateDocName(id: string, title: string): Promise<void> {
-    return request.post(`/dream/dream/pen/article/save`, {id, title});
+    return request.post(`/dream/pen/article/save`, {id, title});
   },
   updateDirName(id: string, folderName: string): Promise<void> {
-    return request.post(`/dream/dream/pen/dFolder/save`, {id, folderName});
+    return request.post(`/dream/pen/dFolder/save`, {id, folderName});
   },
   deleteDoc(id: string): Promise<void> {
-    return request.post(`/dream/dream/pen/article/delete/${id}`);
+    return request.post(`/dream/pen/article/delete/${id}`);
   },
   deleteDir(id: string): Promise<void> {
     return Promise.resolve();
   },
   getDoc({id}: {id: string}): Promise<ItemDetail> {
-    return request.get(`/dream/dream/pen/article/get`, {params: {id}}).then((docRes) => {
+    return request.get(`/dream/pen/article/get`, {params: {id}}).then((docRes) => {
       const item: ItemDetail = docRes.data.data;
       return item;
     });
@@ -38,8 +38,8 @@ export const DocAPI = {
   getList(search: ListSearch): Promise<ListResult> {
     const {id = '0'} = search;
     return Promise.all([
-      request.get(`/dream/dream/pen/dFolder/list`, {params: {id}}),
-      request.get(`/dream/dream/pen/dFolder/level`, {params: {id}}),
+      request.get(`/dream/pen/dFolder/list`, {params: {id}}),
+      request.get(`/dream/pen/dFolder/level`, {params: {id}}),
     ]).then(([listRes, levelRes]) => {
       const list: ListItem[] = listRes.data.data || [];
       return {

@@ -55,6 +55,7 @@ export function useAIDialog(
       onDone: () => {
         setRunningState('Fulfilled');
         onRunningStateChange('Fulfilled');
+        aiRef.focusEditor();
       },
     });
     // .then(

@@ -1,6 +1,5 @@
 import {Input} from 'antd';
 import {FC, memo} from 'react';
-//import AdjustIcon from '@/assets/images/Adjust';
 import AIBase from '../AIBase';
 import AiAPI, {RunningState} from '../api';
 import {useAIDialog} from '../hooks';
@@ -12,11 +11,11 @@ interface Props {
 }
 
 const Component: FC<Props> = ({aiRef, onRunningStateChange}) => {
-  const hooks = useAIDialog(aiRef, onRunningStateChange, AiAPI.continueWrite, {}, true);
+  const hooks = useAIDialog(aiRef, onRunningStateChange, AiAPI.ask);
 
   return (
-    <AIBase title="继续写" hooks={hooks}>
-      <Input ref={hooks.inputRef} onPressEnter={hooks.onPromptSubmit} placeholder="您可以输入“继续写”的各种要求..." variant="borderless" />
+    <AIBase title="提问" hooks={hooks}>
+      <Input ref={hooks.inputRef} onPressEnter={hooks.onPromptSubmit} placeholder="请输入问题..." variant="borderless" />
     </AIBase>
   );
 };

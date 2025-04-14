@@ -11,7 +11,7 @@ export function dslToHtml(dsl: any): string {
   }
 }
 
-export function getSelectionContext(editor: IDomEditor): string {
+export function getSelectionContext(editor: IDomEditor): {context: string; content: string} {
   if (editor.selection) {
     if (JSON.stringify(editor.selection.anchor) === JSON.stringify(editor.selection.focus)) {
       const [curNode] = SlateEditor.node(editor, editor.selection);
@@ -24,10 +24,10 @@ export function getSelectionContext(editor: IDomEditor): string {
         return node === curNode;
       });
       //SlateEditor.above(editor, {at: editor.selection, match: (n) => SlateEditor.isBlock(editor, n) || SlateEditor.isEditor(n)});
-      return text.join('');
+      return {context: text.join(''), content: ''};
     } else {
-      return editor.getSelectionText();
+      return {context: editor.getSelectionText(), content: editor.getSelectionText()};
     }
   }
-  return '';
+  return {context: '', content: ''};
 }

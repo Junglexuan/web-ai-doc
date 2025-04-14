@@ -2,13 +2,12 @@ import {
   DatabaseOutlined,
   EditOutlined,
   FileTextOutlined,
+  FontSizeOutlined,
   LinkOutlined,
   MenuUnfoldOutlined,
   MessageOutlined,
   PictureOutlined,
   ReadOutlined,
-  TagOutlined,
-  WalletOutlined,
 } from '@ant-design/icons';
 import {Menu, MenuProps} from 'antd';
 import {FC, memo, useCallback, useEffect, useRef, useState} from 'react';
@@ -16,7 +15,7 @@ import {useEvent} from '@/utils/tools';
 import AiIcon from '../AIcon';
 import styles from './index.module.less';
 
-export const MenuHeight = 560;
+export const MenuHeight = 526;
 
 type MenuItem = any;
 
@@ -326,7 +325,7 @@ export const stylesTemplates: MenuItem[] = [
   },
 ];
 
-const items: MenuItem[] = [
+const originItems: MenuItem[] = [
   {
     key: '0',
     label: '辅助创作:',
@@ -362,28 +361,28 @@ const items: MenuItem[] = [
       </span>
     ),
   },
-  {
-    key: 'G',
-    icon: <WalletOutlined />,
-    title: '法定公文',
-    label: (
-      <span>
-        <sub>(G)</sub>法定公文
-      </span>
-    ),
-    children: officialTemplates,
-  },
-  {
-    key: 'Y',
-    icon: <TagOutlined />,
-    title: '规范应用',
-    label: (
-      <span>
-        <sub>(Y)</sub>规范应用
-      </span>
-    ),
-    children: applicationTemplates,
-  },
+  // {
+  //   key: 'G',
+  //   icon: <WalletOutlined />,
+  //   title: '法定公文',
+  //   label: (
+  //     <span>
+  //       <sub>(G)</sub>法定公文
+  //     </span>
+  //   ),
+  //   children: officialTemplates,
+  // },
+  // {
+  //   key: 'Y',
+  //   icon: <TagOutlined />,
+  //   title: '规范应用',
+  //   label: (
+  //     <span>
+  //       <sub>(Y)</sub>规范应用
+  //     </span>
+  //   ),
+  //   children: applicationTemplates,
+  // },
   {
     key: 'R',
     icon: (
@@ -406,6 +405,16 @@ const items: MenuItem[] = [
     label: (
       <span>
         <sub>(J)</sub>精简内容
+      </span>
+    ),
+  },
+  {
+    key: 'F',
+    icon: <FontSizeOutlined />,
+    title: '丰富内容',
+    label: (
+      <span>
+        <sub>(F)</sub>丰富内容
       </span>
     ),
   },
@@ -467,7 +476,7 @@ const items: MenuItem[] = [
 
 const itemsMap = (function () {
   const map: {[shortcut: string]: MenuItem} = {};
-  items
+  originItems
     .concat(officialTemplates)
     .concat(applicationTemplates)
     .concat(stylesTemplates)
@@ -475,6 +484,27 @@ const itemsMap = (function () {
       const key = item!.key as string;
       map[key] = item;
     });
+  return map;
+})();
+
+export const menuKeysMap = (function () {
+  const map: {styles: {[key: string]: string}; official: {[key: string]: string}; application: {[key: string]: string}} = {
+    styles: {},
+    official: {},
+    application: {},
+  };
+  stylesTemplates.forEach((item) => {
+    const key = item!.key as string;
+    map.styles[key] = item.title;
+  });
+  officialTemplates.forEach((item) => {
+    const key = item!.key as string;
+    map.official[key] = item.title;
+  });
+  applicationTemplates.forEach((item) => {
+    const key = item!.key as string;
+    map.application[key] = item.title;
+  });
   return map;
 })();
 
@@ -505,13 +535,28 @@ interface Props {
   };
   onSelect: (key: string) => void;
   onCancel: () => void;
+  hasSelection?: boolean;
 }
 
-const Component: FC<Props> = ({menuPos, onSelect, onCancel}) => {
+const Component: FC<Props> = ({menuPos, onSelect, onCancel, hasSelection}) => {
   const menuInput = useRef<HTMLInputElement>(null as any);
   const menuComp = useRef<any>(null as any);
   const [openKeys, setOpenKeys] = useState<string[]>();
   const [selectedKeys, setSelectedKeys] = useState<string[] | undefined>();
+  const [items] = useState(() => {
+    if (!hasSelection) {
+      itemsMap['R'].disabled = true;
+      itemsMap['J'].disabled = true;
+      itemsMap['F'].disabled = true;
+      itemsMap['Z'].disabled = true;
+    } else {
+      itemsMap['R'].disabled = undefined;
+      itemsMap['J'].disabled = undefined;
+      itemsMap['F'].disabled = undefined;
+      itemsMap['Z'].disabled = undefined;
+    }
+    return originItems;
+  });
 
   const onKeyDown = useEvent((e: any) => {
     const {code} = e;
@@ -594,6 +639,7 @@ const Component: FC<Props> = ({menuPos, onSelect, onCancel}) => {
 
   useEffect(() => {
     menuInput.current.focus();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

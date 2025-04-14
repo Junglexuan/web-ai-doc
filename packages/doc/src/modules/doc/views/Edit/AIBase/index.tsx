@@ -1,6 +1,6 @@
 import {CheckOutlined, DeleteOutlined, EditOutlined, PauseCircleOutlined, QuestionCircleFilled, SyncOutlined} from '@ant-design/icons';
 import {Button, Space, Spin} from 'antd';
-import {FC, ReactElement, cloneElement, memo} from 'react';
+import {FC, ReactElement, cloneElement, memo, useEffect} from 'react';
 import styles from '../aiDialog.module.less';
 import ColorAIcon from '../ColorAIcon';
 import EnterIcon from '../EnterIcon';
@@ -10,10 +10,18 @@ interface Props {
   title: string;
   children: ReactElement;
   hooks: AIDialogHooks;
+  automatic?: boolean;
 }
 
-const Component: FC<Props> = ({title, children, hooks}) => {
+const Component: FC<Props> = ({title, children, hooks, automatic}) => {
   const {onPromptSubmit, inputRef, fragment, fragmentRef, runningState, onRedo, onKeep, onStop, onInsert} = hooks;
+
+  useEffect(() => {
+    if (automatic) {
+      onPromptSubmit();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className={styles.common + ' ' + runningState}>

@@ -9,6 +9,7 @@ import AiIcon from '../ColorAIcon';
 import {getSelectionContext} from '../utils';
 import styles from './index.module.less';
 import type {IAIRef, ISelection} from '../AILayer';
+import './registerMenu';
 
 function withAiModal<T extends IDomEditor>(editor: T): T {
   const {insertText} = editor; // 获取当前 editor API
@@ -54,7 +55,7 @@ const Component: FC<Props> = ({editor}) => {
       right: parseInt(pos.right || '0'),
       bottom: parseInt(pos.bottom || '0'),
     };
-    console.log(posNum);
+    //console.log(posNum);
     const editorContainer = editor.getEditableContainer() as HTMLElement;
     const containerRect = editorContainer.getBoundingClientRect();
     const selectionPos: ISelection['pos'] = {x: 0, y: 0};
@@ -69,8 +70,7 @@ const Component: FC<Props> = ({editor}) => {
     } else if (posNum.bottom) {
       selectionPos.y = containerRect.height - posNum.bottom + containerRect.top + 35;
     }
-    const context = getSelectionContext(editor);
-    aiRef?.openMenu({pos: selectionPos, context});
+    aiRef?.openMenu({pos: selectionPos, ...getSelectionContext(editor)});
   });
 
   const closeMenu = useEvent(() => aiRef?.closeMenu());
