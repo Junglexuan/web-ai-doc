@@ -10,9 +10,9 @@ export interface AIDialogHooks {
   inputRef: MutableRefObject<any>;
   requestRef: MutableRefObject<AbortController | undefined>;
   aiRef: IAIRef;
-  onPromptSubmit: () => void;
+  onPromptSubmit: (data?: any) => void;
   onRedo: () => void;
-  onLoop: () => void;
+  onKeep: () => void;
   onStop: () => void;
   onInsert: () => void;
 }
@@ -30,15 +30,15 @@ export function useAIDialog(
   const fragmentRef = useRef<HTMLDivElement>();
   const requestRef = useRef<AbortController>();
 
-  const onPromptSubmit = useEvent(() => {
-    const text = inputRef.current.input.value;
+  const onPromptSubmit = useEvent(({keep}: {keep?: boolean} = {}) => {
     setRunningState('Pending');
     onRunningStateChange('Pending');
+    const text = inputRef.current.input.value;
     requestRef.current = onRequest({
       args: {
         docId: aiRef.getDocId(),
-        prompt: text,
-        context: !withContext ? '' : fragment ? aiRef.getContext() + fragmentRef.current!.innerText : aiRef.getContext(),
+        prompt: keep ? '继续写' : text,
+        context: !withContext ? '' : aiRef.getContext(),
         ...args,
       },
       onMessage: (html) => {
@@ -74,14 +74,16 @@ export function useAIDialog(
     setTimeout(onPromptSubmit);
   }, [onPromptSubmit]);
 
-  const onLoop = useCallback(() => {
-    onPromptSubmit();
+  const onKeep = useCallback(() => {
+    onPromptSubmit({keep: true});
   }, [onPromptSubmit]);
 
   const onStop = useEvent(() => {
     requestRef.current?.abort();
-    setRunningState('Fulfilled');
-    onRunningStateChange('Fulfilled');
+    setTimeout(() => {
+      setRunningState('Fulfilled');
+      onRunningStateChange('Fulfilled');
+    });
   });
 
   const onInsert = useEvent(() => {
@@ -93,5 +95,5 @@ export function useAIDialog(
     inputRef.current.input.focus();
   }, []);
 
-  return {aiRef, onPromptSubmit, onRedo, onLoop, onStop, onInsert, runningState, fragment, fragmentRef, inputRef, requestRef};
+  return {aiRef, onPromptSubmit, onRedo, onKeep, onStop, onInsert, runningState, fragment, fragmentRef, inputRef, requestRef};
 }

@@ -58,15 +58,10 @@ const Component: FC<Props> = ({onCreated, editor}) => {
   });
 
   const insertHtmlByAI = useEvent((html: string) => {
-    const domSelection = document.getSelection();
-    const curText = domSelection?.anchorNode?.textContent || '';
-    const indexText = domSelection?.anchorOffset || 0;
-    console.log(curText, indexText);
-    if (curText.charAt(indexText - 1) === '/') {
+    if (selection?.context.endsWith('/')) {
       editor.deleteBackward('character');
     }
     editor.dangerouslyInsertHtml(html);
-    //return editor.dangerouslyInsertHtml(html);
   });
 
   const getTitle = useEvent(() => {

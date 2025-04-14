@@ -13,7 +13,7 @@ interface Props {
 }
 
 const Component: FC<Props> = ({title, children, hooks}) => {
-  const {onPromptSubmit, inputRef, fragment, fragmentRef, runningState, onRedo, onLoop, onStop, onInsert} = hooks;
+  const {onPromptSubmit, inputRef, fragment, fragmentRef, runningState, onRedo, onKeep, onStop, onInsert} = hooks;
 
   return (
     <div className={styles.common + ' ' + runningState}>
@@ -38,7 +38,7 @@ const Component: FC<Props> = ({title, children, hooks}) => {
           <Button type="text" icon={<SyncOutlined />} onClick={onRedo}>
             换一换
           </Button>
-          <Button type="text" icon={<EditOutlined />} onClick={onLoop}>
+          <Button type="text" icon={<EditOutlined />} onClick={onKeep}>
             继续写
           </Button>
           <Button type="text" icon={<DeleteOutlined />} onClick={hooks.aiRef.closeMenu}>

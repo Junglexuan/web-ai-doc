@@ -12,6 +12,18 @@ const Component: FC<Props> = ({editor}) => {
   const [show, setShow] = useState(false);
   const [headers, setHeaders] = useState<{id: string; type: string; text: string}[]>([]);
 
+  const onClick = useEvent((e: any) => {
+    if (e.target.tagName !== 'LI') return;
+    e.preventDefault();
+    const id = e.target.getAttribute('data-id');
+    const dom = document.getElementById(id);
+    console.log(dom);
+    if (dom) {
+      dom.scrollIntoView();
+    }
+    //editor.scrollToElem(id);
+  });
+
   useEffect(() => {
     editor.on('change', () => {
       const headers = editor.getElemsByTypePrefix('header') || [];
@@ -24,18 +36,21 @@ const Component: FC<Props> = ({editor}) => {
       );
     });
   }, [editor]);
+
   return (
     <>
+      <Button className={styles.button} icon={<PicRightOutlined />} type="text" onClick={() => setShow(!show)} />
+      <div className={styles.mask + (show ? ' on' : '')} onClick={() => setShow(!show)}></div>
       <div className={styles.panel + (show ? ' on' : '')}>
         <div className="hd">
           <span>大纲</span>
           <Button size="small" icon={<CloseOutlined />} type="text" onClick={() => setShow(!show)} />
         </div>
         <div className="bd">
-          <ul>
+          <ul onClick={onClick}>
             {headers.map((item) => {
               return (
-                <li key={item.id} id={item.id} data-type={item.type}>
+                <li key={item.id} data-id={item.id} data-type={item.type}>
                   {item.text}
                 </li>
               );
@@ -43,7 +58,6 @@ const Component: FC<Props> = ({editor}) => {
           </ul>
         </div>
       </div>
-      <Button className={styles.button + (show ? ' on' : '')} icon={<PicRightOutlined />} type="text" onClick={() => setShow(!show)} />
     </>
   );
 };

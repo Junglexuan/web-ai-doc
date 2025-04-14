@@ -44,9 +44,6 @@ export interface AIRequest {
 //     console.error('Fetch error:', error);
 //   });
 
-const controller = new AbortController();
-const {signal} = controller;
-
 function decodeMessage(str: string): string {
   let result: any = [];
   if (str) {
@@ -60,6 +57,8 @@ function decodeMessage(str: string): string {
 }
 
 const continueWrite: AIRequest = ({args, onMessage, onError, onDone}) => {
+  const controller = new AbortController();
+  const {signal} = controller;
   const {continuedType, docId, prompt, context} = args;
   fetchEventSource('http://331qy963dj35.vicp.fun:15537/dream/pen/ai/writer/continued', {
     method: 'POST',
@@ -79,13 +78,16 @@ const continueWrite: AIRequest = ({args, onMessage, onError, onDone}) => {
 };
 
 const createFullText: AIRequest = ({args, onMessage, onError, onDone}) => {
+  const controller = new AbortController();
+  const {signal} = controller;
   const {docId, prompt} = args;
-  fetchEventSource('http://331qy963dj35.vicp.fun:15537/dream/pen/ai/writer/continued', {
+  //fetchEventSource('http://331qy963dj35.vicp.fun:15537/dream/pen/ai/writer/fullText', {
+  fetchEventSource('http://331qy963dj35.vicp.fun:15537/dream/pen/ai/writer/test', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({type: 'continued', conversation_id: docId, prompt}),
+    body: JSON.stringify({type: 'fullText', conversation_id: docId, prompt}),
     signal,
     onmessage: (ev) => onMessage(decodeMessage(ev.data)),
     onerror: (e) => {
@@ -98,13 +100,15 @@ const createFullText: AIRequest = ({args, onMessage, onError, onDone}) => {
 };
 
 const createOutline: AIRequest = ({args, onMessage, onError, onDone}) => {
-  const {docId, content} = args;
+  const controller = new AbortController();
+  const {signal} = controller;
+  const {docId, prompt} = args;
   fetchEventSource('http://331qy963dj35.vicp.fun:15537/dream/pen/ai/writer/outline', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({type: 'outline', conversation_id: docId, prompt: content}),
+    body: JSON.stringify({type: 'outline', conversation_id: docId, prompt}),
     signal,
     onmessage(ev) {
       onMessage(decodeMessage(ev.data));
@@ -116,9 +120,6 @@ const createOutline: AIRequest = ({args, onMessage, onError, onDone}) => {
 };
 
 export const AiAPI = {
-  stop(): void {
-    controller.abort();
-  },
   continueWrite,
   createFullText,
   createOutline,

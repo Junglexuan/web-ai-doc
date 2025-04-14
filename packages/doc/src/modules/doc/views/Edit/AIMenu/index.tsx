@@ -511,7 +511,7 @@ const Component: FC<Props> = ({menuPos, onSelect, onCancel}) => {
   const menuInput = useRef<HTMLInputElement>(null as any);
   const menuComp = useRef<any>(null as any);
   const [openKeys, setOpenKeys] = useState<string[]>();
-  const [selectedKeys, setSelectedKeys] = useState<string[] | undefined>(['C']);
+  const [selectedKeys, setSelectedKeys] = useState<string[] | undefined>();
 
   const onKeyDown = useEvent((e: any) => {
     const {code} = e;
@@ -587,8 +587,9 @@ const Component: FC<Props> = ({menuPos, onSelect, onCancel}) => {
     ({key, selectedKeys}: any) => {
       console.log('onMenuSelect', key, selectedKeys);
       setSelectedKeys(selectedKeys);
+      onSelect(key);
     },
-    [setSelectedKeys]
+    [setSelectedKeys, onSelect]
   );
 
   useEffect(() => {
@@ -606,6 +607,7 @@ const Component: FC<Props> = ({menuPos, onSelect, onCancel}) => {
         onOpenChange={setOpenKeys}
         selectedKeys={selectedKeys}
         onSelect={onMenuSelect}
+        rootClassName={styles.menuItem}
         //onClick={onMenuClick}
       />
     </div>

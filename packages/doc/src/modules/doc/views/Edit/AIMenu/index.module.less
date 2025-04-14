@@ -1,23 +1,4 @@
 :global {
-  .ant-menu-sub {
-    max-height: calc(100vh - 600px) !important;
-  }
-
-  .ant-menu-title-content,
-  .ant-menu-submenu-title {
-    sub {
-      color: #999;
-      vertical-align: middle;
-    }
-  }
-
-  .ant-menu-item-selected,
-  .ant-menu-submenu-selected {
-    sub {
-      color: #1b68fc !important;
-    }
-  }
-
   :local(.menu) {
     position: fixed;
     top: 0;
@@ -53,6 +34,37 @@
       color: #999;
       color: #1b68fc;
       border: none;
+    }
+  }
+
+  :local(.menuItem) {
+    .ant-menu-sub {
+      max-height: calc(100vh - 600px) !important;
+    }
+
+    .ant-menu-title-content,
+    .ant-menu-submenu-title {
+      sub {
+        color: #999;
+        vertical-align: middle;
+      }
+    }
+
+    .ant-menu-item-selected,
+    .ant-menu-submenu-selected {
+      sub {
+        color: #1b68fc !important;
+      }
+    }
+
+    .ant-menu-item:not(.ant-menu-item-selected):hover {
+      color: #1b68fc !important;
+      background-color: #fff !important;
+    }
+
+    .ant-menu-submenu-title:hover {
+      color: #1b68fc !important;
+      background-color: #fff !important;
     }
   }
 }
