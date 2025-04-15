@@ -1,5 +1,5 @@
-import {FC, MutableRefObject, memo, useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import {useEvent} from '@/utils/tools';
+import {MutableRefObject, useCallback, useEffect, useRef, useState} from 'react';
+import {message, useEvent} from '@/utils/tools';
 import {AIRequest, RunningState} from './api';
 import type {IAIRef} from './AILayer';
 
@@ -22,7 +22,8 @@ export function useAIDialog(
   onRunningStateChange: (runningState: RunningState) => void,
   onRequest: AIRequest,
   args?: {[key: string]: string},
-  withContext?: boolean
+  withContext?: boolean,
+  required?: boolean
 ): AIDialogHooks {
   const [runningState, setRunningState] = useState<RunningState>('');
   const inputRef = useRef<any>();
@@ -31,9 +32,14 @@ export function useAIDialog(
   const requestRef = useRef<AbortController>();
 
   const onPromptSubmit = useEvent(({keep}: {keep?: boolean} = {}) => {
+    const text = inputRef.current.input.value;
+    if (required && !text) {
+      message.error('请输入...');
+      return;
+    }
     setRunningState('Pending');
     onRunningStateChange('Pending');
-    const text = inputRef.current.input.value;
+
     requestRef.current = onRequest({
       args: {
         docId: aiRef.getDocId(),

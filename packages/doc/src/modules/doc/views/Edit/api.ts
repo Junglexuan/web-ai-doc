@@ -127,19 +127,23 @@ const stylize: AIRequest = ({args, onMessage, onError, onDone}) => {
   const controller = new AbortController();
   const {signal} = controller;
   const {docId, prompt, context} = args;
-  const req = {
-    url: '/dream/pen/ai/writer/continued',
-    body: {type: '', conversation_id: docId, prompt: context},
+  const req: {url: string; body: {type: string; conversation_id: string; content: string; tone?: string}} = {
+    url: '',
+    body: {type: '', conversation_id: docId, content: context},
   };
   if (prompt === '精简内容') {
     req.url = '/dream/pen/ai/writer/simplify';
     req.body.type = 'simplify';
   } else if (prompt === '生成摘要') {
-    req.url = '/dream/pen/ai/writer/summary';
-    req.body.type = 'summary';
+    req.url = '/dream/pen/ai/writer/excerpt';
+    req.body.type = 'excerpt';
   } else if (prompt === '丰富内容') {
-    req.url = '/dream/pen/ai/writer/more';
-    req.body.type = 'summary';
+    req.url = '/dream/pen/ai/writer/enrich';
+    req.body.type = 'enrich';
+  } else {
+    req.url = '/dream/pen/ai/writer/polish';
+    req.body.type = 'polish';
+    req.body.tone = prompt;
   }
   fetchEventSource(replaceBaseUrl(req.url), {
     method: 'POST',
@@ -162,12 +166,12 @@ const ask: AIRequest = ({args, onMessage, onError, onDone}) => {
   const controller = new AbortController();
   const {signal} = controller;
   const {docId, prompt} = args;
-  fetchEventSource(replaceBaseUrl('/dream/pen/ai/writer/customize'), {
+  fetchEventSource(replaceBaseUrl('/dream/pen/ai/writer/question'), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({type: 'customize', conversation_id: docId, prompt}),
+    body: JSON.stringify({type: 'question', conversation_id: docId, prompt}),
     signal,
     onmessage(ev) {
       onMessage(decodeMessage(ev.data));
