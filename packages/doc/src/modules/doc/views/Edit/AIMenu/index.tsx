@@ -514,6 +514,9 @@ function searchShortcut(key: string) {
   const key2 = key.substring(2, key.length).toUpperCase();
   const item1 = itemsMap[key1];
   if (item1?.title) {
+    if (item1.disabled) {
+      return result;
+    }
     result.selected = [item1.key];
     if (item1?.children) {
       result.openned = [item1.key];
@@ -564,6 +567,9 @@ const Component: FC<Props> = ({menuPos, onSelect, onCancel, hasSelection}) => {
       if (selectedKeys) {
         const key = selectedKeys[selectedKeys.length - 1];
         const item = itemsMap[key];
+        if (item.disabled) {
+          return;
+        }
         if (item.children) {
           setOpenKeys([key]);
         } else {
@@ -574,12 +580,18 @@ const Component: FC<Props> = ({menuPos, onSelect, onCancel, hasSelection}) => {
       const openned = openKeys?.[0];
       const group: any[] = (openned ? itemsMap[openned]?.children || [] : items).filter((item: any) => item.title);
       const selected = selectedKeys ? selectedKeys[selectedKeys.length - 1] : '';
-      const curIndex = group.findIndex((item) => item.key === selected);
+      let curIndex = group.findIndex((item) => item.key === selected);
       let nextItem: any = null;
       if (code === 'ArrowDown') {
-        nextItem = group[curIndex + 1];
+        do {
+          nextItem = group[curIndex + 1];
+          curIndex++;
+        } while (nextItem.disabled);
       } else if (code === 'ArrowUp') {
-        nextItem = group[curIndex - 1];
+        do {
+          nextItem = group[curIndex - 1];
+          curIndex--;
+        } while (nextItem.disabled);
       }
       if (nextItem) {
         const newSelected = [...(selectedKeys || [])];

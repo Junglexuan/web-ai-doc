@@ -56,12 +56,12 @@ export const toolbarConfig: Partial<IToolbarConfig> = {
 export const editorConfig: Partial<IEditorConfig> = {
   placeholder: '请输入内容...',
   scroll: false,
-  onBlur: (e) => {
-    addClass(document.getElementById('_ai_button')!, 'disabled');
-  },
-  onFocus: (e) => {
-    removeClass(document.getElementById('_ai_button')!, 'disabled');
-  },
+  // onBlur: (e) => {
+  //   addClass(document.getElementById('_ai_button')!, 'disabled');
+  // },
+  // onFocus: (e) => {
+  //   removeClass(document.getElementById('_ai_button')!, 'disabled');
+  // },
   hoverbarKeys: {
     text: {
       menuKeys: [
@@ -81,7 +81,26 @@ export const editorConfig: Partial<IEditorConfig> = {
       ],
     },
   },
-  MENU_CONF: {},
+  MENU_CONF: {
+    uploadImage: {
+      base64LimitSize: 5 * 1024,
+      fieldName: 'custom-field-name',
+      server: '/api/upload-img',
+      timeout: 5 * 1000,
+      maxFileSize: 10 * 1024 * 1024, // 10M
+      // 将 meta 拼接到 url 参数中，默认 false
+      metaWithUrl: false,
+      onSuccess(file: any, res: any) {
+        console.log(`${file.name} 上传成功`, res);
+      },
+      onFailed(file: any, res: any) {
+        console.log(`${file.name} 上传失败`, res);
+      },
+      onError(file: any, err: any, res: any) {
+        console.log(`${file.name} 上传出错`, err, res);
+      },
+    },
+  },
   // MENU_CONF: {
   //   fontSize: {
   //     title: 'sss',
