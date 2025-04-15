@@ -1,5 +1,5 @@
-import {Boot, DomEditor, IButtonMenu, IDomEditor, IEditorConfig, IToolbarConfig} from '@wangeditor-next/editor';
-import {addClass, removeClass, useEvent} from '@/utils/tools';
+import {IEditorConfig, IToolbarConfig} from '@wangeditor-next/editor';
+import {replaceBaseUrl} from '@/utils/request';
 export const toolbarConfig: Partial<IToolbarConfig> = {
   //modalAppendToBody: true,
   toolbarKeys: [
@@ -83,21 +83,21 @@ export const editorConfig: Partial<IEditorConfig> = {
   },
   MENU_CONF: {
     uploadImage: {
-      base64LimitSize: 5 * 1024,
-      fieldName: 'custom-field-name',
-      server: '/api/upload-img',
+      base64LimitSize: 2 * 1024,
+      fieldName: 'file',
+      server: replaceBaseUrl('/dream/pen/minio/upload'),
       timeout: 5 * 1000,
       maxFileSize: 10 * 1024 * 1024, // 10M
       // 将 meta 拼接到 url 参数中，默认 false
       metaWithUrl: false,
       onSuccess(file: any, res: any) {
-        console.log(`${file.name} 上传成功`, res);
+        //console.log(`${file.name} 上传成功`, res);
       },
       onFailed(file: any, res: any) {
-        console.log(`${file.name} 上传失败`, res);
+        //console.log(`${file.name} 上传失败`, res);
       },
       onError(file: any, err: any, res: any) {
-        console.log(`${file.name} 上传出错`, err, res);
+        //console.log(`${file.name} 上传出错`, err, res);
       },
     },
   },

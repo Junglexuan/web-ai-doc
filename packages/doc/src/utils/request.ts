@@ -15,6 +15,11 @@ export enum ErrorCode {
   unkown = 'unkown',
 }
 
+export function replaceBaseUrl(url: string): string {
+  ///dream/pen/ai/writer/test
+  return url.replace(/^\/(dream|ai)\//, (pre) => ApiPrefix[pre]);
+}
+
 export class CustomError<Detail = any> implements ActionError {
   public constructor(public code: string, public message: string, public detail?: Detail, public quiet?: boolean) {}
 }
@@ -79,7 +84,7 @@ instance.interceptors.request.use((req) => {
   if (token) {
     req.headers['Authorization'] = `Bearer ${token}`;
   }
-  req.url = req.url!.replace(/^\/(meta|user|app|dream|ai)\//, (pre) => ApiPrefix[pre]);
+  req.url = replaceBaseUrl(req.url!);
   if (req.method === 'post') {
     if (!req.data) {
       req.data = {};

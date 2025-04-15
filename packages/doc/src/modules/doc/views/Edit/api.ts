@@ -1,7 +1,5 @@
 import {fetchEventSource} from '@microsoft/fetch-event-source';
-import mockjs from 'mockjs';
-import {ApiPrefix} from '@/Global';
-import request from '@/utils/request';
+import request, {replaceBaseUrl} from '@/utils/request';
 import {dslToHtml} from './utils';
 
 export type RunningState = '' | 'Pending' | 'Rejected' | 'Fulfilled';
@@ -54,11 +52,6 @@ function decodeMessage(str: string): string {
     }
   }
   return dslToHtml(result);
-}
-
-function replaceBaseUrl(url: string) {
-  ///dream/pen/ai/writer/test
-  return url.replace(/^\/(dream|ai)\//, (pre) => ApiPrefix[pre]);
 }
 
 const continueWrite: AIRequest = ({args, onMessage, onError, onDone}) => {
