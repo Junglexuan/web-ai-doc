@@ -11,7 +11,7 @@ import {
 } from '@ant-design/icons';
 import {Menu, MenuProps} from 'antd';
 import {FC, memo, useCallback, useEffect, useRef, useState} from 'react';
-import {useEvent} from '@/utils/tools';
+import {removeClass, useEvent} from '@/utils/tools';
 import AiIcon from '../AIcon';
 import styles from './index.module.less';
 
@@ -542,6 +542,7 @@ interface Props {
 }
 
 const Component: FC<Props> = ({menuPos, onSelect, onCancel, hasSelection}) => {
+  const rootDivRef = useRef<HTMLElement>();
   const menuInput = useRef<HTMLInputElement>(null as any);
   const menuComp = useRef<any>(null as any);
   const [openKeys, setOpenKeys] = useState<string[]>();
@@ -586,12 +587,12 @@ const Component: FC<Props> = ({menuPos, onSelect, onCancel, hasSelection}) => {
         do {
           nextItem = group[curIndex + 1];
           curIndex++;
-        } while (nextItem.disabled);
+        } while (nextItem?.disabled);
       } else if (code === 'ArrowUp') {
         do {
           nextItem = group[curIndex - 1];
           curIndex--;
-        } while (nextItem.disabled);
+        } while (nextItem?.disabled);
       }
       if (nextItem) {
         const newSelected = [...(selectedKeys || [])];
@@ -649,13 +650,31 @@ const Component: FC<Props> = ({menuPos, onSelect, onCancel, hasSelection}) => {
     [setSelectedKeys, onSelect]
   );
 
+  const onMouseMove = useCallback((e: any) => {
+    document.removeEventListener('mousemove', onMouseMove);
+    removeClass(rootDivRef.current!, 'on');
+  }, []);
+
+  const curCmd = selectedKeys ? selectedKeys[1] || selectedKeys[0] : '';
+
+  useEffect(() => {
+    if (curCmd) {
+      menuInput.current.value = '/' + curCmd.toLocaleLowerCase();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [curCmd]);
+
   useEffect(() => {
     menuInput.current.focus();
+    document.addEventListener('mousemove', onMouseMove);
+    return () => {
+      document.removeEventListener('mousemove', onMouseMove);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
-    <div className={styles.menu} style={menuPos}>
+    <div ref={rootDivRef as any} className={styles.menu + ' on'} style={menuPos} onMouseMove={onMouseMove}>
       <input ref={menuInput as any} defaultValue="/" onKeyDown={onKeyDown} onChange={onKeyChange} />
       <Menu
         ref={menuComp}

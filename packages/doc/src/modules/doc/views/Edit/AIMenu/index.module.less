@@ -10,6 +10,10 @@
     border-radius: 8px;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.1);
 
+    &.on {
+      pointer-events: none;
+    }
+
     > .ant-menu-root {
       width: 180px;
       //margin-left: -13px;
@@ -64,18 +68,8 @@
       color: #999 !important;
     }
 
-    .ant-menu-item:not(.ant-menu-item-disabled):hover {
-      color: #1b68fc !important;
-      background-color: #fff !important;
-    }
-
-    .ant-menu-submenu-title:hover {
-      color: #1b68fc !important;
-      background-color: #fff !important;
-    }
-
     .ant-menu-submenu-disabled .ant-menu-submenu-title:hover {
-      color: #999 !important;
+      background-color: inherit;
     }
   }
 }
