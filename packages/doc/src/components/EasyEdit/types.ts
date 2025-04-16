@@ -43,7 +43,10 @@ export interface TemplateItem {
  */
 export type tplOption = {
   [key: string]: {
-    key: string | number;
-    label: string | ReactNode;
-  }[];
+    placeholder?: string;
+    data: {
+      key: string | number;
+      label: string | ReactNode;
+    }[];
+  };
 };

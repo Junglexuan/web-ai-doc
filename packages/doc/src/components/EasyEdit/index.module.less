@@ -21,9 +21,14 @@
         border-radius: 4px;
 
         &.empty-code {
+          position: relative;
           display: inline-block;
           width: fit-content;
-          width: 80px;
+          // width: 80px;
+
+          > .code-empty-placeholder {
+            color: rgba(23, 26, 29, 0.4);
+          }
         }
       }
     }

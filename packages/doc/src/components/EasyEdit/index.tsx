@@ -2,7 +2,7 @@ import {Dropdown} from 'antd';
 import {FC, FormEvent, Fragment, useEffect, useMemo, useRef, useState} from 'react';
 import {useEvent} from '@/utils/tools';
 import styles from './index.module.less';
-import {EasyEditProps, TemplateItem, ValueData, tplOption, tplValue} from './types';
+import {EasyEditProps, ValueData, tplValue} from './types';
 import {easyEditUtil} from './util';
 
 const EasyEdit: FC<EasyEditProps> = ({tpl, value, onChange, option}): JSX.Element => {
@@ -125,16 +125,37 @@ const EasyEdit: FC<EasyEditProps> = ({tpl, value, onChange, option}): JSX.Elemen
           </span>
         );
       }
-      const menuItems = option?.[item.key] || [];
+      const menuItems = option?.[item.key]?.data || [];
+      const _placeholder = option?.[item.key]?.placeholder || '请输入';
       return (
         <Fragment key={index}>
           <Dropdown
             menu={{items: menuItems, onClick: (e) => menuClick(e, index)}}
             overlayStyle={{minWidth: '0px', ...(!item.value ? {display: 'none'} : {})}}
             trigger={['click']}
+            onOpenChange={() => {
+              const editable = editableRef.current;
+              if (editable) {
+                const el = editable.querySelector<HTMLSpanElement>(`span[data-id="text_${index}"]`);
+                if (el) {
+                  const range = document.createRange();
+                  range.selectNodeContents(el);
+                  range.collapse(false);
+                  const selection = window.getSelection();
+                  selection?.removeAllRanges();
+                  selection?.addRange(range);
+                  el.focus();
+                }
+              }
+            }}
           >
             <code style={!item.value ? {display: 'none'} : {}} className={`${item.value === ' ' && styles['empty-code']} ${styles['code-box']}`}>
               <span data-id={`text_${index}`}>{item.value}</span>
+              {item.value === ` ` && (
+                <span className={styles['code-empty-placeholder']} contentEditable={false}>
+                  {_placeholder}
+                </span>
+              )}
             </code>
           </Dropdown>
           <span> </span>

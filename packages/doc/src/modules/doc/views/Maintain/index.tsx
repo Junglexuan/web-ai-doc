@@ -191,17 +191,23 @@ const Component: FC<Props> = ({list, listSearch, listSummary}) => {
   return (
     <div className={'g-page-content ' + styles.root}>
       <DocumentHead title="我的文档" />
-      {/* <EasyEdit
+      <EasyEdit
         tpl="你是一名${role}，需要整理本周工作周报，本周主要工作内容为${text}，下周主要工作计划为${newText}"
         option={{
-          role: [
-            {label: '管理员', key: '管理员'},
-            {label: '普通职员', key: '普通职员'},
-          ],
-          text: [
-            {label: '改了两个bug', key: '改了两个bug'},
-            {label: '做了一个新需求', key: '做了一个新需求'},
-          ],
+          role: {
+            placeholder: '请输入角色',
+            data: [
+              {label: '管理员', key: '管理员'},
+              {label: '普通职员', key: '普通职员'},
+            ],
+          },
+          text: {
+            placeholder: '请输入你想表达的意思',
+            data: [
+              {label: '改了两个bug', key: '改了两个bug'},
+              {label: '做了一个新需求', key: '做了一个新需求'},
+            ],
+          },
         }}
         value={{
           text: '你是一名管理员，需要整理本周工作周报，本周主要工作内容为 ，下周主要工作计划为 ',
@@ -238,7 +244,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary}) => {
             },
           ],
         }}
-      /> */}
+      />
       <div className="hd">{breadcrumb}</div>
       <div className="cd">
         <Space>
