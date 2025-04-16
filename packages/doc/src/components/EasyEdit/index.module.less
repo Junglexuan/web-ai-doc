@@ -1,0 +1,39 @@
+@import '@/assets/css/var.less';
+
+:local(.root) {
+  &.content {
+    max-height: 50vh;
+    overflow-y: auto;
+
+    > .edit-box {
+      padding: 2px 0 0 1px;
+      line-height: 1.7;
+      overflow-wrap: break-word;
+      white-space: pre-wrap;
+      cursor: text;
+      user-select: none;
+
+      > .code-box {
+        padding: 2px 8px;
+        margin: 0 6px;
+        font-family: inherit;
+        border: 1px solid rgba(23, 26, 29, 0.14);
+        border-radius: 4px;
+
+        &.empty-code {
+          display: inline-block;
+          width: fit-content;
+          width: 80px;
+        }
+      }
+    }
+  }
+}
+
+.hidden-dropdown {
+  :global {
+    .ant-dropdown-trigger {
+      pointer-events: none;
+    }
+  }
+}
