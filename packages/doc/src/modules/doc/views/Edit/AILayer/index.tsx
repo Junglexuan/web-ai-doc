@@ -1,22 +1,16 @@
 import {IDomEditor} from '@wangeditor-next/editor';
 import {FC, memo, useEffect, useMemo, useState} from 'react';
-import {message, useEvent} from '@/utils/tools';
+import {message, removeClass, useEvent} from '@/utils/tools';
 import AIAsk from '../AIAsk';
 import AIContinue from '../AIContinue';
 import AICreate from '../AICreate';
 import AIDialog from '../AIDialog';
-import AIMenu, {MenuHeight, applicationTemplates, menuKeysMap, officialTemplates} from '../AIMenu';
+import AIMenu, {applicationTemplates, menuKeysMap, officialTemplates} from '../AIMenu';
 import AIOutline from '../AIOutline';
 import AIStylize from '../AIStylize';
-import AITemplate from '../AITemplate';
 import {RunningState} from '../api';
 import styles from './index.module.less';
-
-export interface ISelection {
-  pos: {x: number; y: number};
-  context: string;
-  content: string;
-}
+import type {ISelection} from '../utils';
 
 export interface IAIRef {
   closeMenu: () => void;
@@ -54,6 +48,12 @@ const Component: FC<Props> = ({onCreated, editor}) => {
     }
     setSelection(undefined);
     setShowDialog(undefined);
+    const placeholder = selection?.placeholder;
+    if (placeholder) {
+      placeholder.parentNode?.removeChild(placeholder);
+    }
+    const scroller = document.getElementById('_ai_editor_scroller')!;
+    removeClass(scroller, 'on');
     editor.focus();
   });
 
@@ -86,61 +86,46 @@ const Component: FC<Props> = ({onCreated, editor}) => {
     editor.focus();
   });
 
-  const {menuPos, dialogPos} = useMemo(() => {
-    const menuPos = {left: 0, top: 0};
-    const dialogPos = {top: 0};
-    if (selection) {
-      const selectionPos = selection.pos;
-      menuPos.left = selectionPos.x;
-      menuPos.top = selectionPos.y - 100;
-
-      const menuMaxTop = window.innerHeight - MenuHeight;
-      if (menuPos.top > menuMaxTop) {
-        menuPos.top = menuMaxTop;
-      }
-      const selectionBottom = window.innerHeight - selectionPos.y;
-      dialogPos.top = selectionPos.y < selectionBottom ? selectionPos.y : -selectionBottom - 36;
-    }
-    return {menuPos, dialogPos};
-  }, [selection]);
-
   const aiRef: IAIRef = useMemo(() => {
     return {openMenu, closeMenu, menuIsOpen, insertHtmlByAI, getTitle, getDocId, getContext, focusEditor};
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const aiDialog = useMemo(() => {
+    if (!selection) {
+      return null;
+    }
     if (showDialog === 'A') {
       return (
-        <AIDialog top={dialogPos.top} footer={true}>
+        <AIDialog selection={selection} footer={true}>
           <AICreate aiRef={aiRef} onRunningStateChange={setRunningState} />
         </AIDialog>
       );
     }
     if (showDialog === 'C') {
       return (
-        <AIDialog top={dialogPos.top} footer={true}>
+        <AIDialog selection={selection} footer={true}>
           <AIContinue aiRef={aiRef} onRunningStateChange={setRunningState} />
         </AIDialog>
       );
     }
     if (showDialog === 'O') {
       return (
-        <AIDialog top={dialogPos.top} footer={true}>
+        <AIDialog selection={selection} footer={true}>
           <AIOutline aiRef={aiRef} onRunningStateChange={setRunningState} />
         </AIDialog>
       );
     }
     if (showDialog === 'T') {
       return (
-        <AIDialog top={dialogPos.top} footer={true}>
+        <AIDialog selection={selection} footer={true}>
           <AIAsk aiRef={aiRef} onRunningStateChange={setRunningState} />
         </AIDialog>
       );
     }
     if (showDialog === 'J' || showDialog === 'Z' || showDialog === 'F') {
       return (
-        <AIDialog top={dialogPos.top} footer={true}>
+        <AIDialog selection={selection} footer={true}>
           <AIStylize
             title={showDialog === 'J' ? '精简内容' : showDialog === 'Z' ? '生成摘要' : '丰富内容'}
             aiRef={aiRef}
@@ -151,29 +136,31 @@ const Component: FC<Props> = ({onCreated, editor}) => {
     }
     if (menuKeysMap.styles[showDialog || '']) {
       return (
-        <AIDialog top={dialogPos.top} footer={true}>
+        <AIDialog selection={selection} footer={true}>
           <AIStylize title={menuKeysMap.styles[showDialog || '']} aiRef={aiRef} onRunningStateChange={setRunningState} />
         </AIDialog>
       );
     }
     if (menuKeysMap.official[showDialog || '']) {
       return (
-        <AIDialog top={dialogPos.top} footer={true}>
-          <AITemplate templateOptions={officialTemplates} template={showDialog!} aiRef={aiRef} onRunningStateChange={setRunningState} />
+        <AIDialog selection={selection} footer={true}>
+          sss
+          {/* <AITemplate templateOptions={officialTemplates} template={showDialog!} aiRef={aiRef} onRunningStateChange={setRunningState} /> */}
         </AIDialog>
       );
     }
     if (menuKeysMap.application[showDialog || '']) {
       return (
-        <AIDialog top={dialogPos.top} footer={true}>
-          <AITemplate templateOptions={applicationTemplates} template={showDialog!} aiRef={aiRef} onRunningStateChange={setRunningState} />
+        <AIDialog selection={selection} footer={true}>
+          sss
+          {/* <AITemplate templateOptions={applicationTemplates} template={showDialog!} aiRef={aiRef} onRunningStateChange={setRunningState} /> */}
         </AIDialog>
       );
     }
 
-    return <AIMenu menuPos={menuPos} onSelect={setShowDialog} onCancel={closeMenu} hasSelection={!!selection?.content} />;
+    return <AIMenu selection={selection} onSelect={setShowDialog} onCancel={closeMenu} />;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dialogPos.top, menuPos, showDialog, selection]);
+  }, [showDialog, selection]);
 
   useEffect(() => {
     onCreated(aiRef);

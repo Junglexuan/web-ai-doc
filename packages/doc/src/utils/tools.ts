@@ -38,6 +38,17 @@ export function removeClass(el: HTMLElement, className: string): void {
   el.setAttribute('class', arr.join(' '));
 }
 
+export function insertAfter(newElement: HTMLElement, targetElement: HTMLElement): void {
+  const parent = targetElement.parentNode!; // 获取目标节点的父级元素
+  if (parent.lastChild == targetElement) {
+    // 如果目标节点是父节点的最后一个子节点，则使用appendChild()方法
+    parent.appendChild(newElement);
+  } else {
+    // 否则，使用insertBefore()方法在目标节点的下一个兄弟节点前插入新节点
+    parent.insertBefore(newElement, targetElement.nextSibling);
+  }
+}
+
 export type UNListener = () => void;
 
 export class SimpleDispatcher<T extends {[event: string]: any}> {

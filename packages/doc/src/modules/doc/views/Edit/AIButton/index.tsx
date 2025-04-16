@@ -3,12 +3,12 @@ import {Boot, IDomEditor, IModalMenu, SlateEditor} from '@wangeditor-next/editor
 import {Button, Divider} from 'antd';
 import {FC, ReactNode, memo, useEffect, useMemo, useState} from 'react';
 import {createPortal} from 'react-dom';
-import {eachTree, useEvent} from '@/utils/tools';
+import {addClass, useEvent} from '@/utils/tools';
 import AILayer from '../AILayer';
 import AiIcon from '../ColorAIcon';
-import {getSelectionContext} from '../utils';
+import {ISelection, getSelectionContext} from '../utils';
 import styles from './index.module.less';
-import type {IAIRef, ISelection} from '../AILayer';
+import type {IAIRef} from '../AILayer';
 import './registerMenu';
 
 function withAiModal<T extends IDomEditor>(editor: T): T {
@@ -71,6 +71,8 @@ const Component: FC<Props> = ({editor}) => {
       selectionPos.y = containerRect.height - posNum.bottom + containerRect.top + 35;
     }
     aiRef?.openMenu({pos: selectionPos, ...getSelectionContext(editor)});
+    const scroller = document.getElementById('_ai_editor_scroller')!;
+    addClass(scroller, 'on');
   });
 
   const closeMenu = useEvent(() => aiRef?.closeMenu());

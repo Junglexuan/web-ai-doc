@@ -1,4 +1,6 @@
 {
   "extends": ["@elux/stylelint-config/less"],
-  "rules": {}
+  "rules": {
+    "selector-id-pattern": null
+  }
 }

@@ -1,10 +1,10 @@
 import {CheckOutlined, DeleteOutlined, EditOutlined, PauseCircleOutlined, QuestionCircleFilled, SyncOutlined} from '@ant-design/icons';
 import {Button, Space, Spin} from 'antd';
 import {FC, ReactElement, cloneElement, memo, useEffect} from 'react';
-import styles from '../aiDialog.module.less';
 import ColorAIcon from '../ColorAIcon';
 import EnterIcon from '../EnterIcon';
 import {AIDialogHooks} from '../hooks';
+import styles from './index.module.less';
 
 interface Props {
   title: string;
@@ -17,6 +17,14 @@ const Component: FC<Props> = ({title, children, hooks, automatic}) => {
   const {onPromptSubmit, inputRef, fragment, fragmentRef, runningState, onRedo, onKeep, onStop, onInsert} = hooks;
 
   useEffect(() => {
+    const placeholder = document.getElementById('_ai_placeholder');
+    const dialog = document.getElementById('_ai_dialog')!;
+    if (placeholder) {
+      placeholder.style.height = dialog.offsetHeight + 'px';
+    }
+  }, [fragment, runningState]);
+
+  useEffect(() => {
     if (automatic) {
       onPromptSubmit();
     }
@@ -24,7 +32,7 @@ const Component: FC<Props> = ({title, children, hooks, automatic}) => {
   }, []);
 
   return (
-    <div className={styles.common + ' ' + runningState}>
+    <div id="_ai_dialog" className={styles.common + ' ' + runningState}>
       <ColorAIcon />
       <div className="input">
         <EnterIcon onClick={onPromptSubmit} />

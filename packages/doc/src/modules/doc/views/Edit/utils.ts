@@ -1,5 +1,12 @@
 import {IDomEditor, SlateEditor, createEditor} from '@wangeditor-next/editor';
-import {eachTree} from '@/utils/tools';
+import {eachTree, insertAfter} from '@/utils/tools';
+
+export interface ISelection {
+  pos: {x: number; y: number};
+  context: string;
+  content: string;
+  placeholder?: HTMLElement;
+}
 
 export function dslToHtml(dsl: any): string {
   const arr = Array.isArray(dsl) ? dsl : [dsl];
@@ -11,9 +18,9 @@ export function dslToHtml(dsl: any): string {
   }
 }
 
-export function getSelectionContext(editor: IDomEditor): {context: string; content: string; anchor?: HTMLElement} {
+export function getSelectionContext(editor: IDomEditor): {context: string; content: string; anchor?: HTMLElement; placeholder?: HTMLElement} {
   if (editor.selection) {
-    let result: {context: string; content: string; anchor: HTMLElement};
+    let result: {context: string; content: string; anchor: HTMLElement; placeholder?: HTMLElement};
     if (JSON.stringify(editor.selection.anchor) === JSON.stringify(editor.selection.focus)) {
       const [curNode] = SlateEditor.node(editor, editor.selection);
       const dsl: any[] = editor.children;
@@ -40,7 +47,10 @@ export function getSelectionContext(editor: IDomEditor): {context: string; conte
         anchor: anchorRect.top > focusRect.top ? anchorDom : focusDom,
       };
     }
-    //const placeholder
+    const placeholder = document.createElement('div') as HTMLElement;
+    placeholder.id = '_ai_placeholder';
+    insertAfter(placeholder, result.anchor);
+    result.placeholder = placeholder;
     return result;
   }
   return {context: '', content: ''};

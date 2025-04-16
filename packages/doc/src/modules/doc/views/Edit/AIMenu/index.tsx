@@ -14,8 +14,7 @@ import {FC, memo, useCallback, useEffect, useRef, useState} from 'react';
 import {removeClass, useEvent} from '@/utils/tools';
 import AiIcon from '../AIcon';
 import styles from './index.module.less';
-
-export const MenuHeight = 526;
+import type {ISelection} from '../utils';
 
 type MenuItem = any;
 
@@ -532,23 +531,19 @@ function searchShortcut(key: string) {
 }
 
 interface Props {
-  menuPos: {
-    left: number;
-    top: number;
-  };
+  selection: ISelection;
   onSelect: (key: string) => void;
   onCancel: () => void;
-  hasSelection?: boolean;
 }
 
-const Component: FC<Props> = ({menuPos, onSelect, onCancel, hasSelection}) => {
+const Component: FC<Props> = ({selection, onSelect, onCancel}) => {
   const rootDivRef = useRef<HTMLElement>();
   const menuInput = useRef<HTMLInputElement>(null as any);
   const menuComp = useRef<any>(null as any);
   const [openKeys, setOpenKeys] = useState<string[]>();
   const [selectedKeys, setSelectedKeys] = useState<string[] | undefined>();
   const [items] = useState(() => {
-    if (!hasSelection) {
+    if (!selection?.content) {
       itemsMap['R'].disabled = true;
       itemsMap['J'].disabled = true;
       itemsMap['F'].disabled = true;
@@ -668,6 +663,18 @@ const Component: FC<Props> = ({menuPos, onSelect, onCancel, hasSelection}) => {
   useEffect(() => {
     menuInput.current.focus();
     document.addEventListener('mousemove', onMouseMove);
+    const rootDiv = rootDivRef.current!;
+    const menuPos = {left: 0, top: 0};
+    const selectionPos = selection.pos;
+    menuPos.left = selectionPos.x;
+    menuPos.top = selectionPos.y - 100;
+    const menuMaxTop = window.innerHeight - rootDiv.offsetHeight;
+    if (menuPos.top > menuMaxTop) {
+      menuPos.top = menuMaxTop;
+    }
+    rootDiv.style.left = menuPos.left + 'px';
+    rootDiv.style.top = menuPos.top + 'px';
+
     return () => {
       document.removeEventListener('mousemove', onMouseMove);
     };
@@ -675,7 +682,7 @@ const Component: FC<Props> = ({menuPos, onSelect, onCancel, hasSelection}) => {
   }, []);
 
   return (
-    <div ref={rootDivRef as any} className={styles.menu + ' on'} style={menuPos} onMouseMove={onMouseMove}>
+    <div ref={rootDivRef as any} className={styles.menu + ' on'} onMouseMove={onMouseMove}>
       <input ref={menuInput as any} defaultValue="/" onKeyDown={onKeyDown} onChange={onKeyChange} />
       <Menu
         ref={menuComp}

@@ -134,7 +134,7 @@ const Component: FC<Props> = ({itemDetail}) => {
           {editor && <AIButton editor={editor} />}
           {editor && <Toolbar editor={editor} defaultConfig={toolbarConfig} mode="default" className="tools" />}
         </div>
-        <div className="bd">
+        <div className="bd" id="_ai_editor_scroller">
           <header>
             <BlurInput
               id="_doc_title"

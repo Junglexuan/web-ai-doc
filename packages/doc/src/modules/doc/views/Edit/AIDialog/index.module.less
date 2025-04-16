@@ -9,31 +9,14 @@
     background: linear-gradient(90deg, #24aafd 0%, #1f67fd 50%, #6b51ff 100%);
     border-radius: 10px;
     box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.1);
+    opacity: 0;
+    transition: top, opacity 0.3s ease-out;
     transform: translateX(-50%);
 
     > .wrap {
       overflow: hidden;
       background: #fff;
       border-radius: 10px;
-    }
-
-    > .arrow {
-      position: absolute;
-      top: auto;
-      bottom: 0;
-      left: 50%;
-      margin-bottom: -10px;
-      margin-left: -5px;
-      border-top: 10px solid #ddd;
-      border-right: 10px transparent solid;
-      border-left: 10px transparent solid;
-
-      &.on {
-        top: 0;
-        bottom: auto;
-        margin-top: -10px;
-        transform: rotate(180deg);
-      }
     }
   }
 }
