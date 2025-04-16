@@ -35,7 +35,6 @@ const Component: FC<Props> = ({onCreated, editor}) => {
 
   const openMenu = useEvent((selection: ISelection | undefined) => {
     editor.blur();
-    console.log(selection);
     setSelection(selection);
     setShowDialog(undefined);
   });
@@ -54,7 +53,6 @@ const Component: FC<Props> = ({onCreated, editor}) => {
     }
     const scroller = document.getElementById('_ai_editor_scroller')!;
     removeClass(scroller, 'on');
-    editor.focus();
   });
 
   const menuIsOpen = useEvent(() => {

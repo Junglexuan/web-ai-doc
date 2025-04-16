@@ -12,11 +12,11 @@ import DocAPI from '../../api';
 import {ItemDetail} from '../../entity';
 import AIButton from './AIButton';
 import './AIMenu';
-import {SaveMgr} from './AutoSave';
+import {SaveMgr} from './autoSave';
 import {editorConfig, toolbarConfig} from './editorConfig';
 import styles from './index.module.less';
 import Outline from './Outline';
-import type {ISource} from './AutoSave';
+import type {ISource} from './autoSave';
 
 interface Props {
   itemDetail: ItemDetail;

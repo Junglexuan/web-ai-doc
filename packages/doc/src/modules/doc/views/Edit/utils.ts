@@ -1,4 +1,4 @@
-import {IDomEditor, SlateEditor, createEditor} from '@wangeditor-next/editor';
+import {IDomEditor, SlateEditor, SlateElement, SlateNode, createEditor} from '@wangeditor-next/editor';
 import {eachTree, insertAfter} from '@/utils/tools';
 
 export interface ISelection {
@@ -34,7 +34,22 @@ export function getSelectionContext(editor: IDomEditor): {context: string; conte
       //SlateEditor.above(editor, {at: editor.selection, match: (n) => SlateEditor.isBlock(editor, n) || SlateEditor.isEditor(n)});
       result = {context: text.join(''), content: '', anchor: editor.toDOMNode(curNode)};
     } else {
-      console.log(editor.selection);
+      const nodeEntries = SlateEditor.nodes(editor);
+      console.log(nodeEntries);
+      if (nodeEntries) {
+        for (const nodeEntry of nodeEntries) {
+          const [node, path] = nodeEntry;
+          console.log('选中了 paragraph 节点', node);
+          console.log('节点 path 是', path);
+        }
+      }
+
+      // if (nodeEntries == null) {
+      //   console.log('当前未选中的 paragraph');
+      // } else {
+
+      // }
+
       const [anchor] = SlateEditor.node(editor, editor.selection.anchor);
       const [focus] = SlateEditor.node(editor, editor.selection.focus);
       const anchorDom = editor.toDOMNode(anchor);
