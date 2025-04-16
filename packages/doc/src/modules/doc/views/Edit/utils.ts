@@ -11,8 +11,9 @@ export function dslToHtml(dsl: any): string {
   }
 }
 
-export function getSelectionContext(editor: IDomEditor): {context: string; content: string} {
+export function getSelectionContext(editor: IDomEditor): {context: string; content: string; anchor?: HTMLElement} {
   if (editor.selection) {
+    let result: {context: string; content: string; anchor: HTMLElement};
     if (JSON.stringify(editor.selection.anchor) === JSON.stringify(editor.selection.focus)) {
       const [curNode] = SlateEditor.node(editor, editor.selection);
       const dsl: any[] = editor.children;
@@ -24,10 +25,23 @@ export function getSelectionContext(editor: IDomEditor): {context: string; conte
         return node === curNode;
       });
       //SlateEditor.above(editor, {at: editor.selection, match: (n) => SlateEditor.isBlock(editor, n) || SlateEditor.isEditor(n)});
-      return {context: text.join(''), content: ''};
+      result = {context: text.join(''), content: '', anchor: editor.toDOMNode(curNode)};
     } else {
-      return {context: editor.getSelectionText(), content: editor.getSelectionText()};
+      console.log(editor.selection);
+      const [anchor] = SlateEditor.node(editor, editor.selection.anchor);
+      const [focus] = SlateEditor.node(editor, editor.selection.focus);
+      const anchorDom = editor.toDOMNode(anchor);
+      const focusDom = editor.toDOMNode(focus);
+      const anchorRect = anchorDom.getBoundingClientRect();
+      const focusRect = focusDom.getBoundingClientRect();
+      result = {
+        context: editor.getSelectionText(),
+        content: editor.getSelectionText(),
+        anchor: anchorRect.top > focusRect.top ? anchorDom : focusDom,
+      };
     }
+    //const placeholder
+    return result;
   }
   return {context: '', content: ''};
 }

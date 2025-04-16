@@ -604,6 +604,7 @@ const Component: FC<Props> = ({menuPos, onSelect, onCancel, hasSelection}) => {
         }
         setSelectedKeys(newSelected);
       }
+      e.preventDefault();
     } else if (code === 'ArrowRight') {
       if (selectedKeys) {
         const key = selectedKeys[selectedKeys.length - 1];
