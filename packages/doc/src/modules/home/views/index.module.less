@@ -1,0 +1,168 @@
+@import '@/assets/css/var.less';
+
+:global {
+  // .ant-carousel .slick-dots {
+  //   bottom: -14px; // 根据需要调整位置
+  // }
+
+  // .ant-carousel .slick-dots li {
+  //   width: 8px; // 设置未选中时的宽度
+  //   height: 8px; // 设置未选中时的高度
+  //   background: #1b68fc; // 更改点的颜色
+  //   border-radius: 50%; // 使其为圆形
+  //   opacity: 0.5;
+  //   transition: width 0.3s, height 0.3s; // 添加过渡效果
+  // }
+
+  // .ant-carousel .slick-dots li.slick-active {
+  //   width: 24px; // 设置选中时的宽度
+  //   height: 3px; // 设置选中时的高度
+  //   background: #1b68fc; // 更改活动点的颜色为橙色
+  //   // border-radius: 20px; // 使其为长方形
+  //   //box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); // 添加阴影效果
+  //   opacity: 1;
+  // }
+
+  :local(.root) {
+    padding: 20px;
+    background-color: #fff;
+
+    > .carousel {
+      .carousel-item {
+        height: 200px;
+        line-height: 200px;
+        color: #fff;
+        text-align: center;
+        background: blue;
+        border-radius: 10px;
+      }
+    }
+
+    > .title-box {
+      height: 22px;
+      margin: 40px 0 20px;
+      font-size: 16px;
+      font-weight: 500;
+      line-height: normal;
+      color: #242424;
+      letter-spacing: 0;
+    }
+
+    > .recent-creations {
+      box-sizing: border-box;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      min-height: 128px;
+      padding: 10px;
+      background: linear-gradient(90deg, rgba(27, 104, 252, 0.1) 0%, rgba(123, 76, 255, 0.08) 100%);
+      border-radius: 10px;
+
+      .creation-item {
+        box-sizing: border-box;
+        display: flex;
+        flex: 0 0 calc(25% - 20px);
+        flex-direction: column;
+        align-items: center; // Center content horizontally
+        justify-content: center; // Center content vertically
+        height: 88px;
+        padding: 20px;
+        margin: 10px;
+        overflow: hidden;
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+
+        .title {
+          width: 100%;
+          margin-bottom: 4px;
+          overflow: hidden;
+          font-size: 16px;
+          font-weight: normal;
+          line-height: 24px;
+          color: #242424;
+          text-align: center;
+          text-overflow: ellipsis;
+          letter-spacing: 0;
+          white-space: nowrap;
+        }
+
+        .content {
+          flex-grow: 0;
+          width: 100%;
+          overflow: hidden;
+          font-size: 14px;
+          font-weight: normal;
+          line-height: normal;
+          text-align: center;
+          text-overflow: ellipsis;
+          letter-spacing: 0;
+          white-space: nowrap;
+          columns: #828384;
+        }
+      }
+    }
+
+    > .popular-creations {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-start;
+      margin-left: -10px;
+
+      .creation-item {
+        box-sizing: border-box;
+        flex: 0 0 calc(25% - 20px);
+        max-width: calc(25% - 20px);
+        max-height: 147px;
+        padding: 20px;
+        margin: 10px;
+        background-color: #fff;
+        border: 1px solid #e2e2e2;
+        border-radius: 10px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+
+        .icon-title {
+          display: flex;
+          align-items: center;
+          margin-bottom: 18px;
+
+          .icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            margin-right: 10px;
+            font-weight: bold;
+            color: #fff; // Text color
+            background-color: #1b68fc; // You can change the color as needed
+            border-radius: 50%;
+          }
+
+          .title {
+            font-family: 'PingFang SC';
+            font-size: 16px;
+            font-weight: 500;
+            line-height: normal;
+            color: #242424;
+            letter-spacing: 0;
+          }
+        }
+
+        .description {
+          display: box;
+          width: 100%;
+          overflow: hidden;
+          font-family: 'PingFang SC';
+          font-size: 14px;
+          font-weight: normal;
+          line-height: 1.5;
+          color: #595959;
+          letter-spacing: 0;
+          -webkit-box-orient: vertical;
+          -webkit-line-clamp: 3;
+        }
+      }
+    }
+  }
+}

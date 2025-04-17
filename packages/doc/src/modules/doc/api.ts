@@ -37,26 +37,25 @@ export const DocAPI = {
   },
   getList(search: ListSearch): Promise<ListResult> {
     const {id = '0'} = search;
-    return Promise.all([
-      request.get(`/dream/pen/dFolder/list`, {params: {id}}),
-      request.get(`/dream/pen/dFolder/level`, {params: {id}}),
-    ]).then(([listRes, levelRes]) => {
-      const list: ListItem[] = listRes.data.data || [];
-      return {
-        list: list.map((item) => {
-          item.type = item.articleId ? 'doc' : 'dir';
-          item.id = item.articleId || item.folderId;
-          item.title = item.title || item.folderName;
-          return item;
-        }),
-        summary: {
-          pageCurrent: 1,
-          pageSize: 999999,
-          totalItems: list.length,
-          levelPath: levelRes.data.data || [],
-        },
-      };
-    });
+    return Promise.all([request.get(`/dream/pen/dFolder/list`, {params: {id}}), request.get(`/dream/pen/dFolder/level`, {params: {id}})]).then(
+      ([listRes, levelRes]) => {
+        const list: ListItem[] = listRes.data.data || [];
+        return {
+          list: list.map((item) => {
+            item.type = item.articleId ? 'doc' : 'dir';
+            item.id = item.articleId || item.folderId;
+            item.title = item.title || item.folderName;
+            return item;
+          }),
+          summary: {
+            pageCurrent: 1,
+            pageSize: 999999,
+            totalItems: list.length,
+            levelPath: levelRes.data.data || [],
+          },
+        };
+      }
+    );
   },
   alterItems(id: string, changed: {title: string}): Promise<void> {
     return request.put(`/api/flow/${id}`, changed);
