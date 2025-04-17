@@ -6,7 +6,6 @@ import {createPortal} from 'react-dom';
 import {addClass, useEvent} from '@/utils/tools';
 import AILayer from '../AILayer';
 import AiIcon from '../ColorAIcon';
-import {ISelection, getSelectionContext} from '../utils';
 import styles from './index.module.less';
 import type {IAIRef} from '../AILayer';
 import './registerMenu';
@@ -48,29 +47,7 @@ const Component: FC<Props> = ({editor}) => {
     if (!editor.selection || aiRef?.menuIsOpen()) {
       return;
     }
-    const pos = editor.getSelectionPosition();
-    const posNum = {
-      left: parseInt(pos.left || '0'),
-      top: parseInt(pos.top || '0'),
-      right: parseInt(pos.right || '0'),
-      bottom: parseInt(pos.bottom || '0'),
-    };
-    //console.log(posNum);
-    const editorContainer = editor.getEditableContainer() as HTMLElement;
-    const containerRect = editorContainer.getBoundingClientRect();
-    const selectionPos: ISelection['pos'] = {x: 0, y: 0};
-
-    if (posNum.left) {
-      selectionPos.x = posNum.left + containerRect.left;
-    } else if (posNum.right) {
-      selectionPos.x = containerRect.left - posNum.right + containerRect.width + 8;
-    }
-    if (posNum.top) {
-      selectionPos.y = posNum.top + containerRect.top;
-    } else if (posNum.bottom) {
-      selectionPos.y = containerRect.height - posNum.bottom + containerRect.top + 35;
-    }
-    aiRef?.openMenu({pos: selectionPos, ...getSelectionContext(editor)!});
+    aiRef?.openMenu({editor});
     const scroller = document.getElementById('_ai_editor_scroller')!;
     addClass(scroller, 'on');
   });

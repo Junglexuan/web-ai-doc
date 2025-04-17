@@ -9,12 +9,17 @@ import {
   PictureOutlined,
   ReadOutlined,
 } from '@ant-design/icons';
-import {Menu, MenuProps} from 'antd';
-import {FC, memo, useCallback, useEffect, useRef, useState} from 'react';
-import {removeClass, useEvent} from '@/utils/tools';
+import {IDomEditor, SlateEditor, SlateElement, SlateNode, createEditor} from '@wangeditor-next/editor';
+import {Menu} from 'antd';
+import {FC, memo, useCallback, useEffect, useLayoutEffect, useRef, useState} from 'react';
+import {eachTree, insertAfter, removeClass, useEvent} from '@/utils/tools';
 import AiIcon from '../AIcon';
+import {AIEvent} from '../utils';
 import styles from './index.module.less';
-import type {ISelection} from '../utils';
+
+export interface MenuEvent {
+  editor: IDomEditor;
+}
 
 type MenuItem = any;
 
@@ -531,19 +536,21 @@ function searchShortcut(key: string) {
 }
 
 interface Props {
-  selection: ISelection;
-  onSelect: (key: string) => void;
+  event: MenuEvent;
+  onSelect: (event: AIEvent) => void;
   onCancel: () => void;
 }
 
-const Component: FC<Props> = ({selection, onSelect, onCancel}) => {
+const Component: FC<Props> = (props) => {
+  const {event, onCancel} = props;
   const rootDivRef = useRef<HTMLElement>();
   const menuInput = useRef<HTMLInputElement>(null as any);
   const menuComp = useRef<any>(null as any);
+  const [menuStyles, setMenuStyles] = useState({left: 0, top: 0});
   const [openKeys, setOpenKeys] = useState<string[]>();
   const [selectedKeys, setSelectedKeys] = useState<string[] | undefined>();
   const [items] = useState(() => {
-    if (!selection?.content) {
+    if (!event.editor.getSelectionText()) {
       itemsMap['R'].disabled = true;
       itemsMap['J'].disabled = true;
       itemsMap['F'].disabled = true;
@@ -555,6 +562,65 @@ const Component: FC<Props> = ({selection, onSelect, onCancel}) => {
       itemsMap['Z'].disabled = undefined;
     }
     return originItems;
+  });
+
+  const onSelect = useEvent((key: string) => {
+    const editor = event.editor;
+    editor.focus();
+    const selection = editor.selection;
+    if (selection) {
+      let result: AIEvent;
+      let lastDom: HTMLElement;
+      if (JSON.stringify(selection.anchor) === JSON.stringify(selection.focus)) {
+        editor.insertBreak();
+        const [curNode] = SlateEditor.node(editor, selection);
+        lastDom = editor.toDOMNode(curNode);
+        const dsl: any[] = editor.children;
+        const text: string[] = [];
+        eachTree(dsl, (node) => {
+          if (node.text) {
+            text.push(node.text);
+          }
+          return node === curNode;
+        });
+        //SlateEditor.above(editor, {at: editor.selection, match: (n) => SlateEditor.isBlock(editor, n) || SlateEditor.isEditor(n)});
+        result = {key, context: text.join(''), content: ''} as any;
+      } else {
+        // const nodeEntries = SlateEditor.nodes(editor, {mode: 'lowest'});
+        // if (nodeEntries) {
+        //   for (const nodeEntry of nodeEntries) {
+        //     const [node, path] = nodeEntry;
+        //     console.log('选中了 paragraph 节点', node);
+        //     console.log('节点 path 是', path);
+        //   }
+        // }
+        const [anchor] = SlateEditor.node(editor, selection.anchor);
+        const [focus] = SlateEditor.node(editor, selection.focus);
+        const anchorDom = editor.toDOMNode(anchor);
+        const focusDom = editor.toDOMNode(focus);
+        const anchorRect = anchorDom.getBoundingClientRect();
+        const focusRect = focusDom.getBoundingClientRect();
+        result = {
+          key,
+          context: editor.getSelectionText(),
+          content: editor.getSelectionText(),
+        } as any;
+        if (anchorRect.top < focusRect.top) {
+          lastDom = focusDom;
+          // result.begin = anchorDom;
+          // result.end = focusDom;
+        } else {
+          lastDom = anchorDom;
+          // result.begin = focusDom;
+          // result.end = anchorDom;
+        }
+      }
+      const placeholder = document.createElement('div') as HTMLElement;
+      placeholder.id = '_ai_placeholder';
+      insertAfter(placeholder, lastDom);
+      result.placeholder = placeholder;
+      props.onSelect(result);
+    }
   });
 
   const onKeyDown = useEvent((e: any) => {
@@ -629,17 +695,8 @@ const Component: FC<Props> = ({selection, onSelect, onCancel}) => {
     // console.log(l1);
   });
 
-  const onMenuClick: MenuProps['onClick'] = useCallback(
-    ({key}: any) => {
-      console.log('click', key);
-      onSelect(key);
-    },
-    [onSelect]
-  );
-
   const onMenuSelect = useCallback(
-    ({key, selectedKeys}: any) => {
-      console.log('onMenuSelect', key, selectedKeys);
+    ({key, selectedKeys}: {key: string; selectedKeys: string[]}) => {
       setSelectedKeys(selectedKeys);
       onSelect(key);
     },
@@ -660,21 +717,44 @@ const Component: FC<Props> = ({selection, onSelect, onCancel}) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [curCmd]);
 
-  useEffect(() => {
-    menuInput.current.focus();
-    document.addEventListener('mousemove', onMouseMove);
+  useLayoutEffect(() => {
+    const editor = event.editor;
+    const pos = editor.getSelectionPosition();
+    const posNum = {
+      left: parseInt(pos.left || '0'),
+      top: parseInt(pos.top || '0'),
+      right: parseInt(pos.right || '0'),
+      bottom: parseInt(pos.bottom || '0'),
+    };
+    //console.log(posNum);
+    const editorContainer = editor.getEditableContainer() as HTMLElement;
+    const containerRect = editorContainer.getBoundingClientRect();
+    const selPos = {x: 0, y: 0};
+    if (posNum.left) {
+      selPos.x = posNum.left + containerRect.left;
+    } else if (posNum.right) {
+      selPos.x = containerRect.left - posNum.right + containerRect.width + 8;
+    }
+    if (posNum.top) {
+      selPos.y = posNum.top + containerRect.top;
+    } else if (posNum.bottom) {
+      selPos.y = containerRect.height - posNum.bottom + containerRect.top + 35;
+    }
     const rootDiv = rootDivRef.current!;
     const menuPos = {left: 0, top: 0};
-    const selectionPos = selection.pos;
-    menuPos.left = selectionPos.x;
-    menuPos.top = selectionPos.y - 100;
+    menuPos.left = selPos.x;
+    menuPos.top = selPos.y - 100;
     const menuMaxTop = window.innerHeight - rootDiv.offsetHeight;
     if (menuPos.top > menuMaxTop) {
       menuPos.top = menuMaxTop;
     }
-    rootDiv.style.left = menuPos.left + 'px';
-    rootDiv.style.top = menuPos.top + 'px';
+    setMenuStyles(menuPos);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
+  useEffect(() => {
+    menuInput.current.focus();
+    document.addEventListener('mousemove', onMouseMove);
     return () => {
       document.removeEventListener('mousemove', onMouseMove);
     };
@@ -682,7 +762,7 @@ const Component: FC<Props> = ({selection, onSelect, onCancel}) => {
   }, []);
 
   return (
-    <div ref={rootDivRef as any} className={styles.menu + ' on'} onMouseMove={onMouseMove}>
+    <div ref={rootDivRef as any} className={styles.menu + ' on'} style={menuStyles} onMouseMove={onMouseMove}>
       <input ref={menuInput as any} defaultValue="/" onKeyDown={onKeyDown} onChange={onKeyChange} />
       <Menu
         ref={menuComp}
