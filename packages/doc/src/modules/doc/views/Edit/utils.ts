@@ -1,5 +1,4 @@
 import {createEditor} from '@wangeditor-next/editor';
-import {eachTree, insertAfter} from '@/utils/tools';
 
 export interface AIEvent {
   key: string;

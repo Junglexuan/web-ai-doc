@@ -54,12 +54,16 @@ const Component: FC<Props> = ({editor}) => {
 
   const closeMenu = useEvent(() => aiRef?.closeMenu());
 
+  const onKeyDown = useEvent((e: any) => {
+    if (e.key === 'Escape') {
+      closeMenu();
+    }
+  });
+
   useEffect(() => {
-    document.addEventListener('keyup', (e) => {
-      if (e.key === 'Escape') {
-        closeMenu();
-      }
-    });
+    document.addEventListener('keyup', onKeyDown);
+
+    return () => document.removeEventListener('keyup', onKeyDown);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

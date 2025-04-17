@@ -4,6 +4,7 @@ import {Breadcrumb, Button, Dropdown, Form, Input, Popover, Space, Table, TableP
 import {FC, memo, useEffect, useMemo, useState} from 'react';
 import EasyEdit from '@/components/EasyEdit';
 import {GetClientRouter} from '@/Global';
+import {replaceBaseUrl} from '@/utils/request';
 import {confirm, getUrlParam, message, useEvent, useSingleWindow} from '@/utils/tools';
 import {DocAPI} from '../../api';
 import {ListItem, ListSearch, ListSummary} from '../../entity';
@@ -83,6 +84,12 @@ const Component: FC<Props> = ({list, listSearch, listSummary}) => {
                   allowClear
                   style={{width: '200px'}}
                   defaultValue={record.title}
+                  onBlur={(e: any) => {
+                    const value = e.target.value.trim();
+                    if (value && value !== record.title) {
+                      onRename(record.id, record.type, e.target.value);
+                    }
+                  }}
                   onKeyDown={(e: any) => {
                     if (e.key === 'Enter') {
                       const value = e.target.value.trim();
@@ -116,7 +123,14 @@ const Component: FC<Props> = ({list, listSearch, listSummary}) => {
                 items: [
                   {key: '分享', label: '分享'},
                   {key: '移动到', label: '移动到'},
-                  {key: '下载', label: '下载'},
+                  {
+                    key: '下载Word',
+                    label: (
+                      <a download href={replaceBaseUrl(`/dream/pen/article/down?id=${record.id}&type=word`)}>
+                        下载Word
+                      </a>
+                    ),
+                  },
                   {key: '删除', label: '删除'},
                 ],
               }}
@@ -251,7 +265,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary}) => {
           <Button id="_create-doc-btn" loading={loading === 'create'} icon={<PlusOutlined />} onClick={onCreate}>
             起草公文
           </Button>
-          <Button icon={<ExceptionOutlined />}>创建模版</Button>
+          {/* <Button icon={<ExceptionOutlined />}>创建模版</Button> */}
           <Button loading={loading === 'createDir'} icon={<FolderAddOutlined />} onClick={onCreateDir}>
             新建文件夹
           </Button>
