@@ -104,6 +104,7 @@ export class Model extends BaseModel<ModuleState, APPState> {
     if (!this.state.curUser.hasLogin && this.checkNeedsLogin(pathname)) {
       throw new CustomError(ErrorCode.unauthorized, '', url);
     }
+    console.log(url);
   }
   @effect(null)
   protected async ['this._beforeRouteChange']({url, pathname}: {url: string; pathname: string}): Promise<void> {
