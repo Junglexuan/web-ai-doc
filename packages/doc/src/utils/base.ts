@@ -7,5 +7,5 @@ export interface CurUser {
 }
 
 export const LoginUrl = (from?: string): string => `/stage/login?__c=_dialog&from=${encodeURIComponent(from || '')}`;
-export const AdminHomeUrl = (appID?: string | number): string => `/zov-lowcode`;
+export const AdminHomeUrl = (appID?: string | number): string => `/admin/home`;
 export const InIframe = window.parent !== window;

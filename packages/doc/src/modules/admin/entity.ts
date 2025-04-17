@@ -1,5 +1,5 @@
 export enum SubModule {
-  'dashboard' = 'dashboard',
+  'home' = 'home',
   'doc' = 'doc',
 }
 

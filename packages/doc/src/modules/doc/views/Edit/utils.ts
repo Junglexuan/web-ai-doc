@@ -5,7 +5,9 @@ export interface ISelection {
   pos: {x: number; y: number};
   context: string;
   content: string;
-  placeholder?: HTMLElement;
+  begin: HTMLElement;
+  end: HTMLElement;
+  placeholder: HTMLElement;
 }
 
 export function dslToHtml(dsl: any): string {
@@ -18,11 +20,18 @@ export function dslToHtml(dsl: any): string {
   }
 }
 
-export function getSelectionContext(editor: IDomEditor): {context: string; content: string; anchor?: HTMLElement; placeholder?: HTMLElement} {
+export function getSelectionContext(editor: IDomEditor): {
+  context: string;
+  content: string;
+  begin: HTMLElement;
+  end: HTMLElement;
+  placeholder: HTMLElement;
+} | null {
   if (editor.selection) {
-    let result: {context: string; content: string; anchor: HTMLElement; placeholder?: HTMLElement};
+    let result: {context: string; content: string; begin: HTMLElement; end: HTMLElement; placeholder: HTMLElement};
     if (JSON.stringify(editor.selection.anchor) === JSON.stringify(editor.selection.focus)) {
       const [curNode] = SlateEditor.node(editor, editor.selection);
+      const curDom = editor.toDOMNode(curNode);
       const dsl: any[] = editor.children;
       const text: string[] = [];
       eachTree(dsl, (node) => {
@@ -32,24 +41,16 @@ export function getSelectionContext(editor: IDomEditor): {context: string; conte
         return node === curNode;
       });
       //SlateEditor.above(editor, {at: editor.selection, match: (n) => SlateEditor.isBlock(editor, n) || SlateEditor.isEditor(n)});
-      result = {context: text.join(''), content: '', anchor: editor.toDOMNode(curNode)};
+      result = {context: text.join(''), content: '', begin: curDom, end: curDom} as any;
     } else {
-      const nodeEntries = SlateEditor.nodes(editor);
-      console.log(nodeEntries);
-      if (nodeEntries) {
-        for (const nodeEntry of nodeEntries) {
-          const [node, path] = nodeEntry;
-          console.log('选中了 paragraph 节点', node);
-          console.log('节点 path 是', path);
-        }
-      }
-
-      // if (nodeEntries == null) {
-      //   console.log('当前未选中的 paragraph');
-      // } else {
-
+      // const nodeEntries = SlateEditor.nodes(editor, {mode: 'lowest'});
+      // if (nodeEntries) {
+      //   for (const nodeEntry of nodeEntries) {
+      //     const [node, path] = nodeEntry;
+      //     console.log('选中了 paragraph 节点', node);
+      //     console.log('节点 path 是', path);
+      //   }
       // }
-
       const [anchor] = SlateEditor.node(editor, editor.selection.anchor);
       const [focus] = SlateEditor.node(editor, editor.selection.focus);
       const anchorDom = editor.toDOMNode(anchor);
@@ -59,14 +60,20 @@ export function getSelectionContext(editor: IDomEditor): {context: string; conte
       result = {
         context: editor.getSelectionText(),
         content: editor.getSelectionText(),
-        anchor: anchorRect.top > focusRect.top ? anchorDom : focusDom,
-      };
+      } as any;
+      if (anchorRect.top < focusRect.top) {
+        result.begin = anchorDom;
+        result.end = focusDom;
+      } else {
+        result.begin = focusDom;
+        result.end = anchorDom;
+      }
     }
     const placeholder = document.createElement('div') as HTMLElement;
     placeholder.id = '_ai_placeholder';
-    insertAfter(placeholder, result.anchor);
+    insertAfter(placeholder, result.end);
     result.placeholder = placeholder;
     return result;
   }
-  return {context: '', content: ''};
+  return null;
 }

@@ -1,24 +1,32 @@
-import {AlignCenterOutlined, DatabaseOutlined, DeleteOutlined, EditOutlined, FileOutlined, HomeOutlined, StarOutlined} from '@ant-design/icons';
-import {Button, Menu, MenuProps} from 'antd';
+import {AlignCenterOutlined, DatabaseOutlined, EditOutlined, FileOutlined, HomeOutlined, StarOutlined} from '@ant-design/icons';
+import {Link} from '@elux/react-web';
+import {Button, Menu} from 'antd';
 import {FC, useCallback, useMemo, useState} from 'react';
 import Logo from '@/assets/images/logo.svg';
 import {GetClientRouter} from '@/Global';
 import DocAPI from '@/modules/doc/api';
-import {getUrlParam, message} from '@/utils/tools';
+import {getUrlParam, message, useEvent} from '@/utils/tools';
 import styles from './index.module.less';
 
-type MenuItem = Required<MenuProps>['items'][number];
-
-const items: MenuItem[] = [
+const items: any[] = [
   {
     key: '首页',
     icon: <HomeOutlined />,
-    label: '首页',
+    label: (
+      <Link to="/admin/home" action="relaunch">
+        首页
+      </Link>
+    ),
+    url: '/',
   },
   {
     key: '我的文档',
     icon: <FileOutlined />,
-    label: '我的文档',
+    label: (
+      <Link to="admin/doc/list/maintain" action="relaunch">
+        我的文档
+      </Link>
+    ),
   },
   {
     key: '我的收藏',
@@ -48,8 +56,12 @@ const Component: FC<{}> = () => {
     if (pathname.startsWith('/admin/doc/list/maintain')) {
       return ['我的文档'];
     }
+    if (pathname.startsWith('/admin/home')) {
+      return ['首页'];
+    }
     return [];
   }, [pathname]);
+
   const [loading, setLoading] = useState<'create' | 'list' | ''>('');
 
   const onCreate = useCallback(() => {

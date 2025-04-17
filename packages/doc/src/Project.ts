@@ -9,6 +9,7 @@ import {AdminHomeUrl} from '@/utils/base';
 export const ModuleGetter = {
   stage: () => stage,
   admin: () => admin,
+  home: () => import('@/modules/home'),
   doc: () => import('@/modules/doc'),
 };
 

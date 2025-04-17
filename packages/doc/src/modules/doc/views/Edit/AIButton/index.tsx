@@ -45,10 +45,10 @@ interface Props {
 const Component: FC<Props> = ({editor}) => {
   const [aiRef, setAiRef] = useState<IAIRef>();
   const onClick = useEvent(() => {
-    const pos = editor.getSelectionPosition() || {top: '0', left: '0'};
-    if ((pos.top === '0' && pos.left === '0') || aiRef?.menuIsOpen()) {
+    if (!editor.selection || aiRef?.menuIsOpen()) {
       return;
     }
+    const pos = editor.getSelectionPosition();
     const posNum = {
       left: parseInt(pos.left || '0'),
       top: parseInt(pos.top || '0'),
@@ -70,7 +70,7 @@ const Component: FC<Props> = ({editor}) => {
     } else if (posNum.bottom) {
       selectionPos.y = containerRect.height - posNum.bottom + containerRect.top + 35;
     }
-    aiRef?.openMenu({pos: selectionPos, ...getSelectionContext(editor)});
+    aiRef?.openMenu({pos: selectionPos, ...getSelectionContext(editor)!});
     const scroller = document.getElementById('_ai_editor_scroller')!;
     addClass(scroller, 'on');
   });
