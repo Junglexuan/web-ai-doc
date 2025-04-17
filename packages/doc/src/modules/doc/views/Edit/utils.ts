@@ -19,3 +19,11 @@ export function dslToHtml(dsl: any): string {
     return '';
   }
 }
+
+export function htmlToDsl(html: string): string {
+  if (html) {
+    const editor = createEditor({html});
+    return JSON.stringify(editor.children);
+  }
+  return '';
+}

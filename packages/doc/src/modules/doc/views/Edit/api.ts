@@ -1,5 +1,6 @@
 import {fetchEventSource} from '@microsoft/fetch-event-source';
 import request, {replaceBaseUrl} from '@/utils/request';
+import {getToken} from '@/utils/tools';
 import {dslToHtml} from './utils';
 
 export type RunningState = '' | 'Pending' | 'Rejected' | 'Fulfilled';
@@ -54,15 +55,19 @@ function decodeMessage(str: string): string {
   return dslToHtml(result);
 }
 
+function getHeaders() {
+  return {
+    'Content-Type': 'application/json',
+    authorization: `bearer ${getToken()}`,
+  };
+}
 const continueWrite: AIRequest = ({args, onMessage, onError, onDone}) => {
   const controller = new AbortController();
   const {signal} = controller;
   const {docId, prompt, context} = args;
   fetchEventSource(replaceBaseUrl('/dream/pen/ai/writer/continued'), {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: getHeaders(),
     body: JSON.stringify({type: 'continued', continuedType: 'paragraph', conversation_id: docId, prompt, content: context}),
     signal,
     onmessage: (ev) => onMessage(decodeMessage(ev.data)),
@@ -81,9 +86,7 @@ const createFullText: AIRequest = ({args, onMessage, onError, onDone}) => {
   const {docId, prompt} = args;
   fetchEventSource(replaceBaseUrl('/dream/pen/ai/writer/fullText'), {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: getHeaders(),
     body: JSON.stringify({type: 'fullText', conversation_id: docId, prompt}),
     signal,
     onmessage: (ev) => onMessage(decodeMessage(ev.data)),
@@ -102,9 +105,7 @@ const createOutline: AIRequest = ({args, onMessage, onError, onDone}) => {
   const {docId, prompt} = args;
   fetchEventSource(replaceBaseUrl('/dream/pen/ai/writer/outline'), {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: getHeaders(),
     body: JSON.stringify({type: 'outline', conversation_id: docId, prompt}),
     signal,
     onmessage(ev) {
@@ -140,9 +141,7 @@ const stylize: AIRequest = ({args, onMessage, onError, onDone}) => {
   }
   fetchEventSource(replaceBaseUrl(req.url), {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: getHeaders(),
     body: JSON.stringify(req.body),
     signal,
     onmessage: (ev) => onMessage(decodeMessage(ev.data)),
@@ -161,9 +160,7 @@ const ask: AIRequest = ({args, onMessage, onError, onDone}) => {
   const {docId, prompt} = args;
   fetchEventSource(replaceBaseUrl('/dream/pen/ai/writer/question'), {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: getHeaders(),
     body: JSON.stringify({type: 'question', conversation_id: docId, prompt}),
     signal,
     onmessage(ev) {

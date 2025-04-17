@@ -70,7 +70,7 @@ const Component: FC<{}> = () => {
       btn.click();
     } else {
       setLoading('create');
-      DocAPI.createDoc({folder: '0', contents: ''})
+      DocAPI.createDoc({folder: '0', title: '', contents: ''})
         .then(({id}) => {
           GetClientRouter().push({url: `/admin/doc/item/edit?id=${id}&__c=_dialog`}, 'window');
         })
