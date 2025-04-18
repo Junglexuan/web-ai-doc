@@ -1,6 +1,6 @@
 import {CheckOutlined, DeleteOutlined, EditOutlined, PauseCircleOutlined, QuestionCircleFilled, SyncOutlined} from '@ant-design/icons';
 import {Button, Space, Spin} from 'antd';
-import {FC, ReactElement, cloneElement, memo, useEffect} from 'react';
+import {FC, ReactElement, memo, useEffect} from 'react';
 import ColorAIcon from '../ColorAIcon';
 import EnterIcon from '../EnterIcon';
 import {AIDialogHooks} from '../hooks';
@@ -29,7 +29,7 @@ const Component: FC<Props> = ({title, children, hooks, automatic}) => {
       <ColorAIcon />
       <div className="input">
         <EnterIcon onClick={onPromptSubmit} />
-        {cloneElement(children, {onPressEnter: onPromptSubmit, ref: inputRef})}
+        {children}
       </div>
       <div className="result">
         <Spin className="loading" size="small" />

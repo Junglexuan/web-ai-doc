@@ -25,13 +25,3 @@ const Component: FC<Props> = ({aiRef, onRunningStateChange}) => {
 };
 
 export default memo(Component);
-
-{
-  /* <Input
-        ref={hooks.inputRef}
-        onPressEnter={hooks.onPromptSubmit}
-        placeholder="请描述要“生成大纲”的主题和各种要求..."
-        defaultValue={`围绕 “${aiRef.getTitle()}” 生成一篇文章大纲`}
-        variant="borderless"
-      /> */
-}

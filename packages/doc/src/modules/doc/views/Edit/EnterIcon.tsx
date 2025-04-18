@@ -16,7 +16,7 @@ export default function AiIcon(props: {className?: string; onClick: () => void})
   }, []);
 
   return (
-    <span className="g-enter-icon" onClick={props.onClick} onKeyDown={onKeyDown} tabIndex={0} ref={rootRef as any}>
+    <span className="g-enter-icon" onClick={props.onClick} onKeyDown={onKeyDown} tabIndex={2} ref={rootRef as any}>
       <svg fill="none" width="24" height="24" viewBox="0 0 24 24">
         <defs>
           <linearGradient x1="1" y1="1" x2="-0.11555661116287834" y2="0.15202003153389274" id="master_svg0_7_05752">
