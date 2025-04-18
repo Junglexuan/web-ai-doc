@@ -1,6 +1,22 @@
-export default function AiIcon(props: {className?: string; onClick?: () => void}): JSX.Element {
+import {useCallback, useEffect, useRef} from 'react';
+
+export default function AiIcon(props: {className?: string; onClick: () => void}): JSX.Element {
+  const rootRef = useRef<HTMLElement>();
+
+  const onKeyDown = useCallback((e: any) => {
+    const {code} = e;
+    if (code === 'Enter') {
+      e.preventDefault();
+      rootRef.current!.click();
+    }
+  }, []);
+
+  useEffect(() => {
+    rootRef.current!.focus();
+  }, []);
+
   return (
-    <span className="g-enter-icon" onClick={props.onClick}>
+    <span className="g-enter-icon" onClick={props.onClick} onKeyDown={onKeyDown} tabIndex={0} ref={rootRef as any}>
       <svg fill="none" width="24" height="24" viewBox="0 0 24 24">
         <defs>
           <linearGradient x1="1" y1="1" x2="-0.11555661116287834" y2="0.15202003153389274" id="master_svg0_7_05752">

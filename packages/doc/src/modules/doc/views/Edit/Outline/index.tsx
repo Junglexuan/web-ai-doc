@@ -17,7 +17,6 @@ const Component: FC<Props> = ({editor}) => {
     e.preventDefault();
     const id = e.target.getAttribute('data-id');
     const dom = document.getElementById(id);
-    console.log(dom);
     if (dom) {
       dom.scrollIntoView();
     }

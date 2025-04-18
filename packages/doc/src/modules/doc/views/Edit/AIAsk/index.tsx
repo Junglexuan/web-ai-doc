@@ -1,6 +1,6 @@
-import {Input} from 'antd';
 import {FC, memo} from 'react';
 import AIBase from '../AIBase';
+import AntInput from '../AntInput';
 import AiAPI, {RunningState} from '../api';
 import {useAIDialog} from '../hooks';
 import type {IAIRef} from '../AILayer';
@@ -15,7 +15,7 @@ const Component: FC<Props> = ({aiRef, onRunningStateChange}) => {
 
   return (
     <AIBase title="提问" hooks={hooks}>
-      <Input ref={hooks.inputRef} onPressEnter={hooks.onPromptSubmit} placeholder="请输入问题..." variant="borderless" />
+      <AntInput ref={hooks.inputRef} placeholder="请输入问题..." />
     </AIBase>
   );
 };

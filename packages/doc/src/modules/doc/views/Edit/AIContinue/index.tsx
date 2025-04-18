@@ -1,7 +1,7 @@
-import {Input} from 'antd';
 import {FC, memo} from 'react';
 //import AdjustIcon from '@/assets/images/Adjust';
 import AIBase from '../AIBase';
+import AntInput from '../AntInput';
 import AiAPI, {RunningState} from '../api';
 import {useAIDialog} from '../hooks';
 import type {IAIRef} from '../AILayer';
@@ -16,7 +16,7 @@ const Component: FC<Props> = ({aiRef, onRunningStateChange}) => {
 
   return (
     <AIBase title="继续写" hooks={hooks}>
-      <Input ref={hooks.inputRef} onPressEnter={hooks.onPromptSubmit} placeholder="您可以输入“继续写”的各种要求..." variant="borderless" />
+      <AntInput ref={hooks.inputRef} placeholder="您可以输入“继续写”的各种要求..." />
     </AIBase>
   );
 };

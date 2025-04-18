@@ -10,6 +10,10 @@ export interface AIEvent {
   placeholder: HTMLElement;
 }
 
+export interface AIInputRef {
+  getValue: () => string;
+}
+
 export function dslToHtml(dsl: any): string {
   const arr = Array.isArray(dsl) ? dsl : [dsl];
   if (arr[0]) {

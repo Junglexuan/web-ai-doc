@@ -43,7 +43,7 @@ const Component: FC<Props> = ({onCreated, editor}) => {
   const closeMenu = useEvent(() => {
     if (runningState === 'Pending') {
       message.warning('正在执行...请先停止当前任务!');
-      //editor.blur();
+      editor.blur();
       return;
     }
     setMenuEvent(undefined);

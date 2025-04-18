@@ -626,6 +626,7 @@ const Component: FC<Props> = (props) => {
   const onKeyDown = useEvent((e: any) => {
     const {code} = e;
     if (code === 'Enter') {
+      e.preventDefault();
       if (selectedKeys) {
         const key = selectedKeys[selectedKeys.length - 1];
         const item = itemsMap[key];

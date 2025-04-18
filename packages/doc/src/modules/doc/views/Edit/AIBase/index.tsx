@@ -17,17 +17,10 @@ const Component: FC<Props> = ({title, children, hooks, automatic}) => {
   const {onPromptSubmit, inputRef, fragment, fragmentRef, runningState, onRedo, onKeep, onStop, onInsert} = hooks;
 
   useEffect(() => {
-    const placeholder = document.getElementById('_ai_placeholder');
-    const dialog = document.getElementById('_ai_dialog')!;
-    if (placeholder) {
-      placeholder.style.height = dialog.offsetHeight + 'px';
-    }
-  }, [fragment, runningState]);
-
-  useEffect(() => {
     if (automatic) {
       onPromptSubmit();
     }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -40,7 +33,7 @@ const Component: FC<Props> = ({title, children, hooks, automatic}) => {
       </div>
       <div className="result">
         <Spin className="loading" size="small" />
-        <div className="title">{inputRef.current?.input.value || title}...</div>
+        <div className="title">{inputRef.current?.getValue() || title}...</div>
         <Button size="small" className="pause-btn" type="text" icon={<PauseCircleOutlined />} onClick={onStop}>
           停止
         </Button>
