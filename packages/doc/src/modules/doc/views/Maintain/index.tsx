@@ -1,11 +1,11 @@
 import {DeleteOutlined, DownOutlined, ExceptionOutlined, FolderAddOutlined, PlusOutlined, StarFilled, UploadOutlined} from '@ant-design/icons';
 import {DocumentHead, Link} from '@elux/react-web';
-import {Breadcrumb, Button, Dropdown, Form, Input, Popover, Space, Table, TableProps, Upload} from 'antd';
-import {FC, memo, useEffect, useMemo, useState} from 'react';
+import {Breadcrumb, Button, Dropdown, Input, Popover, Space, Table, TableProps, Upload, UploadProps} from 'antd';
+import {FC, memo, useMemo, useState} from 'react';
 import EasyEdit from '@/components/EasyEdit';
 import {GetClientRouter} from '@/Global';
-import {replaceBaseUrl} from '@/utils/request';
-import {confirm, getUrlParam, message, useEvent, useSingleWindow} from '@/utils/tools';
+import {getUploadProps, replaceBaseUrl} from '@/utils/request';
+import {confirm, message, useEvent, useSingleWindow} from '@/utils/tools';
 import {DocAPI} from '../../api';
 import {ListItem, ListSearch, ListSummary} from '../../entity';
 import styles from './index.module.less';
@@ -17,7 +17,7 @@ interface Props {
 
 const Component: FC<Props> = ({list, listSearch, listSummary}) => {
   const singleWindow = useSingleWindow();
-  const [loading, setLoading] = useState<'create' | 'createDir' | ''>('');
+  const [loading, setLoading] = useState<'create' | 'createDir' | 'upload' | ''>('');
 
   const onShowDetail = useEvent((id: string, type: 'dir' | 'doc') => {
     if (type === 'doc') {
@@ -145,12 +145,14 @@ const Component: FC<Props> = ({list, listSearch, listSummary}) => {
     ];
   }, [onRename, onShowDetail]);
 
-  const onCreate = useEvent(() => {
+  const onCreate = useEvent((title: string = '', contents: string = '') => {
     setLoading('create');
-    DocAPI.createDoc({folder: listSearch.id || '0', contents: ''})
+    DocAPI.createDoc({folder: listSearch.id || '0', title, contents})
       .then(async ({id}) => {
         await GetClientRouter().back(0);
-        GetClientRouter().push({url: `/admin/doc/item/edit/${id}?__c=_dialog`}, singleWindow);
+        if (!title) {
+          GetClientRouter().push({url: `/admin/doc/item/edit/${id}?__c=_dialog`}, singleWindow);
+        }
       })
       .catch((e) => {
         message.error(e + '');
@@ -167,6 +169,19 @@ const Component: FC<Props> = ({list, listSearch, listSummary}) => {
       })
       .finally(() => setLoading(''));
   });
+
+  const uploadProps: UploadProps = useMemo(
+    () =>
+      getUploadProps('/dream/pen/article/upload', {
+        onProcess: () => setLoading('upload'),
+        onSuccess: (file, res) => {
+          setLoading('');
+          onCreate(res.title, res.html.replace(/^<div[^>]+>(.+?)<\/div>$/, '$1'));
+        },
+        onError: () => setLoading(''),
+      }),
+    [onCreate]
+  );
 
   const rowSelection: TableProps<any>['rowSelection'] = {
     onChange: (selectedRowKeys: React.Key[], selectedRows: any[]) => {
@@ -262,15 +277,17 @@ const Component: FC<Props> = ({list, listSearch, listSummary}) => {
       <div className="hd">{breadcrumb}</div>
       <div className="cd">
         <Space>
-          <Button id="_create-doc-btn" loading={loading === 'create'} icon={<PlusOutlined />} onClick={onCreate}>
+          <Button id="_create-doc-btn" loading={loading === 'create'} icon={<PlusOutlined />} onClick={() => onCreate()}>
             起草公文
           </Button>
           {/* <Button icon={<ExceptionOutlined />}>创建模版</Button> */}
           <Button loading={loading === 'createDir'} icon={<FolderAddOutlined />} onClick={onCreateDir}>
             新建文件夹
           </Button>
-          <Upload>
-            <Button icon={<UploadOutlined />}>上传文档</Button>
+          <Upload showUploadList={false} {...uploadProps}>
+            <Button loading={loading === 'upload'} icon={<UploadOutlined />}>
+              上传文档
+            </Button>
           </Upload>
           <Button icon={<DeleteOutlined />}>批量删除</Button>
         </Space>

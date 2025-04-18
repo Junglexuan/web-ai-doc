@@ -25,7 +25,7 @@ export class CustomError<Detail = any> implements ActionError {
 }
 
 function mapHttpErrorCode(httpCode: number): ErrorCode {
-  const HttpErrorCode = {
+  const HttpErrorCode: any = {
     401: ErrorCode.unauthorized,
     403: ErrorCode.forbidden,
     404: ErrorCode.notFound,
@@ -38,7 +38,7 @@ function isMapObject(obj: any): Boolean {
 }
 
 export function mergeDefaultParams<T extends {[key: string]: any}>(defaultParams: T, targetParams: {[key: string]: any}): T {
-  return Object.keys(defaultParams).reduce((result, key) => {
+  return Object.keys(defaultParams).reduce((result: any, key) => {
     const defVal = defaultParams[key];
     const tgtVal = targetParams[key];
     if (tgtVal == undefined) {
@@ -133,3 +133,34 @@ instance.interceptors.response.use(
 );
 
 export default instance;
+
+export function getUploadProps(
+  url: string,
+  callback: {onProcess: () => void; onSuccess: (file: any, res: any) => void; onError: (data: any, res: any) => void}
+): {[key: string]: any} {
+  return {
+    name: 'file',
+    action: replaceBaseUrl(url),
+    headers: {
+      authorization: `bearer ${getToken()}`,
+    },
+    onChange(info: any) {
+      const file = info.file || {};
+      const res = file.response;
+      if (file.status === 'uploading') {
+        callback.onProcess();
+      }
+      if (file.status === 'done') {
+        if (res.success) {
+          callback.onSuccess(file, res.data);
+        } else {
+          Message.error(`${res.msg}.`);
+          callback.onError(file, res);
+        }
+      } else if (file.status === 'error') {
+        Message.error(`${file.name} file upload failed.`);
+        callback.onError(file, res);
+      }
+    },
+  };
+}

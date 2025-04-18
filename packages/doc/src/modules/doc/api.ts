@@ -3,10 +3,15 @@ import request from '@/utils/request';
 import {ItemDetail, ListItem, ListResult, ListSearch} from './entity';
 
 export const DocAPI = {
-  createDoc({contents, folder}: {contents: string; folder: string}): Promise<{id: string}> {
+  createDoc({title, contents, folder}: {title: string; contents: string; folder: string}): Promise<{id: string}> {
     contents = contents || '<p style="line-height: 1.5;"><span style="font-size: 16px; font-family: 微软雅黑;"></span></p>';
     return request
-      .post(`/dream/pen/article/save`, {title: `新建文档 ${dayjs().format('YYYY-MM-DD HH:mm:ss')}`, articleDsl: '', contents, folder})
+      .post(`/dream/pen/article/save`, {
+        title: title || '新建文档',
+        articleDsl: '',
+        contents,
+        folder,
+      })
       .then((res) => res.data.data);
   },
   createDir({folder}: {folder: string}): Promise<{id: string}> {
