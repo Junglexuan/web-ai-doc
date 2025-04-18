@@ -22,7 +22,14 @@ export const admin: CurUser = {
 
 class API {
   public getCurUser(): Promise<CurUser> {
-    return Promise.resolve(admin);
+    return request.get('/dream/pen/currentUser').then((res) => {
+      // const {token, ...user} = res.data.data;
+      // const {agencyID, platformUserID, userType} = user;
+      // localStorage.setItem('zov-user-token', token);
+      // localStorage.setItem('zov-user-info', JSON.stringify(user));
+      return admin;
+    });
+    //return Promise.resolve(admin);
     // return request
     //   .post<IGetCurUser['Response']>('/app/6/page/1963/get', {agencyID: 6})
     //   .then((res) => {
