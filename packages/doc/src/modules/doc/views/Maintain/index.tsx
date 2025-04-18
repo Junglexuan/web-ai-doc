@@ -1,4 +1,4 @@
-import {DeleteOutlined, DownOutlined, ExceptionOutlined, FolderAddOutlined, PlusOutlined, StarFilled, UploadOutlined} from '@ant-design/icons';
+import {DeleteOutlined, DownOutlined, FolderAddOutlined, PlusOutlined, StarFilled, UploadOutlined} from '@ant-design/icons';
 import {DocumentHead, Link} from '@elux/react-web';
 import {Breadcrumb, Button, Dropdown, Input, Popover, Space, Table, TableProps, Upload, UploadProps} from 'antd';
 import {FC, memo, useMemo, useState} from 'react';
