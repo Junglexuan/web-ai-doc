@@ -185,3 +185,61 @@ const EasyEdit: FC<EasyEditProps> = ({tpl, value, onChange, option}): JSX.Elemen
 };
 
 export default EasyEdit;
+// import React, {useState} from 'react';
+
+// const HighlightText = () => {
+//   const [highlighted, setHighlighted] = useState('');
+
+//   const handleMouseUp = () => {
+//     const selection = window.getSelection();
+//     const text = selection?.toString();
+//     if (text) {
+//       setHighlighted(text);
+//       selection?.removeAllRanges();
+//     }
+//   };
+
+//   const renderTextWithHighlight = () => {
+//     const fullText = '这是一段可以被选中的文字，试试看选中它的一部分。';
+
+//     if (!highlighted || !fullText.includes(highlighted)) {
+//       return fullText;
+//     }
+
+//     const [before, after] = fullText.split(highlighted);
+
+//     return (
+//       <>
+//         {before}
+//         <span
+//           style={{
+//             backgroundColor: '#BBDDFF', // 模拟原生 selection 的浅蓝色
+//             color: 'inherit',
+//           }}
+//         >
+//           {highlighted}
+//         </span>
+//         {after}
+//       </>
+//     );
+//   };
+
+//   return (
+//     // <div style={{padding: 20, lineHeight: 1.8}}>
+//     //   <p onMouseUp={handleMouseUp}>{renderTextWithHighlight()}</p>
+//     //   <input type="text" placeholder="点击输入框，高亮仍保留" style={{marginTop: 20}} />
+//     // </div>
+//     <div style={{padding: 20, lineHeight: 1.8}}>
+//       <p onMouseUp={handleMouseUp}>{renderTextWithHighlight()}</p>
+//       <p>woahsadfwosdlfjsjflsdjflsdjlffjsd</p>
+//       <p>测试选中搞定啦啦啥的姐夫搜打飞机搜打飞机蓝色点击了解熟练的地方是多了几分蓝色点击</p>
+//       <iframe
+//         style={{width: '1200px', height: '200px'}}
+//         srcDoc={`<div style='width: 300px; height: 200px; background-color: red;'>
+//               <input type='text' placeholder='点击输入框，高亮仍保留' style='margin-top: 20px;' />
+//             </div>`}
+//       />
+//     </div>
+//   );
+// };
+// export default HighlightText;
