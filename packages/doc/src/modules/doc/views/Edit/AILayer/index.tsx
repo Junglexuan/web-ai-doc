@@ -5,6 +5,7 @@ import AIAsk from '../AIAsk';
 import AIContinue from '../AIContinue';
 import AICreate from '../AICreate';
 import AIDialog from '../AIDialog';
+import AIImage from '../AIImage';
 import AIMenu, {MenuEvent, applicationTemplates, menuKeysMap, officialTemplates} from '../AIMenu';
 import AIOutline from '../AIOutline';
 import AIStylize from '../AIStylize';
@@ -122,6 +123,13 @@ const Component: FC<Props> = ({onCreated, editor}) => {
         return (
           <AIDialog event={aiEvent}>
             <AIAsk aiRef={aiRef} onRunningStateChange={setRunningState} />
+          </AIDialog>
+        );
+      }
+      if (aiKey === 'P') {
+        return (
+          <AIDialog event={aiEvent}>
+            <AIImage aiRef={aiRef} onRunningStateChange={setRunningState} />
           </AIDialog>
         );
       }

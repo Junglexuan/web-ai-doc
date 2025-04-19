@@ -1,4 +1,4 @@
-import {Switch, connectStore} from '@elux/react-web';
+import {Dispatch, Switch, connectStore} from '@elux/react-web';
 import {FC, useMemo} from 'react';
 import ErrorPage from '@/components/ErrorPage';
 import {APPState, LoadComponent} from '@/Global';
@@ -8,7 +8,7 @@ import Header from '../Header';
 import Menu from '../Menu';
 import styles from './index.module.less';
 
-const SubModuleViews: {[moduleName: string]: () => JSX.Element} = Object.keys(SubModule).reduce((cache, moduleName) => {
+const SubModuleViews: {[moduleName: string]: () => JSX.Element} = Object.keys(SubModule).reduce((cache: any, moduleName) => {
   cache[moduleName] = LoadComponent(moduleName as any, 'main');
   return cache;
 }, {});
@@ -25,7 +25,7 @@ function mapStateToProps(appState: APPState): StoreProps {
   return {curUser, subModule, dialogMode};
 }
 
-const Component: FC<StoreProps> = ({curUser, subModule, dialogMode}) => {
+const Component: FC<StoreProps & {dispatch: Dispatch}> = ({curUser, subModule, dialogMode, dispatch}) => {
   const content = useMemo(
     () => (
       <Switch elseView={<ErrorPage />}>
@@ -57,7 +57,7 @@ const Component: FC<StoreProps> = ({curUser, subModule, dialogMode}) => {
       <div className="content">
         <div className={styles.doc}>
           <div className="head">
-            <Header />
+            <Header curUser={curUser} dispatch={dispatch} />
           </div>
           <div className="body">{content}</div>
         </div>

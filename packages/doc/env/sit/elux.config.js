@@ -4,10 +4,8 @@ module.exports = {
     clientGlobalVar: {
       PathPrefix: '/ai-doc',
       ApiPrefix: {
-        '/meta/': '/meta/',
-        '/user/': '/user/',
-        '/upload/': '/app/',
-        '/app/': '/app/',
+        '/auth/': 'http://8.130.27.129/auth/',
+        '/dream/': '/dream/',
       },
       StaticPrefix: {
         '/imgs/': '/imgs/',
