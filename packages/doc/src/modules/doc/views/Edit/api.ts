@@ -117,6 +117,32 @@ const createOutline: AIRequest = ({args, onMessage, onError, onDone}) => {
   return controller;
 };
 
+const createImage: AIRequest = ({args, onMessage, onError, onDone}) => {
+  const controller = new AbortController();
+  const {signal} = controller;
+  const {docId, prompt} = args;
+  fetchEventSource(replaceBaseUrl('/dream/pen/ai/writer/makeImg'), {
+    method: 'POST',
+    headers: getHeaders(),
+    body: JSON.stringify({type: 'makeImg', conversation_id: docId, prompt}),
+    signal,
+    onmessage(ev) {
+      let result: any = [];
+      if (ev.data) {
+        try {
+          result = JSON.parse(ev.data);
+        } catch (e) {
+          result = [];
+        }
+      }
+      onMessage(`<img src="${result[0]}" height="290" />`);
+    },
+    onerror: onError,
+    onclose: onDone,
+  });
+  return controller;
+};
+
 const stylize: AIRequest = ({args, onMessage, onError, onDone}) => {
   const controller = new AbortController();
   const {signal} = controller;
@@ -176,6 +202,7 @@ export const AiAPI = {
   continueWrite,
   createFullText,
   createOutline,
+  createImage,
   stylize,
   ask,
   async byTemplate(docId: string, content: string): Promise<string> {

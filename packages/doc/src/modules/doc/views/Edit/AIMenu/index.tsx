@@ -573,6 +573,9 @@ const Component: FC<Props> = (props) => {
       let lastDom: HTMLElement;
       if (JSON.stringify(selection.anchor) === JSON.stringify(selection.focus)) {
         editor.insertBreak();
+        // if ((curNode as any).text !== '') {
+        //   editor.insertBreak();
+        // }
         const [curNode] = SlateEditor.node(editor, selection);
         lastDom = editor.toDOMNode(curNode);
         const dsl: any[] = editor.children;
