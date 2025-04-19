@@ -7,7 +7,7 @@ export interface AIDialogHooks {
   runningState: RunningState;
   fragment: string;
   fragmentRef: MutableRefObject<HTMLDivElement | undefined>;
-  inputRef: MutableRefObject<any>;
+  inputRef: MutableRefObject<{getValue: () => string}>;
   requestRef: MutableRefObject<AbortController | undefined>;
   aiRef: IAIRef;
   onPromptSubmit: (data?: any) => void;
@@ -26,13 +26,13 @@ export function useAIDialog(
   required?: boolean
 ): AIDialogHooks {
   const [runningState, setRunningState] = useState<RunningState>('');
-  const inputRef = useRef<any>();
+  const inputRef = useRef<{getValue: () => string}>(null as any);
   const [fragment, setFragment] = useState('');
   const fragmentRef = useRef<HTMLDivElement>();
   const requestRef = useRef<AbortController>();
 
   const onPromptSubmit = useEvent(({keep}: {keep?: boolean} = {}) => {
-    const text = inputRef.current.input.value;
+    const text = inputRef.current.getValue();
     if (required && !text) {
       message.error('请输入...');
       return;
@@ -99,7 +99,7 @@ export function useAIDialog(
   });
 
   useEffect(() => {
-    inputRef.current.input.focus();
+    //inputRef.current.input.focus();
   }, []);
 
   return {aiRef, onPromptSubmit, onRedo, onKeep, onStop, onInsert, runningState, fragment, fragmentRef, inputRef, requestRef};

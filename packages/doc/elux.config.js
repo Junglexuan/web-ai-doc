@@ -10,6 +10,7 @@ module.exports = {
     serverPort: 4003,
     clientGlobalVar: {
       ApiPrefix: {
+        '/auth/': 'http://8.130.27.129/auth/',
         '/dream/': 'http://331qy963dj35.vicp.fun:15537/dream/',
       },
       StaticPrefix: {

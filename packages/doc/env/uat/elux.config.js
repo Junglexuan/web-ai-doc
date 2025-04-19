@@ -2,7 +2,7 @@
 module.exports = {
   prod: {
     clientGlobalVar: {
-      PathPrefix: '/logic-composer',
+      PathPrefix: '/ai-doc',
       ApiPrefix: {
         '/meta/': 'http://meta.uat.zov.com/',
         '/user/': 'http://user.uat.zov.com/',
@@ -13,7 +13,7 @@ module.exports = {
         '/imgs/': '/imgs/',
       },
     },
-    clientPublicPath: '/logic-composer/client/',
+    clientPublicPath: '/ai-doc/client/',
     clientMinimize: false,
     eslint: false,
     stylelint: false,

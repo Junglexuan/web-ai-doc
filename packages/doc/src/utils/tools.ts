@@ -3,8 +3,7 @@ import {Modal, message} from 'antd';
 import {Rule} from 'antd/lib/form';
 import {produce} from 'immer';
 import {useCallback, useMemo, useRef} from 'react';
-import {GetClientRouter, useRouter} from '@/Global';
-import {InIframe, LoginUrl} from './base';
+import {useRouter} from '@/Global';
 
 export {message} from 'antd';
 
@@ -198,16 +197,6 @@ export const Message = {
     globalDispatcher.dispatch('message', {type: 'error', text});
   },
 };
-
-export function toLoginPage(from?: string): void {
-  if (!InIframe) {
-    const router = GetClientRouter();
-    const url = LoginUrl(from || router.location.url);
-    router.push({url}, 'window');
-  } else {
-    window.parent.parent.location.href = `/zov-lowcode/login?callbackUrl=${encodeURIComponent(from || window.parent.parent.location.href)}`;
-  }
-}
 
 export const getToken = (): any => {
   //const [agencyID, token] = (localStorage.getItem(TokenStorageKey) || '').split('|');

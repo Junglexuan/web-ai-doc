@@ -220,7 +220,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary}) => {
   return (
     <div className={'g-page-content ' + styles.root}>
       <DocumentHead title="我的文档" />
-      {/* <EasyEdit
+      <EasyEdit
         tpl="你是一名${role}，需要整理本周工作周报，本周主要工作内容为${text}，下周主要工作计划为${newText}"
         option={{
           role: {
@@ -273,7 +273,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary}) => {
             },
           ],
         }}
-      /> */}
+      />
       <div className="hd">{breadcrumb}</div>
       <div className="cd">
         <Space>

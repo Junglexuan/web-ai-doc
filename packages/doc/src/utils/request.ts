@@ -1,7 +1,7 @@
 import {ActionError} from '@elux/react-web';
 import axios, {AxiosError, AxiosResponse} from 'axios';
-import {ApiPrefix} from '@/Global';
-import {Message, getToken, toLoginPage} from './tools';
+import {ApiPrefix, InIframe} from '@/Global';
+import {Message, getToken} from './tools';
 
 export interface IRequest<Req, Res> {
   Request: Req;
@@ -17,7 +17,7 @@ export enum ErrorCode {
 
 export function replaceBaseUrl(url: string): string {
   ///dream/pen/ai/writer/test
-  return url.replace(/^\/(dream|ai)\//, (pre) => ApiPrefix[pre]);
+  return url.replace(/^\/(dream|auth)\//, (pre) => ApiPrefix[pre]);
 }
 
 export class CustomError<Detail = any> implements ActionError {
@@ -82,7 +82,7 @@ const instance = axios.create({
 instance.interceptors.request.use((req) => {
   const {token} = getToken();
   if (token) {
-    req.headers['Authorization'] = `Bearer ${token}`;
+    //req.headers['Authorization'] = `Bearer ${token}`;
   }
   req.url = replaceBaseUrl(req.url!);
   if (req.method === 'post') {
@@ -163,4 +163,22 @@ export function getUploadProps(
       }
     },
   };
+}
+
+export function toLoginPage(from?: string): void {
+  console.log('form', from);
+  const sso = replaceBaseUrl(
+    '/auth/login?client=global&redirecturl=http://192.168.1.66:8081/dream/pen/sso/login?back=http://192.168.1.66:8081/dream/pen'
+  );
+  console.log(sso);
+  // if (!InIframe) {
+  //   // const router = GetClientRouter();
+  //   // const url = LoginUrl(from || router.location.url);
+  //   // router.push({url}, 'window');
+  //   window.location.href = replaceBaseUrl(
+  //     '/login?client=global&redirecturl=http://192.168.1.66:8081/dream/pen/sso/login?back=http://192.168.1.66:8081/dream/pen'
+  //   );
+  // } else {
+  //   window.parent.parent.location.href = `/zov-lowcode/login?callbackUrl=${encodeURIComponent(from || window.parent.parent.location.href)}`;
+  // }
 }
