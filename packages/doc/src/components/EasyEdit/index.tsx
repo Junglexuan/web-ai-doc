@@ -151,14 +151,14 @@ const EasyEdit: FC<EasyEditProps> = ({tpl, value, onChange, option}): JSX.Elemen
           >
             <code style={!item.value ? {display: 'none'} : {}} className={`${item.value === ' ' && styles['empty-code']} ${styles['code-box']}`}>
               <span data-id={`text_${index}`}>{item.value}</span>
-              {item.value === ` ` && (
+              {(item.value === ` `) && (
                 <span className={styles['code-empty-placeholder']} contentEditable={false}>
                   {_placeholder}
                 </span>
               )}
             </code>
           </Dropdown>
-          <span> </span>
+          {/* {index === _renderList.length - 1 && <span> </span>} */}
         </Fragment>
       );
     });

@@ -1,3 +1,4 @@
+import {getRandomNumber} from '@/utils/tools';
 import {TemplateItem, tplValue} from './types';
 
 export const easyEditUtil = {
@@ -16,7 +17,7 @@ export const easyEditUtil = {
       // 添加前面的文本
       if (index > lastIndex) {
         result.push({
-          key: str.slice(lastIndex, index),
+          key: `${getRandomNumber(1, 100000)}`, //str.slice(lastIndex, index),
           type: 'text',
           value: str.slice(lastIndex, index),
         });
