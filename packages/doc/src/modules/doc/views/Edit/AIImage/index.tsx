@@ -1,4 +1,4 @@
-import {FC, memo} from 'react';
+import {FC, memo, useState} from 'react';
 import AIBase from '../AIBase';
 import AiAPI, {RunningState} from '../api';
 import EasyEdit from '../EasyEdit';
@@ -12,12 +12,15 @@ interface Props {
 
 const Component: FC<Props> = ({aiRef, onRunningStateChange}) => {
   const hooks = useAIDialog(aiRef, onRunningStateChange, AiAPI.createImage);
+  const [tplValue, setTplvalue] = useState<any>();
 
   return (
     <AIBase title="生成图片" hooks={hooks}>
       <EasyEdit
         ref={hooks.inputRef}
         tpl="生成图片：${content}，风格为${styles}，大小为${size}"
+        value={tplValue}
+        onChange={setTplvalue}
         option={{
           content: {
             placeholder: '输入主题描述',
@@ -46,41 +49,6 @@ const Component: FC<Props> = ({aiRef, onRunningStateChange}) => {
               {label: '1280*720', key: '1280*720'},
             ],
           },
-        }}
-        value={{
-          text: '',
-          tplValue: [
-            {
-              key: '生成图片：',
-              type: 'text',
-              value: '生成图片：',
-            },
-            {
-              key: 'content',
-              type: 'variable',
-              value: ' ',
-            },
-            {
-              key: '，风格为',
-              type: 'text',
-              value: '，风格为',
-            },
-            {
-              key: 'styles',
-              type: 'variable',
-              value: ' ',
-            },
-            {
-              key: '，大小为',
-              type: 'text',
-              value: '，大小为',
-            },
-            {
-              key: 'size',
-              type: 'variable',
-              value: ' ',
-            },
-          ],
         }}
       />
     </AIBase>
