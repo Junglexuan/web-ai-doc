@@ -13,7 +13,7 @@ const items: any[] = [
     key: '首页',
     icon: <HomeOutlined />,
     label: (
-      <Link to="/admin/home" action="relaunch">
+      <Link to="/admin/home" action="relaunch" target="window">
         首页
       </Link>
     ),
@@ -23,7 +23,7 @@ const items: any[] = [
     key: '我的文档',
     icon: <FileOutlined />,
     label: (
-      <Link to="admin/doc/list/maintain" action="relaunch">
+      <Link to="admin/doc/list/maintain" action="relaunch" target="window">
         我的文档
       </Link>
     ),

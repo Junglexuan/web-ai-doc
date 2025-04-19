@@ -1,17 +1,56 @@
-import {BellOutlined, UserOutlined} from '@ant-design/icons';
-import {Avatar, Badge, Space} from 'antd';
-import {FC} from 'react';
+import {BellOutlined, LogoutOutlined, UserOutlined} from '@ant-design/icons';
+import {Dispatch} from '@elux/react-web';
+import {Avatar, Badge, Button, Dropdown, Space} from 'antd';
+import {FC, useMemo} from 'react';
+import {GetActions} from '@/Global';
+import {CurUser} from '@/utils/base';
 import styles from './index.module.less';
 
-const Component: FC<{}> = () => {
+const {stage: stageActions} = GetActions('stage');
+
+const Component: FC<{curUser: CurUser; dispatch: Dispatch}> = ({curUser, dispatch}) => {
+  const userMenu: any = useMemo(() => {
+    return {
+      items: [
+        {
+          key: 'g1',
+          label: (
+            <Button size="small" type="text">
+              {curUser.username}
+            </Button>
+          ),
+          type: 'group',
+        },
+        {
+          type: 'divider',
+        },
+        {
+          key: 'logout',
+          label: (
+            <Button size="small" type="link" icon={<LogoutOutlined />}>
+              退出登陆
+            </Button>
+          ),
+        },
+      ],
+      onClick: ({key}: {key: string}) => {
+        if (key === 'logout') {
+          dispatch(stageActions.logout());
+        }
+      },
+    };
+  }, [curUser, dispatch]);
+
   return (
     <div className={styles.root}>
       <div></div>
       <Space size="large" align="center">
         <Badge count={5}>
-          <BellOutlined style={{fontSize: '22px'}} />
+          <BellOutlined style={{fontSize: '22px', position: 'relative', top: '3px'}} />
         </Badge>
-        <Avatar icon={<UserOutlined />} />
+        <Dropdown menu={userMenu}>
+          <Avatar icon={<UserOutlined />} />
+        </Dropdown>
       </Space>
     </div>
   );

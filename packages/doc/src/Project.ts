@@ -20,7 +20,7 @@ export const appConfig: AppConfig = setConfig({
     in(nativePathname) {
       nativePathname = nativePathname.replace(PathPrefix, '') || '/';
       if (nativePathname === '/') {
-        nativePathname = AdminHomeUrl();
+        nativePathname = AdminHomeUrl;
       }
       return nativePathname;
     },

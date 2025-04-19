@@ -21,35 +21,37 @@ export const admin: CurUser = {
 };
 
 class API {
-  public getCurUser(): Promise<CurUser> {
-    return request.get('/dream/pen/currentUser').then((res) => {
-      // const {token, ...user} = res.data.data;
-      // const {agencyID, platformUserID, userType} = user;
-      // localStorage.setItem('zov-user-token', token);
-      // localStorage.setItem('zov-user-info', JSON.stringify(user));
-      return admin;
+  public getCurUser(ticket?: string, redirect?: string): Promise<CurUser> {
+    if (ticket) {
+      return request.post(`/dream/pen/sso/login?ticket=${ticket}`).then(
+        (res) => {
+          const {token, ...user} = res.data.data;
+          localStorage.setItem('zov-user-token', token);
+          localStorage.setItem('zov-user-info', JSON.stringify(user));
+          setTimeout(() => {
+            window.location.href = redirect || '/';
+          });
+          return {...user, hasLogin: true};
+        },
+        () => guest
+      );
+    } else {
+      return request.get('/dream/pen/currentUser', {headers: {quiet: 1}}).then(
+        (res) => {
+          return {...res.data.data, hasLogin: true};
+        },
+        () => {
+          return guest;
+        }
+      );
+    }
+  }
+  public logout(): Promise<CurUser> {
+    return request.post(`/dream/pen/sso/signout`).then(() => {
+      localStorage.removeItem('zov-user-token');
+      localStorage.removeItem('zov-user-info');
+      return guest;
     });
-    //return Promise.resolve(admin);
-    // return request
-    //   .post<IGetCurUser['Response']>('/app/6/page/1963/get', {agencyID: 6})
-    //   .then((res) => {
-    //     return {
-    //       id: '11',
-    //       username: 'admin',
-    //       hasLogin: true,
-    //       avatar: '',
-    //       mobile: '',
-    //     };
-    //   })
-    //   .catch(() => {
-    //     return {
-    //       id: '11',
-    //       username: 'admin',
-    //       hasLogin: true,
-    //       avatar: '',
-    //       mobile: '',
-    //     };
-    //   });
   }
 
   public login(params: LoginParams): Promise<CurUser> {

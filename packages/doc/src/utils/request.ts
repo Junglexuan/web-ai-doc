@@ -1,6 +1,6 @@
 import {ActionError} from '@elux/react-web';
 import axios, {AxiosError, AxiosResponse} from 'axios';
-import {ApiPrefix, InIframe} from '@/Global';
+import {ApiPrefix, PathPrefix} from '@/Global';
 import {Message, getToken} from './tools';
 
 export interface IRequest<Req, Res> {
@@ -82,7 +82,7 @@ const instance = axios.create({
 instance.interceptors.request.use((req) => {
   const {token} = getToken();
   if (token) {
-    //req.headers['Authorization'] = `Bearer ${token}`;
+    req.headers['Authorization'] = `Bearer ${token}`;
   }
   req.url = replaceBaseUrl(req.url!);
   if (req.method === 'post') {
@@ -166,11 +166,11 @@ export function getUploadProps(
 }
 
 export function toLoginPage(from?: string): void {
-  console.log('form', from);
-  const sso = replaceBaseUrl(
-    '/auth/login?client=global&redirecturl=http://192.168.1.66:8081/dream/pen/sso/login?back=http://192.168.1.66:8081/dream/pen'
-  );
-  console.log(sso);
+  window.location.href =
+    replaceBaseUrl('/auth/login?client=global&redirecturl=') +
+    window.location.origin +
+    `/${PathPrefix || ''}/stage/login`.replace(/\/\//g, '/') +
+    encodeURIComponent(`?__c=_dialog&from=${encodeURIComponent(from || window.location.href)}`);
   // if (!InIframe) {
   //   // const router = GetClientRouter();
   //   // const url = LoginUrl(from || router.location.url);

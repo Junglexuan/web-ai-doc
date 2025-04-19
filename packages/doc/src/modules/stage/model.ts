@@ -1,13 +1,11 @@
 import {BaseModel, ErrorCodes, LoadingState, effect, reducer} from '@elux/react-web';
 import {pathToRegexp} from 'path-to-regexp';
 import {APPState, PathPrefix} from '@/Global';
-import {AdminHomeUrl} from '@/utils/base';
 import {InIframe} from '@/utils/base';
 import {CustomError, ErrorCode, toLoginPage} from '@/utils/request';
 import {Message} from '@/utils/tools';
 import api, {guest} from './api';
 import {CurView, SubModule} from './entity';
-import type {LoginParams} from './entity';
 import type {CurUser} from '@/utils/base';
 
 export interface ModuleState {
@@ -44,10 +42,11 @@ export class Model extends BaseModel<ModuleState, APPState> {
 
   public async onMount(): Promise<void> {
     this.routeParams = this.getRouteParams();
-    const {subModule, curView} = this.routeParams;
+    const {subModule, curView, query, pathname} = this.routeParams;
+    const {ticket = '', from = ''} = pathname.endsWith('/stage/login') ? query : {};
     const {curUser: _curUser} = this.getPrevState() || {};
     try {
-      const curUser = _curUser || (await api.getCurUser());
+      const curUser = _curUser || (await api.getCurUser(ticket, from));
       const initState: ModuleState = {curUser, subModule, curView};
       this.dispatch(this.privateActions._initState(initState));
     } catch (err: any) {
@@ -56,16 +55,17 @@ export class Model extends BaseModel<ModuleState, APPState> {
     }
   }
 
-  @effect()
-  public async login(args: LoginParams): Promise<void> {
-    const curUser = await api.login(args);
-    this.dispatch(this.privateActions.putCurUser(curUser));
-    this.getRouter().relaunch({url: this.state.fromUrl || AdminHomeUrl()}, 'window');
-  }
-
   @reducer
   protected putCurUser(curUser: CurUser): ModuleState {
     return {...this.state, curUser};
+  }
+
+  @effect()
+  public async logout(): Promise<void> {
+    const curUser = await api.logout();
+    this.dispatch(this.privateActions.putCurUser(curUser));
+    toLoginPage();
+    //this.getRouter().relaunch({url: this.state.fromUrl || AdminHomeUrl()}, 'window');
   }
 
   @effect(null)
@@ -104,7 +104,6 @@ export class Model extends BaseModel<ModuleState, APPState> {
     if (!this.state.curUser.hasLogin && this.checkNeedsLogin(pathname)) {
       throw new CustomError(ErrorCode.unauthorized, '', url);
     }
-    console.log(url);
   }
   @effect(null)
   protected async ['this._beforeRouteChange']({url, pathname}: {url: string; pathname: string}): Promise<void> {
