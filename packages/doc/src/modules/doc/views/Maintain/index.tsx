@@ -1,11 +1,11 @@
 import {DeleteOutlined, DownOutlined, FolderAddOutlined, PlusOutlined, StarFilled, UploadOutlined} from '@ant-design/icons';
-import {DocumentHead, Link} from '@elux/react-web';
+import {DocumentHead, Link, setLoading as setGlobalLoading} from '@elux/react-web';
 import {Breadcrumb, Button, Dropdown, Input, Popover, Space, Table, TableProps, Upload, UploadProps} from 'antd';
 import {FC, memo, useMemo, useState} from 'react';
 import EasyEdit from '@/components/EasyEdit';
 import {GetClientRouter} from '@/Global';
-import {getUploadProps, replaceBaseUrl} from '@/utils/request';
-import {confirm, message, useEvent, useSingleWindow} from '@/utils/tools';
+import {downloadFile, getUploadProps, replaceBaseUrl} from '@/utils/request';
+import {confirm, getToken, message, useEvent, useSingleWindow} from '@/utils/tools';
 import {DocAPI} from '../../api';
 import {ListItem, ListSearch, ListSummary} from '../../entity';
 import styles from './index.module.less';
@@ -17,7 +17,8 @@ interface Props {
 
 const Component: FC<Props> = ({list, listSearch, listSummary}) => {
   const singleWindow = useSingleWindow();
-  const [loading, setLoading] = useState<'create' | 'createDir' | 'upload' | ''>('');
+  const [loading, setLoading] = useState<'create' | 'createDir' | 'upload' | 'batchDelete' | ''>('');
+  const [selectedRows, setSelectedRows] = useState<{ids: string[]; rows: ListItem[]}>({ids: [], rows: []});
 
   const onShowDetail = useEvent((id: string, type: 'dir' | 'doc') => {
     if (type === 'doc') {
@@ -61,14 +62,14 @@ const Component: FC<Props> = ({list, listSearch, listSummary}) => {
       },
       {
         title: '所有者',
-        dataIndex: 'address',
-        key: 'address',
+        dataIndex: 'createUserName',
+        key: 'createUserName',
         width: 140,
       },
       {
         title: '最后修改时间',
-        dataIndex: 'date',
-        key: 'date',
+        dataIndex: 'updateDate',
+        key: 'updateDate',
         width: 170,
       },
       {
@@ -118,6 +119,16 @@ const Component: FC<Props> = ({list, listSearch, listSummary}) => {
                         }
                       }
                     });
+                  } else if (key === '下载Word') {
+                    setGlobalLoading(
+                      downloadFile(replaceBaseUrl(`/dream/pen/article/down?id=${record.id}&type=word`), record.title),
+                      GetClientRouter().getActivePage().store
+                    );
+                  } else if (key === '下载PDF') {
+                    setGlobalLoading(
+                      downloadFile(replaceBaseUrl(`/dream/pen/article/down?id=${record.id}&type=pdf`), record.title),
+                      GetClientRouter().getActivePage().store
+                    );
                   }
                 },
                 items: [
@@ -125,11 +136,11 @@ const Component: FC<Props> = ({list, listSearch, listSummary}) => {
                   {key: '移动到', label: '移动到'},
                   {
                     key: '下载Word',
-                    label: (
-                      <a download href={replaceBaseUrl(`/dream/pen/article/down?id=${record.id}&type=word`)}>
-                        下载Word
-                      </a>
-                    ),
+                    label: '下载Word',
+                  },
+                  {
+                    key: '下载PDF',
+                    label: '下载PDF',
                   },
                   {key: '删除', label: '删除'},
                 ],
@@ -149,6 +160,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary}) => {
     setLoading('create');
     DocAPI.createDoc({folder: listSearch.id || '0', title, contents})
       .then(async ({id}) => {
+        setSelectedRows({ids: [], rows: []});
         await GetClientRouter().back(0);
         if (!title) {
           GetClientRouter().push({url: `/admin/doc/item/edit/${id}?__c=_dialog`}, singleWindow);
@@ -163,7 +175,23 @@ const Component: FC<Props> = ({list, listSearch, listSummary}) => {
   const onCreateDir = useEvent(() => {
     setLoading('createDir');
     DocAPI.createDir({folder: listSearch.id || '0'})
-      .then(() => GetClientRouter().back(0))
+      .then(() => {
+        setSelectedRows({ids: [], rows: []});
+        GetClientRouter().back(0);
+      })
+      .catch((e) => {
+        message.error(e + '');
+      })
+      .finally(() => setLoading(''));
+  });
+
+  const batchDelete = useEvent(() => {
+    setLoading('batchDelete');
+    DocAPI.batchDelete(selectedRows.rows.map((item) => ({id: item.id, type: item.type})))
+      .then(() => {
+        setSelectedRows({ids: [], rows: []});
+        GetClientRouter().back(0);
+      })
       .catch((e) => {
         message.error(e + '');
       })
@@ -183,28 +211,33 @@ const Component: FC<Props> = ({list, listSearch, listSummary}) => {
     [onCreate]
   );
 
-  const rowSelection: TableProps<any>['rowSelection'] = {
-    onChange: (selectedRowKeys: React.Key[], selectedRows: any[]) => {
-      console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
-    },
-    getCheckboxProps: (record: any) => ({
-      disabled: record.name === 'Disabled User', // Column configuration not to be checked
-      name: record.name,
+  const rowSelection: TableProps<any>['rowSelection'] = useMemo(
+    () => ({
+      selectedRowKeys: selectedRows.ids,
+      onChange: (selectedRowKeys: any[], selectedRows: any[]) => {
+        setSelectedRows({ids: selectedRowKeys, rows: selectedRows});
+        //console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
+      },
+      getCheckboxProps: (record: any) => ({
+        disabled: record.name === 'Disabled User', // Column configuration not to be checked
+        name: record.name,
+      }),
     }),
-  };
+    [selectedRows]
+  );
 
   const breadcrumb = useMemo(() => {
     const curDir = listSummary.levelPath.pop();
     const arr = listSummary.levelPath.map((item) => ({
       title: (
-        <Link to={`/admin/doc/list/maintain?id=${item.id}`} action="relaunch" target="window">
+        <Link to={`/admin/doc/list/maintain?id=${item.id}`} action="push" target="page">
           {item.folderName}
         </Link>
       ),
     }));
     arr.unshift({
       title: (
-        <Link to="/admin/doc/list/maintain" action="relaunch" target="window">
+        <Link to="/admin/doc/list/maintain" action="push" target="page">
           我的文档
         </Link>
       ),
@@ -220,7 +253,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary}) => {
   return (
     <div className={'g-page-content ' + styles.root}>
       <DocumentHead title="我的文档" />
-      <EasyEdit
+      {/* <EasyEdit
         tpl="你是一名${role}，需要整理本周工作周报，本周主要工作内容为${text}，下周主要工作计划为${newText}"
         option={{
           role: {
@@ -273,7 +306,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary}) => {
             },
           ],
         }}
-      />
+      /> */}
       <div className="hd">{breadcrumb}</div>
       <div className="cd">
         <Space>
@@ -289,7 +322,9 @@ const Component: FC<Props> = ({list, listSearch, listSummary}) => {
               上传文档
             </Button>
           </Upload>
-          <Button icon={<DeleteOutlined />}>批量删除</Button>
+          <Button loading={loading === 'batchDelete'} icon={<DeleteOutlined />} onClick={batchDelete} disabled={!selectedRows.ids.length}>
+            批量删除
+          </Button>
         </Space>
       </div>
       <div className="bd">

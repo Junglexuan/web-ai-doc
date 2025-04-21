@@ -78,6 +78,7 @@ const Component: FC<Props> = ({itemDetail}) => {
   const onDestroy = useEvent(() => {
     //editor?.emit('destroy', editor);
     editor?.destroy();
+    autoSave.destroy();
   });
 
   const breadcrumb = useMemo(() => {

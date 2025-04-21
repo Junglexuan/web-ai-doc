@@ -58,7 +58,7 @@ function decodeMessage(str: string): string {
 function getHeaders() {
   return {
     'Content-Type': 'application/json',
-    authorization: `bearer ${getToken()}`,
+    authorization: getToken(),
   };
 }
 const continueWrite: AIRequest = ({args, onMessage, onError, onDone}) => {
@@ -111,7 +111,10 @@ const createOutline: AIRequest = ({args, onMessage, onError, onDone}) => {
     onmessage(ev) {
       onMessage(decodeMessage(ev.data));
     },
-    onerror: onError,
+    onerror: (e) => {
+      setTimeout(() => onError(e));
+      throw e;
+    },
     onclose: onDone,
   });
   return controller;
@@ -127,7 +130,7 @@ const createImage: AIRequest = ({args, onMessage, onError, onDone}) => {
     body: JSON.stringify({type: 'makeImg', conversation_id: docId, prompt}),
     signal,
     onmessage(ev) {
-      let result: any = [];
+      let result: string[] = [];
       if (ev.data) {
         try {
           result = JSON.parse(ev.data);
@@ -135,9 +138,17 @@ const createImage: AIRequest = ({args, onMessage, onError, onDone}) => {
           result = [];
         }
       }
-      onMessage(`<img src="${result[0]}" height="290" />`);
+      // onMessage(`<figure>${result.map((item) => '<div style="background-image:url(' + item + ')"></div>').join('')}</figure>`);
+      onMessage(
+        `<figure>${result
+          .map((item, index) => '<div class="' + (!index ? 'on' : '') + '" data-img="' + item + '"><img src="' + item + '" width="300" /></div>')
+          .join('')}</figure>`
+      );
     },
-    onerror: onError,
+    onerror: (e) => {
+      setTimeout(() => onError(e));
+      throw e;
+    },
     onclose: onDone,
   });
   return controller;
@@ -170,7 +181,9 @@ const stylize: AIRequest = ({args, onMessage, onError, onDone}) => {
     headers: getHeaders(),
     body: JSON.stringify(req.body),
     signal,
-    onmessage: (ev) => onMessage(decodeMessage(ev.data)),
+    onmessage(ev) {
+      onMessage(decodeMessage(ev.data));
+    },
     onerror: (e) => {
       setTimeout(() => onError(e));
       throw e;
@@ -192,7 +205,10 @@ const ask: AIRequest = ({args, onMessage, onError, onDone}) => {
     onmessage(ev) {
       onMessage(decodeMessage(ev.data));
     },
-    onerror: onError,
+    onerror: (e) => {
+      setTimeout(() => onError(e));
+      throw e;
+    },
     onclose: onDone,
   });
   return controller;

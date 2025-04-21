@@ -79,10 +79,12 @@ const instance = axios.create({
   },
 });
 
+//instance.defaults.withCredentials = true;
+
 instance.interceptors.request.use((req) => {
-  const {token} = getToken();
+  const token = getToken();
   if (token) {
-    req.headers['Authorization'] = `Bearer ${token}`;
+    req.headers['Authorization'] = token;
   }
   req.url = replaceBaseUrl(req.url!);
   if (req.method === 'post') {
@@ -142,7 +144,7 @@ export function getUploadProps(
     name: 'file',
     action: replaceBaseUrl(url),
     headers: {
-      authorization: `bearer ${getToken()}`,
+      authorization: getToken(),
     },
     onChange(info: any) {
       const file = info.file || {};
@@ -181,4 +183,41 @@ export function toLoginPage(from?: string): void {
   // } else {
   //   window.parent.parent.location.href = `/zov-lowcode/login?callbackUrl=${encodeURIComponent(from || window.parent.parent.location.href)}`;
   // }
+}
+
+// a标签下载专用，
+export function downloadFile(url: string, fileName: string): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest(); //定义http请求对象
+    xhr.open('GET', url, true);
+    xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+    xhr.setRequestHeader('Authorization', getToken());
+    xhr.send();
+    xhr.responseType = 'blob';
+    xhr.onload = function () {
+      resolve();
+      if (xhr.status === 200) {
+        const blob = this.response;
+        //const fileName = _fileName;
+        //const disposition = xhr.getResponseHeader('Content-Disposition');
+        // if (disposition && disposition.indexOf('attachment') !== -1) {
+        //   const matches = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(disposition);
+        //   if (matches != null && matches[1]) {
+        //     const filename = matches[1].replace(/['"]/g, '');
+        //     console.log('File name:', filename);
+        //   }
+        // }
+        const reader = new FileReader();
+        reader.readAsDataURL(blob);
+        reader.onload = function (e) {
+          const a = document.createElement('a');
+          a.download = fileName;
+          a.href = e.target!.result as string;
+          a.click();
+        };
+      } else {
+        alert('下载文件出现了错误!');
+      }
+    };
+  });
 }

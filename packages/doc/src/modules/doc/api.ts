@@ -15,9 +15,7 @@ export const DocAPI = {
       .then((res) => res.data.data);
   },
   createDir({folder}: {folder: string}): Promise<{id: string}> {
-    return request
-      .post(`/dream/pen/dFolder/save`, {folderName: `新建文件夹 ${dayjs().format('YYYY-MM-DD HH:mm:ss')}`, parent: folder})
-      .then((res) => res.data.data);
+    return request.post(`/dream/pen/dFolder/save`, {folderName: `新建文件夹`, parent: folder}).then((res) => res.data.data);
   },
   saveDSL(id: string, dsl: string, html: string): Promise<void> {
     return request.post(`/dream/pen/article/save`, {id, contents: html, articleDsl: dsl});
@@ -33,6 +31,12 @@ export const DocAPI = {
   },
   deleteDir(id: string): Promise<void> {
     return Promise.resolve();
+  },
+  batchDelete(items: {id: string; type: 'dir' | 'doc'}[]): Promise<void> {
+    return request.post(
+      `/dream/pen/dFolder/batch/delete`,
+      items.map((item) => ({id: item.id, type: item.type === 'dir' ? 1 : 2}))
+    );
   },
   getDoc({id}: {id: string}): Promise<ItemDetail> {
     return request.get(`/dream/pen/article/get`, {params: {id}}).then((docRes) => {
@@ -50,6 +54,8 @@ export const DocAPI = {
             item.type = item.articleId ? 'doc' : 'dir';
             item.id = item.articleId || item.folderId;
             item.title = item.title || item.folderName;
+            item.updateDate = item.updateDate ? dayjs(item.updateDate).format('YYYY-MM-DD HH:mm:ss') : '';
+            item.createUserName = item.createUserName || '';
             return item;
           }),
           summary: {

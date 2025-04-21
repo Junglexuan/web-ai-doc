@@ -14,6 +14,8 @@ export interface ListItem extends BaseListItem {
   type: 'dir' | 'doc';
   articleCount: number;
   articleSize: number;
+  updateDate: string;
+  createUserName: string;
   collect: number;
 }
 export interface ListSummary extends BaseListSummary {

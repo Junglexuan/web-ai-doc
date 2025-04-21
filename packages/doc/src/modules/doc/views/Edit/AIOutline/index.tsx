@@ -18,7 +18,7 @@ const Component: FC<Props> = ({aiRef, onRunningStateChange}) => {
       <AntInput
         ref={hooks.inputRef}
         placeholder="请描述要“生成大纲”的主题和各种要求..."
-        defaultValue={`围绕 “${aiRef.getTitle()}” 生成一篇文章大纲`}
+        defaultValue={`围绕 “${aiRef.getTitle()}” 生成一篇文章大纲，要求简明扼要`}
       />
     </AIBase>
   );

@@ -198,12 +198,12 @@ export const Message = {
   },
 };
 
-export const getToken = (): any => {
+export const getToken = (): string => {
   //const [agencyID, token] = (localStorage.getItem(TokenStorageKey) || '').split('|');
   const token = localStorage.getItem('zov-user-token') || '';
-  const info = localStorage.getItem('zov-user-info') || '';
-  const user = info ? JSON.parse(info) : {};
-  return {agencyID: user.agencyID || '', token};
+  //const info = localStorage.getItem('zov-user-info') || '';
+  //const user = info ? JSON.parse(info) : {};
+  return token;
 };
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types

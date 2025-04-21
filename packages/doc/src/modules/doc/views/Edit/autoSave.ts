@@ -57,4 +57,7 @@ export class SaveMgr extends SimpleDispatcher<{loading: boolean}> {
       this.dispatch('loading', false);
     }
   }
+  destroy(): void {
+    this.checkNext = () => undefined;
+  }
 }

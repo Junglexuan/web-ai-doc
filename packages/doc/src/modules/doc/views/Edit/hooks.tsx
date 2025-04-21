@@ -15,6 +15,7 @@ export interface AIDialogHooks {
   onKeep: () => void;
   onStop: () => void;
   onInsert: () => void;
+  onAdjust: () => void;
 }
 
 export function useAIDialog(
@@ -85,6 +86,12 @@ export function useAIDialog(
     onPromptSubmit({keep: true});
   }, [onPromptSubmit]);
 
+  const onAdjust = useEvent(() => {
+    setFragment('');
+    setRunningState('');
+    onRunningStateChange('');
+  });
+
   const onStop = useEvent(() => {
     requestRef.current?.abort();
     setTimeout(() => {
@@ -95,12 +102,23 @@ export function useAIDialog(
 
   const onInsert = useEvent(() => {
     aiRef.closeMenu();
-    aiRef.insertHtmlByAI(fragmentRef.current!.innerHTML);
+    const fragment = fragmentRef.current!;
+    const root = fragment.children[0];
+    if (root?.nodeName === 'FIGURE') {
+      const imgs = Array.from(root.children)
+        .map((child) => (child.className === 'on' ? child.getAttribute('data-img') : ''))
+        .filter(Boolean);
+      if (imgs.length) {
+        aiRef.insertHtmlByAI(imgs.map((src) => `<img src="${src}" />`).join(''));
+      }
+    } else {
+      aiRef.insertHtmlByAI(fragment.innerHTML);
+    }
   });
 
   useEffect(() => {
     //inputRef.current.input.focus();
   }, []);
 
-  return {aiRef, onPromptSubmit, onRedo, onKeep, onStop, onInsert, runningState, fragment, fragmentRef, inputRef, requestRef};
+  return {aiRef, onPromptSubmit, onRedo, onKeep, onStop, onInsert, onAdjust, runningState, fragment, fragmentRef, inputRef, requestRef};
 }
