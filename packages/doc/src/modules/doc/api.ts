@@ -62,7 +62,6 @@ export const DocAPI = {
     ]).then(([listRes, levelRes, dirTreeRes]) => {
       const list: ListItem[] = (render === 'favs' ? listRes.data.data.data : listRes.data.data) || [];
       const dirTree = dirTreeRes.data.data;
-      console.log(dirTree);
       return {
         list: list.map((item) => {
           item.type = item.articleId || render === 'favs' ? 'doc' : 'dir';

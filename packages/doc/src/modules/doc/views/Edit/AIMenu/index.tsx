@@ -19,6 +19,7 @@ import styles from './index.module.less';
 
 export interface MenuEvent {
   editor: IDomEditor;
+  triggerWithChar: boolean;
 }
 
 type MenuItem = any;
@@ -572,6 +573,9 @@ const Component: FC<Props> = (props) => {
       let result: AIEvent;
       let lastDom: HTMLElement;
       if (JSON.stringify(selection.anchor) === JSON.stringify(selection.focus)) {
+        if (event.triggerWithChar) {
+          editor.deleteBackward('character');
+        }
         editor.insertBreak();
         // if ((curNode as any).text !== '') {
         //   editor.insertBreak();

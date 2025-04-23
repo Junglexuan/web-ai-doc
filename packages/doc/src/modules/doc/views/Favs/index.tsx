@@ -131,28 +131,6 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
             >
               <a>重命名</a>
             </Popover>
-            <Popover
-              trigger="click"
-              destroyTooltipOnHide
-              open={showMove === record.id}
-              onOpenChange={(open) => {
-                setShowMove(open ? record.id : '');
-              }}
-              content={
-                <Tree
-                  className={styles.move}
-                  showIcon
-                  icon={<FolderOpenOutlined />}
-                  defaultExpandedKeys={[listSearch.id + '']}
-                  defaultSelectedKeys={[listSearch.id + '']}
-                  treeData={listSummary.dirTree}
-                  onSelect={(selected) => onMove(record.id, record.type, selected[0] as string)}
-                />
-              }
-            >
-              <a>移动到</a>
-            </Popover>
-            {record.type === 'doc' && <a onClick={() => DocAPI.copyItem(record.id, record.type).then(refreshList)}>复制</a>}
             <Dropdown
               menu={{
                 onClick: ({key}: {key: string}) => {

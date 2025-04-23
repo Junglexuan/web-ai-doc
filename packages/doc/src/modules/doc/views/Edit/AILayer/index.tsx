@@ -63,9 +63,6 @@ const Component: FC<Props> = ({onCreated, editor}) => {
   });
 
   const insertHtmlByAI = useEvent((html: string) => {
-    if (aiEvent?.context.endsWith('/')) {
-      editor.deleteBackward('character');
-    }
     editor.dangerouslyInsertHtml(html);
   });
 
