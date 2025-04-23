@@ -69,7 +69,7 @@ export class Model extends BaseModel<ModuleState, APPState> {
       })
     );
     if (curView === 'list') {
-      this.dispatch(this.actions.fetchList(listSearch));
+      this.dispatch(this.actions.fetchList({...listSearch, render: curRender}));
     } else if (curView === 'item') {
       this.dispatch(this.actions.fetchItem(itemId || ''));
     }

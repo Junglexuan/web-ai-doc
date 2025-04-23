@@ -173,6 +173,32 @@ export function eachTree<T extends TreeItem>(
   _eachTree(tree, reduce, 1, undefined);
 }
 
+export interface AbsTreeItem {
+  children?: AbsTreeItem[];
+}
+
+function _mapTree<T extends AbsTreeItem, V extends {children?: V[]}>(
+  tree: T[],
+  reduce: (item: T, index: number, parent: V | undefined, level: number) => V,
+  curLevel: number,
+  parent: V | undefined
+): V[] {
+  return tree.map((item, index) => {
+    const newItem = reduce(item, index, parent, curLevel);
+    if (item.children) {
+      newItem.children = _mapTree(item.children as T[], reduce, curLevel + 1, newItem);
+    }
+    return newItem;
+  });
+}
+
+export function mapTree<T extends AbsTreeItem, V extends {children?: V[]}>(
+  tree: T[],
+  reduce: (item: T, index: number, parent: V | undefined, level: number) => V
+): V[] {
+  return _mapTree(tree, reduce, 1, undefined);
+}
+
 export function createAutoId(ids: string[]): () => number {
   const nums = ids.map((id) => Number(id.split('_').pop()) || 0);
   let start = nums.length ? Math.max(...nums) : 0;

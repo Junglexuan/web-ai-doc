@@ -1,9 +1,10 @@
 import {BaseCurRender, BaseCurView, BaseListItem, BaseListSearch, BaseListSummary} from '@/utils/resource';
 
 export type CurView = BaseCurView;
-export type CurRender = BaseCurRender;
+export type CurRender = BaseCurRender | 'favs';
 
 export interface ListSearch extends BaseListSearch {
+  render?: CurRender;
   id?: string;
 }
 export interface ListItem extends BaseListItem {
@@ -20,6 +21,7 @@ export interface ListItem extends BaseListItem {
 }
 export interface ListSummary extends BaseListSummary {
   levelPath: {id: string; folderName: string; parent: string}[];
+  dirTree: any[];
 }
 
 export interface ListResult {
@@ -32,6 +34,7 @@ export interface ItemDetail {
   title: string;
   contents: string;
   articleDsl: string;
+  collect: number;
   levelPath: {id: string; folderName: string; parent: string}[];
 }
 export interface EditItem extends BaseListItem {}
@@ -42,4 +45,5 @@ export const defaultListSearch: ListSearch = {
   sorterOrder: undefined,
   sorterField: undefined,
   id: undefined,
+  render: undefined,
 };

@@ -17,7 +17,7 @@ const resizeObserver = new ResizeObserver((entries) => {
   }
 });
 
-const placeMaxHeight = 400;
+const placeMaxHeight = 430;
 
 const Component: FC<Props> = ({event, children}) => {
   const rootDivRef = useRef<HTMLElement>();

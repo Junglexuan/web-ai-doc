@@ -4,6 +4,7 @@ import ErrorPage from '@/components/ErrorPage';
 import {APPState} from '@/Global';
 import {CurRender, CurView, ItemDetail, ListItem, ListSearch, ListSummary} from '../entity';
 import Edit from './Edit';
+import Favs from './Favs';
 import Maintain from './Maintain';
 
 export interface StoreProps {
@@ -25,7 +26,10 @@ const Component: FC<StoreProps & {dispatch: Dispatch}> = ({curView, curRender, i
     <Switch elseView={<ErrorPage />}>
       {curView === 'list' &&
         curRender === 'maintain' &&
-        (listSummary ? <Maintain listSearch={listSearch!} list={list!} listSummary={listSummary!} /> : <div></div>)}
+        (listSummary ? <Maintain dispatch={dispatch} listSearch={listSearch!} list={list!} listSummary={listSummary!} /> : <div></div>)}
+      {curView === 'list' &&
+        curRender === 'favs' &&
+        (listSummary ? <Favs dispatch={dispatch} listSearch={listSearch!} list={list!} listSummary={listSummary!} /> : <div></div>)}
       {curView === 'item' && (itemDetail ? <Edit itemDetail={itemDetail} /> : <div></div>)}
     </Switch>
   );

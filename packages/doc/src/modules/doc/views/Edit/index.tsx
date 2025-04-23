@@ -1,4 +1,13 @@
-import {ClockCircleOutlined, CloudUploadOutlined, HomeOutlined, MenuOutlined, PlusOutlined, StarOutlined, UserOutlined} from '@ant-design/icons';
+import {
+  ClockCircleOutlined,
+  CloudUploadOutlined,
+  HomeOutlined,
+  MenuOutlined,
+  PlusOutlined,
+  StarFilled,
+  StarOutlined,
+  UserOutlined,
+} from '@ant-design/icons';
 import {Link} from '@elux/react-web';
 import {Boot, DomEditor, IButtonMenu, IDomEditor, IEditorConfig, IToolbarConfig, SlateEditor} from '@wangeditor-next/editor';
 import {Editor, Toolbar} from '@wangeditor-next/editor-for-react';
@@ -25,6 +34,7 @@ interface Props {
 const Component: FC<Props> = ({itemDetail}) => {
   const [editor, setEditor] = useState<IDomEditor>();
   const [docTitle, setDocTitle] = useState(itemDetail.title);
+  const [collect, setCollect] = useState(itemDetail.collect);
   const [source, setSource] = useState<ISource>({id: itemDetail.id, dsl: itemDetail.articleDsl, html: itemDetail.contents});
   const [autoSave] = useState(() => new SaveMgr());
   const [saving, setSaving] = useState(false);
@@ -96,10 +106,21 @@ const Component: FC<Props> = ({itemDetail}) => {
         </Link>
       ),
     });
-    arr.push({title: <span>{docTitle}</span>});
+    arr.push({
+      title: (
+        <>
+          <span>{docTitle}</span>
+          {!collect ? (
+            <StarOutlined className="anticon-star-outline" onClick={() => DocAPI.collectItem(itemDetail.id, 'doc', true).then(() => setCollect(1))} />
+          ) : (
+            <StarFilled onClick={() => DocAPI.collectItem(itemDetail.id, 'doc', false).then(() => setCollect(0))} />
+          )}
+        </>
+      ),
+    });
     return <Breadcrumb items={arr} />;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [docTitle]);
+  }, [docTitle, collect]);
 
   useEffect(() => {
     document.addEventListener('keyup', onKeyUp);
@@ -121,7 +142,6 @@ const Component: FC<Props> = ({itemDetail}) => {
             <PlusOutlined />
             <MenuOutlined />
             {breadcrumb}
-            <StarOutlined />
           </Space>
           <Space>
             <span style={{fontSize: 12, color: '#B9BABB'}}>所有内容都会自动保存到云端</span>

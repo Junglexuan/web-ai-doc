@@ -58,7 +58,7 @@ function decodeMessage(str: string): string {
 function getHeaders() {
   return {
     'Content-Type': 'application/json',
-    authorization: getToken(),
+    Authorization: getToken(),
   };
 }
 const continueWrite: AIRequest = ({args, onMessage, onError, onDone}) => {
