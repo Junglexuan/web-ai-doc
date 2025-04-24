@@ -9,6 +9,7 @@ import AIImage from '../AIImage';
 import AIMenu, {MenuEvent, applicationTemplates, menuKeysMap, officialTemplates} from '../AIMenu';
 import AIOutline from '../AIOutline';
 import AIStylize from '../AIStylize';
+import AIWeb from '../AIWeb';
 import {RunningState} from '../api';
 import styles from './index.module.less';
 import type {AIEvent} from '../utils';
@@ -120,6 +121,13 @@ const Component: FC<Props> = ({onCreated, editor}) => {
         return (
           <AIDialog event={aiEvent}>
             <AIAsk aiRef={aiRef} onRunningStateChange={setRunningState} />
+          </AIDialog>
+        );
+      }
+      if (aiKey === 'W') {
+        return (
+          <AIDialog event={aiEvent}>
+            <AIWeb aiRef={aiRef} onRunningStateChange={setRunningState} />
           </AIDialog>
         );
       }

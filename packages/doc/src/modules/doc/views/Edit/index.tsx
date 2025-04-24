@@ -79,7 +79,9 @@ const Component: FC<Props> = ({itemDetail}) => {
       const dialogRect = dialog.getBoundingClientRect();
       const scroller = editor.getEditableContainer();
       const scrollerRect = scroller.getBoundingClientRect();
-      console.log(dialogRect, scrollerRect);
+      if (dialogRect.x < scrollerRect.x) {
+        dialog.style.transform = `translateX(${scrollerRect.x - dialogRect.x + 10}px)`;
+      }
       //const {$elem} = modalOrPanel;
 
       //
@@ -145,7 +147,7 @@ const Component: FC<Props> = ({itemDetail}) => {
       <div className={styles.root}>
         <div className="hd">
           <Space size="large">
-            <HomeOutlined className="icon-link" onClick={() => GetClientRouter().relaunch({url: `/admin/doc/list/maintain`}, 'window')} />
+            <HomeOutlined className="icon-link" onClick={() => GetClientRouter().relaunch({url: `/admin/home`}, 'window')} />
             <PlusOutlined />
             <MenuOutlined />
             {breadcrumb}

@@ -1,4 +1,5 @@
 import {fetchEventSource} from '@microsoft/fetch-event-source';
+import {marked} from 'marked';
 import request, {replaceBaseUrl} from '@/utils/request';
 import {getToken} from '@/utils/tools';
 import {dslToHtml} from './utils';
@@ -43,7 +44,7 @@ export interface AIRequest {
 //     console.error('Fetch error:', error);
 //   });
 
-function decodeMessage(str: string): string {
+function decodeMessage(str: string, markdown?: boolean): string {
   let result: any = [];
   if (str) {
     try {
@@ -52,7 +53,11 @@ function decodeMessage(str: string): string {
       result = [];
     }
   }
-  return dslToHtml(result);
+  if (markdown) {
+    return result.content ? (marked.parse(result.content) as string) : '';
+  } else {
+    return dslToHtml(result);
+  }
 }
 
 function getHeaders() {
@@ -68,7 +73,13 @@ const continueWrite: AIRequest = ({args, onMessage, onError, onDone}) => {
   fetchEventSource(replaceBaseUrl('/dream/pen/ai/writer/continued'), {
     method: 'POST',
     headers: getHeaders(),
-    body: JSON.stringify({type: 'continued', continuedType: 'paragraph', conversation_id: docId, prompt, content: context}),
+    body: JSON.stringify({
+      type: 'continued',
+      continuedType: 'paragraph',
+      conversation_id: docId,
+      prompt,
+      content: context.substring(context.length - 100),
+    }),
     signal,
     onmessage: (ev) => onMessage(decodeMessage(ev.data)),
     onerror: (e) => {
@@ -139,11 +150,13 @@ const createImage: AIRequest = ({args, onMessage, onError, onDone}) => {
         }
       }
       // onMessage(`<figure>${result.map((item) => '<div style="background-image:url(' + item + ')"></div>').join('')}</figure>`);
-      onMessage(
-        `<figure>${result
-          .map((item, index) => '<div class="' + (!index ? 'on' : '') + '" data-img="' + item + '"><img src="' + item + '" width="300" /></div>')
-          .join('')}</figure>`
-      );
+      if (result.length) {
+        onMessage(
+          `<figure>${result
+            .map((item, index) => '<div class="' + (!index ? 'on' : '') + '" data-img="' + item + '"><img src="' + item + '" width="300" /></div>')
+            .join('')}</figure>`
+        );
+      }
     },
     onerror: (e) => {
       setTimeout(() => onError(e));
@@ -213,6 +226,26 @@ const ask: AIRequest = ({args, onMessage, onError, onDone}) => {
   });
   return controller;
 };
+const web: AIRequest = ({args, onMessage, onError, onDone}) => {
+  const controller = new AbortController();
+  const {signal} = controller;
+  const {docId, prompt} = args;
+  fetchEventSource(replaceBaseUrl('/dream/pen/ai/writer/summaryWeb'), {
+    method: 'POST',
+    headers: getHeaders(),
+    body: JSON.stringify({type: 'summaryWeb', conversation_id: docId, url: prompt}),
+    signal,
+    onmessage(ev) {
+      onMessage(decodeMessage(ev.data, true));
+    },
+    onerror: (e) => {
+      setTimeout(() => onError(e));
+      throw e;
+    },
+    onclose: onDone,
+  });
+  return controller;
+};
 
 export const AiAPI = {
   continueWrite,
@@ -221,6 +254,7 @@ export const AiAPI = {
   createImage,
   stylize,
   ask,
+  web,
   async byTemplate(docId: string, content: string): Promise<string> {
     return request
       .post(`/dream/pen/ai/full/text `, {

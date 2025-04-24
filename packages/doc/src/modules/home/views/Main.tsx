@@ -1,8 +1,9 @@
 import {DocumentHead, Link, connectStore} from '@elux/react-web';
 import {Carousel} from 'antd';
 import {FC, useEffect, useMemo, useState} from 'react';
-import React from 'react';
-import {useEvent} from '@/utils/tools';
+import {GetClientRouter} from '@/Global';
+import DocAPI from '@/modules/doc/api';
+import {message, useEvent} from '@/utils/tools';
 import HomeAPI from '../api';
 import {HotArticle, HotTemplate} from '../entity';
 import styles from './index.module.less';
@@ -39,12 +40,10 @@ const popularCreations = [
 ];
 
 const Component: FC = () => {
+  const [loading, setLoading] = useState<'create' | ''>('');
   const [hotArticleList, setHotArticleList] = useState<HotArticle[]>([]);
   const [hotTemplateList, setHotTemplateList] = useState<HotTemplate[]>([]);
-  useEffect(() => {
-    getHotArticeList();
-    getHotTemplateList();
-  }, []);
+
   const getHotArticeList = useEvent(async () => {
     const _articleList = await HomeAPI.getHotArticleList(RECENT_CREATIONS_LIMIT);
     setHotArticleList(_articleList);
@@ -52,6 +51,17 @@ const Component: FC = () => {
   const getHotTemplateList = useEvent(async () => {
     const _templateList = await HomeAPI.getHotTemplateList();
     setHotTemplateList(_templateList);
+  });
+  const onCreateByTpl = useEvent(async (item: HotTemplate) => {
+    setLoading('create');
+    DocAPI.createDoc({folder: '0', title: item.name, contents: item.contents})
+      .then(({id}) => {
+        GetClientRouter().push({url: `/admin/doc/item/edit/${id}?__c=_dialog`}, 'window');
+      })
+      .catch((e) => {
+        message.error(e + '');
+      })
+      .finally(() => setLoading(''));
   });
   const renderHotArticle = useMemo(() => {
     // 获取最近创作的项目
@@ -82,7 +92,7 @@ const Component: FC = () => {
     return (
       <div className="popular-creations">
         {hotTemplateList.map((item, index) => (
-          <div key={index} className="creation-item">
+          <div key={index} className="creation-item" onClick={() => onCreateByTpl(item)}>
             <div className="icon-title">
               <div className="icon">{item.name.charAt(0)}</div>
               <div className="title">{item.name}</div>
@@ -94,7 +104,8 @@ const Component: FC = () => {
         ))}
       </div>
     );
-  }, [hotTemplateList]);
+  }, [hotTemplateList, onCreateByTpl]);
+
   const renderCarousel = useMemo(() => {
     //carouselItems
     return (
@@ -107,6 +118,12 @@ const Component: FC = () => {
       </Carousel>
     );
   }, []);
+
+  useEffect(() => {
+    getHotArticeList();
+    getHotTemplateList();
+  }, []);
+
   return (
     <div className={styles.root}>
       <DocumentHead title="首页" />

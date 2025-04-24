@@ -9,7 +9,7 @@ import {
   PictureOutlined,
   ReadOutlined,
 } from '@ant-design/icons';
-import {IDomEditor, SlateEditor, SlateElement, SlateNode, createEditor} from '@wangeditor-next/editor';
+import {IDomEditor, SlateEditor, SlateElement, SlateNode, SlateTransforms} from '@wangeditor-next/editor';
 import {Menu} from 'antd';
 import {FC, memo, useCallback, useEffect, useLayoutEffect, useRef, useState} from 'react';
 import {eachTree, insertAfter, removeClass, useEvent} from '@/utils/tools';
@@ -433,16 +433,16 @@ const originItems: MenuItem[] = [
       </span>
     ),
   },
-  {
-    key: 'X',
-    icon: <ReadOutlined />,
-    title: '校阅',
-    label: (
-      <span>
-        <sub>(X)</sub>校阅
-      </span>
-    ),
-  },
+  // {
+  //   key: 'X',
+  //   icon: <ReadOutlined />,
+  //   title: '校阅',
+  //   label: (
+  //     <span>
+  //       <sub>(X)</sub>校阅
+  //     </span>
+  //   ),
+  // },
   {
     key: 'P',
     icon: <PictureOutlined />,
@@ -577,6 +577,7 @@ const Component: FC<Props> = (props) => {
           editor.deleteBackward('character');
         }
         editor.insertBreak();
+        SlateTransforms.setNodes(editor, {indent: ''} as any);
         // if ((curNode as any).text !== '') {
         //   editor.insertBreak();
         // }
