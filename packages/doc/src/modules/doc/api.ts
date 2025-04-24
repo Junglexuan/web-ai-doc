@@ -85,7 +85,6 @@ export const DocAPI = {
   alterItems(id: string, changed: {title: string}): Promise<void> {
     return request.put(`/api/flow/${id}`, changed);
   },
-
   updateItem(id: string, dsl: string): Promise<void> {
     return request.put(`/api/flow/${id}`, {dsl});
   },

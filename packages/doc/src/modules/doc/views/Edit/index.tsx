@@ -8,14 +8,16 @@ import {
   StarOutlined,
   UserOutlined,
 } from '@ant-design/icons';
-import {Link} from '@elux/react-web';
+import {Link, setLoading as setGlobalLoading} from '@elux/react-web';
 import {Boot, DomEditor, IButtonMenu, IDomEditor, IEditorConfig, IToolbarConfig, SlateEditor} from '@wangeditor-next/editor';
 import {Editor, Toolbar} from '@wangeditor-next/editor-for-react';
-import {Breadcrumb, Button, Space, Spin} from 'antd';
+import {Breadcrumb, Button, Dropdown, Space, Spin} from 'antd';
+import dayjs from 'dayjs';
 import {FC, memo, useEffect, useMemo, useState} from 'react';
 import BlurInput from '@/components/BlurInput';
 import DialogPage from '@/components/DialogPage';
 import {GetClientRouter} from '@/Global';
+import {downloadFile, replaceBaseUrl} from '@/utils/request';
 import {confirm, debounce, getUrlParam, message, useEvent} from '@/utils/tools';
 import DocAPI from '../../api';
 import {ItemDetail} from '../../entity';
@@ -67,6 +69,16 @@ const Component: FC<Props> = ({itemDetail}) => {
       editor?.hidePanelOrModal();
       editor?.focus();
     }
+  });
+
+  const onCreatDoc = useEvent(() => {
+    DocAPI.createDoc({folder: itemDetail.folder, title: '', contents: ''})
+      .then(({id}) => {
+        GetClientRouter().relaunch({url: `/admin/doc/item/edit/${id}?__c=_dialog`}, 'page');
+      })
+      .catch((e) => {
+        message.error(e + '');
+      });
   });
 
   const onCreated = useEvent((editor: IDomEditor) => {
@@ -148,8 +160,36 @@ const Component: FC<Props> = ({itemDetail}) => {
         <div className="hd">
           <Space size="large">
             <HomeOutlined className="icon-link" onClick={() => GetClientRouter().relaunch({url: `/admin/home`}, 'window')} />
-            <PlusOutlined />
-            <MenuOutlined />
+            <PlusOutlined className="icon-link" onClick={onCreatDoc} title="新建文档" />
+            <Dropdown
+              menu={{
+                onClick: ({key}: {key: string}) => {
+                  if (key === '下载Word') {
+                    setGlobalLoading(
+                      downloadFile(replaceBaseUrl(`/dream/pen/article/down?id=${itemDetail.id}&type=word`), itemDetail.title),
+                      GetClientRouter().getActivePage().store
+                    );
+                  } else if (key === '下载PDF') {
+                    setGlobalLoading(
+                      downloadFile(replaceBaseUrl(`/dream/pen/article/down?id=${itemDetail.id}&type=pdf`), itemDetail.title),
+                      GetClientRouter().getActivePage().store
+                    );
+                  }
+                },
+                items: [
+                  {
+                    key: '下载Word',
+                    label: '下载Word',
+                  },
+                  {
+                    key: '下载PDF',
+                    label: '下载PDF',
+                  },
+                ],
+              }}
+            >
+              <MenuOutlined className="icon-link" />
+            </Dropdown>
             {breadcrumb}
           </Space>
           <Space>
@@ -178,11 +218,11 @@ const Component: FC<Props> = ({itemDetail}) => {
             <Space className="info">
               <div>
                 <UserOutlined />
-                <span> 王小兵</span>
+                <span> {itemDetail.createUserName}</span>
               </div>
               <div>
                 <ClockCircleOutlined />
-                <span> 今天 14:50创建</span>
+                <span> {itemDetail.createDate ? dayjs(itemDetail.createDate).format('YYYY-MM-DD HH:mm:ss') : ''} 创建</span>
               </div>
             </Space>
           </header>

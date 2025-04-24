@@ -40,7 +40,6 @@ const popularCreations = [
 ];
 
 const Component: FC = () => {
-  const [loading, setLoading] = useState<'create' | ''>('');
   const [hotArticleList, setHotArticleList] = useState<HotArticle[]>([]);
   const [hotTemplateList, setHotTemplateList] = useState<HotTemplate[]>([]);
 
@@ -53,15 +52,13 @@ const Component: FC = () => {
     setHotTemplateList(_templateList);
   });
   const onCreateByTpl = useEvent(async (item: HotTemplate) => {
-    setLoading('create');
     DocAPI.createDoc({folder: '0', title: item.name, contents: item.contents})
       .then(({id}) => {
         GetClientRouter().push({url: `/admin/doc/item/edit/${id}?__c=_dialog`}, 'window');
       })
       .catch((e) => {
         message.error(e + '');
-      })
-      .finally(() => setLoading(''));
+      });
   });
   const renderHotArticle = useMemo(() => {
     // 获取最近创作的项目

@@ -35,6 +35,9 @@ export interface ItemDetail {
   contents: string;
   articleDsl: string;
   collect: number;
+  folder: string;
+  createUserName: string;
+  createDate: string;
   levelPath: {id: string; folderName: string; parent: string}[];
 }
 export interface EditItem extends BaseListItem {}

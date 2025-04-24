@@ -90,6 +90,9 @@ export const editorConfig: Partial<IEditorConfig> = {
     },
   },
   MENU_CONF: {
+    // fontFamily: {
+    //   fontFamilyList: [],
+    // },
     uploadImage: {
       base64LimitSize: 2 * 1024,
       fieldName: 'file',
@@ -140,3 +143,8 @@ export const editorConfig: Partial<IEditorConfig> = {
   //   // return true
   // },
 };
+if ('queryLocalFonts' in window) {
+  (window as any).queryLocalFonts().then((items: any) => {
+    console.log(items);
+  });
+}
