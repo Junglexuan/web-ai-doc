@@ -90,9 +90,22 @@ export const editorConfig: Partial<IEditorConfig> = {
     },
   },
   MENU_CONF: {
-    // fontFamily: {
-    //   fontFamilyList: [],
-    // },
+    fontFamily: {
+      fontFamilyList: [
+        {name: '黑体', value: 'SimHei'},
+        {name: '楷体', value: '楷体, 楷体-简, 楷体-繁, KaiTi, STKaiti, 华文楷体'},
+        {name: '宋体', value: '宋体, 宋体-简, 宋体-繁, 华文宋体, simsun, SimSun, STSong'},
+        {name: '仿宋', value: '仿宋, FangSong, STFangsong'},
+        '微软雅黑',
+        'Arial',
+        'Arial Black',
+        'Tahoma',
+        'Verdana',
+        {name: 'Times Roman', value: 'Times New Roman'},
+        {name: 'Comic Sans', value: 'Comic Sans MS'},
+        'Courier New',
+      ],
+    },
     uploadImage: {
       base64LimitSize: 2 * 1024,
       fieldName: 'file',
