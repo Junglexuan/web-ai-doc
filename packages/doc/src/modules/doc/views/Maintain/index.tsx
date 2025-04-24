@@ -152,8 +152,8 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
                   className={styles.move}
                   showIcon
                   icon={<FolderOpenOutlined />}
-                  defaultExpandedKeys={[listSearch.id + '']}
-                  defaultSelectedKeys={[listSearch.id + '']}
+                  defaultExpandedKeys={[listSearch.id || '0']}
+                  defaultSelectedKeys={[listSearch.id || '0']}
                   treeData={listSummary.dirTree}
                   onSelect={(selected) => onMove(record.id, record.type, selected[0] as string)}
                 />
@@ -281,25 +281,27 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
 
   const breadcrumb = useMemo(() => {
     const curDir = listSummary.levelPath.pop();
-    const arr = listSummary.levelPath.map((item) => ({
-      title: (
-        <Link to={`/admin/doc/list/maintain?id=${item.id}`} action="push" target="page">
-          {item.folderName}
-        </Link>
-      ),
-    }));
-    arr.unshift({
-      title: (
-        <Link to="/admin/doc/list/maintain" action="push" target="page">
-          我的文档
-        </Link>
-      ),
-    });
     if (curDir) {
+      const arr = listSummary.levelPath.map((item) => ({
+        title: (
+          <Link to={`/admin/doc/list/maintain?id=${item.id}`} action="push" target="page">
+            {item.folderName}
+          </Link>
+        ),
+      }));
+      arr.unshift({
+        title: (
+          <Link to="/admin/doc/list/maintain" action="push" target="page">
+            我的文档
+          </Link>
+        ),
+      });
       arr.push({title: <span>{curDir.folderName}</span>});
+      return <Breadcrumb items={arr} />;
+    } else {
+      return <span className="ant-breadcrumb">我的文档</span>;
     }
 
-    return <Breadcrumb items={arr} />;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [listSummary.levelPath]);
 
@@ -319,7 +321,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
   }, []);
 
   return (
-    <div className={'g-page-content ' + styles.root}>
+    <div className={styles.root}>
       <DocumentHead title="我的文档" />
       {/* <EasyEdit
         tpl="你是一名${role}，需要整理本周工作周报，本周主要工作内容为${text}，下周主要工作计划为${newText}"

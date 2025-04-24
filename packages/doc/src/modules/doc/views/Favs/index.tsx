@@ -222,7 +222,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
   }, []);
 
   return (
-    <div className={'g-page-content ' + styles.root}>
+    <div className={styles.root}>
       <DocumentHead title="我的收藏" />
       <div className="hd">
         <span className="ant-breadcrumb">我的收藏</span>

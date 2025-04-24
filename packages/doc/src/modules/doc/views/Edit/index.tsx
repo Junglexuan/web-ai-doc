@@ -74,8 +74,15 @@ const Component: FC<Props> = ({itemDetail}) => {
     window['editor'] = editor;
     //setTimeout(() => (window['tools'] = DomEditor.getToolbar(editor)));
     editor.on('modalOrPanelShow', (modalOrPanel) => {
-      // if (modalOrPanel.type !== 'modal') return;
-      // const dom = modalOrPanel.$elem[0];
+      if (modalOrPanel.type !== 'modal') return;
+      const dialog: HTMLElement = modalOrPanel.$elem[0];
+      const dialogRect = dialog.getBoundingClientRect();
+      const scroller = editor.getEditableContainer();
+      const scrollerRect = scroller.getBoundingClientRect();
+      console.log(dialogRect, scrollerRect);
+      //const {$elem} = modalOrPanel;
+
+      //
       // if (dom.style.bottom) {
       //   dom.style.transform = 'translateY(210px)';
       // } else {

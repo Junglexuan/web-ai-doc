@@ -23,7 +23,7 @@ const items: any[] = [
     key: '我的文档',
     icon: <FileOutlined />,
     label: (
-      <Link to="admin/doc/list/maintain" action="relaunch" target="window">
+      <Link to="/admin/doc/list/maintain" action="relaunch" target="window">
         我的文档
       </Link>
     ),
@@ -32,7 +32,7 @@ const items: any[] = [
     key: '我的收藏',
     icon: <StarOutlined />,
     label: (
-      <Link to="admin/doc/list/favs" action="relaunch" target="window">
+      <Link to="/admin/doc/list/favs" action="relaunch" target="window">
         我的收藏
       </Link>
     ),

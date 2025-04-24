@@ -61,7 +61,7 @@ export const DocAPI = {
       request.get(`/dream/pen/dFolder/tree`),
     ]).then(([listRes, levelRes, dirTreeRes]) => {
       const list: ListItem[] = (render === 'favs' ? listRes.data.data.data : listRes.data.data) || [];
-      const dirTree = dirTreeRes.data.data;
+      const dirTree = dirTreeRes.data.data || [];
       return {
         list: list.map((item) => {
           item.type = item.articleId || render === 'favs' ? 'doc' : 'dir';
@@ -77,7 +77,7 @@ export const DocAPI = {
           pageSize: 999999,
           totalItems: list.length,
           levelPath: levelRes.data.data || [],
-          dirTree: mapTree<any, any>(dirTree, (item) => ({title: item.name, key: item.id})),
+          dirTree: [{title: '我的文档', key: '0', children: mapTree<any, any>(dirTree, (item) => ({title: item.name, key: item.id}))}],
         },
       };
     });

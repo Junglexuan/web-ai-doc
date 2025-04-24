@@ -1,4 +1,4 @@
-import {connectStore} from '@elux/react-web';
+import {DocumentHead, Link, connectStore} from '@elux/react-web';
 import {Carousel} from 'antd';
 import {FC, useEffect, useMemo, useState} from 'react';
 import React from 'react';
@@ -58,14 +58,22 @@ const Component: FC = () => {
     return (
       <div className="recent-creations">
         {hotArticleList.map((item, index) => (
-          <div key={index} className="creation-item">
+          <Link
+            key={index}
+            className="creation-item"
+            title={item.title}
+            to={`/admin/doc/item/edit/${item.id}`}
+            action="push"
+            target="window"
+            cname="_dialog"
+          >
             <div className="title" title={item.title}>
               {item.title}
             </div>
             <div className="content" title={item.levelPath}>
               {item.levelPath}
             </div>
-          </div>
+          </Link>
         ))}
       </div>
     );
@@ -101,6 +109,7 @@ const Component: FC = () => {
   }, []);
   return (
     <div className={styles.root}>
+      <DocumentHead title="首页" />
       {renderCarousel}
       <div className="title-box">最近创作</div>
       {renderHotArticle}
