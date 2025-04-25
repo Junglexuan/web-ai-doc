@@ -5,6 +5,7 @@ export interface ISource {
   id: string;
   dsl: string;
   html: string;
+  text: string;
 }
 export class SaveMgr extends SimpleDispatcher<{loading: boolean}> {
   cycleTime = 2000;

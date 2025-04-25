@@ -264,10 +264,10 @@ export const getUrlParam = (name: string): string | null => {
   if (r != null && decodeURI(r[2]) != 'null') return decodeURI(r[2]);
   return null; //返回参数值
 };
-export function debounce<T extends Function>(callbak: T, delay = 0): T {
+export function debounce<T extends Function>(callbak: T, delay = 0, every?: T): T {
   let timer: any = null;
   return ((...args: any[]) => {
-    //every && every(...args);
+    every && every(...args);
     timer && clearTimeout(timer);
     timer = setTimeout(() => {
       callbak(...args);

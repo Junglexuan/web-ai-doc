@@ -38,6 +38,7 @@ export interface ItemDetail {
   folder: string;
   createUserName: string;
   createDate: string;
+  articleCount: number;
   levelPath: {id: string; folderName: string; parent: string}[];
 }
 export interface EditItem extends BaseListItem {}

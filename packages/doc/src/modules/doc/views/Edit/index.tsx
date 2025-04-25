@@ -9,7 +9,7 @@ import {
   UserOutlined,
 } from '@ant-design/icons';
 import {Link, setLoading as setGlobalLoading} from '@elux/react-web';
-import {Boot, DomEditor, IButtonMenu, IDomEditor, IEditorConfig, IToolbarConfig, SlateEditor} from '@wangeditor-next/editor';
+import {IDomEditor} from '@wangeditor-next/editor';
 import {Editor, Toolbar} from '@wangeditor-next/editor-for-react';
 import {Breadcrumb, Button, Dropdown, Space, Spin} from 'antd';
 import dayjs from 'dayjs';
@@ -37,18 +37,18 @@ const Component: FC<Props> = ({itemDetail}) => {
   const [editor, setEditor] = useState<IDomEditor>();
   const [docTitle, setDocTitle] = useState(itemDetail.title);
   const [collect, setCollect] = useState(itemDetail.collect);
-  const [source, setSource] = useState<ISource>({id: itemDetail.id, dsl: itemDetail.articleDsl, html: itemDetail.contents});
+  const [source, setSource] = useState<ISource>({id: itemDetail.id, dsl: itemDetail.articleDsl, html: itemDetail.contents, text: ''});
   const [autoSave] = useState(() => new SaveMgr());
   const [saving, setSaving] = useState(false);
 
-  const onChange = useEvent((editor: IDomEditor) => {
+  const onSave = useEvent((editor: IDomEditor) => {
     //JSON.stringify(editor.children, null, 2)
-    const newSource: ISource = {id: itemDetail.id, dsl: JSON.stringify(editor.children), html: editor.getHtml()};
+    const newSource: ISource = {id: itemDetail.id, dsl: JSON.stringify(editor.children), html: editor.getHtml(), text: editor.getText()};
     setSource(newSource);
     autoSave.onChange(newSource);
   });
 
-  const _onChange = useMemo(() => debounce(onChange, 1000), [onChange]);
+  const onChange = useMemo(() => debounce(onSave, 1000), [onSave]);
 
   const onDocTitleChange = useEvent((title: string) => {
     const _docTitle = docTitle;
@@ -194,7 +194,7 @@ const Component: FC<Props> = ({itemDetail}) => {
           </Space>
           <Space>
             <span style={{fontSize: 12, color: '#B9BABB'}}>所有内容都会自动保存到云端</span>
-            {saving ? <Spin size="small" /> : <CloudUploadOutlined />}
+            {saving ? <Spin size="small" /> : <CloudUploadOutlined id="_ai_saved" />}
             <Button type="primary" style={{marginLeft: '10px'}}>
               分享
             </Button>
@@ -230,12 +230,15 @@ const Component: FC<Props> = ({itemDetail}) => {
             defaultConfig={editorConfig}
             value={source.html}
             onCreated={onCreated}
-            onChange={_onChange}
+            onChange={onChange}
             //style={{minHeight: '500px'}}
             mode="default"
           />
         </div>
-        <div className="ft">{editor && <Outline editor={editor} />}</div>
+        <div className="ft">
+          {editor && <Outline editor={editor} />}
+          <span className="count">{source.text ? source.text.replace(/\n|\r/gm, '').length : ''}个字</span>
+        </div>
       </div>
     </DialogPage>
   );
