@@ -50,7 +50,7 @@ const Component: FC<Props> = ({editor}) => {
     if (!editor.selection || aiRef?.menuIsOpen()) {
       return;
     }
-    aiRef?.openMenu({editor, triggerWithChar: trigger === '/'});
+    aiRef?.openMenu({editor, triggerWithChar: trigger === '/', selectionRange: window.getSelection()?.getRangeAt(0)});
     const scroller = document.getElementById('_ai_editor_scroller')!;
     addClass(scroller, 'on');
   });

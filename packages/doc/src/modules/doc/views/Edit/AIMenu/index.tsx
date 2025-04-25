@@ -20,6 +20,7 @@ import styles from './index.module.less';
 export interface MenuEvent {
   editor: IDomEditor;
   triggerWithChar: boolean;
+  selectionRange?: Range;
 }
 
 type MenuItem = any;
