@@ -7,9 +7,8 @@ import {
   MenuUnfoldOutlined,
   MessageOutlined,
   PictureOutlined,
-  ReadOutlined,
 } from '@ant-design/icons';
-import {IDomEditor, SlateEditor, SlateElement, SlateNode, SlateTransforms} from '@wangeditor-next/editor';
+import {IDomEditor, SlateEditor, SlateTransforms} from '@wangeditor-next/editor';
 import {Menu} from 'antd';
 import {FC, memo, useCallback, useEffect, useLayoutEffect, useRef, useState} from 'react';
 import {eachTree, insertAfter, removeClass, useEvent} from '@/utils/tools';
@@ -547,8 +546,7 @@ const Component: FC<Props> = (props) => {
   const {event, onCancel} = props;
   const rootDivRef = useRef<HTMLElement>();
   const menuInput = useRef<HTMLInputElement>(null as any);
-  const menuComp = useRef<any>(null as any);
-  const [menuStyles, setMenuStyles] = useState({left: 0, top: 0});
+  const [menuStyles, setMenuStyles] = useState({left: 0, top: 0, pos: 'lt'});
   const [openKeys, setOpenKeys] = useState<string[]>();
   const [selectedKeys, setSelectedKeys] = useState<string[] | undefined>();
   const [items] = useState(() => {
@@ -728,37 +726,61 @@ const Component: FC<Props> = (props) => {
   }, [curCmd]);
 
   useLayoutEffect(() => {
-    const editor = event.editor;
-    const pos = editor.getSelectionPosition();
-    const posNum = {
-      left: parseInt(pos.left || '0'),
-      top: parseInt(pos.top || '0'),
-      right: parseInt(pos.right || '0'),
-      bottom: parseInt(pos.bottom || '0'),
-    };
-    //console.log(posNum);
-    const editorContainer = editor.getEditableContainer() as HTMLElement;
-    const containerRect = editorContainer.getBoundingClientRect();
-    const selPos = {x: 0, y: 0};
-    if (posNum.left) {
-      selPos.x = posNum.left + containerRect.left;
-    } else if (posNum.right) {
-      selPos.x = containerRect.left - posNum.right + containerRect.width + 8;
-    }
-    if (posNum.top) {
-      selPos.y = posNum.top + containerRect.top;
-    } else if (posNum.bottom) {
-      selPos.y = containerRect.height - posNum.bottom + containerRect.top + 35;
-    }
     const rootDiv = rootDivRef.current!;
-    const menuPos = {left: 0, top: 0};
-    menuPos.left = selPos.x;
-    menuPos.top = selPos.y - 100;
-    const menuMaxTop = window.innerHeight - rootDiv.offsetHeight;
-    if (menuPos.top > menuMaxTop) {
-      menuPos.top = menuMaxTop;
+    if (event.selectionRange) {
+      const selectionRect = event.selectionRange.getBoundingClientRect();
+      //console.log(selectionRect);
+      const dTop = selectionRect.top;
+      const dBottom = window.innerHeight - selectionRect.bottom;
+      const menuHeight = rootDiv.offsetHeight;
+      const menuPos = {top: 0, left: 0, pos: 'lt'};
+      if (dTop > dBottom) {
+        menuPos.top = Math.max(0, dTop - menuHeight);
+        menuPos.pos = 'lt';
+      } else {
+        menuPos.top = Math.min(selectionRect.bottom, window.innerHeight - menuHeight);
+        menuPos.pos = 'lb';
+      }
+      const selPos = event.editor.getSelectionPosition();
+      const editorContainer = event.editor.getEditableContainer() as HTMLElement;
+      const containerRect = editorContainer.getBoundingClientRect();
+      if (selPos.left !== undefined) {
+        menuPos.left = containerRect.left + parseInt(selPos.left);
+      } else {
+        menuPos.left = containerRect.left + containerRect.width - parseInt(selPos.right || '');
+      }
+      setMenuStyles(menuPos);
     }
-    setMenuStyles(menuPos);
+
+    // const editor = event.editor;
+    // const pos = editor.getSelectionPosition();
+    // const posNum = {
+    //   left: parseInt(pos.left || '0'),
+    //   top: parseInt(pos.top || '0'),
+    //   right: parseInt(pos.right || '0'),
+    //   bottom: parseInt(pos.bottom || '0'),
+    // };
+    // //console.log(posNum);
+
+    // const selPos = {x: 0, y: 0};
+    // if (posNum.left) {
+    //   selPos.x = posNum.left + containerRect.left;
+    // } else if (posNum.right) {
+    //   selPos.x = containerRect.left - posNum.right + containerRect.width + 8;
+    // }
+    // if (posNum.top) {
+    //   selPos.y = posNum.top + containerRect.top;
+    // } else if (posNum.bottom) {
+    //   selPos.y = containerRect.height - posNum.bottom + containerRect.top + 35;
+    // }
+    // const menuPos = {left: 0, top: 0};
+    // menuPos.left = selPos.x;
+    // menuPos.top = selPos.y - 100;
+    // const menuMaxTop = window.innerHeight - rootDiv.offsetHeight;
+    // if (menuPos.top > menuMaxTop) {
+    //   menuPos.top = menuMaxTop;
+    // }
+    // setMenuStyles(menuPos);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -772,10 +794,9 @@ const Component: FC<Props> = (props) => {
   }, []);
 
   return (
-    <div ref={rootDivRef as any} className={styles.menu + ' on'} style={menuStyles} onMouseMove={onMouseMove}>
+    <div ref={rootDivRef as any} className={styles.menu + ' on ' + menuStyles.pos} style={menuStyles} onMouseMove={onMouseMove}>
       <input ref={menuInput as any} defaultValue="/" onKeyDown={onKeyDown} onChange={onKeyChange} />
       <Menu
-        ref={menuComp}
         mode="vertical"
         items={items as any}
         openKeys={openKeys}

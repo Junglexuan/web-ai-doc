@@ -194,7 +194,13 @@ const Component: FC<Props> = ({itemDetail}) => {
           </Space>
           <Space>
             <span style={{fontSize: 12, color: '#B9BABB'}}>所有内容都会自动保存到云端</span>
-            {saving ? <Spin size="small" /> : <CloudUploadOutlined id="_ai_saved" />}
+            {saving ? (
+              <span id="_ai_saving">
+                <Spin size="small" />
+              </span>
+            ) : (
+              <CloudUploadOutlined style={{color: '#B9BABB'}} />
+            )}
             <Button type="primary" style={{marginLeft: '10px'}}>
               分享
             </Button>

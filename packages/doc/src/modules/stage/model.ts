@@ -106,8 +106,8 @@ export class Model extends BaseModel<ModuleState, APPState> {
     }
     if (this.getRouter().location.pathname.startsWith('/admin/doc/item/edit/')) {
       console.log('checkSave');
-      const saved = document.getElementById('_ai_saved');
-      if (!saved) {
+      const saving = document.getElementById('_ai_saving');
+      if (saving) {
         throw new CustomError(ErrorCode.unkown, '当前页面正在保存，请稍候...');
       }
     }
