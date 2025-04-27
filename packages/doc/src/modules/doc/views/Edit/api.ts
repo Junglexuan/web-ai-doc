@@ -1,4 +1,5 @@
 import {fetchEventSource} from '@microsoft/fetch-event-source';
+import {marked} from 'marked';
 import request, {replaceBaseUrl} from '@/utils/request';
 import {getToken} from '@/utils/tools';
 import {dslToHtml} from './utils';
@@ -43,7 +44,7 @@ export interface AIRequest {
 //     console.error('Fetch error:', error);
 //   });
 
-function decodeMessage(str: string): string {
+function decodeMessage(str: string, markdown?: boolean): string {
   let result: any = [];
   if (str) {
     try {
@@ -52,13 +53,17 @@ function decodeMessage(str: string): string {
       result = [];
     }
   }
-  return dslToHtml(result);
+  if (markdown) {
+    return result.content ? (marked.parse(result.content) as string) : '';
+  } else {
+    return dslToHtml(result);
+  }
 }
 
 function getHeaders() {
   return {
     'Content-Type': 'application/json',
-    authorization: `bearer ${getToken()}`,
+    Authorization: getToken(),
   };
 }
 const continueWrite: AIRequest = ({args, onMessage, onError, onDone}) => {
@@ -68,7 +73,13 @@ const continueWrite: AIRequest = ({args, onMessage, onError, onDone}) => {
   fetchEventSource(replaceBaseUrl('/dream/pen/ai/writer/continued'), {
     method: 'POST',
     headers: getHeaders(),
-    body: JSON.stringify({type: 'continued', continuedType: 'paragraph', conversation_id: docId, prompt, content: context}),
+    body: JSON.stringify({
+      type: 'continued',
+      continuedType: 'paragraph',
+      conversation_id: docId,
+      prompt,
+      content: context.substring(context.length - 100),
+    }),
     signal,
     onmessage: (ev) => onMessage(decodeMessage(ev.data)),
     onerror: (e) => {
@@ -111,7 +122,10 @@ const createOutline: AIRequest = ({args, onMessage, onError, onDone}) => {
     onmessage(ev) {
       onMessage(decodeMessage(ev.data));
     },
-    onerror: onError,
+    onerror: (e) => {
+      setTimeout(() => onError(e));
+      throw e;
+    },
     onclose: onDone,
   });
   return controller;
@@ -127,7 +141,7 @@ const createImage: AIRequest = ({args, onMessage, onError, onDone}) => {
     body: JSON.stringify({type: 'makeImg', conversation_id: docId, prompt}),
     signal,
     onmessage(ev) {
-      let result: any = [];
+      let result: string[] = [];
       if (ev.data) {
         try {
           result = JSON.parse(ev.data);
@@ -135,9 +149,19 @@ const createImage: AIRequest = ({args, onMessage, onError, onDone}) => {
           result = [];
         }
       }
-      onMessage(`<img src="${result[0]}" height="290" />`);
+      // onMessage(`<figure>${result.map((item) => '<div style="background-image:url(' + item + ')"></div>').join('')}</figure>`);
+      if (result.length) {
+        onMessage(
+          `<figure>${result
+            .map((item, index) => '<div class="' + (!index ? 'on' : '') + '" data-img="' + item + '"><img src="' + item + '" width="300" /></div>')
+            .join('')}</figure>`
+        );
+      }
     },
-    onerror: onError,
+    onerror: (e) => {
+      setTimeout(() => onError(e));
+      throw e;
+    },
     onclose: onDone,
   });
   return controller;
@@ -170,7 +194,9 @@ const stylize: AIRequest = ({args, onMessage, onError, onDone}) => {
     headers: getHeaders(),
     body: JSON.stringify(req.body),
     signal,
-    onmessage: (ev) => onMessage(decodeMessage(ev.data)),
+    onmessage(ev) {
+      onMessage(decodeMessage(ev.data));
+    },
     onerror: (e) => {
       setTimeout(() => onError(e));
       throw e;
@@ -192,7 +218,30 @@ const ask: AIRequest = ({args, onMessage, onError, onDone}) => {
     onmessage(ev) {
       onMessage(decodeMessage(ev.data));
     },
-    onerror: onError,
+    onerror: (e) => {
+      setTimeout(() => onError(e));
+      throw e;
+    },
+    onclose: onDone,
+  });
+  return controller;
+};
+const web: AIRequest = ({args, onMessage, onError, onDone}) => {
+  const controller = new AbortController();
+  const {signal} = controller;
+  const {docId, prompt} = args;
+  fetchEventSource(replaceBaseUrl('/dream/pen/ai/writer/summaryWeb'), {
+    method: 'POST',
+    headers: getHeaders(),
+    body: JSON.stringify({type: 'summaryWeb', conversation_id: docId, url: prompt}),
+    signal,
+    onmessage(ev) {
+      onMessage(decodeMessage(ev.data, true));
+    },
+    onerror: (e) => {
+      setTimeout(() => onError(e));
+      throw e;
+    },
     onclose: onDone,
   });
   return controller;
@@ -205,6 +254,7 @@ export const AiAPI = {
   createImage,
   stylize,
   ask,
+  web,
   async byTemplate(docId: string, content: string): Promise<string> {
     return request
       .post(`/dream/pen/ai/full/text `, {

@@ -5,6 +5,7 @@ export interface ISource {
   id: string;
   dsl: string;
   html: string;
+  text: string;
 }
 export class SaveMgr extends SimpleDispatcher<{loading: boolean}> {
   cycleTime = 2000;
@@ -56,5 +57,8 @@ export class SaveMgr extends SimpleDispatcher<{loading: boolean}> {
     } else {
       this.dispatch('loading', false);
     }
+  }
+  destroy(): void {
+    this.checkNext = () => undefined;
   }
 }

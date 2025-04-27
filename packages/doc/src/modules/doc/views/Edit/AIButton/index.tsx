@@ -17,7 +17,8 @@ function withAiModal<T extends IDomEditor>(editor: T): T {
   newEditor.insertText = (t) => {
     if (t === '/') {
       setTimeout(() => {
-        const menuButton = document.getElementById('_ai_button') as any;
+        const menuButton = document.getElementById('_ai_button') as HTMLElement;
+        menuButton.setAttribute('data-trigger', '/');
         menuButton.click();
       });
     }
@@ -43,11 +44,13 @@ interface Props {
 
 const Component: FC<Props> = ({editor}) => {
   const [aiRef, setAiRef] = useState<IAIRef>();
-  const onClick = useEvent(() => {
+  const onClick = useEvent(({target}: {target: HTMLElement}) => {
+    const trigger = target.getAttribute('data-trigger');
+    target.setAttribute('data-trigger', '');
     if (!editor.selection || aiRef?.menuIsOpen()) {
       return;
     }
-    aiRef?.openMenu({editor});
+    aiRef?.openMenu({editor, triggerWithChar: trigger === '/', selectionRange: window.getSelection()?.getRangeAt(0)});
     const scroller = document.getElementById('_ai_editor_scroller')!;
     addClass(scroller, 'on');
   });
@@ -69,7 +72,7 @@ const Component: FC<Props> = ({editor}) => {
 
   return (
     <>
-      <Button id="_ai_button" className={styles.button} type="text" icon={<AiIcon />} onClick={onClick}>
+      <Button id="_ai_button" className={styles.button} type="text" icon={<AiIcon />} onClick={onClick as any}>
         AI创作
       </Button>
       <div className="w-e-bar-divider"></div>

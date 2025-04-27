@@ -16,7 +16,6 @@ const Component = forwardRef<AIInputRef, Props>((props, ref) => {
 
   useImperativeHandle(ref, () => ({
     getValue: () => {
-      console.log(inputRef.current);
       return inputRef.current?.resizableTextArea.textArea.value || '';
     },
   }));

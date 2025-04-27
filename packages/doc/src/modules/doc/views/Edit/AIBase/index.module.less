@@ -39,7 +39,7 @@
 
       > .pause-btn {
         position: absolute;
-        top: 9px;
+        top: 11px;
         right: 10px;
         color: #828384;
       }
@@ -56,6 +56,59 @@
         overflow: auto;
         line-height: 1.8;
         border-top: 1px solid #eee;
+
+        > figure {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 10px;
+          padding: 0;
+          margin: 10px 20px;
+
+          div {
+            position: relative;
+            cursor: pointer;
+            user-select: none;
+            border: 2px solid #fff;
+
+            &::before {
+              position: absolute;
+              top: 15px;
+              left: 8px;
+              font-size: 14px;
+              line-height: 0;
+              color: red;
+              text-shadow: -1px -1px #ff0, 1px -1px #ff0;
+              content: '';
+            }
+
+            &.on {
+              border-color: #ff0;
+              box-shadow: 1px 1px 10px #00000050;
+
+              &::before {
+                content: '♥';
+              }
+            }
+          }
+
+          img {
+            display: block;
+            pointer-events: none;
+          }
+
+          // > div {
+          //   width: 300px;
+          //   height: 500px;
+          //   cursor: pointer;
+          //   background: #eee no-repeat center center;
+          //   background-size: contain;
+
+          //   &::before {
+          //     position: absolute;
+          //     content: '';
+          //   }
+          // }
+        }
       }
 
       h1 {

@@ -6,6 +6,8 @@
   }
 
   body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji',
+      'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
     color: @colorText;
   }
 
@@ -15,13 +17,17 @@
   }
 
   ::-webkit-scrollbar-thumb {
-    background-color: #ccc;
+    background-color: #e9e9ec;
     border-radius: 10px;
   }
 
   ::-webkit-scrollbar-track {
-    background-color: #fff;
+    background-color: #f3f5fc;
     border-radius: 10px;
+  }
+
+  .ant-table-body {
+    scrollbar-color: #e9e9ec #fff;
   }
 
   .ant-modal:not(.ant-modal-confirm) {
@@ -52,13 +58,6 @@
     background: #f7f7f7;
   }
 
-  .w-e-modal {
-    border-radius: 8px !important;
-  }
-
-  .w-e-scroll {
-    min-height: 500px;
-  }
   // .elux-window._dialog {
   //   > :local(.component-loading),
   //   > :local(.component-error) {
@@ -111,7 +110,7 @@
 
   :local(.table-dir) {
     tr {
-      &:nth-child(even) {
+      &:nth-child(odd) {
         background-color: #f6f8ff;
       }
 

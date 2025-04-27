@@ -1,6 +1,8 @@
 import {CheckOutlined, DeleteOutlined, EditOutlined, PauseCircleOutlined, QuestionCircleFilled, SyncOutlined} from '@ant-design/icons';
 import {Button, Space, Spin} from 'antd';
-import {FC, ReactElement, memo, useEffect} from 'react';
+import {FC, ReactElement, memo, useCallback, useEffect} from 'react';
+import AdjustIcon from '@/assets/images/Adjust';
+import {addClass, hasClass, removeClass} from '@/utils/tools';
 import ColorAIcon from '../ColorAIcon';
 import EnterIcon from '../EnterIcon';
 import {AIDialogHooks} from '../hooks';
@@ -14,7 +16,15 @@ interface Props {
 }
 
 const Component: FC<Props> = ({title, children, hooks, automatic}) => {
-  const {onPromptSubmit, inputRef, fragment, fragmentRef, runningState, onRedo, onKeep, onStop, onInsert} = hooks;
+  const {onPromptSubmit, inputRef, fragment, fragmentRef, runningState, onRedo, onKeep, onStop, onInsert, onAdjust} = hooks;
+
+  const onFragmentClick = useCallback((e: any) => {
+    const target = e.target as HTMLElement;
+    const img = target.getAttribute('data-img');
+    if (img && target.parentNode?.nodeName === 'FIGURE') {
+      target.className = target.className ? '' : 'on';
+    }
+  }, []);
 
   useEffect(() => {
     if (automatic) {
@@ -37,7 +47,7 @@ const Component: FC<Props> = ({title, children, hooks, automatic}) => {
         <Button size="small" className="pause-btn" type="text" icon={<PauseCircleOutlined />} onClick={onStop}>
           停止
         </Button>
-        <div className="article" ref={fragmentRef as any} dangerouslySetInnerHTML={{__html: fragment}}></div>
+        <div className="article" ref={fragmentRef as any} dangerouslySetInnerHTML={{__html: fragment}} onClick={onFragmentClick}></div>
       </div>
       <div className="footer">
         <Space size="small" className="actions">
@@ -49,6 +59,9 @@ const Component: FC<Props> = ({title, children, hooks, automatic}) => {
           </Button>
           <Button type="text" icon={<EditOutlined />} onClick={onKeep}>
             继续写
+          </Button>
+          <Button type="text" icon={<AdjustIcon />} onClick={onAdjust}>
+            调整
           </Button>
           <Button type="text" icon={<DeleteOutlined />} onClick={hooks.aiRef.closeMenu}>
             弃用

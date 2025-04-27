@@ -1,23 +1,13 @@
-import {
-  DeleteOutlined,
-  DownOutlined,
-  FolderAddOutlined,
-  FolderOpenOutlined,
-  PlusOutlined,
-  SearchOutlined,
-  StarFilled,
-  StarOutlined,
-  UploadOutlined,
-} from '@ant-design/icons';
-import {Dispatch, DocumentHead, Link, setLoading as setGlobalLoading} from '@elux/react-web';
-import {Breadcrumb, Button, Dropdown, Input, Popover, Space, Table, TableProps, Tree, Upload, UploadProps} from 'antd';
+import {DeleteOutlined, DownOutlined, FolderOpenOutlined, StarFilled, StarOutlined} from '@ant-design/icons';
+import {Dispatch, DocumentHead, setLoading as setGlobalLoading} from '@elux/react-web';
+import {Button, Dropdown, Input, Popover, Space, Table, TableProps, Tree} from 'antd';
 import {FC, memo, useCallback, useEffect, useMemo, useState} from 'react';
 import {GetActions, GetClientRouter} from '@/Global';
-import {downloadFile, getUploadProps, replaceBaseUrl} from '@/utils/request';
+import {downloadFile, replaceBaseUrl} from '@/utils/request';
 import {confirm, debounce, message, useEvent, useSingleWindow} from '@/utils/tools';
 import {DocAPI} from '../../api';
 import {ListItem, ListSearch, ListSummary} from '../../entity';
-import styles from './index.module.less';
+import styles from '../Maintain/index.module.less';
 interface Props {
   dispatch: Dispatch;
   listSearch: ListSearch;
@@ -57,12 +47,9 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
   });
 
   const onMove = useEvent((id: string, type: 'doc' | 'dir', target: string) => {
+    console.log(id, target);
     DocAPI.moveItem(id, type, target).then(refreshList);
     setShowMove('');
-  });
-
-  const onSearch = useEvent((e: any) => {
-    dispatch(docActions.fetchList({...listSearch, name: e.target.value}));
   });
 
   const columns = useMemo<TableProps<ListItem>['columns']>(() => {
@@ -103,9 +90,9 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
         title: '最后修改时间',
         dataIndex: 'updateDate',
         key: 'updateDate',
+        width: 180,
         sorter: true,
         sortOrder: (listSearch.sorterField === 'updateDate' && listSearch.sorterOrder) || null,
-        width: 180,
       },
       {
         title: '操作',
@@ -144,28 +131,6 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
             >
               <a>重命名</a>
             </Popover>
-            <Popover
-              trigger="click"
-              destroyTooltipOnHide
-              open={showMove === record.id}
-              onOpenChange={(open) => {
-                setShowMove(open ? record.id : '');
-              }}
-              content={
-                <Tree
-                  className={styles.move}
-                  showIcon
-                  icon={<FolderOpenOutlined />}
-                  defaultExpandedKeys={[listSearch.id || '0']}
-                  defaultSelectedKeys={[listSearch.id || '0']}
-                  treeData={listSummary.dirTree}
-                  onSelect={(selected) => onMove(record.id, record.type, selected[0] as string)}
-                />
-              }
-            >
-              <a>移动到</a>
-            </Popover>
-            {record.type === 'doc' && <a onClick={() => DocAPI.copyItem(record.id, record.type).then(refreshList)}>复制</a>}
             <Dropdown
               menu={{
                 onClick: ({key}: {key: string}) => {
@@ -213,35 +178,6 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
     ];
   }, [showRename, showMove, listSearch, listSummary]);
 
-  const onCreate = useEvent((title: string = '', contents: string = '') => {
-    setLoading('create');
-    DocAPI.createDoc({folder: listSearch.id || '0', title, contents})
-      .then(async ({id}) => {
-        setSelectedRows({ids: [], rows: []});
-        await refreshList();
-        if (!title) {
-          GetClientRouter().push({url: `/admin/doc/item/edit/${id}?__c=_dialog`}, singleWindow);
-        }
-      })
-      .catch((e) => {
-        message.error(e + '');
-      })
-      .finally(() => setLoading(''));
-  });
-
-  const onCreateDir = useEvent(() => {
-    setLoading('createDir');
-    DocAPI.createDir({folder: listSearch.id || '0'})
-      .then(() => {
-        setSelectedRows({ids: [], rows: []});
-        refreshList();
-      })
-      .catch((e) => {
-        message.error(e + '');
-      })
-      .finally(() => setLoading(''));
-  });
-
   const batchDelete = useEvent(() => {
     setLoading('batchDelete');
     DocAPI.batchDelete(selectedRows.rows.map((item) => ({id: item.id, type: item.type})))
@@ -254,19 +190,6 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
       })
       .finally(() => setLoading(''));
   });
-
-  const uploadProps: UploadProps = useMemo(
-    () =>
-      getUploadProps('/dream/pen/article/upload', {
-        onProcess: () => setLoading('upload'),
-        onSuccess: (file, res) => {
-          setLoading('');
-          onCreate(res.title, res.html.replace(/^<div[^>]+>(.+?)<\/div>$/, '$1'));
-        },
-        onError: () => setLoading(''),
-      }),
-    [onCreate]
-  );
 
   const rowSelection: TableProps<any>['rowSelection'] = useMemo(
     () => ({
@@ -282,32 +205,6 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
     }),
     [selectedRows]
   );
-
-  const breadcrumb = useMemo(() => {
-    const curDir = listSummary.levelPath.pop();
-    if (curDir) {
-      const arr = listSummary.levelPath.map((item) => ({
-        title: (
-          <Link to={`/admin/doc/list/maintain?id=${item.id}`} action="push" target="page">
-            {item.folderName}
-          </Link>
-        ),
-      }));
-      arr.unshift({
-        title: (
-          <Link to="/admin/doc/list/maintain" action="push" target="page">
-            我的文档
-          </Link>
-        ),
-      });
-      arr.push({title: <span>{curDir.folderName}</span>});
-      return <Breadcrumb items={arr} />;
-    } else {
-      return <span className="ant-breadcrumb">我的文档</span>;
-    }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [listSummary.levelPath]);
 
   const onTableChange = useEvent((pagination: any, filter: any, _sorter: any) => {
     const sorter = _sorter as {field: string; order: 'ascend' | 'descend' | undefined};
@@ -326,79 +223,12 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
 
   return (
     <div className={styles.root}>
-      <DocumentHead title="我的文档" />
-      {/* <EasyEdit
-        tpl="你是一名${role}，需要整理本周工作周报，本周主要工作内容为${text}，下周主要工作计划为${newText}"
-        option={{
-          role: {
-            placeholder: '请输入角色',
-            data: [
-              {label: '管理员', key: '管理员'},
-              {label: '普通职员', key: '普通职员'},
-            ],
-          },
-          text: {
-            placeholder: '请输入你想表达的意思',
-            data: [
-              {label: '改了两个bug', key: '改了两个bug'},
-              {label: '做了一个新需求', key: '做了一个新需求'},
-            ],
-          },
-        }}
-        value={{
-          text: '你是一名管理员，需要整理本周工作周报，本周主要工作内容为 ，下周主要工作计划为 ',
-          tplValue: [
-            {
-              key: '你是一名',
-              type: 'text',
-              value: '你是一名',
-            },
-            {
-              key: 'role',
-              type: 'variable',
-              value: '管理员',
-            },
-            {
-              key: '，需要整理本周工作周报，本周主要工作内容为',
-              type: 'text',
-              value: '，需要整理本周工作周报，本周主要工作内容为',
-            },
-            {
-              key: 'text',
-              type: 'variable',
-              value: ' ',
-            },
-            {
-              key: '，下周主要工作计划为',
-              type: 'text',
-              value: '，下周主要工作计划为',
-            },
-            {
-              key: 'newText',
-              type: 'variable',
-              value: ' ',
-            },
-          ],
-        }}
-      /> */}
+      <DocumentHead title="我的收藏" />
       <div className="hd">
-        {breadcrumb}
-        <Input className="search" placeholder="请输入搜索关键字..." onPressEnter={onSearch} prefix={<SearchOutlined />}></Input>
+        <span className="ant-breadcrumb">我的收藏</span>
       </div>
       <div className="cd">
         <Space>
-          <Button id="_create-doc-btn" loading={loading === 'create'} icon={<PlusOutlined />} onClick={() => onCreate()}>
-            起草公文
-          </Button>
-          {/* <Button icon={<ExceptionOutlined />}>创建模版</Button> */}
-          <Button loading={loading === 'createDir'} icon={<FolderAddOutlined />} onClick={onCreateDir}>
-            新建文件夹
-          </Button>
-          <Upload showUploadList={false} {...uploadProps}>
-            <Button loading={loading === 'upload'} icon={<UploadOutlined />}>
-              上传文档
-            </Button>
-          </Upload>
           <Button loading={loading === 'batchDelete'} icon={<DeleteOutlined />} onClick={batchDelete} disabled={!selectedRows.ids.length}>
             批量删除
           </Button>

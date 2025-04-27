@@ -23,7 +23,7 @@ const items: any[] = [
     key: '我的文档',
     icon: <FileOutlined />,
     label: (
-      <Link to="admin/doc/list/maintain" action="relaunch" target="window">
+      <Link to="/admin/doc/list/maintain" action="relaunch" target="window">
         我的文档
       </Link>
     ),
@@ -31,23 +31,27 @@ const items: any[] = [
   {
     key: '我的收藏',
     icon: <StarOutlined />,
-    label: '我的收藏',
+    label: (
+      <Link to="/admin/doc/list/favs" action="relaunch" target="window">
+        我的收藏
+      </Link>
+    ),
   },
-  {
-    key: '回收站',
-    label: '回收站',
-    type: 'group',
-  },
-  {
-    key: '知识管理',
-    icon: <AlignCenterOutlined />,
-    label: '知识管理',
-  },
-  {
-    key: '模版管理',
-    icon: <DatabaseOutlined />,
-    label: '模版管理',
-  },
+  // {
+  //   key: '回收站',
+  //   label: '回收站',
+  //   type: 'group',
+  // },
+  // {
+  //   key: '知识管理',
+  //   icon: <AlignCenterOutlined />,
+  //   label: '知识管理',
+  // },
+  // {
+  //   key: '模版管理',
+  //   icon: <DatabaseOutlined />,
+  //   label: '模版管理',
+  // },
 ];
 
 const Component: FC<{}> = () => {
@@ -55,6 +59,9 @@ const Component: FC<{}> = () => {
   const selectedKeys = useMemo(() => {
     if (pathname.startsWith('/admin/doc/list/maintain')) {
       return ['我的文档'];
+    }
+    if (pathname.startsWith('/admin/doc/list/favs')) {
+      return ['我的收藏'];
     }
     if (pathname.startsWith('/admin/home')) {
       return ['首页'];
@@ -72,7 +79,7 @@ const Component: FC<{}> = () => {
       setLoading('create');
       DocAPI.createDoc({folder: '0', title: '', contents: ''})
         .then(({id}) => {
-          GetClientRouter().push({url: `/admin/doc/item/edit?id=${id}&__c=_dialog`}, 'window');
+          GetClientRouter().push({url: `/admin/doc/item/edit/${id}?__c=_dialog`}, 'window');
         })
         .catch((e) => {
           message.error(e + '');

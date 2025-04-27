@@ -1,6 +1,6 @@
 import {IDomEditor} from '@wangeditor-next/editor';
-import {FC, memo, useEffect, useMemo, useState} from 'react';
-import {message, removeClass, useEvent} from '@/utils/tools';
+import {FC, memo, useEffect, useMemo, useRef, useState} from 'react';
+import {debounce, message, removeClass, useEvent} from '@/utils/tools';
 import AIAsk from '../AIAsk';
 import AIContinue from '../AIContinue';
 import AICreate from '../AICreate';
@@ -9,6 +9,7 @@ import AIImage from '../AIImage';
 import AIMenu, {MenuEvent, applicationTemplates, menuKeysMap, officialTemplates} from '../AIMenu';
 import AIOutline from '../AIOutline';
 import AIStylize from '../AIStylize';
+import AIWeb from '../AIWeb';
 import {RunningState} from '../api';
 import styles from './index.module.less';
 import type {AIEvent} from '../utils';
@@ -32,6 +33,7 @@ interface Props {
 const Component: FC<Props> = ({onCreated, editor}) => {
   const [aiEvent, setAIEvent] = useState<AIEvent>();
   const [menuEvent, setMenuEvent] = useState<MenuEvent>();
+  const selMockRef = useRef<HTMLDivElement>();
   const [runningState, setRunningState] = useState<RunningState>('');
 
   const openMenu = useEvent((event: MenuEvent) => {
@@ -39,6 +41,7 @@ const Component: FC<Props> = ({onCreated, editor}) => {
     //setSelection(selection);
     setMenuEvent(event);
     setAIEvent(undefined);
+    setTimeout(onDocScroll);
   });
 
   const closeMenu = useEvent(() => {
@@ -63,9 +66,6 @@ const Component: FC<Props> = ({onCreated, editor}) => {
   });
 
   const insertHtmlByAI = useEvent((html: string) => {
-    if (aiEvent?.context.endsWith('/')) {
-      editor.deleteBackward('character');
-    }
     editor.dangerouslyInsertHtml(html);
   });
 
@@ -85,6 +85,14 @@ const Component: FC<Props> = ({onCreated, editor}) => {
 
   const focusEditor = useEvent(() => {
     editor.focus();
+  });
+
+  const onDocScroll = useEvent(() => {
+    const selectionRange = menuEvent?.selectionRange;
+    if (selMockRef.current && selectionRange && !selectionRange.collapsed) {
+      const rect = selectionRange.getBoundingClientRect();
+      selMockRef.current.setAttribute('style', `width: ${rect.width}px; height: ${rect.height}px; left: ${rect.left}px; top: ${rect.top}px;`);
+    }
   });
 
   const aiRef: IAIRef = useMemo(() => {
@@ -123,6 +131,13 @@ const Component: FC<Props> = ({onCreated, editor}) => {
         return (
           <AIDialog event={aiEvent}>
             <AIAsk aiRef={aiRef} onRunningStateChange={setRunningState} />
+          </AIDialog>
+        );
+      }
+      if (aiKey === 'W') {
+        return (
+          <AIDialog event={aiEvent}>
+            <AIWeb aiRef={aiRef} onRunningStateChange={setRunningState} />
           </AIDialog>
         );
       }
@@ -174,6 +189,12 @@ const Component: FC<Props> = ({onCreated, editor}) => {
 
   useEffect(() => {
     onCreated(aiRef);
+    const scroller = document.getElementById('_ai_editor_scroller')!;
+    const onScroll = debounce(onDocScroll, 100);
+    scroller.addEventListener('scroll', onScroll);
+    return () => {
+      scroller.removeEventListener('scroll', onScroll);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -184,7 +205,9 @@ const Component: FC<Props> = ({onCreated, editor}) => {
   return (
     <>
       {aiDialog}
-      <div className={styles.mask + ' ' + runningState} onClick={closeMenu}></div>
+      <div className={styles.mask + ' ' + runningState} onClick={closeMenu}>
+        <div id="_ai_sel_mock" ref={selMockRef as any}></div>
+      </div>
     </>
   );
 };

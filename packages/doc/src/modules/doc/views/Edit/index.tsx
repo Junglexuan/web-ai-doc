@@ -1,12 +1,23 @@
-import {ClockCircleOutlined, CloudUploadOutlined, HomeOutlined, MenuOutlined, PlusOutlined, StarOutlined, UserOutlined} from '@ant-design/icons';
-import {Link} from '@elux/react-web';
-import {Boot, DomEditor, IButtonMenu, IDomEditor, IEditorConfig, IToolbarConfig, SlateEditor} from '@wangeditor-next/editor';
+import {
+  ClockCircleOutlined,
+  CloudUploadOutlined,
+  HomeOutlined,
+  MenuOutlined,
+  PlusOutlined,
+  StarFilled,
+  StarOutlined,
+  UserOutlined,
+} from '@ant-design/icons';
+import {Link, setLoading as setGlobalLoading} from '@elux/react-web';
+import {IDomEditor} from '@wangeditor-next/editor';
 import {Editor, Toolbar} from '@wangeditor-next/editor-for-react';
-import {Breadcrumb, Button, Space, Spin} from 'antd';
+import {Breadcrumb, Button, Dropdown, Space, Spin} from 'antd';
+import dayjs from 'dayjs';
 import {FC, memo, useEffect, useMemo, useState} from 'react';
 import BlurInput from '@/components/BlurInput';
 import DialogPage from '@/components/DialogPage';
 import {GetClientRouter} from '@/Global';
+import {downloadFile, replaceBaseUrl} from '@/utils/request';
 import {confirm, debounce, getUrlParam, message, useEvent} from '@/utils/tools';
 import DocAPI from '../../api';
 import {ItemDetail} from '../../entity';
@@ -25,18 +36,19 @@ interface Props {
 const Component: FC<Props> = ({itemDetail}) => {
   const [editor, setEditor] = useState<IDomEditor>();
   const [docTitle, setDocTitle] = useState(itemDetail.title);
-  const [source, setSource] = useState<ISource>({id: itemDetail.id, dsl: itemDetail.articleDsl, html: itemDetail.contents});
+  const [collect, setCollect] = useState(itemDetail.collect);
+  const [source, setSource] = useState<ISource>({id: itemDetail.id, dsl: itemDetail.articleDsl, html: itemDetail.contents, text: ''});
   const [autoSave] = useState(() => new SaveMgr());
   const [saving, setSaving] = useState(false);
 
-  const onChange = useEvent((editor: IDomEditor) => {
+  const onSave = useEvent((editor: IDomEditor) => {
     //JSON.stringify(editor.children, null, 2)
-    const newSource: ISource = {id: itemDetail.id, dsl: JSON.stringify(editor.children), html: editor.getHtml()};
+    const newSource: ISource = {id: itemDetail.id, dsl: JSON.stringify(editor.children), html: editor.getHtml(), text: editor.getText()};
     setSource(newSource);
     autoSave.onChange(newSource);
   });
 
-  const _onChange = useMemo(() => debounce(onChange, 1000), [onChange]);
+  const onChange = useMemo(() => debounce(onSave, 1000), [onSave]);
 
   const onDocTitleChange = useEvent((title: string) => {
     const _docTitle = docTitle;
@@ -59,13 +71,32 @@ const Component: FC<Props> = ({itemDetail}) => {
     }
   });
 
+  const onCreatDoc = useEvent(() => {
+    DocAPI.createDoc({folder: itemDetail.folder, title: '', contents: ''})
+      .then(({id}) => {
+        GetClientRouter().relaunch({url: `/admin/doc/item/edit/${id}?__c=_dialog`}, 'page');
+      })
+      .catch((e) => {
+        message.error(e + '');
+      });
+  });
+
   const onCreated = useEvent((editor: IDomEditor) => {
     setEditor(editor);
     window['editor'] = editor;
     //setTimeout(() => (window['tools'] = DomEditor.getToolbar(editor)));
     editor.on('modalOrPanelShow', (modalOrPanel) => {
-      // if (modalOrPanel.type !== 'modal') return;
-      // const dom = modalOrPanel.$elem[0];
+      if (modalOrPanel.type !== 'modal') return;
+      const dialog: HTMLElement = modalOrPanel.$elem[0];
+      const dialogRect = dialog.getBoundingClientRect();
+      const scroller = editor.getEditableContainer();
+      const scrollerRect = scroller.getBoundingClientRect();
+      if (dialogRect.x < scrollerRect.x) {
+        dialog.style.transform = `translateX(${scrollerRect.x - dialogRect.x + 10}px)`;
+      }
+      //const {$elem} = modalOrPanel;
+
+      //
       // if (dom.style.bottom) {
       //   dom.style.transform = 'translateY(210px)';
       // } else {
@@ -78,6 +109,7 @@ const Component: FC<Props> = ({itemDetail}) => {
   const onDestroy = useEvent(() => {
     //editor?.emit('destroy', editor);
     editor?.destroy();
+    autoSave.destroy();
   });
 
   const breadcrumb = useMemo(() => {
@@ -95,10 +127,21 @@ const Component: FC<Props> = ({itemDetail}) => {
         </Link>
       ),
     });
-    arr.push({title: <span>{docTitle}</span>});
+    arr.push({
+      title: (
+        <>
+          <span>{docTitle}</span>
+          {!collect ? (
+            <StarOutlined className="anticon-star-outline" onClick={() => DocAPI.collectItem(itemDetail.id, 'doc', true).then(() => setCollect(1))} />
+          ) : (
+            <StarFilled onClick={() => DocAPI.collectItem(itemDetail.id, 'doc', false).then(() => setCollect(0))} />
+          )}
+        </>
+      ),
+    });
     return <Breadcrumb items={arr} />;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [docTitle]);
+  }, [docTitle, collect]);
 
   useEffect(() => {
     document.addEventListener('keyup', onKeyUp);
@@ -116,15 +159,48 @@ const Component: FC<Props> = ({itemDetail}) => {
       <div className={styles.root}>
         <div className="hd">
           <Space size="large">
-            <HomeOutlined className="icon-link" onClick={() => GetClientRouter().relaunch({url: `/admin/doc/list/maintain`}, 'window')} />
-            <PlusOutlined />
-            <MenuOutlined />
+            <HomeOutlined className="icon-link" onClick={() => GetClientRouter().relaunch({url: `/admin/home`}, 'window')} />
+            <PlusOutlined className="icon-link" onClick={onCreatDoc} title="新建文档" />
+            <Dropdown
+              menu={{
+                onClick: ({key}: {key: string}) => {
+                  if (key === '下载Word') {
+                    setGlobalLoading(
+                      downloadFile(replaceBaseUrl(`/dream/pen/article/down?id=${itemDetail.id}&type=word`), itemDetail.title),
+                      GetClientRouter().getActivePage().store
+                    );
+                  } else if (key === '下载PDF') {
+                    setGlobalLoading(
+                      downloadFile(replaceBaseUrl(`/dream/pen/article/down?id=${itemDetail.id}&type=pdf`), itemDetail.title),
+                      GetClientRouter().getActivePage().store
+                    );
+                  }
+                },
+                items: [
+                  {
+                    key: '下载Word',
+                    label: '下载Word',
+                  },
+                  {
+                    key: '下载PDF',
+                    label: '下载PDF',
+                  },
+                ],
+              }}
+            >
+              <MenuOutlined className="icon-link" />
+            </Dropdown>
             {breadcrumb}
-            <StarOutlined />
           </Space>
           <Space>
             <span style={{fontSize: 12, color: '#B9BABB'}}>所有内容都会自动保存到云端</span>
-            {saving ? <Spin size="small" /> : <CloudUploadOutlined />}
+            {saving ? (
+              <span id="_ai_saving">
+                <Spin size="small" />
+              </span>
+            ) : (
+              <CloudUploadOutlined style={{color: '#B9BABB'}} />
+            )}
             <Button type="primary" style={{marginLeft: '10px'}}>
               分享
             </Button>
@@ -148,11 +224,11 @@ const Component: FC<Props> = ({itemDetail}) => {
             <Space className="info">
               <div>
                 <UserOutlined />
-                <span> 王小兵</span>
+                <span> {itemDetail.createUserName}</span>
               </div>
               <div>
                 <ClockCircleOutlined />
-                <span> 今天 14:50创建</span>
+                <span> {itemDetail.createDate ? dayjs(itemDetail.createDate).format('YYYY-MM-DD HH:mm:ss') : ''} 创建</span>
               </div>
             </Space>
           </header>
@@ -160,12 +236,15 @@ const Component: FC<Props> = ({itemDetail}) => {
             defaultConfig={editorConfig}
             value={source.html}
             onCreated={onCreated}
-            onChange={_onChange}
+            onChange={onChange}
             //style={{minHeight: '500px'}}
             mode="default"
           />
         </div>
-        <div className="ft">{editor && <Outline editor={editor} />}</div>
+        <div className="ft">
+          {editor && <Outline editor={editor} />}
+          <span className="count">{source.text ? source.text.replace(/\n|\r/gm, '').length : ''}个字</span>
+        </div>
       </div>
     </DialogPage>
   );

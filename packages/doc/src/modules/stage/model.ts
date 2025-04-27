@@ -104,6 +104,13 @@ export class Model extends BaseModel<ModuleState, APPState> {
     if (!this.state.curUser.hasLogin && this.checkNeedsLogin(pathname)) {
       throw new CustomError(ErrorCode.unauthorized, '', url);
     }
+    if (this.getRouter().location.pathname.startsWith('/admin/doc/item/edit/')) {
+      console.log('checkSave');
+      const saving = document.getElementById('_ai_saving');
+      if (saving) {
+        throw new CustomError(ErrorCode.unkown, '当前页面正在保存，请稍候...');
+      }
+    }
   }
   @effect(null)
   protected async ['this._beforeRouteChange']({url, pathname}: {url: string; pathname: string}): Promise<void> {

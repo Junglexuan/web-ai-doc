@@ -173,6 +173,32 @@ export function eachTree<T extends TreeItem>(
   _eachTree(tree, reduce, 1, undefined);
 }
 
+export interface AbsTreeItem {
+  children?: AbsTreeItem[];
+}
+
+function _mapTree<T extends AbsTreeItem, V extends {children?: V[]}>(
+  tree: T[],
+  reduce: (item: T, index: number, parent: V | undefined, level: number) => V,
+  curLevel: number,
+  parent: V | undefined
+): V[] {
+  return tree.map((item, index) => {
+    const newItem = reduce(item, index, parent, curLevel);
+    if (item.children) {
+      newItem.children = _mapTree(item.children as T[], reduce, curLevel + 1, newItem);
+    }
+    return newItem;
+  });
+}
+
+export function mapTree<T extends AbsTreeItem, V extends {children?: V[]}>(
+  tree: T[],
+  reduce: (item: T, index: number, parent: V | undefined, level: number) => V
+): V[] {
+  return _mapTree(tree, reduce, 1, undefined);
+}
+
 export function createAutoId(ids: string[]): () => number {
   const nums = ids.map((id) => Number(id.split('_').pop()) || 0);
   let start = nums.length ? Math.max(...nums) : 0;
@@ -198,12 +224,12 @@ export const Message = {
   },
 };
 
-export const getToken = (): any => {
+export const getToken = (): string => {
   //const [agencyID, token] = (localStorage.getItem(TokenStorageKey) || '').split('|');
   const token = localStorage.getItem('zov-user-token') || '';
-  const info = localStorage.getItem('zov-user-info') || '';
-  const user = info ? JSON.parse(info) : {};
-  return {agencyID: user.agencyID || '', token};
+  //const info = localStorage.getItem('zov-user-info') || '';
+  //const user = info ? JSON.parse(info) : {};
+  return token;
 };
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
@@ -238,10 +264,10 @@ export const getUrlParam = (name: string): string | null => {
   if (r != null && decodeURI(r[2]) != 'null') return decodeURI(r[2]);
   return null; //返回参数值
 };
-export function debounce<T extends Function>(callbak: T, delay = 0): T {
+export function debounce<T extends Function>(callbak: T, delay = 0, every?: T): T {
   let timer: any = null;
   return ((...args: any[]) => {
-    //every && every(...args);
+    every && every(...args);
     timer && clearTimeout(timer);
     timer = setTimeout(() => {
       callbak(...args);

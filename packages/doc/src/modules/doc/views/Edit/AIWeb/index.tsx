@@ -11,15 +11,11 @@ interface Props {
 }
 
 const Component: FC<Props> = ({aiRef, onRunningStateChange}) => {
-  const hooks = useAIDialog(aiRef, onRunningStateChange, AiAPI.createOutline);
+  const hooks = useAIDialog(aiRef, onRunningStateChange, AiAPI.web, {}, false, true);
 
   return (
-    <AIBase title="生成大纲" hooks={hooks}>
-      <AntInput
-        ref={hooks.inputRef}
-        placeholder="请描述要“生成大纲”的主题和各种要求..."
-        defaultValue={`围绕 “${aiRef.getTitle()}” 生成一篇文章大纲，要求简明扼要`}
-      />
+    <AIBase title="总结网页" hooks={hooks}>
+      <AntInput ref={hooks.inputRef} placeholder="请输入网址..." />
     </AIBase>
   );
 };

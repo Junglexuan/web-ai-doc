@@ -11,7 +11,7 @@ export interface HotArticle {
 export interface HotTemplate {
   name: string; //模板名称
   remark: string; //备注
-  articleDsl: number;
+  contents: string;
   isShare: number;
   isHot: number;
   id: string;
