@@ -107,9 +107,9 @@ const Component: FC = () => {
     //carouselItems
     return (
       <Carousel dots={true} dotPosition="bottom" autoplay={true} rootClassName={'carousel'}>
-        {carouselItems.map((Item, index) => (
+        {carouselItems.map((item, index) => (
           <div key={index} className={'carousel-item'}>
-            <h3>轮播图一</h3>
+            <h3>{item.title}</h3>
           </div>
         ))}
       </Carousel>

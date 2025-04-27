@@ -31,7 +31,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
   const singleWindow = useSingleWindow();
   const [loading, setLoading] = useState<'create' | 'createDir' | 'upload' | 'batchDelete' | ''>('');
   const [selectedRows, setSelectedRows] = useState<{ids: string[]; rows: ListItem[]}>({ids: [], rows: []});
-  const [scrollHeight, setScrollHeight] = useState(() => window.innerHeight - 275);
+  const [scrollHeight, setScrollHeight] = useState(() => window.innerHeight - 285);
   const [showRename, setShowRename] = useState('');
   const [showMove, setShowMove] = useState('');
 
@@ -61,8 +61,8 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
     setShowMove('');
   });
 
-  const onSearch = useEvent((e: any) => {
-    dispatch(docActions.fetchList({...listSearch, name: e.target.value}));
+  const onSearch = useEvent((e?: any) => {
+    dispatch(docActions.fetchList({...listSearch, name: e?.target.value}));
   });
 
   const columns = useMemo<TableProps<ListItem>['columns']>(() => {
@@ -317,7 +317,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
   });
 
   useEffect(() => {
-    const onResize = debounce(() => setScrollHeight(window.innerHeight - 275), 300);
+    const onResize = debounce(() => setScrollHeight(window.innerHeight - 285), 300);
     window.addEventListener('resize', onResize);
     return () => {
       window.removeEventListener('resize', onResize);
@@ -327,63 +327,16 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
   return (
     <div className={styles.root}>
       <DocumentHead title="我的文档" />
-      {/* <EasyEdit
-        tpl="你是一名${role}，需要整理本周工作周报，本周主要工作内容为${text}，下周主要工作计划为${newText}"
-        option={{
-          role: {
-            placeholder: '请输入角色',
-            data: [
-              {label: '管理员', key: '管理员'},
-              {label: '普通职员', key: '普通职员'},
-            ],
-          },
-          text: {
-            placeholder: '请输入你想表达的意思',
-            data: [
-              {label: '改了两个bug', key: '改了两个bug'},
-              {label: '做了一个新需求', key: '做了一个新需求'},
-            ],
-          },
-        }}
-        value={{
-          text: '你是一名管理员，需要整理本周工作周报，本周主要工作内容为 ，下周主要工作计划为 ',
-          tplValue: [
-            {
-              key: '你是一名',
-              type: 'text',
-              value: '你是一名',
-            },
-            {
-              key: 'role',
-              type: 'variable',
-              value: '管理员',
-            },
-            {
-              key: '，需要整理本周工作周报，本周主要工作内容为',
-              type: 'text',
-              value: '，需要整理本周工作周报，本周主要工作内容为',
-            },
-            {
-              key: 'text',
-              type: 'variable',
-              value: ' ',
-            },
-            {
-              key: '，下周主要工作计划为',
-              type: 'text',
-              value: '，下周主要工作计划为',
-            },
-            {
-              key: 'newText',
-              type: 'variable',
-              value: ' ',
-            },
-          ],
-        }}
-      /> */}
       <div className="hd">
         {breadcrumb}
-        <Input className="search" placeholder="请输入搜索关键字..." onPressEnter={onSearch} prefix={<SearchOutlined />}></Input>
+        <Input
+          allowClear
+          onClear={onSearch}
+          className="search"
+          placeholder="请输入搜索关键字..."
+          onPressEnter={onSearch}
+          prefix={<SearchOutlined />}
+        ></Input>
       </div>
       <div className="cd">
         <Space>

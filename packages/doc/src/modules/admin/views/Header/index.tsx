@@ -49,7 +49,7 @@ const Component: FC<{curUser: CurUser; dispatch: Dispatch}> = ({curUser, dispatc
           <BellOutlined style={{fontSize: '22px', position: 'relative', top: '3px'}} />
         </Badge>
         <Dropdown menu={userMenu}>
-          <Avatar icon={<UserOutlined />} />
+          <Avatar style={{backgroundColor: '#E0E7F7', color: '#1b68fc'}} icon={<UserOutlined />} />
         </Dropdown>
       </Space>
     </div>
