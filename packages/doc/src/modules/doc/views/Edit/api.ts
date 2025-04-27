@@ -153,7 +153,7 @@ const createImage: AIRequest = ({args, onMessage, onError, onDone}) => {
       if (result.length) {
         onMessage(
           `<figure>${result
-            .map((item, index) => '<div class="' + (!index ? 'on' : '') + '" data-img="' + item + '"><img src="' + item + '" width="300" /></div>')
+            .map((item, index) => '<div class="' + (!index ? 'on' : '') + '" data-img="' + item + '"><img src="' + item + '" width="170" /></div>')
             .join('')}</figure>`
         );
       }

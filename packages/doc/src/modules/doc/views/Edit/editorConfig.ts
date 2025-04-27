@@ -1,5 +1,6 @@
 import {IEditorConfig, IToolbarConfig} from '@wangeditor-next/editor';
 import {replaceBaseUrl} from '@/utils/request';
+import {getToken} from '@/utils/tools';
 export const toolbarConfig: Partial<IToolbarConfig> = {
   //modalAppendToBody: true,
   toolbarKeys: [
@@ -114,6 +115,9 @@ export const editorConfig: Partial<IEditorConfig> = {
       maxFileSize: 10 * 1024 * 1024, // 10M
       // 将 meta 拼接到 url 参数中，默认 false
       metaWithUrl: false,
+      headers: {
+        Authorization: getToken(),
+      } as any,
       onSuccess(file: any, res: any) {
         //console.log(`${file.name} 上传成功`, res);
       },
