@@ -6,6 +6,7 @@ export type CurRender = BaseCurRender | 'favs';
 export interface ListSearch extends BaseListSearch {
   render?: CurRender;
   id?: string;
+  name?: string;
 }
 export interface ListItem extends BaseListItem {
   title: string;
@@ -49,5 +50,6 @@ export const defaultListSearch: ListSearch = {
   sorterOrder: undefined,
   sorterField: undefined,
   id: undefined,
+  name: undefined,
   render: undefined,
 };

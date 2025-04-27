@@ -52,11 +52,11 @@ export const DocAPI = {
     });
   },
   getList(search: ListSearch): Promise<ListResult> {
-    const {id = '0', render, sorterOrder, sorterField} = search;
+    const {id = '0', render, name, sorterOrder, sorterField} = search;
     return Promise.all([
       render === 'favs'
         ? request.get(`/dream/pen/article/collectList`, {params: {order: sorterOrder === 'ascend' ? 'asc' : undefined, page: 1, pageSize: 99999}})
-        : request.get(`/dream/pen/dFolder/list`, {params: {id, order: sorterOrder === 'ascend' ? 'asc' : undefined}}),
+        : request.get(`/dream/pen/dFolder/list`, {params: {id, name, order: sorterOrder === 'ascend' ? 'asc' : undefined}}),
       request.get(`/dream/pen/dFolder/level`, {params: {id}}),
       request.get(`/dream/pen/dFolder/tree`),
     ]).then(([listRes, levelRes, dirTreeRes]) => {

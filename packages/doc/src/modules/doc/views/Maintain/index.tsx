@@ -4,6 +4,7 @@ import {
   FolderAddOutlined,
   FolderOpenOutlined,
   PlusOutlined,
+  SearchOutlined,
   StarFilled,
   StarOutlined,
   UploadOutlined,
@@ -56,9 +57,12 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
   });
 
   const onMove = useEvent((id: string, type: 'doc' | 'dir', target: string) => {
-    console.log(id, target);
     DocAPI.moveItem(id, type, target).then(refreshList);
     setShowMove('');
+  });
+
+  const onSearch = useEvent((e: any) => {
+    dispatch(docActions.fetchList({...listSearch, name: e.target.value}));
   });
 
   const columns = useMemo<TableProps<ListItem>['columns']>(() => {
@@ -377,7 +381,10 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
           ],
         }}
       /> */}
-      <div className="hd">{breadcrumb}</div>
+      <div className="hd">
+        {breadcrumb}
+        <Input className="search" placeholder="请输入搜索关键字..." onPressEnter={onSearch} prefix={<SearchOutlined />}></Input>
+      </div>
       <div className="cd">
         <Space>
           <Button id="_create-doc-btn" loading={loading === 'create'} icon={<PlusOutlined />} onClick={() => onCreate()}>

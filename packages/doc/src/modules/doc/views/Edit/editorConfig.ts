@@ -156,8 +156,8 @@ export const editorConfig: Partial<IEditorConfig> = {
   //   // return true
   // },
 };
-if ('queryLocalFonts' in window) {
-  (window as any).queryLocalFonts().then((items: any) => {
-    console.log(items);
-  });
-}
+// if ('queryLocalFonts' in window) {
+//   (window as any).queryLocalFonts().then((items: any) => {
+//     console.log(items);
+//   });
+// }
