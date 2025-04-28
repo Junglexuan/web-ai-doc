@@ -1,8 +1,7 @@
 import {CheckOutlined, DeleteOutlined, EditOutlined, PauseCircleOutlined, QuestionCircleFilled, SyncOutlined} from '@ant-design/icons';
 import {Button, Space, Spin} from 'antd';
-import {FC, ReactElement, memo, useCallback, useEffect} from 'react';
+import {FC, ReactElement, memo, useCallback, useEffect, useMemo} from 'react';
 import AdjustIcon from '@/assets/images/Adjust';
-import {addClass, hasClass, removeClass} from '@/utils/tools';
 import ColorAIcon from '../ColorAIcon';
 import EnterIcon from '../EnterIcon';
 import {AIDialogHooks} from '../hooks';
@@ -13,10 +12,21 @@ interface Props {
   children: ReactElement;
   hooks: AIDialogHooks;
   automatic?: boolean;
+  hideButton?: 'onKeep'[];
 }
 
-const Component: FC<Props> = ({title, children, hooks, automatic}) => {
+const Component: FC<Props> = ({title, children, hooks, automatic, hideButton}) => {
   const {onPromptSubmit, inputRef, fragment, fragmentRef, runningState, onRedo, onKeep, onStop, onInsert, onAdjust} = hooks;
+  const hideButtonMap: {[key: string]: boolean} = useMemo(() => {
+    if (hideButton) {
+      return hideButton.reduce((obj, cur) => {
+        obj[cur] = true;
+        return obj;
+      }, {} as {[key: string]: boolean});
+    } else {
+      return {};
+    }
+  }, [hideButton]);
 
   const onFragmentClick = useCallback((e: any) => {
     const target = e.target as HTMLElement;
@@ -57,9 +67,11 @@ const Component: FC<Props> = ({title, children, hooks, automatic}) => {
           <Button type="text" icon={<SyncOutlined />} onClick={onRedo}>
             换一换
           </Button>
-          <Button type="text" icon={<EditOutlined />} onClick={onKeep}>
-            继续写
-          </Button>
+          {!hideButtonMap['onKeep'] && (
+            <Button type="text" icon={<EditOutlined />} onClick={onKeep}>
+              继续写
+            </Button>
+          )}
           <Button type="text" icon={<AdjustIcon />} onClick={onAdjust}>
             调整
           </Button>

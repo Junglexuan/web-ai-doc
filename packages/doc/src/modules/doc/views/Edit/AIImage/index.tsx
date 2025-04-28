@@ -15,7 +15,7 @@ const Component: FC<Props> = ({aiRef, onRunningStateChange}) => {
   const [tplValue, setTplvalue] = useState<any>();
 
   return (
-    <AIBase title="生成图片" hooks={hooks}>
+    <AIBase title="生成图片" hooks={hooks} hideButton={['onKeep']}>
       <EasyEdit
         ref={hooks.inputRef}
         tpl="生成图片：${content}，风格为${styles}，大小为${size}"

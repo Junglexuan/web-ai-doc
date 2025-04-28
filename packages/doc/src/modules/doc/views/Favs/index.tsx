@@ -1,6 +1,6 @@
-import {DeleteOutlined, DownOutlined, FolderOpenOutlined, StarFilled, StarOutlined} from '@ant-design/icons';
+import {DeleteOutlined, DownOutlined, SearchOutlined, StarFilled, StarOutlined} from '@ant-design/icons';
 import {Dispatch, DocumentHead, setLoading as setGlobalLoading} from '@elux/react-web';
-import {Button, Dropdown, Input, Popover, Space, Table, TableProps, Tree} from 'antd';
+import {Button, Dropdown, Input, Popover, Space, Table, TableProps} from 'antd';
 import {FC, memo, useCallback, useEffect, useMemo, useState} from 'react';
 import {GetActions, GetClientRouter} from '@/Global';
 import {downloadFile, replaceBaseUrl} from '@/utils/request';
@@ -46,10 +46,8 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
     setShowRename('');
   });
 
-  const onMove = useEvent((id: string, type: 'doc' | 'dir', target: string) => {
-    console.log(id, target);
-    DocAPI.moveItem(id, type, target).then(refreshList);
-    setShowMove('');
+  const onSearch = useEvent((e?: any) => {
+    dispatch(docActions.fetchList({...listSearch, name: e?.target.value}));
   });
 
   const columns = useMemo<TableProps<ListItem>['columns']>(() => {
@@ -226,6 +224,14 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
       <DocumentHead title="我的收藏" />
       <div className="hd">
         <span className="ant-breadcrumb">我的收藏</span>
+        <Input
+          allowClear
+          onClear={onSearch}
+          className="search"
+          placeholder="请输入搜索关键字..."
+          onPressEnter={onSearch}
+          prefix={<SearchOutlined />}
+        ></Input>
       </div>
       <div className="cd">
         <Space>
