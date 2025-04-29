@@ -18,7 +18,7 @@ import BlurInput from '@/components/BlurInput';
 import DialogPage from '@/components/DialogPage';
 import {GetClientRouter} from '@/Global';
 import {downloadFile, replaceBaseUrl} from '@/utils/request';
-import {confirm, debounce, getUrlParam, message, useEvent} from '@/utils/tools';
+import {confirm, debounce, message, toNativeUrl, useEvent} from '@/utils/tools';
 import DocAPI from '../../api';
 import {ItemDetail} from '../../entity';
 import AIButton from './AIButton';
@@ -74,7 +74,7 @@ const Component: FC<Props> = ({itemDetail}) => {
   const onCreatDoc = useEvent(() => {
     DocAPI.createDoc({folder: itemDetail.folder, title: '', contents: ''})
       .then(({id}) => {
-        GetClientRouter().relaunch({url: `/admin/doc/item/edit/${id}?__c=_dialog`}, 'page');
+        window.open(toNativeUrl(`/admin/doc/item/edit/${id}?__c=_dialog`));
       })
       .catch((e) => {
         message.error(e + '');

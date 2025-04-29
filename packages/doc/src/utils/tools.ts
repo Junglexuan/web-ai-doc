@@ -3,7 +3,7 @@ import {Modal, message} from 'antd';
 import {Rule} from 'antd/lib/form';
 import {produce} from 'immer';
 import {useCallback, useMemo, useRef} from 'react';
-import {useRouter} from '@/Global';
+import {PathPrefix, useRouter} from '@/Global';
 
 export {message} from 'antd';
 
@@ -92,6 +92,10 @@ export function useEvent<F extends Function>(handler: F): F {
 export function useSingleWindow(): RouteTarget {
   const router = useRouter();
   return router.location.classname.startsWith('_') ? 'page' : 'window';
+}
+
+export function toNativeUrl(url: string): string {
+  return PathPrefix + url;
 }
 
 export const sleep = (ms: number): Promise<void> => new Promise((r) => setTimeout(r, ms));

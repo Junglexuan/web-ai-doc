@@ -1,6 +1,12 @@
-import {IEditorConfig, IToolbarConfig} from '@wangeditor-next/editor';
+import {IEditorConfig, IToolbarConfig, i18nGetResources, t} from '@wangeditor-next/editor';
 import {replaceBaseUrl} from '@/utils/request';
 import {getToken} from '@/utils/tools';
+
+const resources = i18nGetResources('zh-CN');
+resources.justify.left = '居左对齐';
+resources.justify.right = '居右对齐';
+//console.log(resources);
+
 export const toolbarConfig: Partial<IToolbarConfig> = {
   //modalAppendToBody: true,
   toolbarKeys: [
