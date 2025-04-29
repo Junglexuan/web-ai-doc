@@ -28,7 +28,7 @@ const Component: FC<{curUser: CurUser; dispatch: Dispatch}> = ({curUser, dispatc
           key: 'logout',
           label: (
             <Button size="small" type="link" icon={<LogoutOutlined />}>
-              退出登陆
+              退出登录
             </Button>
           ),
         },

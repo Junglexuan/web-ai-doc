@@ -61,8 +61,8 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
     setShowMove('');
   });
 
-  const onSearch = useEvent((e?: any) => {
-    dispatch(docActions.fetchList({...listSearch, name: e?.target.value}));
+  const onSearch = useEvent((name: string) => {
+    dispatch(docActions.fetchList({...listSearch, name}));
   });
 
   const columns = useMemo<TableProps<ListItem>['columns']>(() => {
@@ -333,25 +333,18 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
       <DocumentHead title="我的文档" />
       <div className="hd">
         {breadcrumb}
-        <Input
-          allowClear
-          onClear={onSearch}
-          className="search"
-          placeholder="请输入搜索关键字..."
-          onPressEnter={onSearch}
-          prefix={<SearchOutlined />}
-        ></Input>
+        <Input.Search allowClear className="search" placeholder="请输入搜索关键字..." onSearch={onSearch} />
       </div>
       <div className="cd">
         <Space>
           <Button id="_create-doc-btn" loading={loading === 'create'} icon={<PlusOutlined />} onClick={() => onCreate()}>
-            起草公文
+            快速创建
           </Button>
           {/* <Button icon={<ExceptionOutlined />}>创建模版</Button> */}
           <Button loading={loading === 'createDir'} icon={<FolderAddOutlined />} onClick={onCreateDir}>
             新建文件夹
           </Button>
-          <Upload showUploadList={false} accept=".doc,.docx" {...uploadProps}>
+          <Upload showUploadList={false} accept=".docx" {...uploadProps}>
             <Button loading={loading === 'upload'} icon={<UploadOutlined />}>
               上传文档
             </Button>

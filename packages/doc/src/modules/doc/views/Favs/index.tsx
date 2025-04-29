@@ -177,16 +177,20 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
   }, [showRename, showMove, listSearch, listSummary]);
 
   const batchDelete = useEvent(() => {
-    setLoading('batchDelete');
-    DocAPI.batchDelete(selectedRows.rows.map((item) => ({id: item.id, type: item.type})))
-      .then(() => {
-        setSelectedRows({ids: [], rows: []});
-        refreshList();
-      })
-      .catch((e) => {
-        message.error(e + '');
-      })
-      .finally(() => setLoading(''));
+    confirm(`您确定要删除${selectedRows.rows.length}项吗？`, (ok) => {
+      if (ok) {
+        setLoading('batchDelete');
+        DocAPI.batchDelete(selectedRows.rows.map((item) => ({id: item.id, type: item.type})))
+          .then(() => {
+            setSelectedRows({ids: [], rows: []});
+            refreshList();
+          })
+          .catch((e) => {
+            message.error(e + '');
+          })
+          .finally(() => setLoading(''));
+      }
+    });
   });
 
   const rowSelection: TableProps<any>['rowSelection'] = useMemo(
@@ -224,14 +228,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
       <DocumentHead title="我的收藏" />
       <div className="hd">
         <span className="ant-breadcrumb">我的收藏</span>
-        <Input
-          allowClear
-          onClear={onSearch}
-          className="search"
-          placeholder="请输入搜索关键字..."
-          onPressEnter={onSearch}
-          prefix={<SearchOutlined />}
-        ></Input>
+        <Input.Search allowClear className="search" placeholder="请输入搜索关键字..." onSearch={onSearch} />
       </div>
       <div className="cd">
         <Space>

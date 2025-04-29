@@ -575,12 +575,11 @@ const Component: FC<Props> = (props) => {
         if (event.triggerWithChar) {
           editor.deleteBackward('character');
         }
-        editor.insertBreak();
-        SlateTransforms.setNodes(editor, {indent: ''} as any);
-        // if ((curNode as any).text !== '') {
-        //   editor.insertBreak();
-        // }
         const [curNode] = SlateEditor.node(editor, selection);
+        if ((curNode as any).text !== '') {
+          editor.insertBreak();
+        }
+        SlateTransforms.setNodes(editor, {indent: ''} as any);
         lastDom = editor.toDOMNode(curNode);
         const dsl: any[] = editor.children;
         const text: string[] = [];

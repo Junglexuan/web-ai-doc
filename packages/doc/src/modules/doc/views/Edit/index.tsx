@@ -68,6 +68,9 @@ const Component: FC<Props> = ({itemDetail}) => {
     if (e.key === 'Escape') {
       editor?.hidePanelOrModal();
       editor?.focus();
+    } else if (e.key === 's' && e.metaKey) {
+      e.preventDefault();
+      editor && onChange(editor);
     }
   });
 
@@ -144,10 +147,10 @@ const Component: FC<Props> = ({itemDetail}) => {
   }, [docTitle, collect]);
 
   useEffect(() => {
-    document.addEventListener('keyup', onKeyUp);
+    document.addEventListener('keydown', onKeyUp);
     autoSave.addListener('loading', setSaving);
     return () => {
-      document.removeEventListener('keyup', onKeyUp);
+      document.removeEventListener('keydown', onKeyUp);
       onDestroy();
       setEditor(undefined);
     };
