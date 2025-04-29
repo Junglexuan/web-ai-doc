@@ -15,7 +15,7 @@ function withAiModal<T extends IDomEditor>(editor: T): T {
   const newEditor = editor;
 
   newEditor.insertText = (t) => {
-    if (t === '/') {
+    if (t === '/' || t === '、') {
       setTimeout(() => {
         const menuButton = document.getElementById('_ai_button') as HTMLElement;
         menuButton.setAttribute('data-trigger', '/');

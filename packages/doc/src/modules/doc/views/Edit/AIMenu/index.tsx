@@ -284,47 +284,47 @@ export const applicationTemplates: MenuItem[] = [
 
 export const stylesTemplates: MenuItem[] = [
   {
-    key: 'RZY',
+    key: 'RA',
     title: '更专业',
     label: (
       <span>
-        <sub>(ZY)</sub>更专业
+        <sub>(A)</sub>更专业
       </span>
     ),
   },
   {
-    key: 'RQS',
+    key: 'RB',
     title: '更轻松',
     label: (
       <span>
-        <sub>(QS)</sub>更轻松
+        <sub>(B)</sub>更轻松
       </span>
     ),
   },
   {
-    key: 'RZB',
+    key: 'RC',
     title: '更直白',
     label: (
       <span>
-        <sub>(ZB)</sub>更直白
+        <sub>(C)</sub>更直白
       </span>
     ),
   },
   {
-    key: 'RZX',
+    key: 'RD',
     title: '更自信',
     label: (
       <span>
-        <sub>(ZX)</sub>更自信
+        <sub>(D)</sub>更自信
       </span>
     ),
   },
   {
-    key: 'RYH',
+    key: 'RE',
     title: '更友好',
     label: (
       <span>
-        <sub>(YH)</sub>更友好
+        <sub>(E)</sub>更友好
       </span>
     ),
   },
@@ -513,24 +513,47 @@ export const menuKeysMap = (function () {
   return map;
 })();
 
+// function searchShortcut(key: string) {
+//   const result: {selected?: string[]; openned?: string[]} = {selected: undefined, openned: undefined};
+//   const key1 = key.charAt(1).toUpperCase();
+//   const key2 = key.substring(2, key.length).toUpperCase();
+//   const item1 = itemsMap[key1];
+//   if (item1?.title) {
+//     if (item1.disabled) {
+//       return result;
+//     }
+//     result.selected = [item1.key];
+//     if (item1?.children) {
+//       result.openned = [item1.key];
+//       if (key2) {
+//         const item2 = itemsMap[key1 + key2];
+//         if (item2?.title) {
+//           result.selected.push(key1 + key2);
+//         }
+//       }
+//     }
+//   }
+//   return result;
+// }
+
 function searchShortcut(key: string) {
   const result: {selected?: string[]; openned?: string[]} = {selected: undefined, openned: undefined};
   const key1 = key.charAt(1).toUpperCase();
-  const key2 = key.substring(2, key.length).toUpperCase();
   const item1 = itemsMap[key1];
-  if (item1?.title) {
-    if (item1.disabled) {
-      return result;
-    }
-    result.selected = [item1.key];
+  if (item1?.title && !item1.disabled) {
     if (item1?.children) {
       result.openned = [item1.key];
-      if (key2) {
+    }
+    const key2 = key.substring(2).toUpperCase();
+    if (key2) {
+      if (item1?.children) {
         const item2 = itemsMap[key1 + key2];
         if (item2?.title) {
-          result.selected.push(key1 + key2);
+          result.selected = [item1.key, key1 + key2];
         }
       }
+    } else {
+      result.selected = [item1.key];
     }
   }
   return result;
@@ -630,7 +653,7 @@ const Component: FC<Props> = (props) => {
   });
 
   const onKeyDown = useEvent((e: any) => {
-    const {code} = e;
+    const {code, key, keyCode} = e;
     if (code === 'Enter') {
       e.preventDefault();
       if (selectedKeys) {
@@ -686,6 +709,10 @@ const Component: FC<Props> = (props) => {
         setOpenKeys(undefined);
         setSelectedKeys([selectedKeys![0]]);
       }
+    } else if (keyCode > 10) {
+      // event.editor.focus();
+      // event.editor.insertText(key);
+      // menuInput.current.focus();
     }
   });
 
@@ -696,10 +723,13 @@ const Component: FC<Props> = (props) => {
       return;
     }
     const {selected, openned} = searchShortcut(key);
+    if (!selected) {
+      onCancel();
+      event.editor.insertText(key.substring(1));
+      return;
+    }
     setOpenKeys(openned);
     setSelectedKeys(selected);
-    // const l1 = key.charAt(1);
-    // console.log(l1);
   });
 
   const onMenuSelect = useCallback(
