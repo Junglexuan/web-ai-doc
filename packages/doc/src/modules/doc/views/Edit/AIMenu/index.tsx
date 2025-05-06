@@ -569,6 +569,7 @@ const Component: FC<Props> = (props) => {
   const {event, onCancel} = props;
   const rootDivRef = useRef<HTMLElement>();
   const menuInput = useRef<HTMLInputElement>(null as any);
+  const compositionRef = useRef(false);
   const [menuStyles, setMenuStyles] = useState({left: 0, top: 0, pos: 'lt'});
   const [openKeys, setOpenKeys] = useState<string[]>();
   const [selectedKeys, setSelectedKeys] = useState<string[] | undefined>();
@@ -717,6 +718,9 @@ const Component: FC<Props> = (props) => {
   });
 
   const onKeyChange = useEvent(({target}: {target: any}) => {
+    if (compositionRef.current) {
+      return;
+    }
     const key = target.value;
     if (!key) {
       onCancel();
@@ -730,6 +734,15 @@ const Component: FC<Props> = (props) => {
     }
     setOpenKeys(openned);
     setSelectedKeys(selected);
+  });
+
+  const onComposition = useEvent((e: any) => {
+    if (e.type === 'compositionend') {
+      compositionRef.current = false;
+      onKeyChange(e);
+    } else {
+      compositionRef.current = true;
+    }
   });
 
   const onMenuSelect = useCallback(
@@ -824,7 +837,15 @@ const Component: FC<Props> = (props) => {
 
   return (
     <div ref={rootDivRef as any} className={styles.menu + ' on ' + menuStyles.pos} style={menuStyles} onMouseMove={onMouseMove}>
-      <input ref={menuInput as any} defaultValue="/" onKeyDown={onKeyDown} onChange={onKeyChange} />
+      <input
+        ref={menuInput as any}
+        defaultValue="/"
+        onKeyDown={onKeyDown}
+        onChange={onKeyChange}
+        onCompositionStart={onComposition}
+        onCompositionEnd={onComposition}
+        onCompositionUpdate={onComposition}
+      />
       <Menu
         mode="vertical"
         items={items as any}
