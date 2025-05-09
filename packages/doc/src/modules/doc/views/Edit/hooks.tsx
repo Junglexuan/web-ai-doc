@@ -106,7 +106,7 @@ export function useAIDialog(
   }, [aiRef, runningState]);
 
   const onInsert = useEvent(() => {
-    aiRef.closeMenu();
+    aiRef.closeMenu(true);
     const fragment = fragmentRef.current!;
     const root = fragment.children[0];
     if (root?.nodeName === 'FIGURE') {

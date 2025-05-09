@@ -75,7 +75,7 @@ const Component: FC<Props> = ({title, children, hooks, automatic, hideButton}) =
           <Button type="text" icon={<AdjustIcon />} onClick={onAdjust}>
             调整
           </Button>
-          <Button type="text" icon={<DeleteOutlined />} onClick={hooks.aiRef.closeMenu}>
+          <Button type="text" icon={<DeleteOutlined />} onClick={() => hooks.aiRef.closeMenu(true)}>
             弃用
           </Button>
         </Space>

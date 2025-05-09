@@ -1,5 +1,19 @@
 :global {
+  @keyframes vibrate {
+    from {
+      margin-top: 3px;
+    }
+
+    to {
+      margin-top: 0;
+    }
+  }
+
   :local(.dialog) {
+    &.anmi {
+      animation: doc-Edit-AIDialog_vibrate 0.1s infinite;
+    }
+
     position: fixed;
     top: 0;
     left: 50%;

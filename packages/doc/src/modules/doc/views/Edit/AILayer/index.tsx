@@ -1,6 +1,6 @@
 import {IDomEditor} from '@wangeditor-next/editor';
 import {FC, memo, useEffect, useMemo, useRef, useState} from 'react';
-import {debounce, message, removeClass, useEvent} from '@/utils/tools';
+import {addClass, debounce, message, removeClass, useEvent} from '@/utils/tools';
 import AIAsk from '../AIAsk';
 import AIContinue from '../AIContinue';
 import AICreate from '../AICreate';
@@ -15,7 +15,7 @@ import styles from './index.module.less';
 import type {AIEvent} from '../utils';
 
 export interface IAIRef {
-  closeMenu: () => void;
+  closeMenu: (force?: boolean) => void;
   openMenu: (event: MenuEvent) => void;
   menuIsOpen: () => boolean;
   insertHtmlByAI: (html: string) => void;
@@ -44,13 +44,20 @@ const Component: FC<Props> = ({onCreated, editor}) => {
     setTimeout(onDocScroll);
   });
 
-  const closeMenu = useEvent(() => {
-    if (runningState === 'Pending') {
-      message.warning('正在执行...请先停止当前任务!');
+  const closeMenu = useEvent((force?: boolean) => {
+    if (!force && (runningState === 'Pending' || runningState === 'Fulfilled')) {
       editor.blur();
+      const dialog = document.getElementById('_ai_dialog');
+      if (dialog) {
+        const wrap = dialog.parentElement!.parentElement!;
+        addClass(wrap, 'anmi');
+        setTimeout(() => removeClass(wrap, 'anmi'), 200);
+      }
+
       return;
     }
     setMenuEvent(undefined);
+    setRunningState('');
     const placeholder = aiEvent?.placeholder;
     if (placeholder) {
       placeholder.parentNode?.removeChild(placeholder);
@@ -205,7 +212,7 @@ const Component: FC<Props> = ({onCreated, editor}) => {
   return (
     <>
       {aiDialog}
-      <div className={styles.mask + ' ' + runningState} onClick={closeMenu}>
+      <div className={styles.mask + ' ' + runningState} onClick={() => closeMenu()}>
         <div id="_ai_sel_mock" ref={selMockRef as any}></div>
       </div>
     </>

@@ -33,6 +33,12 @@ export const DocAPI = {
       items.map((item) => ({id: item.id, type: item.type === 'dir' ? 1 : 2}))
     );
   },
+  cleanRecycle(): Promise<void> {
+    return request.post(`/dream/pen/article/recycle/clean`);
+  },
+  cleanItem(id: string, type: 'dir' | 'doc'): Promise<void> {
+    return type === 'doc' ? request.post(`/dream/pen/article/recycle/delete/${id}`) : request.post(`/dream/pen/dFolder/delete`, {id});
+  },
   deleteItem(id: string, type: 'dir' | 'doc'): Promise<void> {
     return type === 'doc' ? request.post(`/dream/pen/article/delete/${id}`) : request.post(`/dream/pen/dFolder/delete`, {id});
   },
@@ -58,11 +64,15 @@ export const DocAPI = {
         ? request.get(`/dream/pen/article/collectList`, {
             params: {title: name, order: sorterOrder === 'ascend' ? 'asc' : undefined, page: 1, pageSize: 99999},
           })
+        : render === 'recs'
+        ? request.get(`/dream/pen/article/recycle`, {
+            params: {title: name, order: sorterOrder === 'ascend' ? 'asc' : undefined, page: 1, pageSize: 99999},
+          })
         : request.get(`/dream/pen/dFolder/list`, {params: {id, name, order: sorterOrder === 'ascend' ? 'asc' : undefined}}),
       request.get(`/dream/pen/dFolder/level`, {params: {id}}),
       request.get(`/dream/pen/dFolder/tree`),
     ]).then(([listRes, levelRes, dirTreeRes]) => {
-      const list: ListItem[] = (render === 'favs' ? listRes.data.data.data : listRes.data.data) || [];
+      const list: ListItem[] = (render === 'favs' || render === 'recs' ? listRes.data.data.data : listRes.data.data) || [];
       const dirTree = dirTreeRes.data.data || [];
       return {
         list: list.map((item) => {

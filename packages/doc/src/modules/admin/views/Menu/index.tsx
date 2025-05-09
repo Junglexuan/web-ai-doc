@@ -37,21 +37,25 @@ const items: any[] = [
       </Link>
     ),
   },
-  // {
-  //   key: '回收站',
-  //   label: '回收站',
-  //   type: 'group',
-  // },
-  // {
-  //   key: '知识管理',
-  //   icon: <AlignCenterOutlined />,
-  //   label: '知识管理',
-  // },
-  // {
-  //   key: '模版管理',
-  //   icon: <DatabaseOutlined />,
-  //   label: '模版管理',
-  // },
+  {
+    key: '回收站',
+    label: (
+      <Link to="/admin/doc/list/recs" action="relaunch" target="window">
+        回收站
+      </Link>
+    ),
+    type: 'group',
+  },
+  {
+    key: '知识管理',
+    icon: <AlignCenterOutlined />,
+    label: '知识管理',
+  },
+  {
+    key: '模版管理',
+    icon: <DatabaseOutlined />,
+    label: '模版管理',
+  },
 ];
 
 const Component: FC<{}> = () => {
@@ -62,6 +66,9 @@ const Component: FC<{}> = () => {
     }
     if (pathname.startsWith('/admin/doc/list/favs')) {
       return ['我的收藏'];
+    }
+    if (pathname.startsWith('/admin/doc/list/recs')) {
+      return ['回收站'];
     }
     if (pathname.startsWith('/admin/home')) {
       return ['首页'];
