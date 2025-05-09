@@ -12,6 +12,7 @@ module.exports = {
       ApiPrefix: {
         '/auth/': 'http://8.130.27.129/auth/',
         '/dream/': 'http://139.9.86.138:8081/dream/',
+        //'/dream/': 'http://331qy963dj35.vicp.fun:15537/dream/',
       },
       StaticPrefix: {
         '/imgs/': '/imgs/',

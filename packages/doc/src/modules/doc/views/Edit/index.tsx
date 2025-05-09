@@ -68,7 +68,7 @@ const Component: FC<Props> = ({itemDetail}) => {
     if (e.key === 'Escape') {
       editor?.hidePanelOrModal();
       editor?.focus();
-    } else if (e.key === 's' && e.metaKey) {
+    } else if (e.key === 's' && (e.metaKey || e.ctrlKey)) {
       e.preventDefault();
       editor && onChange(editor);
     }

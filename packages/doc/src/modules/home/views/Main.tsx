@@ -2,6 +2,7 @@ import {DocumentHead, Link, connectStore} from '@elux/react-web';
 import {Carousel} from 'antd';
 import {FC, useEffect, useMemo, useState} from 'react';
 import {GetClientRouter} from '@/Global';
+import {PathPrefix} from '@/Global';
 import DocAPI from '@/modules/doc/api';
 import {message, useEvent} from '@/utils/tools';
 import HomeAPI from '../api';
@@ -10,34 +11,12 @@ import styles from './index.module.less';
 // 定义轮播图数据的枚举CarouselItems
 const carouselItems = [
   {
-    title: '第一张轮播图',
-    url: '',
-  },
-  {
-    title: '第二张轮播图',
-    url: '',
-  },
-  {
-    title: '第三张轮播图',
-    url: '',
-  },
-  {
-    title: '第四张轮播图',
-    url: '',
+    title: '',
+    url: '/client/ad/home-banner1.png',
   },
 ];
 // 定义最近创作的数量
 const RECENT_CREATIONS_LIMIT = 4;
-
-const popularCreations = [
-  {icon: 'path/to/icon1.png', title: '类型1', description: '这是类型1的描述，最多显示三行内容。'},
-  {icon: 'path/to/icon2.png', title: '类型2', description: '这是类型2的描述，最多显示三行内容。'},
-  {icon: 'path/to/icon1.png', title: '类型1', description: '这是类型1的描述，最多显示三行内容。'},
-  {icon: 'path/to/icon2.png', title: '类型2', description: '这是类型2的描述，最多显示三行内容。'},
-  {icon: 'path/to/icon1.png', title: '类型1', description: '这是类型1的描述，最多显示三行内容。'},
-  {icon: 'path/to/icon2.png', title: '类型2', description: '这是类型2的描述，最多显示三行内容。'},
-  // Add more items as needed
-];
 
 const Component: FC = () => {
   const [hotArticleList, setHotArticleList] = useState<HotArticle[]>([]);
@@ -109,7 +88,7 @@ const Component: FC = () => {
       <Carousel dots={true} dotPosition="bottom" autoplay={true} rootClassName={'carousel'}>
         {carouselItems.map((item, index) => (
           <div key={index} className={'carousel-item'}>
-            <h3>{item.title}</h3>
+            <div style={{backgroundImage: `url(${PathPrefix + item.url})`}}></div>
           </div>
         ))}
       </Carousel>

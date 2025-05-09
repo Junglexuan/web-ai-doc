@@ -105,7 +105,7 @@ instance.interceptors.response.use(
       const config = response.config!;
       const requestHeaders = config.headers;
       const requestUrl = config.url;
-      const errorData = data.message || `failed to call ${requestUrl}`;
+      const errorData = data.msg || `failed to call ${requestUrl}`;
       const errorMessage = typeof errorData === 'string' ? errorData : JSON.stringify(errorData);
       if (!requestHeaders.quiet) {
         Message.error(errorMessage);
@@ -125,7 +125,7 @@ instance.interceptors.response.use(
     const config = error.config!;
     const requestHeaders = config.headers;
     const requestUrl = config.url;
-    const errorData = data.message || `failed to call ${requestUrl}`;
+    const errorData = data.msg || `failed to call ${requestUrl}`;
     const errorMessage = typeof errorData === 'string' ? errorData : JSON.stringify(errorData);
     if (!requestHeaders.quiet) {
       Message.error(errorMessage);

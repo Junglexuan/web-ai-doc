@@ -60,6 +60,15 @@ function decodeMessage(str: string, markdown?: boolean): string {
   }
 }
 
+function decodeMarkdown() {
+  let markdown = '';
+  return (str: string) => {
+    markdown += str;
+    console.log(markdown);
+    return marked.parse(markdown) as string;
+  };
+}
+
 function getHeaders() {
   return {
     'Content-Type': 'application/json',
