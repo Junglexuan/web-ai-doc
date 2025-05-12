@@ -46,8 +46,8 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
     setShowRename('');
   });
 
-  const onSearch = useEvent((e?: any) => {
-    dispatch(docActions.fetchList({...listSearch, name: e?.target.value}));
+  const onSearch = useEvent((name: string) => {
+    dispatch(docActions.fetchList({...listSearch, name}));
   });
 
   const columns = useMemo<TableProps<ListItem>['columns']>(() => {

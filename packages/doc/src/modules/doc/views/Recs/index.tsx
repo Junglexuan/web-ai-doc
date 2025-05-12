@@ -33,8 +33,12 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
     });
   });
 
-  const onSearch = useEvent((e?: any) => {
-    dispatch(docActions.fetchList({...listSearch, name: e?.target.value}));
+  const onRestoreItem = useEvent((id: string, type: 'doc' | 'dir') => {
+    DocAPI.restoreItem(id, type).then(refreshList);
+  });
+
+  const onSearch = useEvent((name: string) => {
+    dispatch(docActions.fetchList({...listSearch, name}));
   });
 
   const columns = useMemo<TableProps<ListItem>['columns']>(() => {
@@ -85,7 +89,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
         width: 120,
         render: (_: any, record) => (
           <Space size="middle">
-            <a onClick={() => DocAPI.copyItem(record.id, record.type).then(refreshList)}>恢复</a>
+            <a onClick={() => onRestoreItem(record.id, record.type)}>恢复</a>
             <a onClick={() => onDeleteItem(record.id, record.type, record.title)}>删除</a>
           </Space>
         ),
