@@ -12,6 +12,7 @@ export interface AIEvent {
 
 export interface AIInputRef {
   getValue: () => string;
+  focus: () => void;
 }
 
 export function dslToHtml(dsl: any): string {

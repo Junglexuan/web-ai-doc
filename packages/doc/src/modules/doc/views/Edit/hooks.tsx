@@ -7,7 +7,7 @@ export interface AIDialogHooks {
   runningState: RunningState;
   fragment: string;
   fragmentRef: MutableRefObject<HTMLDivElement | undefined>;
-  inputRef: MutableRefObject<{getValue: () => string}>;
+  inputRef: MutableRefObject<{getValue: () => string; focus: () => void}>;
   requestRef: MutableRefObject<AbortController | undefined>;
   aiRef: IAIRef;
   onPromptSubmit: (data?: any) => void;
@@ -27,7 +27,7 @@ export function useAIDialog(
   required?: boolean
 ): AIDialogHooks {
   const [runningState, setRunningState] = useState<RunningState>('');
-  const inputRef = useRef<{getValue: () => string}>(null as any);
+  const inputRef = useRef<{getValue: () => string; focus: () => void}>(null as any);
   const [fragment, setFragment] = useState('');
   const fragmentRef = useRef<HTMLDivElement>();
   const requestRef = useRef<AbortController>();
@@ -89,6 +89,7 @@ export function useAIDialog(
     setFragment('');
     setRunningState('');
     onRunningStateChange('');
+    setTimeout(inputRef.current.focus);
   });
 
   const onStop = useEvent(() => {
@@ -98,12 +99,6 @@ export function useAIDialog(
       onRunningStateChange('Fulfilled');
     });
   });
-
-  useEffect(() => {
-    if (runningState === 'Fulfilled') {
-      aiRef.focusEditor();
-    }
-  }, [aiRef, runningState]);
 
   const onInsert = useEvent(() => {
     aiRef.closeMenu(true);
@@ -122,7 +117,7 @@ export function useAIDialog(
   });
 
   useEffect(() => {
-    //inputRef.current.input.focus();
+    inputRef.current.focus();
   }, []);
 
   return {aiRef, onPromptSubmit, onRedo, onKeep, onStop, onInsert, onAdjust, runningState, fragment, fragmentRef, inputRef, requestRef};

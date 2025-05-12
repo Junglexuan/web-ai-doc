@@ -16,7 +16,11 @@ const Component: FC<Props> = ({aiRef, onRunningStateChange}) => {
 
   return (
     <AIBase title="继续写" hooks={hooks}>
-      <AntInput ref={hooks.inputRef} placeholder="您可以输入“继续写”的要求，如生成字数少于300字。如无要求可直接点击发送..." />
+      <AntInput
+        onSubmit={hooks.onPromptSubmit}
+        ref={hooks.inputRef}
+        placeholder="您可以输入“继续写”的要求，如生成字数少于300字。如无要求可直接点击发送..."
+      />
     </AIBase>
   );
 };

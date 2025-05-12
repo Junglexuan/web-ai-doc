@@ -55,11 +55,9 @@ const Component: FC<Props> = ({editor}) => {
     addClass(scroller, 'on');
   });
 
-  const closeMenu = useEvent(() => aiRef?.closeMenu());
-
   const onKeyDown = useEvent((e: any) => {
     if (e.key === 'Escape') {
-      closeMenu();
+      aiRef?.closeMenu(true);
     }
   });
 

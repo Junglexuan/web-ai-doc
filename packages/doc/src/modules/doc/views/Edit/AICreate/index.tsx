@@ -16,7 +16,12 @@ const Component: FC<Props> = ({aiRef, onRunningStateChange}) => {
 
   return (
     <AIBase title="生成全文" hooks={hooks}>
-      <AntInput ref={hooks.inputRef} placeholder="请描述要“生成全文”的主题和各种要求..." defaultValue={`围绕 “${aiRef.getTitle()}” 写一篇文章`} />
+      <AntInput
+        ref={hooks.inputRef}
+        onSubmit={hooks.onPromptSubmit}
+        placeholder="请描述要“生成全文”的主题和各种要求..."
+        defaultValue={`围绕 “${aiRef.getTitle()}” 写一篇文章`}
+      />
     </AIBase>
   );
 };

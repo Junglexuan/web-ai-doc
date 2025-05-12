@@ -1,6 +1,6 @@
 import {CheckOutlined, DeleteOutlined, EditOutlined, PauseCircleOutlined, QuestionCircleFilled, SyncOutlined} from '@ant-design/icons';
 import {Button, Space, Spin} from 'antd';
-import {FC, ReactElement, memo, useCallback, useEffect, useMemo} from 'react';
+import {FC, ReactElement, memo, useCallback, useEffect, useMemo, useRef} from 'react';
 import AdjustIcon from '@/assets/images/Adjust';
 import ColorAIcon from '../ColorAIcon';
 import EnterIcon from '../EnterIcon';
@@ -28,6 +28,9 @@ const Component: FC<Props> = ({title, children, hooks, automatic, hideButton}) =
     }
   }, [hideButton]);
 
+  const submitRef = useRef<any>();
+  const stopRef = useRef<any>();
+
   const onFragmentClick = useCallback((e: any) => {
     const target = e.target as HTMLElement;
     const img = target.getAttribute('data-img');
@@ -44,6 +47,18 @@ const Component: FC<Props> = ({title, children, hooks, automatic, hideButton}) =
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    if (runningState === 'Fulfilled') {
+      setTimeout(() => {
+        submitRef.current.focus();
+      });
+    } else if (runningState === 'Pending') {
+      setTimeout(() => {
+        stopRef.current.focus();
+      });
+    }
+  }, [runningState]);
+
   return (
     <div id="_ai_dialog" className={styles.common + ' ' + runningState}>
       <ColorAIcon />
@@ -54,14 +69,14 @@ const Component: FC<Props> = ({title, children, hooks, automatic, hideButton}) =
       <div className="result">
         <Spin className="loading" size="small" />
         <div className="title">{inputRef.current?.getValue() || title}...</div>
-        <Button size="small" className="pause-btn" type="text" icon={<PauseCircleOutlined />} onClick={onStop}>
+        <Button size="small" className="pause-btn" type="text" icon={<PauseCircleOutlined />} ref={stopRef} onClick={onStop}>
           停止
         </Button>
         <div className="article" ref={fragmentRef as any} dangerouslySetInnerHTML={{__html: fragment}} onClick={onFragmentClick}></div>
       </div>
       <div className="footer">
         <Space size="small" className="actions">
-          <Button type="primary" icon={<CheckOutlined />} onClick={onInsert}>
+          <Button type="primary" icon={<CheckOutlined />} onClick={onInsert} ref={submitRef}>
             插入
           </Button>
           <Button type="text" icon={<SyncOutlined />} onClick={onRedo}>
@@ -80,7 +95,8 @@ const Component: FC<Props> = ({title, children, hooks, automatic, hideButton}) =
           </Button>
         </Space>
         <div>
-          <QuestionCircleFilled style={{color: '#aaa', cursor: 'pointer'}} />
+          <span style={{color: '#aaa', fontSize: '12px'}}>* 回车直接提交，shift+回车可换行，esc键可关闭</span>
+          {/* <QuestionCircleFilled style={{color: '#aaa', cursor: 'pointer'}} /> */}
         </div>
       </div>
     </div>

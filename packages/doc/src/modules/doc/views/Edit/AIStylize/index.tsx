@@ -16,7 +16,7 @@ const Component: FC<Props> = ({title, aiRef, onRunningStateChange}) => {
 
   return (
     <AIBase title={title} hooks={hooks} automatic>
-      <AntInput ref={hooks.inputRef} defaultValue={title} />
+      <AntInput onSubmit={hooks.onPromptSubmit} ref={hooks.inputRef} defaultValue={title} />
     </AIBase>
   );
 };

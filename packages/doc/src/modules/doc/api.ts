@@ -34,13 +34,13 @@ export const DocAPI = {
     );
   },
   cleanRecycle(): Promise<void> {
-    return request.post(`/dream/pen/article/recycle/clean`);
+    return request.post(`/dream/pen/recycle/clean`);
   },
   cleanItem(id: string, type: 'dir' | 'doc'): Promise<void> {
-    return type === 'doc' ? request.post(`/dream/pen/article/recycle/delete/${id}`) : request.post(`/dream/pen/dFolder/delete`, {id});
+    return request.post(`/dream/pen/recycle/delete/${id}`);
   },
   restoreItem(id: string, type: 'dir' | 'doc'): Promise<void> {
-    return request.post(`/dream/pen/recycle/recycle/restore`, {id, type: type === 'dir' ? 1 : 2});
+    return request.post(`/dream/pen/recycle/restore`, {id, type: type === 'dir' ? 1 : 2});
   },
   deleteItem(id: string, type: 'dir' | 'doc'): Promise<void> {
     return type === 'doc' ? request.post(`/dream/pen/article/delete/${id}`) : request.post(`/dream/pen/dFolder/delete`, {id});

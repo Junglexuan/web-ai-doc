@@ -45,7 +45,7 @@ const Component: FC<Props> = ({onCreated, editor}) => {
   });
 
   const closeMenu = useEvent((force?: boolean) => {
-    if (!force && (runningState === 'Pending' || runningState === 'Fulfilled')) {
+    if (runningState === 'Pending' || (runningState === 'Fulfilled' && !force)) {
       editor.blur();
       const dialog = document.getElementById('_ai_dialog');
       if (dialog) {

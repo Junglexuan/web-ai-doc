@@ -15,7 +15,7 @@ const Component: FC<Props> = ({aiRef, onRunningStateChange}) => {
 
   return (
     <AIBase title="总结网页" hooks={hooks}>
-      <AntInput ref={hooks.inputRef} placeholder="请输入网址..." />
+      <AntInput onSubmit={hooks.onPromptSubmit} ref={hooks.inputRef} placeholder="请输入网址..." />
     </AIBase>
   );
 };
