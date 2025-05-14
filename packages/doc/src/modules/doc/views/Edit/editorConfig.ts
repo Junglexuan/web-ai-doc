@@ -1,6 +1,9 @@
-import {IEditorConfig, IToolbarConfig, i18nGetResources, t} from '@wangeditor-next/editor';
+import {Boot, IEditorConfig, IToolbarConfig, SlateText, i18nGetResources} from '@wangeditor-next/editor';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import {VNode, h} from 'snabbdom';
 import {replaceBaseUrl} from '@/utils/request';
 import {getToken} from '@/utils/tools';
+import Review from './elements/Review';
 
 const resources = i18nGetResources('zh-CN');
 resources.justify.left = '居左对齐';
@@ -95,6 +98,9 @@ export const editorConfig: Partial<IEditorConfig> = {
         'clearStyle',
       ],
     },
+    review: {
+      menuKeys: ['applyReplace', 'unReplace'],
+    },
   },
   MENU_CONF: {
     fontFamily: {
@@ -171,3 +177,39 @@ export const editorConfig: Partial<IEditorConfig> = {
 //     console.log(items);
 //   });
 // }
+
+// Boot.registerRenderStyle((node, vnode) => {
+//   if (!SlateText.isText(node)) {
+//     return vnode;
+//   }
+//   const replace: string = (node as any).replace;
+//   if (replace) {
+//     if (!vnode.data!.props) {
+//       vnode.data!.props = {};
+//     }
+//     vnode.data!.props.title = replace;
+//     vnode.data!.props.className = `${vnode.data!.props.className || ''} w-e-replace`;
+//   }
+//   return vnode;
+// });
+// Boot.registerStyleToHtml((node, elemHtml: string) => {
+//   if (!SlateText.isText(node)) {
+//     return elemHtml;
+//   }
+//   const replace: string = (node as any).replace;
+//   if (replace) {
+//     return `<span data-replace="${replace}">${elemHtml}</span>`;
+//   }
+//   return elemHtml;
+// });
+// Boot.registerParseStyleHtml((elem, node, editor) => {
+//   if (!SlateText.isText(node)) {
+//     return node;
+//   }
+//   const replace = elem.getAttribute('data-replace');
+//   if (replace) {
+//     (node as any).replace = replace;
+//   }
+//   return node;
+// });
+Boot.registerModule(Review);

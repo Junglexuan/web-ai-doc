@@ -144,35 +144,20 @@ const createImage: AIRequest = ({args, onMessage, onError, onDone}) => {
   const controller = new AbortController();
   const {signal} = controller;
   const {docId, prompt} = args;
-  fetchEventSource(replaceBaseUrl('/dream/pen/ai/writer/makeImg'), {
-    method: 'POST',
-    headers: getHeaders(),
-    body: JSON.stringify({type: 'makeImg', conversation_id: docId, prompt}),
-    signal,
-    onmessage(ev) {
-      let result: string[] = [];
-      if (ev.data) {
-        try {
-          result = JSON.parse(ev.data);
-        } catch (e) {
-          result = [];
-        }
-      }
-      // onMessage(`<figure>${result.map((item) => '<div style="background-image:url(' + item + ')"></div>').join('')}</figure>`);
-      if (result.length) {
-        onMessage(
-          `<figure>${result
-            .map((item, index) => '<div class="' + (!index ? 'on' : '') + '" data-img="' + item + '"><img src="' + item + '" width="170" /></div>')
-            .join('')}</figure>`
-        );
-      }
+  request.post('/dream/pen/ai/writer/makeImg', {type: 'makeImg', conversation_id: docId, prompt}, {signal}).then(
+    (res) => {
+      const list: any[] = res.data.data || [];
+      onMessage(
+        `<figure>${list
+          .map((item, index) => '<div class="' + (!index ? 'on' : '') + '" data-img="' + item + '"><img src="' + item + '" width="170" /></div>')
+          .join('')}</figure>`
+      );
+      setTimeout(onDone);
     },
-    onerror: (e) => {
+    (e) => {
       setTimeout(() => onError(e));
-      throw e;
-    },
-    onclose: onDone,
-  });
+    }
+  );
   return controller;
 };
 
@@ -239,22 +224,51 @@ const web: AIRequest = ({args, onMessage, onError, onDone}) => {
   const controller = new AbortController();
   const {signal} = controller;
   const {docId, prompt} = args;
-  fetchEventSource(replaceBaseUrl('/dream/pen/ai/writer/summaryWeb'), {
-    method: 'POST',
-    headers: getHeaders(),
-    body: JSON.stringify({type: 'summaryWeb', conversation_id: docId, url: prompt}),
-    signal,
-    onmessage(ev) {
-      onMessage(decodeMessage(ev.data, true));
+  request.post('/dream/pen/ai/writer/summaryWeb', {type: 'summaryWeb', conversation_id: docId, url: prompt}, {signal}).then(
+    (res) => {
+      const content = res.data.data.content || '';
+      onMessage(marked.parse(content) as string);
+      setTimeout(onDone);
     },
-    onerror: (e) => {
+    (e) => {
       setTimeout(() => onError(e));
-      throw e;
-    },
-    onclose: onDone,
-  });
+    }
+  );
+  // fetchEventSource(replaceBaseUrl('/dream/pen/ai/writer/summaryWeb'), {
+  //   method: 'POST',
+  //   headers: getHeaders(),
+  //   body: JSON.stringify({type: 'summaryWeb', conversation_id: docId, url: prompt}),
+  //   signal,
+  //   onmessage(ev) {
+  //     onMessage(decodeMessage(ev.data, true));
+  //   },
+  //   onerror: (e) => {
+  //     setTimeout(() => onError(e));
+  //     throw e;
+  //   },
+  //   onclose: onDone,
+  // });
   return controller;
 };
+
+function proofread(docId: string, content: string, html: string): {controller: AbortController; result: Promise<{content: string; html: string}>} {
+  const controller = new AbortController();
+  const {signal} = controller;
+  return {
+    controller,
+    result: request
+      .post(
+        '/dream/pen/ai/writer/proofread',
+        {
+          conversation_id: docId,
+          content,
+          type: 'proofread',
+        },
+        {signal}
+      )
+      .then((res) => ({...res.data.data, html})),
+  };
+}
 
 export const AiAPI = {
   continueWrite,
@@ -262,6 +276,7 @@ export const AiAPI = {
   createOutline,
   createImage,
   stylize,
+  proofread,
   ask,
   web,
   async byTemplate(docId: string, content: string): Promise<string> {

@@ -7,6 +7,7 @@ import {easyEditUtil} from './util';
 
 interface IEasyEditRef {
   getValue: () => string;
+  focus: () => void;
 }
 
 const EasyEdit = forwardRef<IEasyEditRef, EasyEditProps>(({tpl, value, onChange, option}, ref): JSX.Element => {
@@ -172,7 +173,11 @@ const EasyEdit = forwardRef<IEasyEditRef, EasyEditProps>(({tpl, value, onChange,
     return currentValue?.text || '';
   });
 
-  useImperativeHandle(ref, () => ({getValue}));
+  const focus = useEvent(() => {
+    return editableRef.current?.focus();
+  });
+
+  useImperativeHandle(ref, () => ({getValue, focus}));
 
   return (
     <div className={`${styles.root} ${styles.content}`}>

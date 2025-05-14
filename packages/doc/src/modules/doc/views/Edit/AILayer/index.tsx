@@ -1,4 +1,5 @@
 import {IDomEditor} from '@wangeditor-next/editor';
+import {Button, Spin} from 'antd';
 import {FC, memo, useEffect, useMemo, useRef, useState} from 'react';
 import {addClass, debounce, message, removeClass, useEvent} from '@/utils/tools';
 import AIAsk from '../AIAsk';
@@ -10,7 +11,8 @@ import AIMenu, {MenuEvent, applicationTemplates, menuKeysMap, officialTemplates}
 import AIOutline from '../AIOutline';
 import AIStylize from '../AIStylize';
 import AIWeb from '../AIWeb';
-import {RunningState} from '../api';
+import api, {RunningState} from '../api';
+import {proofreadHtml} from '../utils';
 import styles from './index.module.less';
 import type {AIEvent} from '../utils';
 
@@ -73,6 +75,9 @@ const Component: FC<Props> = ({onCreated, editor}) => {
   });
 
   const insertHtmlByAI = useEvent((html: string) => {
+    if (!menuEvent?.selectionRange?.collapsed) {
+      editor.deleteFragment();
+    }
     editor.dangerouslyInsertHtml(html);
   });
 
@@ -94,6 +99,22 @@ const Component: FC<Props> = ({onCreated, editor}) => {
     editor.focus();
   });
 
+  const onProofreadSuccess = useEvent(({content, html}: {content: string; html: string}) => {
+    setRunningState('Fulfilled');
+    closeMenu(true);
+    if (content) {
+      const arr = JSON.parse(content);
+      const newHtml = proofreadHtml(html, arr);
+      console.log(newHtml);
+    }
+  });
+
+  const onProofreadError = useEvent((data: any) => {
+    console.log(data);
+    setRunningState('Rejected');
+    closeMenu(true);
+  });
+
   const onDocScroll = useEvent(() => {
     const selectionRange = menuEvent?.selectionRange;
     if (selMockRef.current && selectionRange && !selectionRange.collapsed) {
@@ -113,6 +134,22 @@ const Component: FC<Props> = ({onCreated, editor}) => {
     }
     if (aiEvent) {
       const aiKey = aiEvent.key;
+      //校阅
+      if (aiKey === 'X') {
+        const {controller, result} = api.proofread(aiRef.getDocId(), editor.getText(), editor.getHtml());
+        result.then(onProofreadSuccess, onProofreadError);
+        setRunningState('Pending');
+        return (
+          <div className={styles.dialog}>
+            <Spin />
+            <div className="info">正在校阅</div>
+            <Button size="small" onClick={() => controller.abort()}>
+              取消
+            </Button>
+          </div>
+        );
+        //setGlobalLoading(api.proofread(aiRef.getDocId(), editor.getText()), GetClientRouter().getActivePage().store);
+      }
       if (aiKey === 'A') {
         return (
           <AIDialog event={aiEvent}>

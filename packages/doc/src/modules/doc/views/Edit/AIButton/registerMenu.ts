@@ -1,4 +1,4 @@
-import {Boot, IButtonMenu, IDomEditor, SlateNode} from '@wangeditor-next/editor';
+import {Boot, IButtonMenu, IDomEditor} from '@wangeditor-next/editor';
 
 class AIMenu implements IButtonMenu {
   title: string;

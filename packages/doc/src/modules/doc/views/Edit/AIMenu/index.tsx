@@ -7,6 +7,7 @@ import {
   MenuUnfoldOutlined,
   MessageOutlined,
   PictureOutlined,
+  ReadOutlined,
 } from '@ant-design/icons';
 import {IDomEditor, SlateEditor, SlateTransforms} from '@wangeditor-next/editor';
 import {Menu} from 'antd';
@@ -433,16 +434,16 @@ const originItems: MenuItem[] = [
       </span>
     ),
   },
-  // {
-  //   key: 'X',
-  //   icon: <ReadOutlined />,
-  //   title: '校阅',
-  //   label: (
-  //     <span>
-  //       <sub>(X)</sub>校阅
-  //     </span>
-  //   ),
-  // },
+  {
+    key: 'X',
+    icon: <ReadOutlined />,
+    title: '校阅',
+    label: (
+      <span>
+        <sub>(X)</sub>校阅
+      </span>
+    ),
+  },
   {
     key: 'P',
     icon: <PictureOutlined />,
@@ -590,6 +591,10 @@ const Component: FC<Props> = (props) => {
 
   const onSelect = useEvent((key: string) => {
     const editor = event.editor;
+    if (key === 'X') {
+      props.onSelect({key} as any);
+      return;
+    }
     editor.focus();
     const selection = editor.selection;
     if (selection) {

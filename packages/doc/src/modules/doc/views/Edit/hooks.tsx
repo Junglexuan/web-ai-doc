@@ -55,7 +55,6 @@ export function useAIDialog(
         scroller.scrollTo({top: 999999999});
       },
       onError: (e) => {
-        console.log(e);
         setRunningState('Rejected');
         onRunningStateChange('Rejected');
       },

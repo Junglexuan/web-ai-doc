@@ -24,17 +24,14 @@ const Component: FC<Props> = ({aiRef, onRunningStateChange}) => {
         option={{
           content: {
             placeholder: '输入主题描述',
-            data: [
-              {label: '晨雾翠绿的草地上一只毛茸茸的黄色小狗', key: '晨雾翠绿的草地上一只毛茸茸的黄色小狗'},
-              {label: '粉红色的城堡中一个穿着红色连衣裙的小女孩', key: '粉红色的城堡中一个穿着红色连衣裙的小女孩'},
-              {label: '山水画般的山谷里一只黑白相间的小熊猫', key: '山水画般的山谷里一只黑白相间的小熊猫'},
-            ],
+            data: [],
           },
           styles: {
             placeholder: '输入或选择风格',
             data: [
               {label: '默认', key: '默认'},
               {label: '摄影', key: '摄影'},
+              {label: '科技', key: '科技'},
               {label: '人像写真', key: '人像写真'},
               {label: '3D卡通', key: '3D卡通'},
               {label: '动画', key: '动画'},

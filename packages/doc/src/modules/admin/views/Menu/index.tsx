@@ -46,11 +46,11 @@ const items: any[] = [
     ),
     type: 'group',
   },
-  {
-    key: '知识管理',
-    icon: <AlignCenterOutlined />,
-    label: '知识管理',
-  },
+  // {
+  //   key: '知识管理',
+  //   icon: <AlignCenterOutlined />,
+  //   label: '知识管理',
+  // },
   {
     key: '模版管理',
     icon: <DatabaseOutlined />,

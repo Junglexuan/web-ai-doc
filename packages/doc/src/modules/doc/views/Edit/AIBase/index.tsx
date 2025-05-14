@@ -1,4 +1,4 @@
-import {CheckOutlined, DeleteOutlined, EditOutlined, PauseCircleOutlined, QuestionCircleFilled, SyncOutlined} from '@ant-design/icons';
+import {CheckOutlined, DeleteOutlined, EditOutlined, PauseCircleOutlined, SyncOutlined} from '@ant-design/icons';
 import {Button, Space, Spin} from 'antd';
 import {FC, ReactElement, memo, useCallback, useEffect, useMemo, useRef} from 'react';
 import AdjustIcon from '@/assets/images/Adjust';
@@ -94,8 +94,8 @@ const Component: FC<Props> = ({title, children, hooks, automatic, hideButton}) =
             弃用
           </Button>
         </Space>
-        <div>
-          <span style={{color: '#aaa', fontSize: '12px'}}>* 回车直接提交，shift+回车可换行，esc键可关闭</span>
+        <div className="prompt">
+          <div style={{color: '#aaa', fontSize: '12px'}}>* 回车直接提交，shift+回车可换行，esc键可关闭</div>
           {/* <QuestionCircleFilled style={{color: '#aaa', cursor: 'pointer'}} /> */}
         </div>
       </div>
