@@ -13,6 +13,22 @@ function withReview<T extends IDomEditor>(editor: T): T {
     return isInline(elem);
   };
 
+  newEditor.normalizeNode = ([node, path]) => {
+    const type = DomEditor.getNodeType(node);
+    if (type !== 'review') {
+      // 未命中 link ，执行默认的 normalizeNode
+      return normalizeNode([node, path]);
+    }
+
+    // 如果链接内容为空，则删除
+    const str = Node.string(node);
+    if (str === '') {
+      return Transforms.removeNodes(newEditor, {at: path});
+    }
+
+    return normalizeNode([node, path]);
+  };
+
   return newEditor;
 }
 

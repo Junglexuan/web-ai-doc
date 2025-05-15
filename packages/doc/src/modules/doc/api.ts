@@ -18,8 +18,8 @@ export const DocAPI = {
   createDir({folder}: {folder: string}): Promise<{id: string}> {
     return request.post(`/dream/pen/dFolder/save`, {folderName: `新建文件夹`, parent: folder}).then((res) => res.data.data);
   },
-  saveDSL(id: string, dsl: string, html: string): Promise<void> {
-    return request.post(`/dream/pen/article/save`, {id, contents: html, articleDsl: dsl});
+  saveDSL(id: string, dsl: string, html: string, text: string): Promise<void> {
+    return request.post(`/dream/pen/article/save`, {id, contents: html, articleDsl: dsl, articleCount: text.length});
   },
   updateDocName(id: string, title: string): Promise<void> {
     return request.post(`/dream/pen/article/save`, {id, title});

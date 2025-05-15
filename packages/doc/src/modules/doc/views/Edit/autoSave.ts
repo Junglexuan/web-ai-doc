@@ -45,7 +45,7 @@ export class SaveMgr extends SimpleDispatcher<{loading: boolean}> {
       this.sending = this.toBeSent;
       this.toBeSent = undefined;
       this.dispatch('loading', true);
-      DocAPI.saveDSL(this.sending.id, this.sending.dsl, this.sending.html).then(
+      DocAPI.saveDSL(this.sending.id, this.sending.dsl, this.sending.html, this.sending.text).then(
         () => {
           this.sending = undefined;
           setTimeout(this.checkNext, this.cycleTime);

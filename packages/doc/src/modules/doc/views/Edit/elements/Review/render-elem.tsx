@@ -4,14 +4,14 @@ import {VNode, datasetModule, h} from 'snabbdom';
 import {ReviewElement} from './custom-types';
 
 function renderElem(elem: SlateElement, children: VNode[] | null, editor: IDomEditor): VNode {
-  const {reason, target, source} = elem as ReviewElement;
-  const selected = DomEditor.isNodeSelected(editor, elem);
+  //const {reason, target, source} = elem as ReviewElement;
+  //const selected = DomEditor.isNodeSelected(editor, elem);
   const vnode = h(
     'span',
     {
       props: {
         className: 'w-e-review',
-        // contentEditable: false,
+        contentEditable: false,
         // title: reason,
       },
       // style: {

@@ -27,6 +27,7 @@ import {SaveMgr} from './autoSave';
 import {editorConfig, toolbarConfig} from './editorConfig';
 import styles from './index.module.less';
 import Outline from './Outline';
+import Review from './Review';
 import type {ISource} from './autoSave';
 
 interface Props {
@@ -246,6 +247,7 @@ const Component: FC<Props> = ({itemDetail}) => {
         </div>
         <div className="ft">
           {editor && <Outline editor={editor} />}
+          {editor && <Review editor={editor} />}
           <span className="count">{source.text ? source.text.replace(/\n|\r/gm, '').length : ''}个字</span>
         </div>
       </div>

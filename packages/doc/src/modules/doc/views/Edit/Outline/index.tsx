@@ -1,7 +1,7 @@
 import {CloseOutlined, PicRightOutlined} from '@ant-design/icons';
-import {Boot, IButtonMenu, IDomEditor, SlateNode} from '@wangeditor-next/editor';
+import {IDomEditor, SlateNode} from '@wangeditor-next/editor';
 import {Button} from 'antd';
-import {FC, ReactNode, memo, useEffect, useMemo, useRef, useState} from 'react';
+import {FC, memo, useEffect, useState} from 'react';
 import {useEvent} from '@/utils/tools';
 import styles from './index.module.less';
 interface Props {
@@ -23,18 +23,29 @@ const Component: FC<Props> = ({editor}) => {
     //editor.scrollToElem(id);
   });
 
+  const onDocChange = useEvent(() => {
+    if (!show) {
+      return;
+    }
+    const headers = editor.getElemsByTypePrefix('header') || [];
+    setHeaders(
+      headers.map((header: any) => {
+        const text = SlateNode.string(header);
+        const {id, type} = header;
+        return {id, type, text};
+      })
+    );
+  });
+
   useEffect(() => {
-    editor.on('change', () => {
-      const headers = editor.getElemsByTypePrefix('header') || [];
-      setHeaders(
-        headers.map((header: any) => {
-          const text = SlateNode.string(header);
-          const {id, type} = header;
-          return {id, type, text};
-        })
-      );
-    });
-  }, [editor]);
+    onDocChange();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [show]);
+
+  useEffect(() => {
+    editor.on('change', onDocChange);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <>

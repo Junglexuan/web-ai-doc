@@ -99,7 +99,7 @@ export const editorConfig: Partial<IEditorConfig> = {
       ],
     },
     review: {
-      menuKeys: ['applyReplace', 'unReplace'],
+      menuKeys: ['applyReplace', 'unReplace', 'reviewList'],
     },
   },
   MENU_CONF: {
