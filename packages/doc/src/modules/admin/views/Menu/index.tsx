@@ -54,7 +54,11 @@ const items: any[] = [
   {
     key: '模版管理',
     icon: <DatabaseOutlined />,
-    label: '模版管理',
+    label: (
+      <Link to="/admin/doc/list/tpls" action="relaunch" target="window">
+        模版管理
+      </Link>
+    ),
   },
 ];
 
@@ -69,6 +73,9 @@ const Component: FC<{}> = () => {
     }
     if (pathname.startsWith('/admin/doc/list/recs')) {
       return ['回收站'];
+    }
+    if (pathname.startsWith('/admin/doc/list/tpls')) {
+      return ['模版管理'];
     }
     if (pathname.startsWith('/admin/home')) {
       return ['首页'];
@@ -87,9 +94,6 @@ const Component: FC<{}> = () => {
       DocAPI.createDoc({folder: '0', title: '', contents: ''})
         .then(({id}) => {
           GetClientRouter().push({url: `/admin/doc/item/edit/${id}?__c=_dialog`}, 'window');
-        })
-        .catch((e) => {
-          message.error(e + '');
         })
         .finally(() => setLoading(''));
     }

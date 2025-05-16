@@ -7,6 +7,7 @@ import Edit from './Edit';
 import Favs from './Favs';
 import Maintain from './Maintain';
 import Recs from './Recs';
+import Tpls from './Tpls';
 
 export interface StoreProps {
   curView?: CurView;
@@ -34,6 +35,9 @@ const Component: FC<StoreProps & {dispatch: Dispatch}> = ({curView, curRender, i
       {curView === 'list' &&
         curRender === 'recs' &&
         (listSummary ? <Recs dispatch={dispatch} listSearch={listSearch!} list={list!} listSummary={listSummary!} /> : <div></div>)}
+      {curView === 'list' &&
+        curRender === 'tpls' &&
+        (listSummary ? <Tpls dispatch={dispatch} listSearch={listSearch!} list={list!} listSummary={listSummary!} /> : <div></div>)}
       {curView === 'item' && (itemDetail ? <Edit itemDetail={itemDetail} /> : <div></div>)}
     </Switch>
   );

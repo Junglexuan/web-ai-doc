@@ -31,13 +31,9 @@ const Component: FC = () => {
     setHotTemplateList(_templateList);
   });
   const onCreateByTpl = useEvent(async (item: HotTemplate) => {
-    DocAPI.createDoc({folder: '0', title: item.name, contents: item.contents})
-      .then(({id}) => {
-        GetClientRouter().push({url: `/admin/doc/item/edit/${id}?__c=_dialog`}, 'window');
-      })
-      .catch((e) => {
-        message.error(e + '');
-      });
+    DocAPI.createDoc(item.id).then(({id}) => {
+      GetClientRouter().push({url: `/admin/doc/item/edit/${id}?__c=_dialog`}, 'window');
+    });
   });
   const renderHotArticle = useMemo(() => {
     // 获取最近创作的项目
@@ -70,8 +66,8 @@ const Component: FC = () => {
         {hotTemplateList.map((item, index) => (
           <div key={index} className="creation-item" onClick={() => onCreateByTpl(item)}>
             <div className="icon-title">
-              <div className="icon">{item.name.charAt(0)}</div>
-              <div className="title">{item.name}</div>
+              <div className="icon">{item.title.charAt(0)}</div>
+              <div className="title">{item.title}</div>
             </div>
             <div className="description" title={item.remark}>
               {item.remark}

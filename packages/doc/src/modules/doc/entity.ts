@@ -1,7 +1,7 @@
 import {BaseCurRender, BaseCurView, BaseListItem, BaseListSearch, BaseListSummary} from '@/utils/resource';
 
 export type CurView = BaseCurView;
-export type CurRender = BaseCurRender | 'favs' | 'recs';
+export type CurRender = BaseCurRender | 'favs' | 'recs' | 'tpls';
 
 export interface ListSearch extends BaseListSearch {
   render?: CurRender;
@@ -18,7 +18,11 @@ export interface ListItem extends BaseListItem {
   articleSize: number;
   updateDate: string;
   createUserName: string;
+  createDate: string;
   collect: number;
+  remark?: string;
+  isShare?: boolean;
+  isSystem?: boolean;
 }
 export interface ListSummary extends BaseListSummary {
   levelPath: {id: string; folderName: string; parent: string}[];
@@ -41,6 +45,7 @@ export interface ItemDetail {
   createDate: string;
   articleCount: number;
   levelPath: {id: string; folderName: string; parent: string}[];
+  isTpl?: boolean;
 }
 export interface EditItem extends BaseListItem {}
 

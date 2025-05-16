@@ -105,9 +105,6 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
           .then(() => {
             refreshList();
           })
-          .catch((e) => {
-            message.error(e + '');
-          })
           .finally(() => setLoading(''));
       }
     });

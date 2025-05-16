@@ -9,7 +9,7 @@ export interface HotArticle {
   levelPath: string; //文章路径
 }
 export interface HotTemplate {
-  name: string; //模板名称
+  title: string; //模板名称
   remark: string; //备注
   contents: string;
   isShare: number;

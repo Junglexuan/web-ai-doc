@@ -41,6 +41,7 @@ const Component: FC<Props> = ({itemDetail}) => {
   const [source, setSource] = useState<ISource>({id: itemDetail.id, dsl: itemDetail.articleDsl, html: itemDetail.contents, text: ''});
   const [autoSave] = useState(() => new SaveMgr());
   const [saving, setSaving] = useState(false);
+  const [loading, setLoading] = useState<'create' | ''>('');
 
   const onSave = useEvent((editor: IDomEditor) => {
     //JSON.stringify(editor.children, null, 2)
@@ -76,13 +77,12 @@ const Component: FC<Props> = ({itemDetail}) => {
   });
 
   const onCreatDoc = useEvent(() => {
-    DocAPI.createDoc({folder: itemDetail.folder, title: '', contents: ''})
+    setLoading('create');
+    DocAPI.createDoc(itemDetail.isTpl ? itemDetail.id : {folder: itemDetail.folder, title: '', contents: ''})
       .then(({id}) => {
         window.open(toNativeUrl(`/admin/doc/item/edit/${id}?__c=_dialog`));
       })
-      .catch((e) => {
-        message.error(e + '');
-      });
+      .finally(() => setLoading(''));
   });
 
   const onCreated = useEvent((editor: IDomEditor) => {
@@ -117,6 +117,38 @@ const Component: FC<Props> = ({itemDetail}) => {
   });
 
   const breadcrumb = useMemo(() => {
+    if (itemDetail.isTpl) {
+      return (
+        <Breadcrumb
+          items={[
+            {
+              title: (
+                <Link to="/admin/doc/list/tpls" action="relaunch" target="window">
+                  模版管理
+                </Link>
+              ),
+            },
+            {
+              title: (
+                <>
+                  <span>{docTitle}</span>
+                  {!collect ? (
+                    <StarOutlined
+                      className="anticon-star-outline"
+                      onClick={() => DocAPI.collectItem(itemDetail.id, itemDetail.isTpl ? 'tpl' : 'doc', true).then(() => setCollect(1))}
+                    />
+                  ) : (
+                    <StarFilled
+                      onClick={() => DocAPI.collectItem(itemDetail.id, itemDetail.isTpl ? 'tpl' : 'doc', false).then(() => setCollect(0))}
+                    />
+                  )}
+                </>
+              ),
+            },
+          ]}
+        />
+      );
+    }
     const arr = itemDetail.levelPath.map((item) => ({
       title: (
         <Link to={`/admin/doc/list/maintain?id=${item.id}`} action="relaunch" target="window">
@@ -164,36 +196,38 @@ const Component: FC<Props> = ({itemDetail}) => {
         <div className="hd">
           <Space size="large">
             <HomeOutlined className="icon-link" onClick={() => GetClientRouter().relaunch({url: `/admin/home`}, 'window')} />
-            <PlusOutlined className="icon-link" onClick={onCreatDoc} title="新建文档" />
-            <Dropdown
-              menu={{
-                onClick: ({key}: {key: string}) => {
-                  if (key === '下载Word') {
-                    setGlobalLoading(
-                      downloadFile(replaceBaseUrl(`/dream/pen/article/down?id=${itemDetail.id}&type=word`), itemDetail.title),
-                      GetClientRouter().getActivePage().store
-                    );
-                  } else if (key === '下载PDF') {
-                    setGlobalLoading(
-                      downloadFile(replaceBaseUrl(`/dream/pen/article/down?id=${itemDetail.id}&type=pdf`), itemDetail.title),
-                      GetClientRouter().getActivePage().store
-                    );
-                  }
-                },
-                items: [
-                  {
-                    key: '下载Word',
-                    label: '下载Word',
+            {loading === 'create' ? <Spin size="small" /> : <PlusOutlined className="icon-link" onClick={onCreatDoc} title="新建文档" />}
+            {!itemDetail.isTpl && (
+              <Dropdown
+                menu={{
+                  onClick: ({key}: {key: string}) => {
+                    if (key === '下载Word') {
+                      setGlobalLoading(
+                        downloadFile(replaceBaseUrl(`/dream/pen/article/down?id=${itemDetail.id}&type=word`), itemDetail.title),
+                        GetClientRouter().getActivePage().store
+                      );
+                    } else if (key === '下载PDF') {
+                      setGlobalLoading(
+                        downloadFile(replaceBaseUrl(`/dream/pen/article/down?id=${itemDetail.id}&type=pdf`), itemDetail.title),
+                        GetClientRouter().getActivePage().store
+                      );
+                    }
                   },
-                  {
-                    key: '下载PDF',
-                    label: '下载PDF',
-                  },
-                ],
-              }}
-            >
-              <MenuOutlined className="icon-link" />
-            </Dropdown>
+                  items: [
+                    {
+                      key: '下载Word',
+                      label: '下载Word',
+                    },
+                    {
+                      key: '下载PDF',
+                      label: '下载PDF',
+                    },
+                  ],
+                }}
+              >
+                <MenuOutlined className="icon-link" />
+              </Dropdown>
+            )}
             {breadcrumb}
           </Space>
           <Space>

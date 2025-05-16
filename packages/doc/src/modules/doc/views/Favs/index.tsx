@@ -185,9 +185,6 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
             setSelectedRows({ids: [], rows: []});
             refreshList();
           })
-          .catch((e) => {
-            message.error(e + '');
-          })
           .finally(() => setLoading(''));
       }
     });

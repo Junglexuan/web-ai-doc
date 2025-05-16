@@ -223,9 +223,6 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
           GetClientRouter().push({url: `/admin/doc/item/edit/${id}?__c=_dialog`}, singleWindow);
         }
       })
-      .catch((e) => {
-        message.error(e + '');
-      })
       .finally(() => setLoading(''));
   });
 
@@ -235,9 +232,6 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
       .then(() => {
         setSelectedRows({ids: [], rows: []});
         refreshList();
-      })
-      .catch((e) => {
-        message.error(e + '');
       })
       .finally(() => setLoading(''));
   });
@@ -250,9 +244,6 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
           .then(() => {
             setSelectedRows({ids: [], rows: []});
             refreshList();
-          })
-          .catch((e) => {
-            message.error(e + '');
           })
           .finally(() => setLoading(''));
       }

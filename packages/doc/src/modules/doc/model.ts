@@ -71,7 +71,7 @@ export class Model extends BaseModel<ModuleState, APPState> {
     if (curView === 'list') {
       this.dispatch(this.actions.fetchList({...listSearch, render: curRender}));
     } else if (curView === 'item') {
-      this.dispatch(this.actions.fetchItem(itemId || ''));
+      this.dispatch(this.actions.fetchItem(itemId || '', curRender));
     }
   }
 
@@ -93,8 +93,8 @@ export class Model extends BaseModel<ModuleState, APPState> {
   }
 
   @effect()
-  public async fetchItem(itemId: string): Promise<void> {
-    const item = await DocAPI.getDoc({id: itemId});
+  public async fetchItem(itemId: string, render?: CurRender): Promise<void> {
+    const item = await DocAPI.getDoc({id: itemId, render});
     this.dispatch(this.actions.putCurrentItem(itemId, item));
   }
 }

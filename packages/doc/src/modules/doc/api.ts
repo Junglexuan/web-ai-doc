@@ -1,22 +1,40 @@
 import dayjs from 'dayjs';
 import request from '@/utils/request';
 import {mapTree} from '@/utils/tools';
-import {ItemDetail, ListItem, ListResult, ListSearch} from './entity';
+import {CurRender, ItemDetail, ListItem, ListResult, ListSearch} from './entity';
 
 export const DocAPI = {
-  createDoc({title, contents, folder}: {title: string; contents: string; folder: string}): Promise<{id: string}> {
-    contents = contents || '<p style="line-height: 1.5;"><span style="font-size: 16px; font-family: 黑体;"></span></p>';
-    return request
-      .post(`/dream/pen/article/save`, {
-        title: title || '新建文档',
-        articleDsl: '',
-        contents,
-        folder,
-      })
-      .then((res) => res.data.data);
+  createDoc(data: string | {title: string; contents: string; folder: string}): Promise<{id: string}> {
+    if (typeof data === 'string') {
+      return request.post(`/dream/pen/template/createArticle`, {id: data}).then((res) => res.data.data);
+    } else {
+      const {title, folder} = data;
+      const contents = data.contents || '<p style="line-height: 1.5;"><span style="font-size: 16px; font-family: 黑体;"></span></p>';
+      return request
+        .post(`/dream/pen/article/save`, {
+          title: title || '新建文档',
+          articleDsl: '',
+          contents,
+          folder,
+        })
+        .then((res) => res.data.data);
+    }
   },
   createDir({folder}: {folder: string}): Promise<{id: string}> {
     return request.post(`/dream/pen/dFolder/save`, {folderName: `新建文件夹`, parent: folder}).then((res) => res.data.data);
+  },
+  saveTpl(data: {id: string; title: string; remark: string}): Promise<{id: string}> {
+    return request
+      .post(`/dream/pen/template/save`, {
+        id: data.id || undefined,
+        title: data.title,
+        contents: '<p style="line-height: 1.5;"><span style="font-size: 16px; font-family: 黑体;"></span></p>',
+        remark: data.remark,
+      })
+      .then((res) => res.data.data);
+  },
+  deleteTpl(id: string): Promise<void> {
+    return request.post(`/dream/pen/template/delete/${id}`);
   },
   saveDSL(id: string, dsl: string, html: string, text: string): Promise<void> {
     return request.post(`/dream/pen/article/save`, {id, contents: html, articleDsl: dsl, articleCount: text.length});
@@ -51,12 +69,14 @@ export const DocAPI = {
   moveItem(id: string, type: 'dir' | 'doc', targetFolder: string): Promise<void> {
     return request.post('/dream/pen/dFolder/move', {original: id, targetFolder, type: type === 'dir' ? 1 : 2});
   },
-  collectItem(id: string, type: 'dir' | 'doc', checked: boolean): Promise<void> {
+  collectItem(id: string, type: 'dir' | 'doc' | 'tpl', checked: boolean): Promise<void> {
     return request.post(type === 'doc' ? `/dream/pen/article/collect` : '', {id, type: checked});
   },
-  getDoc({id}: {id: string}): Promise<ItemDetail> {
-    return request.get(`/dream/pen/article/get`, {params: {id}}).then((docRes) => {
+  getDoc({id, render}: {id: string; render?: CurRender}): Promise<ItemDetail> {
+    const isTpl = render === 'tpl';
+    return request.get(isTpl ? '/dream/pen/template/get' : '/dream/pen/article/get', {params: {id}}).then((docRes) => {
       const item: ItemDetail = docRes.data.data;
+      item.isTpl = isTpl;
       return item;
     });
   },
@@ -71,17 +91,21 @@ export const DocAPI = {
         ? request.get(`/dream/pen/recycle/list`, {
             params: {title: name, order: sorterOrder === 'ascend' ? 'asc' : undefined, page: 1, pageSize: 99999},
           })
+        : render === 'tpls'
+        ? request.get(`/dream/pen/template/list`, {
+            params: {title: name, order: sorterOrder === 'ascend' ? 'asc' : undefined, page: 1, pageSize: 99999},
+          })
         : request.get(`/dream/pen/dFolder/list`, {params: {id, name, order: sorterOrder === 'ascend' ? 'asc' : undefined}}),
-      request.get(`/dream/pen/dFolder/level`, {params: {id}}),
-      request.get(`/dream/pen/dFolder/tree`),
+      render === 'maintain' ? request.get(`/dream/pen/dFolder/level`, {params: {id}}) : ({} as any),
+      render === 'maintain' ? request.get(`/dream/pen/dFolder/tree`) : ({} as any),
     ]).then(([listRes, levelRes, dirTreeRes]) => {
       const list: ListItem[] = (render === 'favs' ? listRes.data.data.data : listRes.data.data) || [];
-      const dirTree = dirTreeRes.data.data || [];
+      const dirTree = dirTreeRes.data?.data || [];
       return {
         list: list.map((item) => {
-          item.type = item.articleId || render === 'favs' ? 'doc' : 'dir';
+          item.type = item.articleId || render === 'favs' || render === 'tpls' ? 'doc' : 'dir';
           item.id = item.articleId || item.folderId || item.id;
-          item.title = item.title || item.folderName;
+          item.title = item.title || item.folderName || (item as any).name;
           item.updateDate = item.updateDate ? dayjs(item.updateDate).format('YYYY-MM-DD HH:mm:ss') : '';
           item.createUserName = item.createUserName || '';
           item.collect = render === 'favs' ? 1 : item.collect;
@@ -91,7 +115,7 @@ export const DocAPI = {
           pageCurrent: 1,
           pageSize: 999999,
           totalItems: list.length,
-          levelPath: levelRes.data.data || [],
+          levelPath: levelRes.data?.data || [],
           dirTree: [{title: '我的文档', key: '0', children: mapTree<any, any>(dirTree, (item) => ({title: item.name, key: item.id}))}],
         },
       };
