@@ -10,12 +10,22 @@ interface IEasyEditRef {
   focus: () => void;
 }
 
-const EasyEdit = forwardRef<IEasyEditRef, EasyEditProps>(({tpl, value, onChange, option}, ref): JSX.Element => {
+const EasyEdit = forwardRef<IEasyEditRef, EasyEditProps>(({tpl, value, onChange, option, onSubmit}, ref): JSX.Element => {
   const editableRef = useRef<HTMLDivElement>(null);
   const [templateList, setTemplateList] = useState<tplValue[]>([]);
   const [currentValue, setCurrentValue] = useState<ValueData | undefined>(undefined);
   const selectionRef = useRef<{start: number; end: number} | null>(null);
   const isComposingRef = useRef(false);
+
+  const onkeydown = useEvent((e: any) => {
+    const {code} = e;
+    if (code === 'Enter') {
+      if (!e.shiftKey) {
+        e.preventDefault();
+        onSubmit();
+      }
+    }
+  });
 
   // 解析模板字符串
   useEffect(() => {
@@ -174,7 +184,17 @@ const EasyEdit = forwardRef<IEasyEditRef, EasyEditProps>(({tpl, value, onChange,
   });
 
   const focus = useEvent(() => {
-    return editableRef.current?.focus();
+    setTimeout(() => {
+      const input1 = editableRef.current!.querySelector('span[data-id="text_1"]') as HTMLElement;
+      if (input1) {
+        const range = document.createRange();
+        range.setStart(input1, 1);
+        range.collapse();
+        const selection = window.getSelection()!;
+        selection.removeAllRanges();
+        selection.addRange(range);
+      }
+    });
   });
 
   useImperativeHandle(ref, () => ({getValue, focus}));
@@ -183,6 +203,7 @@ const EasyEdit = forwardRef<IEasyEditRef, EasyEditProps>(({tpl, value, onChange,
     <div className={`${styles.root} ${styles.content}`}>
       <div
         ref={editableRef}
+        onKeyDown={onkeydown}
         onInput={() => handleInput()}
         onCompositionStart={() => (isComposingRef.current = true)}
         onCompositionEnd={() => {

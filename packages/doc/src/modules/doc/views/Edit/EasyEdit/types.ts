@@ -32,6 +32,7 @@ export interface EasyEditProps {
    * @returns void
    */
   onChange?: (value: ValueData) => void;
+  onSubmit: () => void;
 }
 
 export interface TemplateItem {

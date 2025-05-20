@@ -21,6 +21,7 @@ const Component: FC<Props> = ({aiRef, onRunningStateChange}) => {
         tpl="生成图片：${content}，风格为${styles}，大小为${size}"
         value={tplValue}
         onChange={setTplvalue}
+        onSubmit={hooks.onPromptSubmit}
         option={{
           content: {
             placeholder: '输入主题描述',
