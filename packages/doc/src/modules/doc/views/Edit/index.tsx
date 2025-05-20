@@ -14,6 +14,8 @@ import {Editor, Toolbar} from '@wangeditor-next/editor-for-react';
 import {Breadcrumb, Button, Dropdown, Space, Spin} from 'antd';
 import dayjs from 'dayjs';
 import {FC, memo, useEffect, useMemo, useState} from 'react';
+import Redo from '@/assets/images/Redo';
+import Undo from '@/assets/images/Undo';
 import BlurInput from '@/components/BlurInput';
 import DialogPage from '@/components/DialogPage';
 import {GetClientRouter} from '@/Global';
@@ -230,7 +232,7 @@ const Component: FC<Props> = ({itemDetail}) => {
             )}
             {breadcrumb}
           </Space>
-          <Space>
+          <Space align="center">
             <span style={{fontSize: 12, color: '#B9BABB'}}>所有内容都会自动保存到云端</span>
             {saving ? (
               <span id="_ai_saving">
@@ -239,6 +241,8 @@ const Component: FC<Props> = ({itemDetail}) => {
             ) : (
               <CloudUploadOutlined style={{color: '#B9BABB'}} />
             )}
+            <Undo className="undo" onClick={() => editor?.undo!()} />
+            <Redo className="undo" onClick={() => editor?.redo!()} />
             <Button type="primary" style={{marginLeft: '10px'}}>
               分享
             </Button>
