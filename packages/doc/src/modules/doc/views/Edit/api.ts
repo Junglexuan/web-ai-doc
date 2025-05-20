@@ -9,12 +9,15 @@ export type RunningState = '' | 'Pending' | 'Rejected' | 'Fulfilled';
 export interface AIRequest {
   (data: {
     args: {
+      sid: string;
       docId: string;
       prompt: string;
       context: string;
+      previous: string;
+      raw: string;
       [key: string]: string;
     };
-    onMessage: (html: string) => void;
+    onMessage: (data: {html: string; raw: string}) => void;
     onError: (e: any) => void;
     onDone: () => void;
   }): AbortController;
@@ -63,9 +66,14 @@ function decodeMessage(str: string, markdown?: boolean): string {
 function decodeMarkdown() {
   let markdown = '';
   return (str: string) => {
+    try {
+      const item = JSON.parse(str);
+      str = item.content;
+    } catch (error) {
+      str = '';
+    }
     markdown += str;
-    console.log(markdown);
-    return marked.parse(markdown) as string;
+    return {html: marked.parse(markdown) as string, raw: markdown};
   };
 }
 
@@ -78,19 +86,22 @@ function getHeaders() {
 const continueWrite: AIRequest = ({args, onMessage, onError, onDone}) => {
   const controller = new AbortController();
   const {signal} = controller;
-  const {docId, prompt, context} = args;
+  const {sid, docId, prompt, context, previous} = args;
+  const markdown = decodeMarkdown();
   fetchEventSource(replaceBaseUrl('/dream/pen/ai/writer/continued'), {
     method: 'POST',
     headers: getHeaders(),
     body: JSON.stringify({
       type: 'continued',
       continuedType: 'paragraph',
-      conversation_id: docId,
+      articleId: docId,
+      conversation_id: sid,
       prompt,
       content: context.substring(context.length - 100),
+      previous: previous || undefined,
     }),
     signal,
-    onmessage: (ev) => onMessage(decodeMessage(ev.data)),
+    onmessage: (ev) => onMessage(markdown(ev.data)),
     onerror: (e) => {
       setTimeout(() => onError(e));
       throw e;
@@ -103,13 +114,15 @@ const continueWrite: AIRequest = ({args, onMessage, onError, onDone}) => {
 const createFullText: AIRequest = ({args, onMessage, onError, onDone}) => {
   const controller = new AbortController();
   const {signal} = controller;
-  const {docId, prompt} = args;
+  const {sid, docId, prompt, previous} = args;
+  const markdown = decodeMarkdown();
   fetchEventSource(replaceBaseUrl('/dream/pen/ai/writer/fullText'), {
     method: 'POST',
     headers: getHeaders(),
-    body: JSON.stringify({type: 'fullText', conversation_id: docId, prompt}),
+    body: JSON.stringify({type: 'fullText', articleId: docId, conversation_id: sid, prompt, previous: previous || undefined}),
     signal,
-    onmessage: (ev) => onMessage(decodeMessage(ev.data)),
+    openWhenHidden: true,
+    onmessage: (ev) => onMessage(markdown(ev.data)),
     onerror: (e) => {
       setTimeout(() => onError(e));
       throw e;
@@ -122,15 +135,14 @@ const createFullText: AIRequest = ({args, onMessage, onError, onDone}) => {
 const createOutline: AIRequest = ({args, onMessage, onError, onDone}) => {
   const controller = new AbortController();
   const {signal} = controller;
-  const {docId, prompt} = args;
+  const {sid, docId, prompt, raw} = args;
+  const markdown = decodeMarkdown();
   fetchEventSource(replaceBaseUrl('/dream/pen/ai/writer/outline'), {
     method: 'POST',
     headers: getHeaders(),
-    body: JSON.stringify({type: 'outline', conversation_id: docId, prompt}),
+    body: JSON.stringify({type: 'outline', articleId: docId, conversation_id: sid, prompt, previous: raw || undefined}),
     signal,
-    onmessage(ev) {
-      onMessage(decodeMessage(ev.data));
-    },
+    onmessage: (ev) => onMessage(markdown(ev.data)),
     onerror: (e) => {
       setTimeout(() => onError(e));
       throw e;
@@ -143,15 +155,16 @@ const createOutline: AIRequest = ({args, onMessage, onError, onDone}) => {
 const createImage: AIRequest = ({args, onMessage, onError, onDone}) => {
   const controller = new AbortController();
   const {signal} = controller;
-  const {docId, prompt} = args;
-  request.post('/dream/pen/ai/writer/makeImg', {type: 'makeImg', conversation_id: docId, prompt}, {signal}).then(
+  const {sid, docId, prompt} = args;
+  request.post('/dream/pen/ai/writer/makeImg', {type: 'makeImg', articleId: docId, conversation_id: sid, prompt}, {signal}).then(
     (res) => {
       const list: any[] = res.data.data || [];
-      onMessage(
-        `<figure>${list
+      onMessage({
+        html: `<figure>${list
           .map((item, index) => '<div class="' + (!index ? 'on' : '') + '" data-img="' + item + '"><img src="' + item + '" width="170" /></div>')
-          .join('')}</figure>`
-      );
+          .join('')}</figure>`,
+        raw: '',
+      });
       setTimeout(onDone);
     },
     (e) => {
@@ -164,10 +177,10 @@ const createImage: AIRequest = ({args, onMessage, onError, onDone}) => {
 const stylize: AIRequest = ({args, onMessage, onError, onDone}) => {
   const controller = new AbortController();
   const {signal} = controller;
-  const {docId, prompt, context} = args;
-  const req: {url: string; body: {type: string; conversation_id: string; content: string; tone?: string}} = {
+  const {sid, docId, prompt, context, previous} = args;
+  const req: {url: string; body: {type: string; articleId: string; conversation_id: string; content: string; previous?: string; tone?: string}} = {
     url: '',
-    body: {type: '', conversation_id: docId, content: context},
+    body: {type: '', articleId: docId, conversation_id: sid, content: context, previous: previous || undefined},
   };
   if (prompt === '精简内容') {
     req.url = '/dream/pen/ai/writer/simplify';
@@ -183,14 +196,13 @@ const stylize: AIRequest = ({args, onMessage, onError, onDone}) => {
     req.body.type = 'polish';
     req.body.tone = prompt;
   }
+  const markdown = decodeMarkdown();
   fetchEventSource(replaceBaseUrl(req.url), {
     method: 'POST',
     headers: getHeaders(),
     body: JSON.stringify(req.body),
     signal,
-    onmessage(ev) {
-      onMessage(decodeMessage(ev.data));
-    },
+    onmessage: (ev) => onMessage(markdown(ev.data)),
     onerror: (e) => {
       setTimeout(() => onError(e));
       throw e;
@@ -203,15 +215,14 @@ const stylize: AIRequest = ({args, onMessage, onError, onDone}) => {
 const ask: AIRequest = ({args, onMessage, onError, onDone}) => {
   const controller = new AbortController();
   const {signal} = controller;
-  const {docId, prompt} = args;
+  const {sid, docId, prompt, previous} = args;
+  const markdown = decodeMarkdown();
   fetchEventSource(replaceBaseUrl('/dream/pen/ai/writer/question'), {
     method: 'POST',
     headers: getHeaders(),
-    body: JSON.stringify({type: 'question', conversation_id: docId, prompt}),
+    body: JSON.stringify({type: 'question', articleId: docId, conversation_id: sid, prompt, previous: previous || undefined}),
     signal,
-    onmessage(ev) {
-      onMessage(decodeMessage(ev.data));
-    },
+    onmessage: (ev) => onMessage(markdown(ev.data)),
     onerror: (e) => {
       setTimeout(() => onError(e));
       throw e;
@@ -223,17 +234,23 @@ const ask: AIRequest = ({args, onMessage, onError, onDone}) => {
 const web: AIRequest = ({args, onMessage, onError, onDone}) => {
   const controller = new AbortController();
   const {signal} = controller;
-  const {docId, prompt} = args;
-  request.post('/dream/pen/ai/writer/summaryWeb', {type: 'summaryWeb', conversation_id: docId, url: prompt}, {signal}).then(
-    (res) => {
-      const content = res.data.data.content || '';
-      onMessage(marked.parse(content) as string);
-      setTimeout(onDone);
-    },
-    (e) => {
-      setTimeout(() => onError(e));
-    }
-  );
+  const {sid, docId, prompt, previous} = args;
+  request
+    .post(
+      '/dream/pen/ai/writer/summaryWeb',
+      {type: 'summaryWeb', articleId: docId, conversation_id: sid, url: prompt, previous: previous || undefined},
+      {signal}
+    )
+    .then(
+      (res) => {
+        const content = res.data.data.content || '';
+        onMessage({html: marked.parse(content) as string, raw: ''});
+        setTimeout(onDone);
+      },
+      (e) => {
+        setTimeout(() => onError(e));
+      }
+    );
   // fetchEventSource(replaceBaseUrl('/dream/pen/ai/writer/summaryWeb'), {
   //   method: 'POST',
   //   headers: getHeaders(),
@@ -260,7 +277,7 @@ function proofread(docId: string, content: string, html: string): {controller: A
       .post(
         '/dream/pen/ai/writer/proofread',
         {
-          conversation_id: docId,
+          articleId: docId,
           content,
           type: 'proofread',
         },

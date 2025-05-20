@@ -29,6 +29,8 @@ export function useAIDialog(
   const [runningState, setRunningState] = useState<RunningState>('');
   const inputRef = useRef<{getValue: () => string; focus: () => void}>(null as any);
   const [fragment, setFragment] = useState('');
+  const rawRef = useRef('');
+  const [sessionId] = useState(Date.now() + '');
   const fragmentRef = useRef<HTMLDivElement>();
   const requestRef = useRef<AbortController>();
 
@@ -41,17 +43,33 @@ export function useAIDialog(
     setRunningState('Pending');
     onRunningStateChange('Pending');
 
+    let lastText: string = '';
+    let lastHtml: string = '';
+    let lastRaw: string = '';
+    if (keep) {
+      lastHtml = fragmentRef.current?.innerHTML || '';
+      lastRaw = rawRef.current;
+      const children = Array.from(fragmentRef.current?.children || []) as HTMLElement[];
+      const last3 = children.pop()?.innerText;
+      const last2 = children.pop()?.innerText;
+      const last1 = children.pop()?.innerText;
+      lastText = [last1, last2, last3].filter(Boolean).join('\n');
+    }
     requestRef.current = onRequest({
       args: {
+        sid: sessionId,
         docId: aiRef.getDocId(),
         prompt: keep ? '继续写' : text,
         context: !withContext ? '' : aiRef.getContext(),
+        previous: lastText,
+        raw: lastRaw,
         ...args,
       },
-      onMessage: (html) => {
-        console.log(html);
+      onMessage: ({html, raw}) => {
+        //console.log(html);
         const scroller = fragmentRef.current!;
-        setFragment(scroller.innerHTML + html);
+        setFragment(lastHtml + html);
+        rawRef.current = lastRaw + raw;
         scroller.scrollTo({top: 999999999});
       },
       onError: (e) => {
