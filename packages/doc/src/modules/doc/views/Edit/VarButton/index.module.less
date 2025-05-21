@@ -1,6 +1,8 @@
 :global {
   :local(.button) {
-    gap: 6px;
+    gap: 4px;
+    padding-right: 8px;
+    padding-left: 8px;
     margin-top: -1px;
     color: var(--w-e-toolbar-color);
 
@@ -8,19 +10,5 @@
       cursor: not-allowed;
       opacity: 0.6;
     }
-  }
-
-  :local(.dialog) {
-    position: fixed;
-    z-index: 2;
-  }
-
-  :local(.mask) {
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: 1;
-    width: 100%;
-    height: 100%;
   }
 }

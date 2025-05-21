@@ -1,4 +1,4 @@
-import {DomEditor, IButtonMenu, IDomEditor, SlateTransforms} from '@wangeditor-next/editor';
+import {DomEditor, IButtonMenu, IDomEditor, SlateNode, SlateTransforms} from '@wangeditor-next/editor';
 
 class ApplyReplace implements IButtonMenu {
   title = '替换';

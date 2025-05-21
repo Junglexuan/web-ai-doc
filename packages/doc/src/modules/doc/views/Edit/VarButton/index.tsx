@@ -1,81 +1,85 @@
-import {QuestionCircleFilled} from '@ant-design/icons';
-import {Boot, IDomEditor, IModalMenu, SlateEditor} from '@wangeditor-next/editor';
-import {Button, Divider} from 'antd';
+import {CalendarOutlined, PictureOutlined, PlusCircleOutlined, QuestionCircleOutlined, SignatureOutlined} from '@ant-design/icons';
+import {Boot, DomEditor, IDomEditor, IModalMenu, SlateEditor} from '@wangeditor-next/editor';
+import {Button, Dropdown} from 'antd';
 import {FC, ReactNode, memo, useEffect, useMemo, useState} from 'react';
 import {createPortal} from 'react-dom';
 import {addClass, useEvent} from '@/utils/tools';
-import AILayer from '../AILayer';
-import AiIcon from '../ColorAIcon';
+import {VariableElement} from '../elements/Variable/custom-types';
+import VarLayer from '../VarLayer';
 import styles from './index.module.less';
-import type {IAIRef} from '../AILayer';
-import './registerMenu';
-
-function withAiModal<T extends IDomEditor>(editor: T): T {
-  const {insertText} = editor; // 获取当前 editor API
-  const newEditor = editor;
-
-  newEditor.insertText = (t) => {
-    if (t === '/' || t === '、') {
-      setTimeout(() => {
-        const menuButton = document.getElementById('_ai_button') as HTMLElement;
-        menuButton.setAttribute('data-trigger', '/');
-        menuButton.click();
-      });
-    }
-    insertText(t);
-  };
-
-  return newEditor;
-}
-Boot.registerPlugin(withAiModal);
+//import './registerMenu';
 
 interface LayerProps {
   editor: IDomEditor;
-  onCreated: (ref: IAIRef) => void;
 }
 
-const AIPortal: FC<LayerProps> = ({onCreated, editor}) => {
-  return createPortal(<AILayer editor={editor} onCreated={onCreated} />, document.body);
+const VarPortal: FC<LayerProps> = ({editor}) => {
+  return createPortal(<VarLayer editor={editor} />, document.body);
 };
 
 interface Props {
   editor: IDomEditor;
 }
 
+function insertVarByTpl(editor: IDomEditor, kind: string) {
+  editor.focus();
+  if (editor.selection) {
+    let node: VariableElement | undefined;
+    if (kind === 'date') {
+      node = {type: 'variable', kind, source: '{{YYYY-MM}}', info: '', children: [{text: ''}]};
+    }
+    if (node) {
+      editor.insertNode(node);
+      setTimeout(() => {
+        const dom = editor.toDOMNode(node!);
+        if (dom) {
+          (dom.children[0] as any).click();
+        }
+      });
+    }
+  }
+}
+
 const Component: FC<Props> = ({editor}) => {
-  const [aiRef, setAiRef] = useState<IAIRef>();
-  const onClick = useEvent(({target}: {target: HTMLElement}) => {
-    const trigger = target.getAttribute('data-trigger');
-    target.setAttribute('data-trigger', '');
-    if (!editor.selection || aiRef?.menuIsOpen()) {
-      return;
-    }
-    aiRef?.openMenu({editor, triggerWithChar: trigger === '/', selectionRange: window.getSelection()?.getRangeAt(0)});
-    const scroller = document.getElementById('_ai_editor_scroller')!;
-    addClass(scroller, 'on');
-  });
-
-  const onKeyDown = useEvent((e: any) => {
-    if (e.key === 'Escape') {
-      aiRef?.closeMenu(true);
-    }
-  });
-
-  useEffect(() => {
-    document.addEventListener('keyup', onKeyDown);
-
-    return () => document.removeEventListener('keyup', onKeyDown);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const menuData = useMemo(() => {
+    return {
+      onClick: ({key}: {key: string}) => {
+        insertVarByTpl(editor, key);
+      },
+      items: [
+        {
+          key: 'date',
+          label: '日期时间',
+          icon: <CalendarOutlined />,
+        },
+        {
+          key: '用户署名',
+          label: '用户署名',
+          icon: <SignatureOutlined />,
+        },
+        {
+          key: '智能生图',
+          label: '智能生图',
+          icon: <PictureOutlined />,
+        },
+        {
+          key: '知识问答',
+          label: '知识问答',
+          icon: <QuestionCircleOutlined />,
+        },
+      ],
+    };
+  }, [editor]);
 
   return (
     <>
       <div className="w-e-bar-divider"></div>
-      <Button id="_ai_var_button" className={styles.button} type="text" icon={<AiIcon />} onClick={onClick as any}>
-        插入组件
-      </Button>
-
-      <AIPortal editor={editor} onCreated={setAiRef}></AIPortal>
+      <Dropdown menu={menuData} trigger={['click']} align={{offset: [0, 5]}}>
+        <Button id="_ai_var_button" className={styles.button} type="text" icon={<PlusCircleOutlined />}>
+          模版组件
+        </Button>
+      </Dropdown>
+      <VarPortal editor={editor} />
     </>
   );
 };

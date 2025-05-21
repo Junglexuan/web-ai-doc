@@ -6,6 +6,7 @@ export interface ISource {
   dsl: string;
   html: string;
   text: string;
+  isTpl?: boolean;
 }
 export class SaveMgr extends SimpleDispatcher<{loading: boolean}> {
   cycleTime = 2000;
@@ -45,7 +46,7 @@ export class SaveMgr extends SimpleDispatcher<{loading: boolean}> {
       this.sending = this.toBeSent;
       this.toBeSent = undefined;
       this.dispatch('loading', true);
-      DocAPI.saveDSL(this.sending.id, this.sending.dsl, this.sending.html, this.sending.text).then(
+      DocAPI.saveDSL(this.sending.id, this.sending.dsl, this.sending.html, this.sending.text, this.sending.isTpl).then(
         () => {
           this.sending = undefined;
           setTimeout(this.checkNext, this.cycleTime);

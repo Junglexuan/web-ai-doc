@@ -1,9 +1,10 @@
-import {Boot, IEditorConfig, IToolbarConfig, SlateText, i18nGetResources} from '@wangeditor-next/editor';
+import {Boot, IEditorConfig, IToolbarConfig, i18nGetResources} from '@wangeditor-next/editor';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import {VNode, h} from 'snabbdom';
 import {replaceBaseUrl} from '@/utils/request';
 import {getToken} from '@/utils/tools';
 import Review from './elements/Review';
+import Variable from './elements/Variable';
 
 const resources = i18nGetResources('zh-CN');
 resources.justify.left = '居左对齐';
@@ -210,3 +211,4 @@ export const editorConfig: Partial<IEditorConfig> = {
 //   return node;
 // });
 Boot.registerModule(Review);
+Boot.registerModule(Variable);

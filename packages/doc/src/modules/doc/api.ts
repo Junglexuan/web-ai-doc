@@ -36,8 +36,13 @@ export const DocAPI = {
   deleteTpl(id: string): Promise<void> {
     return request.post(`/dream/pen/template/delete/${id}`);
   },
-  saveDSL(id: string, dsl: string, html: string, text: string): Promise<void> {
-    return request.post(`/dream/pen/article/save`, {id, contents: html, articleDsl: dsl, articleCount: text.length});
+  saveDSL(id: string, dsl: string, html: string, text: string, isTpl?: boolean): Promise<void> {
+    return request.post(isTpl ? '/dream/pen/template/save' : `/dream/pen/article/save`, {
+      id,
+      contents: html,
+      articleDsl: dsl,
+      articleCount: text.length,
+    });
   },
   updateDocName(id: string, title: string): Promise<void> {
     return request.post(`/dream/pen/article/save`, {id, title});

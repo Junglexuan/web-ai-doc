@@ -30,6 +30,7 @@ import {editorConfig, toolbarConfig} from './editorConfig';
 import styles from './index.module.less';
 import Outline from './Outline';
 import Review from './Review';
+import VarButton from './VarButton';
 import type {ISource} from './autoSave';
 
 interface Props {
@@ -40,14 +41,26 @@ const Component: FC<Props> = ({itemDetail}) => {
   const [editor, setEditor] = useState<IDomEditor>();
   const [docTitle, setDocTitle] = useState(itemDetail.title);
   const [collect, setCollect] = useState(itemDetail.collect);
-  const [source, setSource] = useState<ISource>({id: itemDetail.id, dsl: itemDetail.articleDsl, html: itemDetail.contents, text: ''});
+  const [source, setSource] = useState<ISource>({
+    id: itemDetail.id,
+    dsl: itemDetail.articleDsl,
+    html: itemDetail.contents,
+    text: '',
+    isTpl: itemDetail.isTpl,
+  });
   const [autoSave] = useState(() => new SaveMgr());
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState<'create' | ''>('');
 
   const onSave = useEvent((editor: IDomEditor) => {
     //JSON.stringify(editor.children, null, 2)
-    const newSource: ISource = {id: itemDetail.id, dsl: JSON.stringify(editor.children), html: editor.getHtml(), text: editor.getText()};
+    const newSource: ISource = {
+      id: itemDetail.id,
+      dsl: JSON.stringify(editor.children),
+      html: editor.getHtml(),
+      text: editor.getText(),
+      isTpl: itemDetail.isTpl,
+    };
     setSource(newSource);
     autoSave.onChange(newSource);
   });
@@ -251,6 +264,7 @@ const Component: FC<Props> = ({itemDetail}) => {
         <div className="cd">
           {editor && <AIButton editor={editor} />}
           {editor && <Toolbar editor={editor} defaultConfig={toolbarConfig} mode="default" className="tools" />}
+          {editor && itemDetail.isTpl && <VarButton editor={editor} />}
         </div>
         <div className="bd" id="_ai_editor_scroller">
           <header>
