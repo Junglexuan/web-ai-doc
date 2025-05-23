@@ -1,4 +1,6 @@
+import {setLoading as setGlobalLoading} from '@elux/react-web';
 import dayjs from 'dayjs';
+import {GetClientRouter} from '@/Global';
 import request from '@/utils/request';
 import {mapTree} from '@/utils/tools';
 import {CurRender, ItemDetail, ListItem, ListResult, ListSearch} from './entity';
@@ -6,18 +8,20 @@ import {CurRender, ItemDetail, ListItem, ListResult, ListSearch} from './entity'
 export const DocAPI = {
   createDoc(data: string | {title: string; contents: string; folder: string}): Promise<{id: string}> {
     if (typeof data === 'string') {
-      return request.get('/dream/pen/template/get', {params: {id: data}}).then((res) => {
-        const item: ItemDetail = res.data.data;
-        //console.log(item.contents.replace(/(<cite data-w-e-type="variable" .+? data-source=")(.+?)(">[^$]*)\$([^$]*<\/cite>)/g, '$1$2$3$2$4'));
-        return request
-          .post(`/dream/pen/template/createArticle`, {
-            id: data,
-            content: item.contents
-              .replace(/(<cite data-w-e-type="variable" .+? data-source=")(.+?)(">[^$]*)\$([^$]*<\/cite>)/g, '$1$2$3$2$4')
-              .replace(/(<cite data-w-e-type="variable" [^>]+?)><span( [\w\W]+)<\/span>(<\/cite>)/g, '$1$2$3'),
-          })
-          .then((res) => res.data.data);
-      });
+      return setGlobalLoading(
+        request.get('/dream/pen/template/get', {params: {id: data}}).then((res) => {
+          const item: ItemDetail = res.data.data || {};
+          return request
+            .post(`/dream/pen/template/createArticle`, {
+              id: data,
+              content: (item.contents || '')
+                .replace(/(<cite data-w-e-type="variable" .+? data-source=")(.+?)(">[^$]*)\$([^$]*<\/cite>)/g, '$1$2$3$2$4')
+                .replace(/(<cite data-w-e-type="variable" [^>]+?)><span( [\w\W]+)<\/span>(<\/cite>)/g, '$1$2$3'),
+            })
+            .then((res) => res.data.data);
+        }),
+        GetClientRouter().getActivePage().store
+      );
     } else {
       const {title, folder} = data;
       const contents = data.contents || '<p style="line-height: 1.5;"><span style="font-size: 16px; font-family: 黑体;"></span></p>';
