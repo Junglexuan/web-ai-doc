@@ -34,7 +34,7 @@ interface Props {
 }
 
 const Component: FC<Props> = ({onSubmit, onCancel, elem}) => {
-  const [value, setValue] = useState(matchValue(elem.source));
+  const [value, setValue] = useState(() => matchValue(elem.source));
 
   const onRadioChange = useCallback((e: any) => {
     const fun = e.target.value;

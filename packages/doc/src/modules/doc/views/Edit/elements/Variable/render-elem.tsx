@@ -1,17 +1,17 @@
 import {DomEditor, IDomEditor, SlateElement} from '@wangeditor-next/editor';
 // eslint-disable-next-line import/no-extraneous-dependencies
-import {VNode, datasetModule, h} from 'snabbdom';
+import {VNode, h} from 'snabbdom';
 import {VariableElement} from './custom-types';
 
 function renderElem(elem: SlateElement, children: VNode[] | null, editor: IDomEditor): VNode {
   const {info} = elem as VariableElement;
-  //const selected = DomEditor.isNodeSelected(editor, elem);
+  const selected = DomEditor.isNodeSelected(editor, elem);
   const [title, ...labels] = info.split('|');
   const vnode = h(
     'span',
     {
       props: {
-        className: 'w-e-variable',
+        className: selected ? 'w-e-variable on' : 'w-e-variable',
         contentEditable: false,
         title: title,
         lang: labels.join(''),

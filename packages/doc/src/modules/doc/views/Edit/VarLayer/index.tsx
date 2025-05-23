@@ -20,12 +20,9 @@ interface Props {
 const Component: FC<Props> = ({editor}) => {
   const [varEvent, setVarEvent] = useState<VarEvent>();
 
-  const closeMenu = useEvent((force?: boolean) => {
+  const closeMenu = useEvent(() => {
     setVarEvent(undefined);
     editor.focus();
-    // const scroller = document.getElementById('_ai_editor_scroller')!;
-    // removeClass(scroller, 'on');
-    //
   });
 
   const onSubmit = useEvent((elem: VariableElement, update: Partial<VariableElement>) => {
@@ -53,6 +50,15 @@ const Component: FC<Props> = ({editor}) => {
     const handler = (data: {elem: VariableElement; pos: {x: number; y: number; width: number; height: number}}) => {
       setVarEvent(data);
     };
+    const div = document.getElementById('w-e-textarea-1')?.parentElement;
+    if (div) {
+      div.addEventListener('click', (e: any) => {
+        if (e.target.className === 'w-e-variable on' || e.target.parentNode.className === 'w-e-variable on') {
+          return;
+        }
+        closeMenu();
+      });
+    }
     editor.on('variable-selected', handler);
     return () => {
       editor.off('variable-selected', handler);
@@ -68,7 +74,6 @@ const Component: FC<Props> = ({editor}) => {
       <div className={styles.dialog} style={{left: varEvent.pos.x, top: varEvent.pos.y + varEvent.pos.height + 5}}>
         {varDialog}
       </div>
-      {varDialog && <div className={styles.mask} onClick={() => closeMenu()}></div>}
     </>
   );
 };

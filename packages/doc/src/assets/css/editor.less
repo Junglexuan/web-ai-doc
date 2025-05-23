@@ -16,13 +16,19 @@
 }
 
 .w-e-variable {
+  display: inline-flex;
+  height: 20px;
   margin: 0 5px;
   font-size: 13px;
   border: 1px solid #70b0ff;
   border-radius: 3px;
 
+  &.on {
+    box-shadow: 0 0 3px 2px #0048ff27;
+  }
+
   &::before {
-    padding: 2px;
+    padding: 0 2px;
     padding-right: 3px;
     font-size: 12px;
     color: #fff;
@@ -31,7 +37,7 @@
   }
 
   &::after {
-    padding: 2px 4px;
+    padding: 0 4px;
     font-size: 12px;
     color: #999;
     content: attr(lang);

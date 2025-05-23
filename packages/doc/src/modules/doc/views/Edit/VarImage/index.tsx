@@ -1,15 +1,35 @@
-import {Button, Input, Space} from 'antd';
-import {FC, memo, useCallback, useState} from 'react';
+import {Button, Space} from 'antd';
+import {FC, memo, useState} from 'react';
 import {message, useEvent} from '@/utils/tools';
 import {VariableElement} from '../elements/Variable/custom-types';
+import ImagePrompt, {ImagePromptValue} from '../ImagePrompt';
 import styles from './index.module.less';
 
-function matchValue(code: string): string {
-  const arr = code.match(/IMAGE\((.+?)\)/) || [];
-  return arr[1]?.slice(1, -1) || '';
+const TPL = '${AI.IMAGE(***)}';
+
+function matchValue(code: string): ImagePromptValue | undefined {
+  const arr = code.match(/IMAGE\((.+)\)\}$/) || [];
+  let args = arr[1]?.slice(1, -1) || '';
+  if (args) {
+    args = decodeURI(args);
+    let value: any;
+    try {
+      value = JSON.parse(args);
+    } catch (error) {
+      value = undefined;
+    }
+    return value;
+  }
+  return undefined;
 }
 
-const TPL = '${AI.IMAGE(***)}';
+function formatValue(value: any): string {
+  if (value) {
+    value = JSON.stringify(value);
+    return TPL.replace('(***)', `('${encodeURI(value)}')`);
+  }
+  return '';
+}
 
 interface Props {
   onCancel: () => void;
@@ -18,15 +38,11 @@ interface Props {
 }
 
 const Component: FC<Props> = ({onSubmit, onCancel, elem}) => {
-  const [value, setValue] = useState(matchValue(decodeURI(elem.source)));
-
-  const onInputChange = useEvent((e: any) => {
-    setValue(e.target.value.trim());
-  });
+  const [value, setValue] = useState(() => matchValue(elem.source));
 
   const onOk = useEvent(() => {
-    if (value) {
-      onSubmit(elem, {source: TPL.replace('(***)', `('${encodeURI(value)}')`)});
+    if (value?.desc) {
+      onSubmit(elem, {source: formatValue(value)});
     } else {
       message.error('请输入图片描述...');
     }
@@ -35,8 +51,7 @@ const Component: FC<Props> = ({onSubmit, onCancel, elem}) => {
   return (
     <div className={styles.root}>
       <div className="bd">
-        <div className="title">图片描述：</div>
-        <Input.TextArea placeholder="请输入图片描述..." value={value} onChange={onInputChange} />
+        <ImagePrompt value={value} onChange={setValue} />
       </div>
       <Space className="ft">
         <Button size="small" type="primary" onClick={onOk}>
