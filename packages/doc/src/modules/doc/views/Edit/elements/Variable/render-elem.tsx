@@ -4,14 +4,17 @@ import {VNode, datasetModule, h} from 'snabbdom';
 import {VariableElement} from './custom-types';
 
 function renderElem(elem: SlateElement, children: VNode[] | null, editor: IDomEditor): VNode {
-  const {source} = elem as VariableElement;
+  const {info} = elem as VariableElement;
   //const selected = DomEditor.isNodeSelected(editor, elem);
+  const [title, ...labels] = info.split('|');
   const vnode = h(
     'span',
     {
       props: {
         className: 'w-e-variable',
         contentEditable: false,
+        title: title,
+        lang: labels.join(''),
       },
       on: {
         click(event) {
@@ -31,7 +34,8 @@ function renderElem(elem: SlateElement, children: VNode[] | null, editor: IDomEd
       //   padding: '0 3px',
       // },
     },
-    [source]
+    children
+    //[h('cite', {}, [title]), h('span', {}, [labels.join('')]), ...children!]
   );
 
   return vnode as any;

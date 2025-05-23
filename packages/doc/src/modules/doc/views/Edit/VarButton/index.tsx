@@ -26,7 +26,13 @@ function insertVarByTpl(editor: IDomEditor, kind: string) {
   if (editor.selection) {
     let node: VariableElement | undefined;
     if (kind === 'date') {
-      node = {type: 'variable', kind, source: '{{YYYY-MM}}', info: '', children: [{text: ''}]};
+      node = {type: 'variable', kind, source: '${DATE.NOW()}', info: '日期时间|此时此刻', children: [{text: '$'}]};
+    } else if (kind === 'sign') {
+      node = {type: 'variable', kind, source: '${USER.CURRENT()}', info: '用户署名|当前用户', children: [{text: '$'}]};
+    } else if (kind === 'image') {
+      node = {type: 'variable', kind, source: '${AI.IMAGE()}', info: '智能生图|...', children: [{text: '$'}]};
+    } else if (kind === 'ask') {
+      node = {type: 'variable', kind, source: '${KNOWLEDGE.ASK()}', info: '知识库问答|...', children: [{text: '$'}]};
     }
     if (node) {
       editor.insertNode(node);
@@ -53,18 +59,18 @@ const Component: FC<Props> = ({editor}) => {
           icon: <CalendarOutlined />,
         },
         {
-          key: '用户署名',
+          key: 'sign',
           label: '用户署名',
           icon: <SignatureOutlined />,
         },
         {
-          key: '智能生图',
+          key: 'image',
           label: '智能生图',
           icon: <PictureOutlined />,
         },
         {
-          key: '知识问答',
-          label: '知识问答',
+          key: 'ask',
+          label: '知识库问答',
           icon: <QuestionCircleOutlined />,
         },
       ],

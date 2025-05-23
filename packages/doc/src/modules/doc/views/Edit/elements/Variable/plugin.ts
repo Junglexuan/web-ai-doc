@@ -12,12 +12,18 @@ function withVariable<T extends IDomEditor>(editor: T): T {
     return isInline(elem);
   };
 
-  newEditor.isVoid = (elem) => {
-    const type = DomEditor.getNodeType(elem);
-    if (type === 'variable') {
-      return true;
+  newEditor.normalizeNode = ([node, path]) => {
+    const type = DomEditor.getNodeType(node);
+    if (type !== 'variable') {
+      return normalizeNode([node, path]);
     }
-    return isVoid(elem);
+
+    const str = Node.string(node);
+    if (str === '') {
+      return Transforms.removeNodes(newEditor, {at: path});
+    }
+
+    return normalizeNode([node, path]);
   };
 
   return newEditor;

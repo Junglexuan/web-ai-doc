@@ -2,13 +2,10 @@ import {Boot, DomEditor, IDomEditor, IModalMenu, SlateEditor, SlateTransforms} f
 import {Button, Spin} from 'antd';
 import {FC, memo, useEffect, useMemo, useRef, useState} from 'react';
 import {addClass, debounce, message, removeClass, useEvent} from '@/utils/tools';
-import AIOutline from '../AIOutline';
-import AIStylize from '../AIStylize';
-import AIWeb from '../AIWeb';
-import api, {RunningState} from '../api';
 import {VariableElement} from '../elements/Variable/custom-types';
-import {proofreadHtml} from '../utils';
+import VarAsk from '../VarAsk';
 import VarDate from '../VarDate';
+import VarImage from '../VarImage';
 import styles from './index.module.less';
 
 export interface VarEvent {
@@ -34,15 +31,7 @@ const Component: FC<Props> = ({editor}) => {
   const onSubmit = useEvent((elem: VariableElement, update: Partial<VariableElement>) => {
     closeMenu();
     const path = DomEditor.findPath(editor, elem);
-    console.log(path);
-    SlateTransforms.setNodes(
-      editor,
-      {
-        source: update.source,
-      } as any,
-      {at: path}
-    );
-    // SlateTransforms
+    SlateTransforms.setNodes(editor, update, {at: path});
   });
 
   const varDialog = useMemo(() => {
@@ -51,10 +40,14 @@ const Component: FC<Props> = ({editor}) => {
     }
     switch (varEvent.elem.kind) {
       case 'date':
-        return <VarDate elem={varEvent.elem} onSubmit={onSubmit} />;
+        return <VarDate elem={varEvent.elem} onSubmit={onSubmit} onCancel={closeMenu} />;
+      case 'image':
+        return <VarImage elem={varEvent.elem} onSubmit={onSubmit} onCancel={closeMenu} />;
+      case 'ask':
+        return <VarAsk elem={varEvent.elem} onSubmit={onSubmit} onCancel={closeMenu} />;
     }
     return null;
-  }, [onSubmit, varEvent]);
+  }, [onSubmit, closeMenu, varEvent]);
 
   useEffect(() => {
     const handler = (data: {elem: VariableElement; pos: {x: number; y: number; width: number; height: number}}) => {
@@ -70,13 +63,12 @@ const Component: FC<Props> = ({editor}) => {
   if (!varEvent) {
     return null;
   }
-  console.log(varEvent);
   return (
     <>
       <div className={styles.dialog} style={{left: varEvent.pos.x, top: varEvent.pos.y + varEvent.pos.height + 5}}>
         {varDialog}
       </div>
-      <div className={styles.mask} onClick={() => closeMenu()}></div>
+      {varDialog && <div className={styles.mask} onClick={() => closeMenu()}></div>}
     </>
   );
 };
