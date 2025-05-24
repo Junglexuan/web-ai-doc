@@ -1,4 +1,4 @@
-import {Button, Input, InputNumber, Space} from 'antd';
+import {Button, Space} from 'antd';
 import {FC, memo, useState} from 'react';
 import {message, useEvent} from '@/utils/tools';
 import {VariableElement} from '../elements/Variable/custom-types';

@@ -15,6 +15,7 @@ export interface AIRequest {
       context: string;
       previous: string;
       raw: string;
+      model: string;
       [key: string]: string;
     };
     onMessage: (data: {html: string; raw: string}) => void;
@@ -86,7 +87,7 @@ function getHeaders() {
 const continueWrite: AIRequest = ({args, onMessage, onError, onDone}) => {
   const controller = new AbortController();
   const {signal} = controller;
-  const {sid, docId, prompt, context, previous} = args;
+  const {sid, docId, prompt, context, previous, model} = args;
   const markdown = decodeMarkdown();
   fetchEventSource(replaceBaseUrl('/dream/pen/ai/writer/continued'), {
     method: 'POST',
@@ -97,6 +98,7 @@ const continueWrite: AIRequest = ({args, onMessage, onError, onDone}) => {
       articleId: docId,
       conversation_id: sid,
       prompt,
+      model,
       content: context.substring(context.length - 100),
       previous: previous || undefined,
     }),
@@ -115,12 +117,12 @@ const continueWrite: AIRequest = ({args, onMessage, onError, onDone}) => {
 const createFullText: AIRequest = ({args, onMessage, onError, onDone}) => {
   const controller = new AbortController();
   const {signal} = controller;
-  const {sid, docId, prompt, previous} = args;
+  const {sid, docId, prompt, previous, model} = args;
   const markdown = decodeMarkdown();
   fetchEventSource(replaceBaseUrl('/dream/pen/ai/writer/fullText'), {
     method: 'POST',
     headers: getHeaders(),
-    body: JSON.stringify({type: 'fullText', articleId: docId, conversation_id: sid, prompt, previous: previous || undefined}),
+    body: JSON.stringify({type: 'fullText', articleId: docId, conversation_id: sid, prompt, model, previous: previous || undefined}),
     signal,
     openWhenHidden: true,
     onmessage: (ev) => onMessage(markdown(ev.data)),
@@ -136,12 +138,12 @@ const createFullText: AIRequest = ({args, onMessage, onError, onDone}) => {
 const createOutline: AIRequest = ({args, onMessage, onError, onDone}) => {
   const controller = new AbortController();
   const {signal} = controller;
-  const {sid, docId, prompt, raw} = args;
+  const {sid, docId, prompt, raw, model} = args;
   const markdown = decodeMarkdown();
   fetchEventSource(replaceBaseUrl('/dream/pen/ai/writer/outline'), {
     method: 'POST',
     headers: getHeaders(),
-    body: JSON.stringify({type: 'outline', articleId: docId, conversation_id: sid, prompt, previous: raw || undefined}),
+    body: JSON.stringify({type: 'outline', articleId: docId, conversation_id: sid, prompt, model, previous: raw || undefined}),
     signal,
     openWhenHidden: true,
     onmessage: (ev) => onMessage(markdown(ev.data)),
@@ -157,8 +159,8 @@ const createOutline: AIRequest = ({args, onMessage, onError, onDone}) => {
 const createImage: AIRequest = ({args, onMessage, onError, onDone}) => {
   const controller = new AbortController();
   const {signal} = controller;
-  const {sid, docId, prompt} = args;
-  request.post('/dream/pen/ai/writer/makeImg', {type: 'makeImg', articleId: docId, conversation_id: sid, prompt}, {signal}).then(
+  const {sid, docId, prompt, model} = args;
+  request.post('/dream/pen/ai/writer/makeImg', {type: 'makeImg', articleId: docId, conversation_id: sid, prompt, model}, {signal}).then(
     (res) => {
       const list: any[] = res.data.data || [];
       onMessage({
@@ -179,10 +181,13 @@ const createImage: AIRequest = ({args, onMessage, onError, onDone}) => {
 const stylize: AIRequest = ({args, onMessage, onError, onDone}) => {
   const controller = new AbortController();
   const {signal} = controller;
-  const {sid, docId, prompt, context, previous} = args;
-  const req: {url: string; body: {type: string; articleId: string; conversation_id: string; content: string; previous?: string; tone?: string}} = {
+  const {sid, docId, prompt, model, context, previous} = args;
+  const req: {
+    url: string;
+    body: {type: string; articleId: string; conversation_id: string; content: string; model: string; previous?: string; tone?: string};
+  } = {
     url: '',
-    body: {type: '', articleId: docId, conversation_id: sid, content: context, previous: previous || undefined},
+    body: {type: '', articleId: docId, conversation_id: sid, content: context, model, previous: previous || undefined},
   };
   if (prompt === '精简内容') {
     req.url = '/dream/pen/ai/writer/simplify';
@@ -218,12 +223,12 @@ const stylize: AIRequest = ({args, onMessage, onError, onDone}) => {
 const ask: AIRequest = ({args, onMessage, onError, onDone}) => {
   const controller = new AbortController();
   const {signal} = controller;
-  const {sid, docId, prompt, previous} = args;
+  const {sid, docId, prompt, model, previous} = args;
   const markdown = decodeMarkdown();
   fetchEventSource(replaceBaseUrl('/dream/pen/ai/writer/question'), {
     method: 'POST',
     headers: getHeaders(),
-    body: JSON.stringify({type: 'question', articleId: docId, conversation_id: sid, prompt, previous: previous || undefined}),
+    body: JSON.stringify({type: 'question', articleId: docId, conversation_id: sid, prompt, model, previous: previous || undefined}),
     signal,
     openWhenHidden: true,
     onmessage: (ev) => onMessage(markdown(ev.data)),
@@ -238,11 +243,11 @@ const ask: AIRequest = ({args, onMessage, onError, onDone}) => {
 const web: AIRequest = ({args, onMessage, onError, onDone}) => {
   const controller = new AbortController();
   const {signal} = controller;
-  const {sid, docId, prompt, previous} = args;
+  const {sid, docId, prompt, model, previous} = args;
   request
     .post(
       '/dream/pen/ai/writer/summaryWeb',
-      {type: 'summaryWeb', articleId: docId, conversation_id: sid, url: prompt, previous: previous || undefined},
+      {type: 'summaryWeb', articleId: docId, conversation_id: sid, url: prompt, model, previous: previous || undefined},
       {signal}
     )
     .then(

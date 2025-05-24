@@ -1,6 +1,7 @@
-import {Input, InputNumber, Select} from 'antd';
+import {Input, InputNumber} from 'antd';
 import {FC, memo} from 'react';
 import {useEvent} from '@/utils/tools';
+import ModelSelect from '../ModelSelect';
 import styles from './index.module.less';
 
 export type WritePromptValue = {
@@ -16,6 +17,7 @@ const modelOptions = [
       {label: <span>qwen-max</span>, value: 'qwen-max'},
       {label: <span>qwen-turbo</span>, value: 'qwen-turbo'},
       {label: <span>qwen-plus</span>, value: 'qwen-plus'},
+      {label: <span>qwen2.5-72B-instruct</span>, value: 'qwen2.5-72B-instruct'},
     ],
   },
   {
@@ -47,7 +49,7 @@ const Component: FC<Props> = ({value = {}, onChange}) => {
       <div className="title">内容描述:</div>
       <Input.TextArea placeholder="请输入内容描述..." value={value.desc} onChange={onDescChange} />
       <div className="title">AI模型:</div>
-      <Select placeholder="请选择..." options={modelOptions} value={value.model} onChange={onModelChange} />
+      <ModelSelect value={value.model} onChange={onModelChange} />
       <div className="title">字数限制:</div>
       <InputNumber min={1} value={value.size} onChange={onSizeChange} />
     </div>

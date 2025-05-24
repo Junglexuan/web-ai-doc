@@ -5,6 +5,7 @@ import AdjustIcon from '@/assets/images/Adjust';
 import ColorAIcon from '../ColorAIcon';
 import EnterIcon from '../EnterIcon';
 import {AIDialogHooks} from '../hooks';
+import ModelSelect from '../ModelSelect';
 import styles from './index.module.less';
 
 interface Props {
@@ -16,7 +17,7 @@ interface Props {
 }
 
 const Component: FC<Props> = ({title, children, hooks, automatic, hideButton}) => {
-  const {onPromptSubmit, inputRef, fragment, fragmentRef, runningState, onRedo, onKeep, onStop, onInsert, onAdjust} = hooks;
+  const {onPromptSubmit, inputRef, model, fragment, fragmentRef, runningState, onRedo, onKeep, onStop, onInsert, onAdjust, onModelChange} = hooks;
   const hideButtonMap: {[key: string]: boolean} = useMemo(() => {
     if (hideButton) {
       return hideButton.reduce((obj, cur) => {
@@ -95,8 +96,8 @@ const Component: FC<Props> = ({title, children, hooks, automatic, hideButton}) =
           </Button>
         </Space>
         <div className="prompt">
+          <ModelSelect size="small" value={model} onChange={onModelChange} />
           <div style={{color: '#aaa', fontSize: '12px'}}>* 回车直接提交，shift+回车可换行，esc键可关闭</div>
-          {/* <QuestionCircleFilled style={{color: '#aaa', cursor: 'pointer'}} /> */}
         </div>
       </div>
     </div>

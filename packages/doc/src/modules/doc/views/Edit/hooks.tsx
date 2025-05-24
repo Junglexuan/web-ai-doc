@@ -6,6 +6,7 @@ import type {IAIRef} from './AILayer';
 export interface AIDialogHooks {
   runningState: RunningState;
   fragment: string;
+  model: string;
   fragmentRef: MutableRefObject<HTMLDivElement | undefined>;
   inputRef: MutableRefObject<{getValue: () => string; focus: () => void}>;
   requestRef: MutableRefObject<AbortController | undefined>;
@@ -16,6 +17,7 @@ export interface AIDialogHooks {
   onStop: () => void;
   onInsert: () => void;
   onAdjust: () => void;
+  onModelChange: (model: string) => void;
 }
 
 export function useAIDialog(
@@ -33,6 +35,7 @@ export function useAIDialog(
   const [sessionId] = useState(Date.now() + '');
   const fragmentRef = useRef<HTMLDivElement>();
   const requestRef = useRef<AbortController>();
+  const [model, setModel] = useState('qwen-max');
 
   const onPromptSubmit = useEvent(({keep}: {keep?: boolean} = {}) => {
     const text = inputRef.current.getValue();
@@ -63,6 +66,7 @@ export function useAIDialog(
         context: !withContext ? '' : aiRef.getContext(),
         previous: lastText,
         raw: lastRaw,
+        model,
         ...args,
       },
       onMessage: ({html, raw}) => {
@@ -109,6 +113,8 @@ export function useAIDialog(
     setTimeout(inputRef.current.focus);
   });
 
+  const onModelChange = setModel;
+
   const onStop = useEvent(() => {
     requestRef.current?.abort();
     setTimeout(() => {
@@ -137,5 +143,20 @@ export function useAIDialog(
     inputRef.current.focus();
   }, []);
 
-  return {aiRef, onPromptSubmit, onRedo, onKeep, onStop, onInsert, onAdjust, runningState, fragment, fragmentRef, inputRef, requestRef};
+  return {
+    aiRef,
+    onPromptSubmit,
+    onRedo,
+    onKeep,
+    onStop,
+    onInsert,
+    onAdjust,
+    onModelChange,
+    runningState,
+    model,
+    fragment,
+    fragmentRef,
+    inputRef,
+    requestRef,
+  };
 }
