@@ -245,17 +245,24 @@ const Component: FC<Props> = ({itemDetail}) => {
             )}
             {breadcrumb}
           </Space>
-          <Space align="center">
-            <span style={{fontSize: 12, color: '#B9BABB'}}>所有内容都会自动保存到云端</span>
+          <Space align="center" className="info">
+            <div>
+              <UserOutlined />
+              <span> {itemDetail.createUserName}</span>
+            </div>
+            <div>
+              <ClockCircleOutlined />
+              <span> {itemDetail.createDate ? dayjs(itemDetail.createDate).format('YYYY-MM-DD HH:mm:ss') : ''} 创建</span>
+            </div>
             {saving ? (
               <span id="_ai_saving">
                 <Spin size="small" />
               </span>
             ) : (
-              <CloudUploadOutlined style={{color: '#B9BABB'}} />
+              <CloudUploadOutlined />
             )}
-            <Undo className="undo" onClick={() => editor?.undo!()} />
-            <Redo className="undo" onClick={() => editor?.redo!()} />
+            {/* <Undo className="undo" onClick={() => editor?.undo!()} />
+            <Redo className="undo" onClick={() => editor?.redo!()} /> */}
             <Button type="primary" style={{marginLeft: '10px'}}>
               分享
             </Button>
@@ -277,16 +284,6 @@ const Component: FC<Props> = ({itemDetail}) => {
               className="doc-title"
               onChange={onDocTitleChange}
             />
-            <Space className="info">
-              <div>
-                <UserOutlined />
-                <span> {itemDetail.createUserName}</span>
-              </div>
-              <div>
-                <ClockCircleOutlined />
-                <span> {itemDetail.createDate ? dayjs(itemDetail.createDate).format('YYYY-MM-DD HH:mm:ss') : ''} 创建</span>
-              </div>
-            </Space>
           </header>
           <Editor
             defaultConfig={editorConfig}

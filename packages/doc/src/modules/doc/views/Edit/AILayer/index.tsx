@@ -1,7 +1,7 @@
 import {IDomEditor} from '@wangeditor-next/editor';
 import {Button, Spin} from 'antd';
 import {FC, memo, useEffect, useMemo, useRef, useState} from 'react';
-import {addClass, debounce, message, removeClass, useEvent} from '@/utils/tools';
+import {addClass, debounce, removeClass, useEvent} from '@/utils/tools';
 import AIAsk from '../AIAsk';
 import AIContinue from '../AIContinue';
 import AICreate from '../AICreate';

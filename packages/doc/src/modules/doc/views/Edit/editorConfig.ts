@@ -60,6 +60,9 @@ export const toolbarConfig: Partial<IToolbarConfig> = {
     '|',
     'formatPainter',
     'clearStyle',
+    '|',
+    'undo',
+    'redo',
   ],
   // insertKeys: {
   //   index: 32,

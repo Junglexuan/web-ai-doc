@@ -1,18 +1,34 @@
-import {Button, Input, Space} from 'antd';
+import {Button, Input, InputNumber, Space} from 'antd';
 import {FC, memo, useState} from 'react';
 import {message, useEvent} from '@/utils/tools';
 import {VariableElement} from '../elements/Variable/custom-types';
+import ImagePrompt, {WritePromptValue} from '../WritePrompt';
 import styles from './index.module.less';
 
-const TPL = '${KNOWLEDGE.ASK(***)}';
+const TPL = '${AI.ASK(***)}';
 
-function matchValue(code: string): string {
+function matchValue(code: string): WritePromptValue | undefined {
   const arr = code.match(/ASK\((.+)\)\}$/) || [];
-  const args = arr[1]?.slice(1, -1) || '';
-  return decodeURI(args);
+  let args = arr[1]?.slice(1, -1) || '';
+  if (args) {
+    args = decodeURI(args);
+    let value: any;
+    try {
+      value = JSON.parse(args);
+    } catch (error) {
+      value = undefined;
+    }
+    return value;
+  }
+  return undefined;
 }
-function formatValue(value: string): string {
-  return TPL.replace('(***)', `('${encodeURI(value)}')`);
+
+function formatValue(value: any): string {
+  if (value) {
+    value = JSON.stringify(value);
+    return TPL.replace('(***)', `('${encodeURI(value)}')`);
+  }
+  return '';
 }
 
 interface Props {
@@ -24,23 +40,18 @@ interface Props {
 const Component: FC<Props> = ({onSubmit, onCancel, elem}) => {
   const [value, setValue] = useState(() => matchValue(elem.source));
 
-  const onInputChange = useEvent((e: any) => {
-    setValue(e.target.value.trim());
-  });
-
   const onOk = useEvent(() => {
-    if (value) {
+    if (value?.desc) {
       onSubmit(elem, {source: formatValue(value)});
     } else {
-      message.error('请输入问题...');
+      message.error('请输入内容描述...');
     }
   });
 
   return (
     <div className={styles.root}>
       <div className="bd">
-        <div className="title">问题描述：</div>
-        <Input.TextArea placeholder="请输入问题..." value={value} onChange={onInputChange} />
+        <ImagePrompt value={value} onChange={setValue} />
       </div>
       <Space className="ft">
         <Button size="small" type="primary" onClick={onOk}>

@@ -101,6 +101,7 @@ const continueWrite: AIRequest = ({args, onMessage, onError, onDone}) => {
       previous: previous || undefined,
     }),
     signal,
+    openWhenHidden: true,
     onmessage: (ev) => onMessage(markdown(ev.data)),
     onerror: (e) => {
       setTimeout(() => onError(e));
@@ -142,6 +143,7 @@ const createOutline: AIRequest = ({args, onMessage, onError, onDone}) => {
     headers: getHeaders(),
     body: JSON.stringify({type: 'outline', articleId: docId, conversation_id: sid, prompt, previous: raw || undefined}),
     signal,
+    openWhenHidden: true,
     onmessage: (ev) => onMessage(markdown(ev.data)),
     onerror: (e) => {
       setTimeout(() => onError(e));
@@ -202,6 +204,7 @@ const stylize: AIRequest = ({args, onMessage, onError, onDone}) => {
     headers: getHeaders(),
     body: JSON.stringify(req.body),
     signal,
+    openWhenHidden: true,
     onmessage: (ev) => onMessage(markdown(ev.data)),
     onerror: (e) => {
       setTimeout(() => onError(e));
@@ -222,6 +225,7 @@ const ask: AIRequest = ({args, onMessage, onError, onDone}) => {
     headers: getHeaders(),
     body: JSON.stringify({type: 'question', articleId: docId, conversation_id: sid, prompt, previous: previous || undefined}),
     signal,
+    openWhenHidden: true,
     onmessage: (ev) => onMessage(markdown(ev.data)),
     onerror: (e) => {
       setTimeout(() => onError(e));

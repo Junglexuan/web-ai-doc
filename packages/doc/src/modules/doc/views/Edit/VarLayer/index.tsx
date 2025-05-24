@@ -1,11 +1,11 @@
-import {Boot, DomEditor, IDomEditor, IModalMenu, SlateEditor, SlateTransforms} from '@wangeditor-next/editor';
-import {Button, Spin} from 'antd';
-import {FC, memo, useEffect, useMemo, useRef, useState} from 'react';
-import {addClass, debounce, message, removeClass, useEvent} from '@/utils/tools';
+import {DomEditor, IDomEditor, SlateTransforms} from '@wangeditor-next/editor';
+import {FC, memo, useEffect, useMemo, useState} from 'react';
+import {useEvent} from '@/utils/tools';
 import {VariableElement} from '../elements/Variable/custom-types';
 import VarAsk from '../VarAsk';
 import VarDate from '../VarDate';
 import VarImage from '../VarImage';
+import VarWrite from '../VarWrite';
 import styles from './index.module.less';
 
 export interface VarEvent {
@@ -42,6 +42,8 @@ const Component: FC<Props> = ({editor}) => {
         return <VarImage elem={varEvent.elem} onSubmit={onSubmit} onCancel={closeMenu} />;
       case 'ask':
         return <VarAsk elem={varEvent.elem} onSubmit={onSubmit} onCancel={closeMenu} />;
+      case 'write':
+        return <VarWrite elem={varEvent.elem} onSubmit={onSubmit} onCancel={closeMenu} />;
     }
     return null;
   }, [onSubmit, closeMenu, varEvent]);
