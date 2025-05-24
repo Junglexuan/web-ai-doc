@@ -1,12 +1,12 @@
-import {Button, Form, Input, Space} from 'antd';
+import {Button, Form, Input, Radio, Space} from 'antd';
 import {FC, memo} from 'react';
 import styles from './index.module.less';
 
-const Component: FC<{data: {title: string; remark?: string}; onCancel: () => void; onSubmit: (data: {title: string; remark: string}) => void}> = ({
-  data,
-  onCancel,
-  onSubmit,
-}) => {
+const Component: FC<{
+  data: {title: string; remark?: string; isShare?: boolean};
+  onCancel: () => void;
+  onSubmit: (data: {title: string; remark: string; isShare: boolean}) => void;
+}> = ({data, onCancel, onSubmit}) => {
   const [form] = Form.useForm();
 
   return (
@@ -17,6 +17,14 @@ const Component: FC<{data: {title: string; remark?: string}; onCancel: () => voi
         </Form.Item>
         <Form.Item name="remark" label="模版描述">
           <Input.TextArea />
+        </Form.Item>
+        <Form.Item name="isShare" label="应用范围">
+          <Radio.Group
+            options={[
+              {value: false, label: '个人使用'},
+              {value: true, label: '全员使用'},
+            ]}
+          />
         </Form.Item>
       </Form>
       <div className="ft">

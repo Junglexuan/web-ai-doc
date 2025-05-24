@@ -38,7 +38,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
     setCurEdit({} as ListItem);
   });
 
-  const onEditSubmit = useEvent((data: {title: string; remark: string}) => {
+  const onEditSubmit = useEvent((data: {title: string; remark: string; isShare: boolean}) => {
     const curId = curEdit?.id || '';
     DocAPI.saveTpl({...data, id: curId}).then(async ({id}) => {
       setCurEdit(undefined);
@@ -87,7 +87,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
               <div className="title">{item.title}</div>
               <div className="remark">{item.remark}</div>
               <div className="tags">
-                <span className={item.isSystem ? 'on' : ''}>{item.isSystem ? '系统模版' : '个人模版'}</span>
+                <span className={item.isSystem ? 'on' : ''}>{item.isSystem ? '系统模版' : item.isShare ? '共享模版' : '个人模版'}</span>
               </div>
               <div className="creater">
                 <span>{`${item.createUserName} 创建于 ${item.createDate}`}</span>

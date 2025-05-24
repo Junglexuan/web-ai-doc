@@ -38,13 +38,14 @@ export const DocAPI = {
   createDir({folder}: {folder: string}): Promise<{id: string}> {
     return request.post(`/dream/pen/dFolder/save`, {folderName: `新建文件夹`, parent: folder}).then((res) => res.data.data);
   },
-  saveTpl(data: {id: string; title: string; remark: string}): Promise<{id: string}> {
+  saveTpl(data: {id: string; title: string; remark: string; isShare: boolean}): Promise<{id: string}> {
     return request
       .post(`/dream/pen/template/save`, {
         id: data.id || undefined,
         title: data.title,
         contents: '<p style="line-height: 1.5;"><span style="font-size: 16px; font-family: 黑体;"></span></p>',
         remark: data.remark,
+        isShare: data.isShare,
       })
       .then((res) => res.data.data);
   },
@@ -59,8 +60,8 @@ export const DocAPI = {
       articleCount: text.length,
     });
   },
-  updateDocName(id: string, title: string): Promise<void> {
-    return request.post(`/dream/pen/article/save`, {id, title});
+  updateDocName(id: string, title: string, isTpl?: boolean): Promise<void> {
+    return request.post(isTpl ? '/dream/pen/template/save' : `/dream/pen/article/save`, {id, title});
   },
   updateDirName(id: string, folderName: string): Promise<void> {
     return request.post(`/dream/pen/dFolder/save`, {id, folderName});

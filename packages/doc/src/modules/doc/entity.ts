@@ -46,6 +46,7 @@ export interface ItemDetail {
   articleCount: number;
   levelPath: {id: string; folderName: string; parent: string}[];
   isTpl?: boolean;
+  isShare?: boolean;
 }
 export interface EditItem extends BaseListItem {}
 

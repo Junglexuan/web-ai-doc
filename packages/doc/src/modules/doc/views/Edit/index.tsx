@@ -75,7 +75,7 @@ const Component: FC<Props> = ({itemDetail}) => {
         setDocTitle(_docTitle);
       });
     } else {
-      DocAPI.updateDocName(itemDetail.id, title).catch(() => {
+      DocAPI.updateDocName(itemDetail.id, title, itemDetail.isTpl).catch(() => {
         setDocTitle(_docTitle);
       });
     }
