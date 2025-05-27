@@ -24,7 +24,7 @@ interface Props {
   onChange: (value: string) => void;
 }
 
-const Component: FC<Props> = ({size, value, onChange}) => {
+const Component: FC<Props> = ({size, value = 'qwen-turbo', onChange}) => {
   return <Select size={size} className={styles.root} placeholder="请选择..." options={modelOptions} value={value} onChange={onChange} />;
 };
 

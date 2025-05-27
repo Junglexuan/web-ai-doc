@@ -128,6 +128,7 @@ export const DocAPI = {
           item.id = item.articleId || item.folderId || item.id;
           item.title = item.title || item.folderName || (item as any).name;
           item.updateDate = item.updateDate ? dayjs(item.updateDate).format('YYYY-MM-DD HH:mm:ss') : '';
+          item.createDate = item.createDate ? dayjs(item.createDate).format('YYYY-MM-DD HH:mm:ss') : '';
           item.createUserName = item.createUserName || '';
           item.collect = render === 'favs' ? 1 : item.collect;
           return item;

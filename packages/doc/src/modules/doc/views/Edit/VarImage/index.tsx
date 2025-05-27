@@ -42,7 +42,7 @@ const Component: FC<Props> = ({onSubmit, onCancel, elem}) => {
 
   const onOk = useEvent(() => {
     if (value?.desc) {
-      onSubmit(elem, {source: formatValue(value)});
+      onSubmit(elem, {source: formatValue(value), info: `智能生图|${value.desc || '...'}`});
     } else {
       message.error('请输入图片描述...');
     }

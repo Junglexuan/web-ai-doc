@@ -3,6 +3,7 @@ import AIBase from '../AIBase';
 import AiAPI, {RunningState} from '../api';
 import EasyEdit from '../EasyEdit';
 import {useAIDialog} from '../hooks';
+import ImagePrompt, {ImagePromptValue} from '../ImagePrompt';
 import type {IAIRef} from '../AILayer';
 
 interface Props {
@@ -12,11 +13,12 @@ interface Props {
 
 const Component: FC<Props> = ({aiRef, onRunningStateChange}) => {
   const hooks = useAIDialog(aiRef, onRunningStateChange, AiAPI.createImage);
-  const [tplValue, setTplvalue] = useState<any>();
+  const [tplValue, setTplvalue] = useState<ImagePromptValue>();
 
   return (
     <AIBase title="生成图片" hooks={hooks} hideButton={['onKeep']}>
-      <EasyEdit
+      <ImagePrompt askMode ref={hooks.inputRef} value={tplValue} onChange={setTplvalue} onSubmit={hooks.onPromptSubmit} />
+      {/* <EasyEdit
         ref={hooks.inputRef}
         tpl="生成图片：${content}，风格为${styles}，大小为${size}"
         value={tplValue}
@@ -52,7 +54,7 @@ const Component: FC<Props> = ({aiRef, onRunningStateChange}) => {
             ],
           },
         }}
-      />
+      /> */}
     </AIBase>
   );
 };

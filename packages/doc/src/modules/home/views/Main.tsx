@@ -97,13 +97,15 @@ const Component: FC = () => {
   }, []);
 
   return (
-    <div className={styles.root}>
-      <DocumentHead title="首页" />
-      {renderCarousel}
-      <div className="title-box">最近创作</div>
-      {renderHotArticle}
-      <div className="title-box">热门创作类型</div>
-      {renderHotTemplate}
+    <div className={styles.wrap}>
+      <div className={styles.root}>
+        <DocumentHead title="首页" />
+        {renderCarousel}
+        <div className="title-box">最近创作</div>
+        {renderHotArticle}
+        <div className="title-box">热门创作类型</div>
+        {renderHotTemplate}
+      </div>
     </div>
   );
 };

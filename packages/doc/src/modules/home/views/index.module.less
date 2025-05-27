@@ -22,8 +22,16 @@
   //   //box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); // 添加阴影效果
   //   opacity: 1;
   // }
+  :local(.wrap) {
+    height: 100%;
+    padding-right: 2px !important;
+  }
 
   :local(.root) {
+    height: 100%;
+    padding-right: 18px;
+    overflow: auto;
+
     > .carousel {
       .carousel-item {
         height: 200px;

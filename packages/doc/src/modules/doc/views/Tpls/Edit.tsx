@@ -11,7 +11,7 @@ const Component: FC<{
 
   return (
     <div className={styles.root}>
-      <Form className="bd" labelCol={{span: 4}} wrapperCol={{span: 20}} initialValues={data} preserve={false} form={form} onFinish={onSubmit}>
+      <Form className="bd" labelCol={{span: 5}} wrapperCol={{span: 18}} initialValues={data} preserve={false} form={form} onFinish={onSubmit}>
         <Form.Item name="title" label="模版名称" rules={[{required: true, whitespace: true}]}>
           <Input />
         </Form.Item>

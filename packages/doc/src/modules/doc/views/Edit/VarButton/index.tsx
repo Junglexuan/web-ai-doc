@@ -1,9 +1,8 @@
 import {AlignLeftOutlined, CalendarOutlined, PictureOutlined, PlusCircleOutlined, QuestionCircleOutlined, SignatureOutlined} from '@ant-design/icons';
-import {Boot, DomEditor, IDomEditor, IModalMenu, SlateEditor} from '@wangeditor-next/editor';
+import {IDomEditor} from '@wangeditor-next/editor';
 import {Button, Dropdown} from 'antd';
-import {FC, ReactNode, memo, useEffect, useMemo, useState} from 'react';
+import {FC, memo, useMemo} from 'react';
 import {createPortal} from 'react-dom';
-import {addClass, useEvent} from '@/utils/tools';
 import {VariableElement} from '../elements/Variable/custom-types';
 import VarLayer from '../VarLayer';
 import styles from './index.module.less';

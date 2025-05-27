@@ -1,9 +1,8 @@
-import {EllipsisOutlined, PlusOutlined, StarFilled, StarOutlined} from '@ant-design/icons';
-import {Dispatch, DocumentHead, setLoading as setGlobalLoading} from '@elux/react-web';
-import {Button, Dropdown, Form, Input, Modal, Popover, Space} from 'antd';
+import {EllipsisOutlined, PlusOutlined} from '@ant-design/icons';
+import {Dispatch, DocumentHead} from '@elux/react-web';
+import {Button, Dropdown, Input, Modal} from 'antd';
 import {FC, memo, useCallback, useEffect, useMemo, useState} from 'react';
 import {GetActions, GetClientRouter} from '@/Global';
-import {downloadFile, replaceBaseUrl} from '@/utils/request';
 import {confirm, debounce, message, useEvent, useSingleWindow} from '@/utils/tools';
 import {DocAPI} from '../../api';
 import {ListItem, ListSearch, ListSummary} from '../../entity';
@@ -21,10 +20,8 @@ const {doc: docActions} = GetActions('doc');
 
 const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
   const singleWindow = useSingleWindow();
-  const [loading, setLoading] = useState<'create' | ''>('');
   const [scrollHeight, setScrollHeight] = useState(() => window.innerHeight - 215);
   const [curEdit, setCurEdit] = useState<ListItem>();
-  const [showMove, setShowMove] = useState('');
 
   const refreshList = useCallback(() => {
     return dispatch(docActions.fetchList());
@@ -55,6 +52,10 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
     });
   });
 
+  const onShowTpl = useEvent((tplId: string) => {
+    GetClientRouter().push({url: `/admin/doc/item/tpl/${tplId}?__c=_dialog`}, singleWindow);
+  });
+
   const onSearch = useEvent((name: string) => {
     dispatch(docActions.fetchList({...listSearch, name}));
   });
@@ -82,8 +83,8 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
       <div className="md" style={{height: scrollHeight}}>
         {list.map((item) => {
           return (
-            <div className={styles.card} key={item.id} onClick={() => onApplyTpl(item.id)}>
-              {item.collect ? <StarFilled className="collect" /> : <StarOutlined className="collect anticon-star-outline" />}
+            <div className={styles.card} key={item.id} onClick={() => onShowTpl(item.id)}>
+              {/* {item.collect ? <StarFilled className="collect" /> : <StarOutlined className="collect anticon-star-outline" />} */}
               <div className="title">{item.title}</div>
               <div className="remark">{item.remark}</div>
               <div className="tags">
@@ -106,8 +107,6 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
                         });
                       } else if (key === 'apply') {
                         onApplyTpl(item.id);
-                      } else if (key === 'detail') {
-                        GetClientRouter().push({url: `/admin/doc/item/tpl/${item.id}?__c=_dialog`}, singleWindow);
                       }
                     },
                     items: [
@@ -116,12 +115,8 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
                         label: '立即使用',
                       },
                       {
-                        key: 'detail',
-                        label: '编辑模版',
-                      },
-                      {
                         key: 'edit',
-                        label: '修改信息',
+                        label: '重命名',
                       },
                       {
                         key: 'delete',
