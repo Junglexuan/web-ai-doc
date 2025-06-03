@@ -130,7 +130,6 @@ const Component: FC<{}> = () => {
       <div className="hd">
         <img className="logo" src={Logo} />
         <span className="title">梦笔公文</span>
-
         <Button className="writer" block type="primary" icon={<EditOutlined />} onClick={onCreate} loading={loading === 'create'}>
           开始写作
         </Button>

@@ -15,6 +15,6 @@ module.exports = {
     clientMinimize: false,
     eslint: false,
     stylelint: false,
-    sourceMap: 'cheap-module-source-map',
+    //sourceMap: 'cheap-module-source-map',
   },
 };

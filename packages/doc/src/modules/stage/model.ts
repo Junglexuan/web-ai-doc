@@ -102,7 +102,7 @@ export class Model extends BaseModel<ModuleState, APPState> {
   @effect(null)
   protected async ['this._testRouteChange']({url, pathname}: {url: string; pathname: string}): Promise<void> {
     if (!this.state.curUser.hasLogin && this.checkNeedsLogin(pathname)) {
-      throw new CustomError(ErrorCode.unauthorized, '', url);
+      throw new CustomError(ErrorCode.unauthorized, '', (PathPrefix || '') + url);
     }
     if (this.getRouter().location.pathname.startsWith('/admin/doc/item/edit/')) {
       console.log('checkSave');
