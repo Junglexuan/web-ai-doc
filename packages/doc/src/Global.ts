@@ -25,6 +25,7 @@ const EnvConfig = process.env.PROJ_ENV as {
 
 export const {StaticPrefix, PathPrefix = ''} = EnvConfig;
 export const ApiPrefix = window['ApiPrefix'] || EnvConfig.ApiPrefix;
+export const KnowledgePrefix: string = '/knowledge';
 
 export const InIframe = window.parent !== window;
 

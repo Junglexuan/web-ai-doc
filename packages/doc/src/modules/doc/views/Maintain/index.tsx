@@ -4,7 +4,6 @@ import {
   FolderAddOutlined,
   FolderOpenOutlined,
   PlusOutlined,
-  SearchOutlined,
   StarFilled,
   StarOutlined,
   UploadOutlined,

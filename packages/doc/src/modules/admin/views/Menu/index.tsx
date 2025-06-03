@@ -1,11 +1,14 @@
-import {AlignCenterOutlined, DatabaseOutlined, EditOutlined, FileOutlined, HomeOutlined, StarOutlined} from '@ant-design/icons';
+import {DatabaseOutlined, EditOutlined, FileOutlined, HomeOutlined, StarOutlined} from '@ant-design/icons';
 import {Link} from '@elux/react-web';
 import {Button, Menu} from 'antd';
-import {FC, useCallback, useMemo, useState} from 'react';
+import {FC, useCallback, useEffect, useMemo, useState} from 'react';
+import ASK from '@/assets/images/ask';
 import Logo from '@/assets/images/logo.svg';
-import {GetClientRouter} from '@/Global';
+import TPL from '@/assets/images/tpl';
+import ZSK from '@/assets/images/zsk';
+import {GetClientRouter, KnowledgePrefix} from '@/Global';
 import DocAPI from '@/modules/doc/api';
-import {getUrlParam, message, useEvent} from '@/utils/tools';
+import {getUrlParam} from '@/utils/tools';
 import styles from './index.module.less';
 
 const items: any[] = [
@@ -60,6 +63,21 @@ const items: any[] = [
       </Link>
     ),
   },
+  {
+    key: '知识库',
+    icon: <ZSK />,
+    label: <a href={KnowledgePrefix + '/knowledge'}>知识库</a>,
+  },
+  {
+    key: '知识问答',
+    icon: <ASK />,
+    label: <a href={KnowledgePrefix + '/chat'}>知识问答</a>,
+  },
+  {
+    key: '文件管理',
+    icon: <TPL />,
+    label: <a href={KnowledgePrefix + '/file'}>文件管理</a>,
+  },
 ];
 
 const Component: FC<{}> = () => {
@@ -97,6 +115,14 @@ const Component: FC<{}> = () => {
         })
         .finally(() => setLoading(''));
     }
+  }, []);
+
+  useEffect(() => {
+    const auicklyCreate = getUrlParam('auicklyCreate');
+    if (auicklyCreate) {
+      onCreate();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
