@@ -13,6 +13,7 @@ export interface ListItem extends BaseListItem {
   folderId: string;
   articleId: string;
   folderName: string;
+  articleTemplateId: string;
   type: 'dir' | 'doc';
   articleCount: number;
   articleSize: number;

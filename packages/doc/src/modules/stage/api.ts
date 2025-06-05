@@ -25,7 +25,8 @@ class API {
     if (ticket) {
       return request.post(`/dream/pen/sso/login?ticket=${ticket}`).then(
         (res) => {
-          const {token, ...user} = res.data.data;
+          const {token, tokenKnowledge, ...user} = res.data.data;
+          localStorage.setItem('Authorization', tokenKnowledge);
           localStorage.setItem('zov-user-token', token);
           localStorage.setItem('zov-user-info', JSON.stringify(user));
           setTimeout(() => {
@@ -48,6 +49,7 @@ class API {
   }
   public logout(): Promise<CurUser> {
     return request.post(`/dream/pen/sso/signout`).then(() => {
+      localStorage.removeItem('Authorization');
       localStorage.removeItem('zov-user-token');
       localStorage.removeItem('zov-user-info');
       return guest;

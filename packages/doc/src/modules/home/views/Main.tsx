@@ -4,7 +4,7 @@ import {FC, useEffect, useMemo, useState} from 'react';
 import {GetClientRouter} from '@/Global';
 import {PathPrefix} from '@/Global';
 import DocAPI from '@/modules/doc/api';
-import {message, useEvent} from '@/utils/tools';
+import {useEvent} from '@/utils/tools';
 import HomeAPI from '../api';
 import {HotArticle, HotTemplate} from '../entity';
 import styles from './index.module.less';

@@ -1,4 +1,4 @@
-export default function AiIcon(props: { className?: string }): JSX.Element {
+export default function AiIcon(props: {className?: string}): JSX.Element {
   return (
     <span className={props.className}>
       <svg version="1.1" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">

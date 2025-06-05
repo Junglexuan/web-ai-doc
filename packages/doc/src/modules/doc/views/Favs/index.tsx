@@ -174,6 +174,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
         ),
       },
     ];
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showRename, showMove, listSearch, listSummary]);
 
   const batchDelete = useEvent(() => {

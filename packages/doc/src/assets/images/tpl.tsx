@@ -1,13 +1,7 @@
-export default function AiIcon(props: { className?: string }): JSX.Element {
+export default function AiIcon(props: {className?: string}): JSX.Element {
   return (
     <span className={props.className}>
-      <svg
-        version="1.1"
-        width="16"
-        height="16"
-        viewBox="0 0 16 16"
-        fill="currentColor"
-      >
+      <svg version="1.1" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
         <defs>
           <clipPath id="master_svg0_181_10592">
             <rect x="0" y="0" width="16" height="16" rx="0" />

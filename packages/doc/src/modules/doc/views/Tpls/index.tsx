@@ -1,9 +1,9 @@
-import {EllipsisOutlined, PlusOutlined} from '@ant-design/icons';
+import {EllipsisOutlined, PlusOutlined, StarFilled, StarOutlined} from '@ant-design/icons';
 import {Dispatch, DocumentHead} from '@elux/react-web';
 import {Button, Dropdown, Input, Modal} from 'antd';
-import {FC, memo, useCallback, useEffect, useMemo, useState} from 'react';
+import {FC, memo, useCallback, useEffect, useState} from 'react';
 import {GetActions, GetClientRouter} from '@/Global';
-import {confirm, debounce, message, useEvent, useSingleWindow} from '@/utils/tools';
+import {confirm, debounce, useEvent, useSingleWindow} from '@/utils/tools';
 import {DocAPI} from '../../api';
 import {ListItem, ListSearch, ListSummary} from '../../entity';
 import styles from '../Maintain/index.module.less';
@@ -33,6 +33,12 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
 
   const onCreate = useEvent(() => {
     setCurEdit({} as ListItem);
+  });
+
+  const onCollect = useEvent((e: any, id: string, collect: boolean) => {
+    e.stopPropagation();
+    e.preventDefault();
+    DocAPI.collectItem(id, 'tpl', collect).then(refreshList);
   });
 
   const onEditSubmit = useEvent((data: {title: string; remark: string; isShare: boolean}) => {
@@ -84,7 +90,11 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
         {list.map((item) => {
           return (
             <div className={styles.card} key={item.id} onClick={() => onShowTpl(item.id)}>
-              {/* {item.collect ? <StarFilled className="collect" /> : <StarOutlined className="collect anticon-star-outline" />} */}
+              {item.collect ? (
+                <StarFilled className="collect" onClick={(e) => onCollect(e, item.id, !item.collect)} />
+              ) : (
+                <StarOutlined className="collect anticon-star-outline" onClick={(e) => onCollect(e, item.id, !item.collect)} />
+              )}
               <div className="title">{item.title}</div>
               <div className="remark">{item.remark}</div>
               <div className="tags">

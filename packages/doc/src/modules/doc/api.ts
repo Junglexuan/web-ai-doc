@@ -91,7 +91,7 @@ export const DocAPI = {
     return request.post('/dream/pen/dFolder/move', {original: id, targetFolder, type: type === 'dir' ? 1 : 2});
   },
   collectItem(id: string, type: 'dir' | 'doc' | 'tpl', checked: boolean): Promise<void> {
-    return request.post(type === 'doc' ? `/dream/pen/article/collect` : '', {id, type: checked});
+    return request.post(type !== 'dir' ? `/dream/pen/article/collect` : '', {id, type: type === 'doc' ? 2 : 3, isCollect: checked});
   },
   getDoc({id, render}: {id: string; render?: CurRender}): Promise<ItemDetail> {
     const isTpl = render === 'tpl';
@@ -120,12 +120,12 @@ export const DocAPI = {
       render === 'maintain' ? request.get(`/dream/pen/dFolder/level`, {params: {id}}) : ({} as any),
       render === 'maintain' ? request.get(`/dream/pen/dFolder/tree`) : ({} as any),
     ]).then(([listRes, levelRes, dirTreeRes]) => {
-      const list: ListItem[] = (render === 'favs' ? listRes.data.data.data : listRes.data.data) || [];
+      const list: ListItem[] = listRes.data.data || [];
       const dirTree = dirTreeRes.data?.data || [];
       return {
         list: list.map((item) => {
           item.type = item.articleId || render === 'favs' || render === 'tpls' ? 'doc' : 'dir';
-          item.id = item.articleId || item.folderId || item.id;
+          item.id = item.articleId || item.folderId || item.articleTemplateId || item.id;
           item.title = item.title || item.folderName || (item as any).name;
           item.updateDate = item.updateDate ? dayjs(item.updateDate).format('YYYY-MM-DD HH:mm:ss') : '';
           item.createDate = item.createDate ? dayjs(item.createDate).format('YYYY-MM-DD HH:mm:ss') : '';
