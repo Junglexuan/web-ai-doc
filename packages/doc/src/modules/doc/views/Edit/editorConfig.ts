@@ -1,6 +1,5 @@
 import {Boot, IEditorConfig, IToolbarConfig, i18nGetResources} from '@wangeditor-next/editor';
 // eslint-disable-next-line import/no-extraneous-dependencies
-import {VNode, h} from 'snabbdom';
 import {replaceBaseUrl} from '@/utils/request';
 import {getToken} from '@/utils/tools';
 import Review from './elements/Review';

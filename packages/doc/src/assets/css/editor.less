@@ -20,6 +20,7 @@
   height: 20px;
   margin: 0 5px;
   font-size: 13px;
+  line-height: 18px;
   border: 1px solid #70b0ff;
   border-radius: 3px;
 
@@ -43,8 +44,13 @@
     content: attr(lang);
   }
 
-  span {
-    font-size: 0;
+  * {
+    font-size: 12px !important;
+    line-height: 18px !important;
+  }
+
+  > span {
+    margin-left: 5px;
   }
 
   // > cite {

@@ -38,6 +38,13 @@ interface Props {
 }
 
 const Component: FC<Props> = ({itemDetail}) => {
+  const defaultConfig = useMemo(() => {
+    if (itemDetail.readonly) {
+      return {...editorConfig, readOnly: true};
+    } else {
+      return editorConfig;
+    }
+  }, [itemDetail.readonly]);
   const [editor, setEditor] = useState<IDomEditor>();
   const [docTitle, setDocTitle] = useState(itemDetail.title);
   const [collect, setCollect] = useState(itemDetail.collect);
@@ -246,6 +253,7 @@ const Component: FC<Props> = ({itemDetail}) => {
             {breadcrumb}
           </Space>
           <Space align="center" className="info">
+            {itemDetail.readonly && <span>只读模式</span>}
             <div>
               <UserOutlined />
               <span> {itemDetail.createUserName}</span>
@@ -281,12 +289,14 @@ const Component: FC<Props> = ({itemDetail}) => {
               size="large"
               key={docTitle}
               value={docTitle}
+              readOnly={itemDetail.readonly}
               className="doc-title"
+              style={{background: '#fff'}}
               onChange={onDocTitleChange}
             />
           </header>
           <Editor
-            defaultConfig={editorConfig}
+            defaultConfig={defaultConfig}
             value={source.html}
             onCreated={onCreated}
             onChange={onChange}

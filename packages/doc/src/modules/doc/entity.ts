@@ -48,6 +48,7 @@ export interface ItemDetail {
   levelPath: {id: string; folderName: string; parent: string}[];
   isTpl?: boolean;
   isShare?: boolean;
+  readonly?: boolean;
 }
 export interface EditItem extends BaseListItem {}
 

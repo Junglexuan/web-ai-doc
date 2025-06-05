@@ -1,4 +1,4 @@
-import {DatabaseOutlined, EditOutlined, FileOutlined, HomeOutlined, StarOutlined} from '@ant-design/icons';
+import {DatabaseOutlined, EditOutlined, FileOutlined, HomeOutlined, SettingOutlined, StarOutlined} from '@ant-design/icons';
 import {Link} from '@elux/react-web';
 import {Button, Menu} from 'antd';
 import {FC, useCallback, useEffect, useMemo, useState} from 'react';
@@ -41,20 +41,6 @@ const items: any[] = [
     ),
   },
   {
-    key: '回收站',
-    label: (
-      <Link to="/admin/doc/list/recs" action="relaunch" target="window">
-        回收站
-      </Link>
-    ),
-    type: 'group',
-  },
-  // {
-  //   key: '知识管理',
-  //   icon: <AlignCenterOutlined />,
-  //   label: '知识管理',
-  // },
-  {
     key: '模版管理',
     icon: <DatabaseOutlined />,
     label: (
@@ -62,6 +48,15 @@ const items: any[] = [
         模版管理
       </Link>
     ),
+  },
+  {
+    key: '回收站',
+    label: (
+      <Link to="/admin/doc/list/recs" action="relaunch" target="window">
+        回收站
+      </Link>
+    ),
+    type: 'group',
   },
   {
     key: '知识库',
@@ -77,6 +72,11 @@ const items: any[] = [
     key: '文件管理',
     icon: <TPL />,
     label: <a href={KnowledgePrefix + '/file'}>文件管理</a>,
+  },
+  {
+    key: '模型管理',
+    icon: <SettingOutlined />,
+    label: <a href={KnowledgePrefix + '/user-setting/model'}>模型管理</a>,
   },
 ];
 
