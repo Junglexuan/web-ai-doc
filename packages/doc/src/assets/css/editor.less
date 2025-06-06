@@ -17,10 +17,9 @@
 
 .w-e-variable {
   display: inline-flex;
-  height: 20px;
   margin: 0 5px;
-  font-size: 13px;
-  line-height: 18px;
+  font-size: 14px;
+  line-height: 1;
   border: 1px solid #70b0ff;
   border-radius: 3px;
 
@@ -28,30 +27,38 @@
     box-shadow: 0 0 3px 2px #0048ff27;
   }
 
-  &::before {
-    padding: 0 2px;
-    padding-right: 3px;
+  > * {
+    padding: 3px 5px;
+  }
+
+  // &::before {
+  //   padding: 0 2px;
+  //   padding-right: 3px;
+  //   font-size: 12px;
+  //   color: #fff;
+  //   content: attr(title);
+  //   background-color: #70b0ff;
+  // }
+
+  &::after {
+    display: flex;
+    align-items: center;
+    padding: 0 5px;
     font-size: 12px;
     color: #fff;
+    vertical-align: bottom;
     content: attr(title);
     background-color: #70b0ff;
   }
 
-  &::after {
-    padding: 0 4px;
-    font-size: 12px;
-    color: #999;
-    content: attr(lang);
-  }
+  // * {
+  //   font-size: 12px !important;
+  //   line-height: 18px !important;
+  // }
 
-  * {
-    font-size: 12px !important;
-    line-height: 18px !important;
-  }
-
-  > span {
-    margin-left: 5px;
-  }
+  // > span {
+  //   margin-left: 5px;
+  // }
 
   // > cite {
   //   padding: 2px;

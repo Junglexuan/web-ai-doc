@@ -42,7 +42,7 @@ const Component: FC<Props> = ({onSubmit, onCancel, elem}) => {
 
   const onOk = useEvent(() => {
     if (value?.desc) {
-      onSubmit(elem, {source: formatValue(value), info: `AI写作|${value.desc || '...'}`});
+      onSubmit(elem, {source: formatValue(value), info: value.desc || '...'});
     } else {
       message.error('请输入内容描述...');
     }

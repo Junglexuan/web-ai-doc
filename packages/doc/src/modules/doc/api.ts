@@ -15,8 +15,8 @@ export const DocAPI = {
             .post(`/dream/pen/template/createArticle`, {
               id: data,
               content: (item.contents || '')
-                .replace(/(<cite data-w-e-type="variable" .+? data-source=")(.+?)(">[^$]*)\$([^$]*<\/cite>)/g, '$1$2$3$2$4')
-                .replace(/(<cite data-w-e-type="variable" [^>]+?)><span( [\w\W]+)<\/span>(<\/cite>)/g, '$1$2$3'),
+                .replace(/(<cite data-w-e-type="variable" .+? data-source=")(.+?)(">[^$]*)\$[^<]*(<.*?\/cite>)/g, '$1$2$3$2$4')
+                .replace(/(<cite data-w-e-type="variable" [^>]+?)><span( [\w\W]+?)<\/span>.*?(<\/cite>)/g, '$1$2$3'),
             })
             .then((res) => res.data.data);
         }),

@@ -294,3 +294,14 @@ export function throttle<T extends Function>(callbak: T, delay = 0): T {
 export function getRandomNumber(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
+export function closestTarget(el: HTMLElement, find: (dom: HTMLElement) => boolean, root: HTMLElement, limit: number = 9999): HTMLElement | null {
+  let n = 0;
+  do {
+    n++;
+    if (find(el)) {
+      return el;
+    }
+    el = el.parentElement as any;
+  } while (el && el !== root && n < limit);
+  return null;
+}

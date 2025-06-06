@@ -1,6 +1,6 @@
 import {DomEditor, IDomEditor, SlateTransforms} from '@wangeditor-next/editor';
 import {FC, memo, useEffect, useMemo, useState} from 'react';
-import {useEvent} from '@/utils/tools';
+import {closestTarget, useEvent} from '@/utils/tools';
 import {VariableElement} from '../elements/Variable/custom-types';
 import VarAsk from '../VarAsk';
 import VarDate from '../VarDate';
@@ -55,7 +55,17 @@ const Component: FC<Props> = ({editor}) => {
     const div = document.getElementById('w-e-textarea-1')?.parentElement;
     if (div) {
       div.addEventListener('click', (e: any) => {
-        if (e.target.className === 'w-e-variable on' || e.target.parentNode.className === 'w-e-variable on') {
+        if (e.target.className.startsWith('w-e-variable')) {
+          return;
+        }
+        const target = closestTarget(
+          e.target,
+          (dom) => {
+            return dom.className.startsWith('w-e-variable');
+          },
+          div
+        );
+        if (target) {
           return;
         }
         closeMenu();

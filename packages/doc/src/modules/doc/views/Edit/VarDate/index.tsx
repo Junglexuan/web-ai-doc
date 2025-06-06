@@ -47,7 +47,7 @@ const Component: FC<Props> = ({onSubmit, onCancel, elem}) => {
 
   const onOk = useEvent(() => {
     const [fun, args] = value;
-    onSubmit(elem, {source: args ? fun.replace('(***)', `('${args}')`) : fun, info: '日期时间|' + options.find((item) => item.value === fun)?.label});
+    onSubmit(elem, {source: args ? fun.replace('(***)', `('${args}')`) : fun, info: options.find((item) => item.value === fun)?.label});
   });
 
   return (

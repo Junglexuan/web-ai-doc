@@ -25,15 +25,15 @@ function insertVarByTpl(editor: IDomEditor, kind: string) {
   if (editor.selection) {
     let node: VariableElement | undefined;
     if (kind === 'date') {
-      node = {type: 'variable', kind, source: '${DATE.NOW()}', info: '日期时间|此时此刻', children: [{text: '$'}]};
+      node = {type: 'variable', kind, source: '${DATE.NOW()}', info: '此时此刻', children: [{text: '$日期时间'}]};
     } else if (kind === 'sign') {
-      node = {type: 'variable', kind, source: '${USER.CURRENT()}', info: '用户署名|当前用户', children: [{text: '$'}]};
+      node = {type: 'variable', kind, source: '${USER.CURRENT()}', info: '当前用户', children: [{text: '$用户署名'}]};
     } else if (kind === 'image') {
-      node = {type: 'variable', kind, source: '${AI.IMAGE()}', info: '智能生图|...', children: [{text: '$'}]};
+      node = {type: 'variable', kind, source: '${AI.IMAGE()}', info: '...', children: [{text: '$智能生图'}]};
     } else if (kind === 'ask') {
-      node = {type: 'variable', kind, source: '${KNOWLEDGE.ASK()}', info: '知识库问答|...', children: [{text: '$'}]};
+      node = {type: 'variable', kind, source: '${KNOWLEDGE.ASK()}', info: '...', children: [{text: '$知识库问答'}]};
     } else if (kind === 'write') {
-      node = {type: 'variable', kind, source: '${AI.ASK()}', info: 'AI写作|...', children: [{text: '$'}]};
+      node = {type: 'variable', kind, source: '${AI.ASK()}', info: '...', children: [{text: '$AI写作'}]};
     }
     if (node) {
       editor.insertNode(node);

@@ -6,20 +6,19 @@ import {VariableElement} from './custom-types';
 function renderElem(elem: SlateElement, children: VNode[] | null, editor: IDomEditor): VNode {
   const {info} = elem as VariableElement;
   const selected = DomEditor.isNodeSelected(editor, elem);
-  const [title, ...labels] = info.split('|');
   const vnode = h(
     'span',
     {
       props: {
         className: selected ? 'w-e-variable on' : 'w-e-variable',
         contentEditable: false,
-        title: title,
-        lang: labels.join(''),
+        title: info,
       },
       on: {
         click(event) {
-          const el = event.target as HTMLElement;
+          const el = event.currentTarget as HTMLElement;
           if (window.getSelection()?.isCollapsed) {
+            console.log(el.getBoundingClientRect());
             editor.emit('variable-selected', {elem, pos: el.getBoundingClientRect()});
           }
         },
