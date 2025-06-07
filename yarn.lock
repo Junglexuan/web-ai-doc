@@ -2689,6 +2689,18 @@
   dependencies:
     prismjs "^1.23.0"
 
+"@wangeditor-next/core@^1.7.36":
+  version "1.7.36"
+  resolved "https://registry.yarnpkg.com/@wangeditor-next/core/-/core-1.7.36.tgz#95f524675b06044a7cca3982df650149e9c6a57d"
+  integrity sha512-aqKOsxbM+esFVX5y8qe3xl3LkknuZlYHz1Ak99PWDeUsoaWMSbyod7TcXOLawa0dWyNvVNbDayOw98l4OOiuCg==
+  dependencies:
+    "@types/event-emitter" "^0.3.3"
+    event-emitter "^0.3.5"
+    html-void-elements "^3.0.0"
+    i18next "^23.0.0"
+    scroll-into-view-if-needed "^3.0.0"
+    slate-history "^0.109.0"
+
 "@wangeditor-next/core@~1.7.34":
   version "1.7.34"
   resolved "https://registry.yarnpkg.com/@wangeditor-next/core/-/core-1.7.34.tgz#568105d5da339e0c91c2d827889afd0d9644e2e7"
@@ -2706,10 +2718,8 @@
   resolved "https://registry.yarnpkg.com/@wangeditor-next/editor-for-react/-/editor-for-react-1.0.9.tgz#a7ff5c05ec367ca95d2b30928df82ca2eb92aa90"
   integrity sha512-Why6o9ZTKxkNkKxvflhLB7zf5SSjVN3137RHfTXUVo8qMcvH4gIBSfPmdsxyqzbWEKjv+nMBBtNdHxpvTYqa3g==
 
-"@wangeditor-next/editor@^5.6.34":
+"@wangeditor-next/editor@file:./packages/doc/@wangeditor-next/editor":
   version "5.6.34"
-  resolved "https://registry.yarnpkg.com/@wangeditor-next/editor/-/editor-5.6.34.tgz#a73ab3c8a87e413916a8a4ac6e75b3e2747da664"
-  integrity sha512-ZBRl9+Zzvt9DheIFjDfcwfGXVt7+5oP7ZZazyFh5Ta23RLBHQhwbWPkSbFYUzigPXwILofXPAxdwyyFVnHe5jw==
   dependencies:
     "@uppy/core" "^2.1.1"
     "@uppy/xhr-upload" "^2.0.3"
