@@ -1,12 +1,12 @@
-import {DeleteOutlined, DownOutlined, SearchOutlined, StarFilled, StarOutlined} from '@ant-design/icons';
+import {DeleteOutlined, DownOutlined, StarFilled} from '@ant-design/icons';
 import {Dispatch, DocumentHead, setLoading as setGlobalLoading} from '@elux/react-web';
 import {Button, Dropdown, Input, Popover, Space, Table, TableProps} from 'antd';
 import {FC, memo, useCallback, useEffect, useMemo, useState} from 'react';
 import {GetActions, GetClientRouter} from '@/Global';
 import {downloadFile, replaceBaseUrl} from '@/utils/request';
-import {confirm, debounce, message, useEvent, useSingleWindow} from '@/utils/tools';
+import {confirm, debounce, useEvent, useSingleWindow} from '@/utils/tools';
 import {DocAPI} from '../../api';
-import {ListItem, ListSearch, ListSummary} from '../../entity';
+import {DocType, ListItem, ListSearch, ListSummary} from '../../entity';
 import styles from '../Maintain/index.module.less';
 interface Props {
   dispatch: Dispatch;
@@ -23,21 +23,23 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
   const [selectedRows, setSelectedRows] = useState<{ids: string[]; rows: ListItem[]}>({ids: [], rows: []});
   const [scrollHeight, setScrollHeight] = useState(() => window.innerHeight - 275);
   const [showRename, setShowRename] = useState('');
-  const [showMove, setShowMove] = useState('');
+  //const [showMove, setShowMove] = useState('');
 
   const refreshList = useCallback(() => {
     return dispatch(docActions.fetchList());
   }, [dispatch]);
 
-  const onShowDetail = useEvent((id: string, type: 'dir' | 'doc') => {
+  const onShowDetail = useEvent((id: string, type: DocType) => {
     if (type === 'doc') {
       GetClientRouter().push({url: `/admin/doc/item/edit/${id}?__c=_dialog`}, singleWindow);
+    } else if (type === 'tpl') {
+      GetClientRouter().push({url: `/admin/doc/item/tpl/${id}?__c=_dialog`}, singleWindow);
     } else {
       GetClientRouter().push({url: `/admin/doc/list/maintain?id=${id}`}, 'page');
     }
   });
 
-  const onRename = useEvent((id: string, type: 'doc' | 'dir', name: string) => {
+  const onRename = useEvent((id: string, type: DocType, name: string) => {
     if (type === 'doc') {
       DocAPI.updateDocName(id, name).then(refreshList);
     } else {
@@ -61,11 +63,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
             <a className={'ico-' + row.type} title={text} onClick={() => onShowDetail(row.id, row.type)}>
               {text}
             </a>
-            {row.type === 'dir' ? null : !row.collect ? (
-              <StarOutlined className="anticon-star-outline" onClick={() => DocAPI.collectItem(row.id, row.type, !row.collect).then(refreshList)} />
-            ) : (
-              <StarFilled onClick={() => DocAPI.collectItem(row.id, row.type, !row.collect).then(refreshList)} />
-            )}
+            <StarFilled onClick={() => DocAPI.collectItem(row.id, row.type, !row.collect).then(refreshList)} />
           </div>
         ),
       },
@@ -175,7 +173,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
       },
     ];
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [showRename, showMove, listSearch, listSummary]);
+  }, [showRename, listSearch, listSummary]);
 
   const batchDelete = useEvent(() => {
     confirm(`您确定要删除${selectedRows.rows.length}项吗？`, (ok) => {

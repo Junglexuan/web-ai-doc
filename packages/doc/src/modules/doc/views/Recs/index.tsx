@@ -1,12 +1,11 @@
-import {DeleteOutlined, DownOutlined, SearchOutlined, StarFilled, StarOutlined} from '@ant-design/icons';
-import {Dispatch, DocumentHead, setLoading as setGlobalLoading} from '@elux/react-web';
-import {Button, Dropdown, Input, Popover, Space, Table, TableProps} from 'antd';
+import {DeleteOutlined, StarFilled, StarOutlined} from '@ant-design/icons';
+import {Dispatch, DocumentHead} from '@elux/react-web';
+import {Button, Input, Space, Table, TableProps} from 'antd';
 import {FC, memo, useCallback, useEffect, useMemo, useState} from 'react';
-import {GetActions, GetClientRouter} from '@/Global';
-import {downloadFile, replaceBaseUrl} from '@/utils/request';
-import {confirm, debounce, message, useEvent, useSingleWindow} from '@/utils/tools';
+import {GetActions} from '@/Global';
+import {confirm, debounce, useEvent} from '@/utils/tools';
 import {DocAPI} from '../../api';
-import {ListItem, ListSearch, ListSummary} from '../../entity';
+import {DocType, ListItem, ListSearch, ListSummary} from '../../entity';
 import styles from '../Maintain/index.module.less';
 interface Props {
   dispatch: Dispatch;
@@ -25,7 +24,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
     return dispatch(docActions.fetchList());
   }, [dispatch]);
 
-  const onDeleteItem = useEvent((id: string, type: 'doc' | 'dir', title: string) => {
+  const onDeleteItem = useEvent((id: string, type: DocType, title: string) => {
     confirm(`您确定要彻底删除《${title}》吗？`, (ok) => {
       if (ok) {
         DocAPI.cleanItem(id, type).then(refreshList);
@@ -33,7 +32,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
     });
   });
 
-  const onRestoreItem = useEvent((id: string, type: 'doc' | 'dir') => {
+  const onRestoreItem = useEvent((id: string, type: DocType) => {
     DocAPI.restoreItem(id, type).then(refreshList);
   });
 

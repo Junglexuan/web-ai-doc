@@ -3,7 +3,13 @@ import dayjs from 'dayjs';
 import {GetClientRouter} from '@/Global';
 import request from '@/utils/request';
 import {mapTree} from '@/utils/tools';
-import {CurRender, ItemDetail, ListItem, ListResult, ListSearch} from './entity';
+import {CurRender, DocType, ItemDetail, ListItem, ListResult, ListSearch} from './entity';
+
+const TypeMap: {[key: string]: DocType} = {
+  '1': 'dir',
+  '2': 'doc',
+  '3': 'tpl',
+};
 
 export const DocAPI = {
   createDoc(data: string | {title: string; contents: string; folder: string}): Promise<{id: string}> {
@@ -66,7 +72,7 @@ export const DocAPI = {
   updateDirName(id: string, folderName: string): Promise<void> {
     return request.post(`/dream/pen/dFolder/save`, {id, folderName});
   },
-  batchDelete(items: {id: string; type: 'dir' | 'doc'}[]): Promise<void> {
+  batchDelete(items: {id: string; type: DocType}[]): Promise<void> {
     return request.post(
       `/dream/pen/dFolder/batch/delete`,
       items.map((item) => ({id: item.id, type: item.type === 'dir' ? 1 : 2}))
@@ -75,27 +81,27 @@ export const DocAPI = {
   cleanRecycle(): Promise<void> {
     return request.post(`/dream/pen/recycle/clean`);
   },
-  cleanItem(id: string, type: 'dir' | 'doc'): Promise<void> {
+  cleanItem(id: string, type: DocType): Promise<void> {
     return request.post(`/dream/pen/recycle/delete/${id}`);
   },
-  restoreItem(id: string, type: 'dir' | 'doc'): Promise<void> {
+  restoreItem(id: string, type: DocType): Promise<void> {
     return request.post(`/dream/pen/recycle/restore`, {id, type: type === 'dir' ? 1 : 2});
   },
-  deleteItem(id: string, type: 'dir' | 'doc'): Promise<void> {
+  deleteItem(id: string, type: DocType): Promise<void> {
     return type === 'doc' ? request.post(`/dream/pen/article/delete/${id}`) : request.post(`/dream/pen/dFolder/delete`, {id});
   },
-  copyItem(id: string, type: 'dir' | 'doc'): Promise<void> {
+  copyItem(id: string, type: DocType): Promise<void> {
     return request.post(type === 'doc' ? `/dream/pen/article/copy` : '', {id});
   },
-  moveItem(id: string, type: 'dir' | 'doc', targetFolder: string): Promise<void> {
+  moveItem(id: string, type: DocType, targetFolder: string): Promise<void> {
     return request.post('/dream/pen/dFolder/move', {original: id, targetFolder, type: type === 'dir' ? 1 : 2});
   },
-  collectItem(id: string, type: 'dir' | 'doc' | 'tpl', checked: boolean): Promise<void> {
+  collectItem(id: string, type: DocType, checked: boolean): Promise<void> {
     return request.post(type !== 'dir' ? `/dream/pen/article/collect` : '', {id, type: type === 'doc' ? 2 : 3, isCollect: checked});
   },
   getDoc({id, render}: {id: string; render?: CurRender}): Promise<ItemDetail> {
     const isTpl = render === 'tpl';
-    return request.get(isTpl ? '/dream/pen/template/get' : '/dream/pen/article/get', {params: {id}}).then((docRes) => {
+    return request.get('/dream/pen/article/get', {params: {id, type: isTpl ? '3' : '2'}}).then((docRes) => {
       const item: ItemDetail = docRes.data.data;
       item.isTpl = isTpl;
       return item;
@@ -124,9 +130,7 @@ export const DocAPI = {
       const dirTree = dirTreeRes.data?.data || [];
       return {
         list: list.map((item) => {
-          item.type = item.articleId || render === 'favs' || render === 'tpls' ? 'doc' : 'dir';
-          item.id = item.articleId || item.folderId || item.articleTemplateId || item.id;
-          item.title = item.title || item.folderName || (item as any).name;
+          item.type = TypeMap[item.type];
           item.updateDate = item.updateDate ? dayjs(item.updateDate).format('YYYY-MM-DD HH:mm:ss') : '';
           item.createDate = item.createDate ? dayjs(item.createDate).format('YYYY-MM-DD HH:mm:ss') : '';
           item.createUserName = item.createUserName || '';

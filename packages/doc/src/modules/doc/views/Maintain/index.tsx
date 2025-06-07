@@ -13,9 +13,9 @@ import {Breadcrumb, Button, Dropdown, Input, Popover, Space, Table, TableProps, 
 import {FC, memo, useCallback, useEffect, useMemo, useState} from 'react';
 import {GetActions, GetClientRouter} from '@/Global';
 import {downloadFile, getUploadProps, replaceBaseUrl} from '@/utils/request';
-import {confirm, debounce, message, useEvent, useSingleWindow} from '@/utils/tools';
+import {confirm, debounce, useEvent, useSingleWindow} from '@/utils/tools';
 import {DocAPI} from '../../api';
-import {ListItem, ListSearch, ListSummary} from '../../entity';
+import {DocType, ListItem, ListSearch, ListSummary} from '../../entity';
 import styles from './index.module.less';
 interface Props {
   dispatch: Dispatch;
@@ -38,7 +38,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
     return dispatch(docActions.fetchList());
   }, [dispatch]);
 
-  const onShowDetail = useEvent((id: string, type: 'dir' | 'doc') => {
+  const onShowDetail = useEvent((id: string, type: DocType) => {
     if (type === 'doc') {
       GetClientRouter().push({url: `/admin/doc/item/edit/${id}?__c=_dialog`}, singleWindow);
     } else {
@@ -46,7 +46,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
     }
   });
 
-  const onRename = useEvent((id: string, type: 'doc' | 'dir', name: string) => {
+  const onRename = useEvent((id: string, type: DocType, name: string) => {
     if (type === 'doc') {
       DocAPI.updateDocName(id, name).then(refreshList);
     } else {
@@ -55,7 +55,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
     setShowRename('');
   });
 
-  const onMove = useEvent((id: string, type: 'doc' | 'dir', target: string) => {
+  const onMove = useEvent((id: string, type: DocType, target: string) => {
     DocAPI.moveItem(id, type, target).then(refreshList);
     setShowMove('');
   });

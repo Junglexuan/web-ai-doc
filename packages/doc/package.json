@@ -49,7 +49,9 @@
     "moment",
     "@ant-design/icons"
   ],
-  "dependencies": {},
+  "dependencies": {
+    "@wangeditor-next/editor": "file:./@wangeditor-next/editor"
+  },
   "devDependencies": {},
   "peerDependencies": {
     "react": "^18.0.0",

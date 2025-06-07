@@ -2,6 +2,7 @@ import {BaseCurRender, BaseCurView, BaseListItem, BaseListSearch, BaseListSummar
 
 export type CurView = BaseCurView;
 export type CurRender = BaseCurRender | 'favs' | 'recs' | 'tpls';
+export type DocType = 'dir' | 'doc' | 'tpl';
 
 export interface ListSearch extends BaseListSearch {
   render?: CurRender;
@@ -14,7 +15,7 @@ export interface ListItem extends BaseListItem {
   articleId: string;
   folderName: string;
   articleTemplateId: string;
-  type: 'dir' | 'doc';
+  type: DocType;
   articleCount: number;
   articleSize: number;
   updateDate: string;

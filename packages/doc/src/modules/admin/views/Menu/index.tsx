@@ -42,7 +42,7 @@ const items: any[] = [
   },
   {
     key: '模版管理',
-    icon: <DatabaseOutlined />,
+    icon: <TPL />,
     label: (
       <Link to="/admin/doc/list/tpls" action="relaunch" target="window">
         模版管理
