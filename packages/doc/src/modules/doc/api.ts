@@ -49,7 +49,7 @@ export const DocAPI = {
       .post(`/dream/pen/template/save`, {
         id: data.id || undefined,
         title: data.title,
-        contents: '<p style="line-height: 1.5;"><span style="font-size: 16px; font-family: 黑体;"></span></p>',
+        contents: data.id ? undefined : '<p style="line-height: 1.5;"><span style="font-size: 16px; font-family: 黑体;"></span></p>',
         remark: data.remark,
         isShare: data.isShare,
       })
