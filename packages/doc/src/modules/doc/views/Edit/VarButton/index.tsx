@@ -34,6 +34,8 @@ function insertVarByTpl(editor: IDomEditor, kind: string) {
       node = {type: 'variable', kind, source: '${KNOWLEDGE.ASK()}', info: '...', children: [{text: '$知识库问答'}]};
     } else if (kind === 'write') {
       node = {type: 'variable', kind, source: '${AI.ASK()}', info: '...', children: [{text: '$AI写作'}]};
+    } else if (kind === 're') {
+      node = {type: 'variable', kind, source: '${AI.ASK()}', info: '...', children: [{text: '$AI写作'}]};
     }
     if (node) {
       editor.insertNode(node);

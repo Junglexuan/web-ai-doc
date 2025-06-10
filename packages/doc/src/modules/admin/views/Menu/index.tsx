@@ -1,11 +1,10 @@
-import {DatabaseOutlined, EditOutlined, FileOutlined, HomeOutlined, SettingOutlined, StarOutlined} from '@ant-design/icons';
+import {AppstoreOutlined, EditOutlined, FileOutlined, HomeOutlined, StarOutlined} from '@ant-design/icons';
 import {Link} from '@elux/react-web';
 import {Button, Menu} from 'antd';
 import {FC, useCallback, useEffect, useMemo, useState} from 'react';
-import ASK from '@/assets/images/ask';
+import Delete from '@/assets/images/Delete';
 import Logo from '@/assets/images/logo.svg';
 import TPL from '@/assets/images/tpl';
-import ZSK from '@/assets/images/zsk';
 import {GetClientRouter, KnowledgePrefix} from '@/Global';
 import DocAPI from '@/modules/doc/api';
 import {getUrlParam} from '@/utils/tools';
@@ -51,32 +50,12 @@ const items: any[] = [
   },
   {
     key: '回收站',
+    icon: <Delete />,
     label: (
       <Link to="/admin/doc/list/recs" action="relaunch" target="window">
         回收站
       </Link>
     ),
-    type: 'group',
-  },
-  {
-    key: '知识库',
-    icon: <ZSK />,
-    label: <a href={KnowledgePrefix + '/knowledge'}>知识库</a>,
-  },
-  {
-    key: '知识问答',
-    icon: <ASK />,
-    label: <a href={KnowledgePrefix + '/chat'}>知识问答</a>,
-  },
-  {
-    key: '文件管理',
-    icon: <TPL />,
-    label: <a href={KnowledgePrefix + '/file'}>文件管理</a>,
-  },
-  {
-    key: '模型管理',
-    icon: <SettingOutlined />,
-    label: <a href={KnowledgePrefix + '/user-setting/model'}>模型管理</a>,
   },
 ];
 
@@ -137,16 +116,12 @@ const Component: FC<{}> = () => {
       <div className="bd">
         <Menu mode="inline" items={items} selectedKeys={selectedKeys} />
       </div>
-      {/* <ul>
-        <li className={pathname.startsWith('/admin/doc/list/maintain') ? 'on' : ''} onClick={() => onClick(`/admin/doc/list/maintain?app=${app}`)}>
-          <FileTextOutlined />
-          <div>我的文档</div>
-        </li>
-        <li className={pathname.startsWith('/admin/flow/list/flowmain') ? 'on' : ''}>
-          <FormOutlined />
-          <div>知识库</div>
-        </li>
-      </ul> */}
+      <div className="ft">
+        <a href={KnowledgePrefix + '/chat/view'}>
+          <AppstoreOutlined className="icon" />
+          <span>智能体平台</span>
+        </a>
+      </div>
     </div>
   );
 };

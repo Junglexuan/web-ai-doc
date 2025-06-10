@@ -1,5 +1,8 @@
 :global {
   :local(.root) {
+    position: relative;
+    height: 100%;
+
     > .hd {
       padding: 16px 20px;
 
@@ -38,25 +41,37 @@
 
       .ant-menu {
         background-color: transparent;
+
+        // > :last-child {
+        //   border-top: 1px solid #e7ebef;
+        // }
       }
 
       .ant-menu-root {
         border-inline-end: none !important;
       }
+    }
 
-      .ant-menu-item-group-title {
-        padding-left: 47px;
-        margin: 0 5px;
+    > .ft {
+      position: absolute;
+      bottom: 20px;
+      width: 100%;
+      padding-top: 8px;
+      border-top: 1px solid #e7ebef;
+
+      a {
+        display: block;
+        padding: 6px 10px 6px 22px;
         color: inherit;
-        cursor: pointer;
-        background: #e7ebef;
+        text-decoration: none;
 
-        &:hover {
-          background-color: #1b68fc14;
+        > .icon {
+          margin-right: 8px;
         }
 
-        > a {
-          color: inherit;
+        &:hover {
+          color: #1b68fc;
+          background-color: #e7ebef;
         }
       }
     }

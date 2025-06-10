@@ -20,7 +20,7 @@ export const DocAPI = {
           return request
             .post(`/dream/pen/template/createArticle`, {
               id: data,
-              fields,
+              fields: fields && Object.keys(fields).map((name) => ({key: name, value: fields[name]})),
               content: (item.contents || '')
                 .replace(/(<cite data-w-e-type="variable" .+? data-source=")(.+?)(">[^$]*)\$[^<]*(<.*?\/cite>)/g, '$1$2$3$2$4')
                 .replace(/(<cite data-w-e-type="variable" [^>]+?)><span( [\w\W]+?)<\/span>.*?(<\/cite>)/g, '$1$2$3'),
