@@ -1,4 +1,12 @@
-import {AlignLeftOutlined, CalendarOutlined, PictureOutlined, PlusCircleOutlined, QuestionCircleOutlined, SignatureOutlined} from '@ant-design/icons';
+import {
+  AlignLeftOutlined,
+  CalendarOutlined,
+  PictureOutlined,
+  PlusCircleOutlined,
+  QuestionCircleOutlined,
+  ScanOutlined,
+  SignatureOutlined,
+} from '@ant-design/icons';
 import {IDomEditor} from '@wangeditor-next/editor';
 import {Button, Dropdown} from 'antd';
 import {FC, memo, useMemo} from 'react';
@@ -34,8 +42,8 @@ function insertVarByTpl(editor: IDomEditor, kind: string) {
       node = {type: 'variable', kind, source: '${KNOWLEDGE.ASK()}', info: '...', children: [{text: '$知识库问答'}]};
     } else if (kind === 'write') {
       node = {type: 'variable', kind, source: '${AI.ASK()}', info: '...', children: [{text: '$AI写作'}]};
-    } else if (kind === 're') {
-      node = {type: 'variable', kind, source: '${AI.ASK()}', info: '...', children: [{text: '$AI写作'}]};
+    } else if (kind === 'replace') {
+      node = {type: 'variable', kind, source: '${DOC.REPLACE()}', info: '...', children: [{text: '$内容替换'}]};
     }
     if (node) {
       editor.insertNode(node);
@@ -70,6 +78,11 @@ const Component: FC<Props> = ({editor}) => {
           key: 'write',
           label: 'AI写作',
           icon: <AlignLeftOutlined />,
+        },
+        {
+          key: 'replace',
+          label: '内容替换',
+          icon: <ScanOutlined />,
         },
         {
           key: 'image',

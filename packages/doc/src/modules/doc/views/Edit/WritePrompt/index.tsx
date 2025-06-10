@@ -30,7 +30,10 @@ const Component: FC<Props> = ({value = {}, onChange}) => {
 
   return (
     <div className={styles.root}>
-      <div className="title">内容描述:</div>
+      <div className="title">
+        <em>*</em>
+        <span>内容描述:</span>
+      </div>
       <Input.TextArea placeholder="请输入内容描述..." value={value.desc} onChange={onDescChange} />
       <div className="title">AI模型:</div>
       <ModelSelect value={value.model} onChange={onModelChange} />

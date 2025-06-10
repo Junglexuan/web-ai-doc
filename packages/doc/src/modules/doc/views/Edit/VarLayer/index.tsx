@@ -5,6 +5,7 @@ import {VariableElement} from '../elements/Variable/custom-types';
 import VarAsk from '../VarAsk';
 import VarDate from '../VarDate';
 import VarImage from '../VarImage';
+import VarReplace from '../VarReplace';
 import VarWrite from '../VarWrite';
 import styles from './index.module.less';
 
@@ -44,6 +45,8 @@ const Component: FC<Props> = ({editor}) => {
         return <VarAsk elem={varEvent.elem} onSubmit={onSubmit} onCancel={closeMenu} />;
       case 'write':
         return <VarWrite elem={varEvent.elem} onSubmit={onSubmit} onCancel={closeMenu} />;
+      case 'replace':
+        return <VarReplace elem={varEvent.elem} onSubmit={onSubmit} onCancel={closeMenu} />;
     }
     return null;
   }, [onSubmit, closeMenu, varEvent]);
