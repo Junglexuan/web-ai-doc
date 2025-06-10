@@ -1,0 +1,39 @@
+:global {
+  :local(.root) {
+    > .hd {
+      padding: 20px;
+      margin-bottom: 15px;
+
+      > .steps {
+        width: 300px;
+        margin: auto;
+      }
+    }
+
+    > .bd {
+      max-height: 400px;
+      overflow: auto;
+    }
+
+    > .ft {
+      display: flex;
+      gap: 15px;
+      justify-content: flex-end;
+      padding: 14px 20px;
+      margin-top: 35px;
+      border-top: 1px solid #eee;
+    }
+
+    .form-item {
+      display: flex;
+      margin-bottom: 20px;
+
+      > label {
+        width: 4em;
+        padding-right: 20px;
+        line-height: 32px;
+        text-align: right;
+      }
+    }
+  }
+}

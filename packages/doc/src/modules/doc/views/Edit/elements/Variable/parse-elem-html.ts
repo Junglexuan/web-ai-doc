@@ -4,7 +4,8 @@ import {VariableElement} from './custom-types';
 function parseElemHtml(elem: Element, children: SlateDescendant[], editor: IDomEditor): SlateElement {
   const kind = elem.getAttribute('data-kind') || '';
   const vid = elem.getAttribute('data-vid') || '';
-  const info = elem.getAttribute('data-info') || '';
+  const info = decodeURI(elem.getAttribute('data-info') || '');
+  const field = decodeURI(elem.getAttribute('data-field') || '') || undefined;
   const source = elem.getAttribute('data-source') || '';
 
   children = children.filter((child) => {
@@ -24,6 +25,7 @@ function parseElemHtml(elem: Element, children: SlateDescendant[], editor: IDomE
     kind,
     source,
     info,
+    field,
     children,
   } as VariableElement;
 }

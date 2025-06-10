@@ -30,7 +30,7 @@ const Component: FC<Props> = ({onSubmit, onCancel, elem}) => {
 
   const onOk = useEvent(() => {
     if (value) {
-      onSubmit(elem, {source: formatValue(value)});
+      onSubmit(elem, {source: formatValue(value), info: value || '...'});
     } else {
       message.error('请输入问题...');
     }

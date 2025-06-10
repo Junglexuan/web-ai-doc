@@ -3,7 +3,7 @@ import dayjs from 'dayjs';
 import {GetClientRouter} from '@/Global';
 import request from '@/utils/request';
 import {mapTree} from '@/utils/tools';
-import {CurRender, DocType, ItemDetail, ListItem, ListResult, ListSearch} from './entity';
+import {CurRender, DocType, ItemDetail, ListItem, ListResult, ListSearch, TplFields, TplsOptions} from './entity';
 
 const TypeMap: {[key: string]: DocType} = {
   '1': 'dir',
@@ -12,7 +12,7 @@ const TypeMap: {[key: string]: DocType} = {
 };
 
 export const DocAPI = {
-  createDoc(data: string | {title: string; contents: string; folder: string}): Promise<{id: string}> {
+  createDoc(data: string | {title: string; contents: string; folder: string}, fields?: {[key: string]: string}): Promise<{id: string}> {
     if (typeof data === 'string') {
       return setGlobalLoading(
         request.get('/dream/pen/template/get', {params: {id: data}}).then((res) => {
@@ -20,6 +20,7 @@ export const DocAPI = {
           return request
             .post(`/dream/pen/template/createArticle`, {
               id: data,
+              fields,
               content: (item.contents || '')
                 .replace(/(<cite data-w-e-type="variable" .+? data-source=")(.+?)(">[^$]*)\$[^<]*(<.*?\/cite>)/g, '$1$2$3$2$4')
                 .replace(/(<cite data-w-e-type="variable" [^>]+?)><span( [\w\W]+?)<\/span>.*?(<\/cite>)/g, '$1$2$3'),
@@ -145,6 +146,26 @@ export const DocAPI = {
           dirTree: [{title: '我的文档', key: '0', children: mapTree<any, any>(dirTree, (item) => ({title: item.name, key: item.id}))}],
         },
       };
+    });
+  },
+  getTplsOptions(): Promise<TplsOptions> {
+    return request.get('/dream/pen/template/getTemplateType').then((docRes) => {
+      const list: any[] = docRes.data.data || [];
+      return list.map((item) => ({
+        value: item.id,
+        label: item.title,
+        children: (item.children || []).map((item2: any) => ({value: item2.templateId, label: item2.title})),
+      }));
+    });
+  },
+  getTplFields(id: string): Promise<TplFields[]> {
+    return request.get('/dream/pen/template/getTemplateByType/' + id).then((docRes) => {
+      const list: any[] = docRes.data.data.pluginVo || [];
+      return list.map((item) => ({
+        name: item.field,
+        value: item.argument.desc,
+        label: item.field,
+      }));
     });
   },
 };

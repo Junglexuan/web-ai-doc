@@ -1,8 +1,9 @@
-import {Button, Space} from 'antd';
+import {Button, Checkbox, Input, Space} from 'antd';
 import {FC, memo, useState} from 'react';
 import {message, useEvent} from '@/utils/tools';
+import AllowModify from '../AllowModify';
 import {VariableElement} from '../elements/Variable/custom-types';
-import ImagePrompt, {WritePromptValue} from '../WritePrompt';
+import WritePrompt, {WritePromptValue} from '../WritePrompt';
 import styles from './index.module.less';
 
 const TPL = '${AI.ASK(***)}';
@@ -39,10 +40,11 @@ interface Props {
 
 const Component: FC<Props> = ({onSubmit, onCancel, elem}) => {
   const [value, setValue] = useState(() => matchValue(elem.source));
+  const [fieldName, setFieldValue] = useState(elem.field);
 
   const onOk = useEvent(() => {
     if (value?.desc) {
-      onSubmit(elem, {source: formatValue(value), info: value.desc || '...'});
+      onSubmit(elem, {source: formatValue(value), info: value.desc || '...', field: fieldName});
     } else {
       message.error('请输入内容描述...');
     }
@@ -51,7 +53,8 @@ const Component: FC<Props> = ({onSubmit, onCancel, elem}) => {
   return (
     <div className={styles.root}>
       <div className="bd">
-        <ImagePrompt value={value} onChange={setValue} />
+        <AllowModify value={fieldName} onChange={setFieldValue} />
+        <WritePrompt value={value} onChange={setValue} />
       </div>
       <Space className="ft">
         <Button size="small" type="primary" onClick={onOk}>

@@ -4,6 +4,7 @@ import {FC, useEffect, useMemo, useState} from 'react';
 import {GetClientRouter} from '@/Global';
 import {PathPrefix} from '@/Global';
 import DocAPI from '@/modules/doc/api';
+import Wizard, {WizardFormData} from '@/modules/doc/views/Wizard';
 import {useEvent} from '@/utils/tools';
 import HomeAPI from '../api';
 import {HotArticle, HotTemplate} from '../entity';
@@ -19,6 +20,7 @@ const carouselItems = [
 const RECENT_CREATIONS_LIMIT = 4;
 
 const Component: FC = () => {
+  const [wizardData, setWizardData] = useState<WizardFormData>();
   const [hotArticleList, setHotArticleList] = useState<HotArticle[]>([]);
   const [hotTemplateList, setHotTemplateList] = useState<HotTemplate[]>([]);
 
@@ -30,11 +32,26 @@ const Component: FC = () => {
     const _templateList = await HomeAPI.getHotTemplateList();
     setHotTemplateList(_templateList);
   });
-  const onCreateByTpl = useEvent(async (item: HotTemplate) => {
-    DocAPI.createDoc(item.id).then(({id}) => {
+
+  const onApplyTpl = useEvent((tplId: string) => {
+    DocAPI.getTplFields(tplId).then((fields) => {
+      if (fields.length) {
+        setWizardData({tplId, fields});
+      } else {
+        DocAPI.createDoc(tplId).then(({id}) => {
+          GetClientRouter().push({url: `/admin/doc/item/edit/${id}?__c=_dialog`}, 'window');
+        });
+      }
+    });
+  });
+
+  const onWizardSubmit = useEvent(({__tplId, ...fields}: {__tplId: string; [field: string]: string}) => {
+    setWizardData(undefined);
+    DocAPI.createDoc(__tplId, fields).then(({id}) => {
       GetClientRouter().push({url: `/admin/doc/item/edit/${id}?__c=_dialog`}, 'window');
     });
   });
+
   const renderHotArticle = useMemo(() => {
     // 获取最近创作的项目
     return (
@@ -60,11 +77,12 @@ const Component: FC = () => {
       </div>
     );
   }, [hotArticleList]);
+
   const renderHotTemplate = useMemo(() => {
     return (
       <div className="popular-creations">
         {hotTemplateList.map((item, index) => (
-          <div key={index} className="creation-item" onClick={() => onCreateByTpl(item)}>
+          <div key={index} className="creation-item" onClick={() => onApplyTpl(item.id)}>
             <div className="icon-title">
               <div className="icon">{item.title.charAt(0)}</div>
               <div className="title">{item.title}</div>
@@ -76,7 +94,7 @@ const Component: FC = () => {
         ))}
       </div>
     );
-  }, [hotTemplateList, onCreateByTpl]);
+  }, [hotTemplateList, onApplyTpl]);
 
   const renderCarousel = useMemo(() => {
     //carouselItems
@@ -106,6 +124,7 @@ const Component: FC = () => {
         <div className="title-box">热门创作类型</div>
         {renderHotTemplate}
       </div>
+      {wizardData && <Wizard data={wizardData} onCancel={() => setWizardData(undefined)} onsubmit={onWizardSubmit} />}
     </div>
   );
 };

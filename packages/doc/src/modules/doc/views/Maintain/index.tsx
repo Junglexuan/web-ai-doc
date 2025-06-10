@@ -4,6 +4,7 @@ import {
   FolderAddOutlined,
   FolderOpenOutlined,
   PlusOutlined,
+  SignatureOutlined,
   StarFilled,
   StarOutlined,
   UploadOutlined,
@@ -15,7 +16,8 @@ import {GetActions, GetClientRouter} from '@/Global';
 import {downloadFile, getUploadProps, replaceBaseUrl} from '@/utils/request';
 import {confirm, debounce, useEvent, useSingleWindow} from '@/utils/tools';
 import {DocAPI} from '../../api';
-import {DocType, ListItem, ListSearch, ListSummary} from '../../entity';
+import {DocType, ListItem, ListSearch, ListSummary, TplsOptions} from '../../entity';
+import Wizard, {WizardFormData} from '../Wizard';
 import styles from './index.module.less';
 interface Props {
   dispatch: Dispatch;
@@ -28,11 +30,13 @@ const {doc: docActions} = GetActions('doc');
 
 const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
   const singleWindow = useSingleWindow();
-  const [loading, setLoading] = useState<'create' | 'createDir' | 'upload' | 'batchDelete' | ''>('');
+  const [loading, setLoading] = useState<'create' | 'createDir' | 'createByTpl' | 'upload' | 'batchDelete' | ''>('');
   const [selectedRows, setSelectedRows] = useState<{ids: string[]; rows: ListItem[]}>({ids: [], rows: []});
   const [scrollHeight, setScrollHeight] = useState(() => window.innerHeight - 285);
   const [showRename, setShowRename] = useState('');
   const [showMove, setShowMove] = useState('');
+  const [wizardData, setWizardData] = useState<WizardFormData>();
+  const [tplsOptions, setTplsOptions] = useState<TplsOptions>();
 
   const refreshList = useCallback(() => {
     return dispatch(docActions.fetchList());
@@ -210,6 +214,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
         ),
       },
     ];
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showRename, showMove, listSearch, listSummary]);
 
   const onCreate = useEvent((title: string = '', contents: string = '') => {
@@ -246,6 +251,22 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
           })
           .finally(() => setLoading(''));
       }
+    });
+  });
+
+  const onCreateByTpl = useEvent(async () => {
+    let options = tplsOptions;
+    if (!options) {
+      options = await DocAPI.getTplsOptions();
+      setTplsOptions(options);
+    }
+    return setWizardData({type: options[0].value, tplId: options[0].children[0].value});
+  });
+
+  const onWizardSubmit = useEvent(({__tplId, ...fields}: {__tplId: string; [field: string]: string}) => {
+    setWizardData(undefined);
+    DocAPI.createDoc(__tplId, fields).then(({id}) => {
+      GetClientRouter().push({url: `/admin/doc/item/edit/${id}?__c=_dialog`}, singleWindow);
     });
   });
 
@@ -327,6 +348,9 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
       </div>
       <div className="cd">
         <Space>
+          <Button icon={<SignatureOutlined />} onClick={onCreateByTpl}>
+            起草公文
+          </Button>
           <Button id="_create-doc-btn" loading={loading === 'create'} icon={<PlusOutlined />} onClick={() => onCreate()}>
             快速创建
           </Button>
@@ -357,6 +381,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
           onChange={onTableChange}
         />
       </div>
+      {wizardData && <Wizard tplsOptions={tplsOptions} data={wizardData} onCancel={() => setWizardData(undefined)} onsubmit={onWizardSubmit} />}
     </div>
   );
 };

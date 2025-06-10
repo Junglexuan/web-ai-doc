@@ -7,6 +7,7 @@ import {confirm, debounce, useEvent, useSingleWindow} from '@/utils/tools';
 import {DocAPI} from '../../api';
 import {ListItem, ListSearch, ListSummary} from '../../entity';
 import styles from '../Maintain/index.module.less';
+import Wizard, {WizardFormData} from '../Wizard';
 import Edit from './Edit';
 
 interface Props {
@@ -22,6 +23,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
   const singleWindow = useSingleWindow();
   const [scrollHeight, setScrollHeight] = useState(() => window.innerHeight - 215);
   const [curEdit, setCurEdit] = useState<ListItem>();
+  const [wizardData, setWizardData] = useState<WizardFormData>();
 
   const refreshList = useCallback(() => {
     return dispatch(docActions.fetchList());
@@ -53,8 +55,14 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
   });
 
   const onApplyTpl = useEvent((tplId: string) => {
-    DocAPI.createDoc(tplId).then(({id}) => {
-      GetClientRouter().push({url: `/admin/doc/item/edit/${id}?__c=_dialog`}, singleWindow);
+    DocAPI.getTplFields(tplId).then((fields) => {
+      if (fields.length) {
+        setWizardData({tplId, fields});
+      } else {
+        DocAPI.createDoc(tplId).then(({id}) => {
+          GetClientRouter().push({url: `/admin/doc/item/edit/${id}?__c=_dialog`}, singleWindow);
+        });
+      }
     });
   });
 
@@ -64,6 +72,13 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
 
   const onSearch = useEvent((name: string) => {
     dispatch(docActions.fetchList({...listSearch, name}));
+  });
+
+  const onWizardSubmit = useEvent(({__tplId, ...fields}: {__tplId: string; [field: string]: string}) => {
+    setWizardData(undefined);
+    DocAPI.createDoc(__tplId, fields).then(({id}) => {
+      GetClientRouter().push({url: `/admin/doc/item/edit/${id}?__c=_dialog`}, singleWindow);
+    });
   });
 
   useEffect(() => {
@@ -147,6 +162,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
           <Edit data={curEdit} onCancel={onCloseEdit} onSubmit={onEditSubmit} />
         </Modal>
       )}
+      {wizardData && <Wizard data={wizardData} onCancel={() => setWizardData(undefined)} onsubmit={onWizardSubmit} />}
     </div>
   );
 };

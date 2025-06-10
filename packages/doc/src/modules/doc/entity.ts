@@ -62,3 +62,6 @@ export const defaultListSearch: ListSearch = {
   name: undefined,
   render: undefined,
 };
+export type TplsOptions = {value: string; label: string; children: {value: string; label: string}[]}[];
+
+export type TplFields = {name: string; label: string; value: string};
