@@ -11,7 +11,7 @@ import styles from './index.module.less';
 
 export interface VarEvent {
   elem: VariableElement;
-  pos: {x: number; y: number; width: number; height: number};
+  pos: DOMRect;
 }
 
 interface Props {
@@ -51,8 +51,25 @@ const Component: FC<Props> = ({editor}) => {
     return null;
   }, [onSubmit, closeMenu, varEvent]);
 
+  const posStyle = useMemo(() => {
+    if (!varEvent) {
+      return {};
+    }
+    const selectionRect = varEvent.pos;
+    const style: {left: number; top?: number; bottom?: number} = {left: selectionRect.left};
+    const dTop = selectionRect.top;
+    const dBottom = window.innerHeight - selectionRect.bottom;
+    if (dTop > dBottom) {
+      style.bottom = window.innerHeight - selectionRect.top + 1;
+    } else {
+      style.top = selectionRect.bottom + 1;
+    }
+    console.log(varEvent.pos);
+    return style;
+  }, [varEvent]);
+
   useEffect(() => {
-    const handler = (data: {elem: VariableElement; pos: {x: number; y: number; width: number; height: number}}) => {
+    const handler = (data: {elem: VariableElement; pos: DOMRect}) => {
       setVarEvent(data);
     };
     const div = document.getElementById('w-e-textarea-1')?.parentElement;
@@ -86,7 +103,7 @@ const Component: FC<Props> = ({editor}) => {
   }
   return (
     <>
-      <div className={styles.dialog} style={{left: varEvent.pos.x, top: varEvent.pos.y + varEvent.pos.height + 5}}>
+      <div className={styles.dialog} style={posStyle}>
         {varDialog}
       </div>
     </>

@@ -8,6 +8,7 @@ export type WritePromptValue = {
   desc?: string;
   model?: string;
   size?: number;
+  example?: string;
 };
 
 interface Props {
@@ -18,6 +19,10 @@ interface Props {
 const Component: FC<Props> = ({value = {}, onChange}) => {
   const onDescChange = useEvent((e: any) => {
     onChange({...value, desc: e.target.value.trim()});
+  });
+
+  const onExampleChange = useEvent((e: any) => {
+    onChange({...value, example: e.target.value.trim()});
   });
 
   const onModelChange = useEvent((model: string) => {
@@ -35,6 +40,10 @@ const Component: FC<Props> = ({value = {}, onChange}) => {
         <span>内容描述:</span>
       </div>
       <Input.TextArea placeholder="请输入内容描述..." value={value.desc} onChange={onDescChange} />
+      <div className="title">
+        <span>示例模版:</span>
+      </div>
+      <Input.TextArea placeholder="请输入示例模版:..." value={value.example} onChange={onExampleChange} />
       <div className="title">AI模型:</div>
       <ModelSelect value={value.model} onChange={onModelChange} />
       <div className="title">字数限制:</div>

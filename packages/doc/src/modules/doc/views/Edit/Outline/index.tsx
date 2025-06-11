@@ -49,7 +49,7 @@ const Component: FC<Props> = ({editor}) => {
 
   return (
     <>
-      <Button className={styles.button} icon={<PicRightOutlined />} type="text" onClick={() => setShow(!show)} />
+      <Button icon={<PicRightOutlined />} type="text" onClick={() => setShow(!show)} />
       <div className={styles.mask + (show ? ' on' : '')} onClick={() => setShow(!show)}></div>
       <div className={styles.panel + (show ? ' on' : '')}>
         <div className="hd">

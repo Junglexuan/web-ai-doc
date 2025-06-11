@@ -163,7 +163,7 @@ export const DocAPI = {
       const list: any[] = docRes.data.data.pluginVo || [];
       return list.map((item) => ({
         name: item.field,
-        value: item.argument.desc,
+        value: item.argument.desc || item.argument,
         label: item.field,
       }));
     });

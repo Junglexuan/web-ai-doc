@@ -26,6 +26,7 @@ import {ItemDetail} from '../../entity';
 import AIButton from './AIButton';
 import './AIMenu';
 import {SaveMgr} from './autoSave';
+import Chart from './Chart';
 import {editorConfig, toolbarConfig} from './editorConfig';
 import styles from './index.module.less';
 import Outline from './Outline';
@@ -308,6 +309,7 @@ const Component: FC<Props> = ({itemDetail}) => {
           {editor && <Outline editor={editor} />}
           {editor && <Review editor={editor} />}
           <span className="count">{source.text ? source.text.replace(/\n|\r/gm, '').length : ''}个字</span>
+          {editor && <Chart editor={editor} />}
         </div>
       </div>
     </DialogPage>
