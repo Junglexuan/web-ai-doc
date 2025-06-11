@@ -178,6 +178,13 @@ const Component: FC<Props> = ({onCreated, editor}) => {
           </AIDialog>
         );
       }
+      if (aiKey === 'K') {
+        return (
+          <AIDialog event={aiEvent}>
+            <AIAsk aiRef={aiRef} onRunningStateChange={setRunningState} />
+          </AIDialog>
+        );
+      }
       if (aiKey === 'W') {
         return (
           <AIDialog event={aiEvent}>

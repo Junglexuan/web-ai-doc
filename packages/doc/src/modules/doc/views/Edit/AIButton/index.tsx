@@ -70,7 +70,7 @@ const Component: FC<Props> = ({editor}) => {
 
   return (
     <>
-      <Button id="_ai_button" className={styles.button} type="text" icon={<AiIcon />} onClick={onClick as any}>
+      <Button id="_ai_button" className={styles.button} type="text" disabled={editor.getConfig().readOnly} icon={<AiIcon />} onClick={onClick as any}>
         AI创作
       </Button>
       <div className="w-e-bar-divider"></div>

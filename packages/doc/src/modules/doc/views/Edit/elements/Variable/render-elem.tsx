@@ -17,7 +17,7 @@ function renderElem(elem: SlateElement, children: VNode[] | null, editor: IDomEd
       on: {
         click(event) {
           const el = event.currentTarget as HTMLElement;
-          if (window.getSelection()?.isCollapsed) {
+          if (window.getSelection()?.isCollapsed && !editor.getConfig().readOnly) {
             editor.emit('variable-selected', {elem, pos: el.getBoundingClientRect()});
           }
         },

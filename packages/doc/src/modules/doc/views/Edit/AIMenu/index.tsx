@@ -8,6 +8,7 @@ import {
   MessageOutlined,
   PictureOutlined,
   ReadOutlined,
+  RobotOutlined,
 } from '@ant-design/icons';
 import {IDomEditor, SlateEditor, SlateTransforms} from '@wangeditor-next/editor';
 import {Menu} from 'antd';
@@ -460,11 +461,21 @@ const originItems: MenuItem[] = [
   },
   {
     key: 'T',
-    icon: <MessageOutlined />,
-    title: '提问',
+    icon: <RobotOutlined />,
+    title: 'AI提问',
     label: (
       <span>
-        <sub>(T)</sub>提问
+        <sub>(T)</sub>AI提问
+      </span>
+    ),
+  },
+  {
+    key: 'K',
+    icon: <MessageOutlined />,
+    title: '知识库问答',
+    label: (
+      <span>
+        <sub>(K)</sub>知识库问答
       </span>
     ),
   },

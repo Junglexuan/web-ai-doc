@@ -16,7 +16,7 @@ const Component: FC<Props> = ({aiRef, onRunningStateChange}) => {
   const [tplValue, setTplvalue] = useState<ImagePromptValue>();
 
   return (
-    <AIBase title="生成图片" hooks={hooks} hideButton={['onKeep']}>
+    <AIBase title="生成图片" hooks={hooks} hideButton={['onKeep', 'selectModel']}>
       <ImagePrompt askMode ref={hooks.inputRef} value={tplValue} onChange={setTplvalue} onSubmit={hooks.onPromptSubmit} />
       {/* <EasyEdit
         ref={hooks.inputRef}

@@ -13,7 +13,7 @@ interface Props {
   children: ReactElement;
   hooks: AIDialogHooks;
   automatic?: boolean;
-  hideButton?: 'onKeep'[];
+  hideButton?: Array<'onKeep' | 'selectModel'>;
 }
 
 const Component: FC<Props> = ({title, children, hooks, automatic, hideButton}) => {
@@ -96,7 +96,7 @@ const Component: FC<Props> = ({title, children, hooks, automatic, hideButton}) =
           </Button>
         </Space>
         <div className="prompt">
-          <ModelSelect size="small" value={model} onChange={onModelChange} />
+          {!hideButtonMap['selectModel'] && <ModelSelect size="small" value={model} onChange={onModelChange} />}
           <div style={{color: '#aaa', fontSize: '12px'}}>* 回车直接提交，shift+回车可换行，esc键可关闭</div>
         </div>
       </div>

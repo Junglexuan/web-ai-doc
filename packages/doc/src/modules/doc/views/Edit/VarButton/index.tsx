@@ -102,7 +102,7 @@ const Component: FC<Props> = ({editor}) => {
     <>
       <div className="w-e-bar-divider"></div>
       <Dropdown menu={menuData} trigger={['click']} align={{offset: [0, 5]}}>
-        <Button id="_ai_var_button" className={styles.button} type="text" icon={<PlusCircleOutlined />}>
+        <Button disabled={editor.getConfig().readOnly} id="_ai_var_button" className={styles.button} type="text" icon={<PlusCircleOutlined />}>
           模版组件
         </Button>
       </Dropdown>
