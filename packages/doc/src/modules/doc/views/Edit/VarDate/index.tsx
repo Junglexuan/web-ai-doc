@@ -56,14 +56,14 @@ const Component: FC<Props> = ({onSubmit, onCancel, elem}) => {
         <Radio.Group style={style} onChange={onRadioChange} value={value[0]} options={options}></Radio.Group>
         {value[0] === '${DATE.CUSTOMIZE(***)}' && <Input placeholder="YYYY-MM-DD HH:MM:SS" value={value[1]} onChange={onInputChange} />}
       </div>
-      <Space className="ft">
+      <div className="dialogFooter">
         <Button size="small" type="primary" onClick={onOk}>
           确定
         </Button>
         <Button size="small" onClick={onCancel}>
           取消
         </Button>
-      </Space>
+      </div>
     </div>
   );
 };

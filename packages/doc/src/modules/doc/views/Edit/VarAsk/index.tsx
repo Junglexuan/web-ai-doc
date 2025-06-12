@@ -42,14 +42,14 @@ const Component: FC<Props> = ({onSubmit, onCancel, elem}) => {
         <div className="title">问题描述：</div>
         <Input.TextArea placeholder="请输入问题..." value={value} onChange={onInputChange} />
       </div>
-      <Space className="ft">
+      <div className="dialogFooter">
         <Button size="small" type="primary" onClick={onOk}>
           确定
         </Button>
         <Button size="small" onClick={onCancel}>
           取消
         </Button>
-      </Space>
+      </div>
     </div>
   );
 };

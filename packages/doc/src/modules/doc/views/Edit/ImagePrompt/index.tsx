@@ -90,7 +90,7 @@ const Component = forwardRef<IEasyEditRef, Props>(
     return (
       <div className={styles.root} onKeyDown={onkeydown}>
         <div className="title">生成图片</div>
-        <Input.TextArea ref={descRef} placeholder="请输入图片描述..." value={value.desc} onChange={onDescChange} />
+        <Input.TextArea ref={descRef} placeholder="请输入图片描述..." rows={1} value={value.desc} onChange={onDescChange} />
         <div className="title">{askMode ? '风格' : '图片风格'}</div>
         <Select placeholder="请选择..." options={styleOptions} value={value.style} onChange={onStyleChange} />
         {askMode ? (

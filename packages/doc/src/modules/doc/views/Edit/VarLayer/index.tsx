@@ -60,9 +60,9 @@ const Component: FC<Props> = ({editor}) => {
     const dTop = selectionRect.top;
     const dBottom = window.innerHeight - selectionRect.bottom;
     if (dTop > dBottom) {
-      style.bottom = window.innerHeight - selectionRect.top + 1;
+      style.bottom = window.innerHeight - selectionRect.top + 5;
     } else {
-      style.top = selectionRect.bottom + 1;
+      style.top = selectionRect.bottom + 5;
     }
     console.log(varEvent.pos);
     return style;
@@ -98,13 +98,13 @@ const Component: FC<Props> = ({editor}) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  if (!varEvent) {
+  if (!varEvent || !varDialog) {
     return null;
   }
   return (
     <>
       <div className={styles.dialog} style={posStyle}>
-        {varDialog}
+        <div className="wrap">{varDialog}</div>
       </div>
     </>
   );

@@ -11,7 +11,7 @@ import {
 import {Link, setLoading as setGlobalLoading} from '@elux/react-web';
 import {IDomEditor} from '@wangeditor-next/editor';
 import {Editor, Toolbar} from '@wangeditor-next/editor-for-react';
-import {Breadcrumb, Button, Dropdown, Space, Spin} from 'antd';
+import {Breadcrumb, Dropdown, Space, Spin} from 'antd';
 import dayjs from 'dayjs';
 import {FC, memo, useEffect, useMemo, useState} from 'react';
 import Redo from '@/assets/images/Redo';
@@ -33,6 +33,7 @@ import Outline from './Outline';
 import Review from './Review';
 import VarButton from './VarButton';
 import type {ISource} from './autoSave';
+import type {MenuProps} from 'antd';
 
 interface Props {
   itemDetail: ItemDetail;
@@ -59,6 +60,7 @@ const Component: FC<Props> = ({itemDetail}) => {
   const [autoSave] = useState(() => new SaveMgr());
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState<'create' | ''>('');
+  const [size, setSize] = useState<'常规' | '全宽' | '超宽'>('常规');
 
   const onSave = useEvent((editor: IDomEditor) => {
     //JSON.stringify(editor.children, null, 2)
@@ -202,6 +204,30 @@ const Component: FC<Props> = ({itemDetail}) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [docTitle, collect]);
 
+  const layoutSize = useMemo(() => {
+    const menu: MenuProps = {
+      selectedKeys: [size],
+      items: [
+        {
+          label: '常规',
+          key: '常规',
+        },
+        {
+          label: '超宽',
+          key: '超宽',
+        },
+        {
+          label: '全宽',
+          key: '全宽',
+        },
+      ],
+      onClick: ({key}: {key: string}) => {
+        setSize(key as any);
+      },
+    };
+    return menu;
+  }, [size]);
+
   useEffect(() => {
     document.addEventListener('keydown', onKeyUp);
     autoSave.addListener('loading', setSaving);
@@ -272,9 +298,9 @@ const Component: FC<Props> = ({itemDetail}) => {
             )}
             {/* <Undo className="undo" onClick={() => editor?.undo!()} />
             <Redo className="undo" onClick={() => editor?.redo!()} /> */}
-            <Button type="primary" style={{marginLeft: '10px'}}>
+            {/* <Button type="primary" style={{marginLeft: '10px'}}>
               分享
-            </Button>
+            </Button> */}
           </Space>
         </div>
         <div className="cd">
@@ -306,10 +332,15 @@ const Component: FC<Props> = ({itemDetail}) => {
           />
         </div>
         <div className="ft">
-          {editor && <Outline editor={editor} />}
-          {editor && <Review editor={editor} />}
           <span className="count">{source.text ? source.text.replace(/\n|\r/gm, '').length : ''}个字</span>
-          {editor && <Chart editor={editor} />}
+          <div>
+            <Dropdown menu={layoutSize}>
+              <span className="btn size"></span>
+            </Dropdown>
+            {editor && <Outline editor={editor} />}
+            {editor && <Review editor={editor} />}
+            {editor && <Chart editor={editor} />}
+          </div>
         </div>
       </div>
     </DialogPage>

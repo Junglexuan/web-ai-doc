@@ -28,16 +28,13 @@ const Component: FC<Props> = ({editor}) => {
   }, []);
 
   return (
-    <>
-      <div />
-      <div ref={panelRef} className={styles.panel + (show ? ' on' : '')}>
-        <Button className={styles.close} size="small" icon={<CloseOutlined />} type="text" onClick={() => setShow(!show)} />
-        <div className="bd">
-          <iframe className={styles.iframe} src="http://www.baidu.com" />
-        </div>
-        <Button className={styles.button} icon={<RobotOutlined />} type="text" onClick={() => setShow(!show)} />
+    <div ref={panelRef} className={styles.panel + (show ? ' on' : '')}>
+      <Button className={styles.close} size="small" icon={<CloseOutlined />} type="text" onClick={() => setShow(!show)} />
+      <div className="bd">
+        <iframe className={styles.iframe} src="http://www.baidu.com" />
       </div>
-    </>
+      <Button className={styles.button} icon={<RobotOutlined />} type="text" onClick={() => setShow(!show)} />
+    </div>
   );
 };
 

@@ -53,14 +53,14 @@ const Component: FC<Props> = ({onSubmit, onCancel, elem}) => {
       <div className="bd">
         <ImagePrompt value={value} onChange={setValue} />
       </div>
-      <Space className="ft">
+      <div className="dialogFooter">
         <Button size="small" type="primary" onClick={onOk}>
           确定
         </Button>
         <Button size="small" onClick={onCancel}>
           取消
         </Button>
-      </Space>
+      </div>
     </div>
   );
 };

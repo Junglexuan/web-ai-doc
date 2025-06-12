@@ -2,11 +2,28 @@
   :local(.dialog) {
     position: fixed;
     z-index: 10;
+    padding: 2.2px;
     text-align: center;
-    background: #fff;
+    background: linear-gradient(90deg, #24aafd 0%, #1f67fd 50%, #6b51ff 100%);
     border-radius: 10px;
-    box-shadow: 1px 1px 10px 2px #00000028;
+    box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.1);
     //transform: translate(-50%, -50%);
+
+    > .wrap {
+      overflow: hidden;
+      background: #fff;
+      border-radius: 10px;
+    }
+
+    .dialogFooter {
+      padding: 8px 0;
+      text-align: center;
+      background: #fafbfb;
+
+      > * {
+        margin: 0 5px;
+      }
+    }
   }
 
   :local(.mask) {
