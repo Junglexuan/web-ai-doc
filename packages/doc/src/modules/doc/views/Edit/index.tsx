@@ -35,6 +35,11 @@ import VarButton from './VarButton';
 import type {ISource} from './autoSave';
 import type {MenuProps} from 'antd';
 
+const SizeEnum = {
+  常规: '750px',
+  超宽: '70%',
+  全宽: '92%',
+};
 interface Props {
   itemDetail: ItemDetail;
 }
@@ -60,7 +65,7 @@ const Component: FC<Props> = ({itemDetail}) => {
   const [autoSave] = useState(() => new SaveMgr());
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState<'create' | ''>('');
-  const [size, setSize] = useState<'常规' | '全宽' | '超宽'>('常规');
+  const [size, setSize] = useState<'常规' | '全宽' | '超宽'>(itemDetail.size || '常规');
 
   const onSave = useEvent((editor: IDomEditor) => {
     //JSON.stringify(editor.children, null, 2)
@@ -89,6 +94,12 @@ const Component: FC<Props> = ({itemDetail}) => {
         setDocTitle(_docTitle);
       });
     }
+  });
+
+  const onDocSizeChange = useEvent((size: '常规' | '全宽' | '超宽') => {
+    DocAPI.updateDocSize(itemDetail.id, size, itemDetail.isTpl).then(() => {
+      setSize(size);
+    });
   });
 
   const onKeyUp = useEvent((e: any) => {
@@ -222,11 +233,11 @@ const Component: FC<Props> = ({itemDetail}) => {
         },
       ],
       onClick: ({key}: {key: string}) => {
-        setSize(key as any);
+        onDocSizeChange(key as any);
       },
     };
     return menu;
-  }, [size]);
+  }, [onDocSizeChange, size]);
 
   useEffect(() => {
     document.addEventListener('keydown', onKeyUp);
@@ -308,7 +319,7 @@ const Component: FC<Props> = ({itemDetail}) => {
           {editor && <Toolbar editor={editor} defaultConfig={toolbarConfig} mode="default" className="tools" />}
           {editor && itemDetail.isTpl && <VarButton editor={editor} />}
         </div>
-        <div className="bd" id="_ai_editor_scroller">
+        <div className="bd" id="_ai_editor_scroller" style={{width: SizeEnum[size]}}>
           <header>
             <BlurInput
               id="_doc_title"

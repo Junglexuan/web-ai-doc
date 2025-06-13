@@ -70,6 +70,9 @@ export const DocAPI = {
   updateDocName(id: string, title: string, isTpl?: boolean): Promise<void> {
     return request.post(isTpl ? '/dream/pen/template/save' : `/dream/pen/article/save`, {id, title});
   },
+  updateDocSize(id: string, size: string, isTpl?: boolean): Promise<void> {
+    return request.post(isTpl ? '/dream/pen/template/save' : `/dream/pen/article/save`, {id, size});
+  },
   updateDirName(id: string, folderName: string): Promise<void> {
     return request.post(`/dream/pen/dFolder/save`, {id, folderName});
   },

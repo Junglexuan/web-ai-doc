@@ -46,6 +46,7 @@ export interface ItemDetail {
   createUserName: string;
   createDate: string;
   articleCount: number;
+  size: '常规' | '全宽' | '超宽';
   levelPath: {id: string; folderName: string; parent: string}[];
   isTpl?: boolean;
   isShare?: boolean;
