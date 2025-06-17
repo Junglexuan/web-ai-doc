@@ -45,8 +45,8 @@ const Component: FC<Props> = ({onSubmit, onCancel, elem}) => {
           <span>字段定义：</span>
         </div>
         <Input className="field" placeholder="显示给用户的字段名称" value={fieldName} onChange={(e) => setFieldValue(e.target.value.trim())} />
-        <div className="title">内容描述：</div>
-        <Input.TextArea placeholder="请输入内容描述..." value={value} onChange={onInputChange} />
+        <div className="title">默认值：</div>
+        <Input.TextArea placeholder="请输入默认值..." value={value} onChange={onInputChange} />
       </div>
       <div className="dialogFooter">
         <Button size="small" type="primary" onClick={onOk}>

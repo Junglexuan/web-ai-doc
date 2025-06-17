@@ -117,7 +117,7 @@ const Component: FC<{}> = () => {
         <Menu mode="inline" items={items} selectedKeys={selectedKeys} />
       </div>
       <div className="ft">
-        <a href={KnowledgePrefix + '/chat/view'}>
+        <a href={KnowledgePrefix + '/dashboard'}>
           <AppstoreOutlined className="icon" />
           <span>智能体平台</span>
         </a>

@@ -124,7 +124,7 @@ export const DocAPI = {
           })
         : render === 'tpls'
         ? request.get(`/dream/pen/template/list`, {
-            params: {title: name, order: sorterOrder === 'ascend' ? 'asc' : undefined, page: 1, pageSize: 99999},
+            params: {name, order: sorterOrder === 'ascend' ? 'asc' : undefined, page: 1, pageSize: 99999},
           })
         : request.get(`/dream/pen/dFolder/list`, {params: {id, name, order: sorterOrder === 'ascend' ? 'asc' : undefined}}),
       render === 'maintain' ? request.get(`/dream/pen/dFolder/level`, {params: {id}}) : ({} as any),

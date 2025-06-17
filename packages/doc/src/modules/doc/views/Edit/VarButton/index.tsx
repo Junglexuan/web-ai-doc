@@ -7,7 +7,7 @@ import {
   ScanOutlined,
   SignatureOutlined,
 } from '@ant-design/icons';
-import {IDomEditor} from '@wangeditor-next/editor';
+import {DomEditor, IDomEditor} from '@wangeditor-next/editor';
 import {Button, Dropdown} from 'antd';
 import {FC, memo, useMemo} from 'react';
 import {createPortal} from 'react-dom';
@@ -31,6 +31,13 @@ interface Props {
 function insertVarByTpl(editor: IDomEditor, kind: string) {
   editor.focus();
   if (editor.selection) {
+    const variable = DomEditor.getSelectedNodeByType(editor, 'variable');
+    if (variable) {
+      const path = [...DomEditor.findPath(editor, variable)];
+      const last = path.pop();
+      path.push(last! + 1);
+      editor.select(path);
+    }
     let node: VariableElement | undefined;
     if (kind === 'date') {
       node = {type: 'variable', kind, source: '${DATE.NOW()}', info: '此时此刻', children: [{text: '$日期时间'}]};

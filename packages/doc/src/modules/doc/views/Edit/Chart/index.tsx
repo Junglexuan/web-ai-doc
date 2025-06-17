@@ -31,7 +31,7 @@ const Component: FC<Props> = ({editor}) => {
     <div ref={panelRef} className={styles.panel + (show ? ' on' : '')}>
       <Button className={styles.close} size="small" icon={<CloseOutlined />} type="text" onClick={() => setShow(!show)} />
       <div className="bd">
-        <iframe className={styles.iframe} src="http://www.baidu.com" />
+        <iframe className={styles.iframe} />
       </div>
       <Button className={styles.button} icon={<RobotOutlined />} type="text" onClick={() => setShow(!show)} />
     </div>

@@ -64,7 +64,7 @@ const Component: FC<Props> = ({editor}) => {
     } else {
       style.top = selectionRect.bottom + 5;
     }
-    console.log(varEvent.pos);
+    //console.log(varEvent.pos);
     return style;
   }, [varEvent]);
 
