@@ -1,8 +1,10 @@
-import {CloseOutlined, RobotOutlined} from '@ant-design/icons';
-import {IDomEditor, SlateNode} from '@wangeditor-next/editor';
+import {CloseOutlined} from '@ant-design/icons';
+import {IDomEditor} from '@wangeditor-next/editor';
 import {Button} from 'antd';
+import {marked} from 'marked';
 import {FC, memo, useEffect, useRef, useState} from 'react';
-import {confirm, debounce, useEvent, useSingleWindow} from '@/utils/tools';
+import {KnowledgePrefix} from '@/Global';
+import {debounce, useEvent} from '@/utils/tools';
 import styles from './index.module.less';
 interface Props {
   editor: IDomEditor;
@@ -12,29 +14,46 @@ const Component: FC<Props> = ({editor}) => {
   const [show, setShow] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null as any);
 
+  const insertMessage = useEvent((md: string) => {
+    const html = marked.parse(md) as string;
+    editor.dangerouslyInsertHtml(html);
+  });
+
   useEffect(() => {
     const doc = document.getElementById('_ai_editor_scroller');
     const onResize = debounce(() => {
       const rect = doc!.getBoundingClientRect();
       const minWidth = window.innerWidth - rect.right;
-      panelRef.current.style.width = Math.max(minWidth, 400) + 'px';
+      panelRef.current.style.width = Math.max(minWidth, 500) + 'px';
       //setPanelWidth(window.innerWidth / 2 - 275);
     }, 300);
     onResize();
+    const onMessage = (e: any) => {
+      const {action, content}: {action: string; content: string} = e.data || {};
+      if (action === 'chat-insert' && content) {
+        insertMessage(content);
+      }
+    };
     window.addEventListener('resize', onResize);
+    window.addEventListener('message', onMessage);
     return () => {
       window.removeEventListener('resize', onResize);
+      window.removeEventListener('message', onMessage);
     };
   }, []);
 
   return (
-    <div ref={panelRef} className={styles.panel + (show ? ' on' : '')}>
-      <Button className={styles.close} size="small" icon={<CloseOutlined />} type="text" onClick={() => setShow(!show)} />
-      <div className="bd">
-        <iframe className={styles.iframe} />
+    <>
+      <div className={styles.button} onClick={() => setShow(!show)}>
+        智能体
       </div>
-      <Button className={styles.button} icon={<RobotOutlined />} type="text" onClick={() => setShow(!show)} />
-    </div>
+      <div ref={panelRef} className={styles.panel + (show ? ' on' : '')}>
+        <Button className={styles.close} size="small" icon={<CloseOutlined />} type="text" onClick={() => setShow(!show)} />
+        <div className="bd">
+          <iframe className={styles.iframe} src={`${KnowledgePrefix}/chat/window`} />
+        </div>
+      </div>
+    </>
   );
 };
 

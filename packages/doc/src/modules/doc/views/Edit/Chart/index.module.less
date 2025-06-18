@@ -1,13 +1,15 @@
 :global {
   :local(.panel) {
-    position: absolute;
+    position: fixed;
+    top: 0;
     right: 0;
     bottom: 0;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    width: 400px;
-    height: calc(100% - 90px);
+    width: 500px;
+    overflow: hidden;
+    background: #fff;
     transition: transform 0.2s;
     transform: translateX(100%);
 
@@ -25,11 +27,23 @@
 
   :local(.button) {
     position: absolute;
-    bottom: -1px;
-    left: -40px;
-    display: none;
-    font-size: 18px;
-    color: #1b68fc;
+    right: 0;
+    bottom: 100px;
+    height: 40px;
+    padding: 10px 10px 10px 60px;
+    font-size: 16px;
+    font-weight: bold;
+    line-height: 40px;
+    cursor: pointer;
+    background: #fff url('@/assets/images/robot.svg') no-repeat 10px center;
+    border-radius: 100px 0 0 100px;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.16);
+    transition: transform 0.2s;
+    transform: translateX(60px);
+
+    &:hover {
+      transform: none;
+    }
   }
 
   :local(.close) {
