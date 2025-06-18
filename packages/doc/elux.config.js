@@ -12,8 +12,8 @@ module.exports = {
       PathPrefix: '/ai-doc',
       ApiPrefix: {
         '/auth/': 'http://8.130.27.129/auth/',
-        '/dream/': 'http://139.9.86.138/dream/',
-        //'/dream/': 'http://331qy963dj35.vicp.fun:15537/dream/',
+        //'/dream/': 'http://139.9.86.138/dream/',
+        '/dream/': 'http://331qy963dj35.vicp.fun:15537/dream/',
       },
       StaticPrefix: {
         '/imgs/': '/imgs/',

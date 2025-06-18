@@ -217,14 +217,17 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showRename, showMove, listSearch, listSummary]);
 
-  const onCreate = useEvent((title: string = '', contents: string = '') => {
+  const onCreate = useEvent((title: string = '', contents: string = '', tpl?: {id: string; fields: {[field: string]: string}}) => {
     setLoading('create');
     DocAPI.createDoc({folder: listSearch.id || '0', title, contents})
       .then(async ({id}) => {
         setSelectedRows({ids: [], rows: []});
         await refreshList();
-        if (!title) {
-          GetClientRouter().push({url: `/admin/doc/item/edit/${id}?__c=_dialog`}, singleWindow);
+        if (tpl) {
+          window.sessionStorage.setItem('__temp_tpl__', JSON.stringify(tpl));
+          GetClientRouter().push({url: `/admin/doc/item/edit/${id}?&tpl=${tpl.id}&__c=_dialog`}, 'window');
+        } else if (!title) {
+          GetClientRouter().push({url: `/admin/doc/item/edit/${id}?__c=_dialog`}, 'window');
         }
       })
       .finally(() => setLoading(''));
@@ -265,8 +268,8 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
 
   const onWizardSubmit = useEvent(({__tplId, ...fields}: {__tplId: string; [field: string]: string}) => {
     setWizardData(undefined);
-    DocAPI.createDoc(__tplId, fields).then(({id}) => {
-      GetClientRouter().push({url: `/admin/doc/item/edit/${id}?__c=_dialog`}, singleWindow);
+    DocAPI.getDoc({id: __tplId, render: 'tpl'}).then((tpl) => {
+      onCreate(tpl.title, '', {id: __tplId, fields});
     });
   });
 

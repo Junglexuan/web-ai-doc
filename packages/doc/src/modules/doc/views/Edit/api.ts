@@ -78,6 +78,20 @@ function decodeMarkdown() {
   };
 }
 
+function decodeHtml() {
+  let html = '';
+  return (str: string) => {
+    try {
+      const item = JSON.parse(str);
+      str = item.content;
+    } catch (error) {
+      str = '';
+    }
+    html += str;
+    return html;
+  };
+}
+
 function getHeaders() {
   return {
     'Content-Type': 'application/json',
@@ -277,6 +291,32 @@ const web: AIRequest = ({args, onMessage, onError, onDone}) => {
   return controller;
 };
 
+function tpl(
+  args: {id: string; fields?: {[key: string]: string}},
+  onMessage: (html: string) => void,
+  onError: (e: any) => void,
+  onDone: () => void
+): AbortController {
+  const controller = new AbortController();
+  const {signal} = controller;
+  const {id, fields = {}} = args;
+  const html = decodeHtml();
+  fetchEventSource(replaceBaseUrl('/dream/pen/ai/template'), {
+    method: 'POST',
+    headers: getHeaders(),
+    body: JSON.stringify({id, fields: Object.keys(fields).map((name) => ({key: name, value: fields[name]}))}),
+    signal,
+    openWhenHidden: true,
+    onmessage: (ev) => onMessage(html(ev.data)),
+    onerror: (e) => {
+      setTimeout(() => onError(e));
+      throw e;
+    },
+    onclose: onDone,
+  });
+  return controller;
+}
+
 function proofread(docId: string, content: string, html: string): {controller: AbortController; result: Promise<{content: string; html: string}>} {
   const controller = new AbortController();
   const {signal} = controller;
@@ -305,6 +345,7 @@ export const AiAPI = {
   proofread,
   ask,
   web,
+  tpl,
   async byTemplate(docId: string, content: string): Promise<string> {
     return request
       .post(`/dream/pen/ai/full/text `, {

@@ -12,35 +12,36 @@ const TypeMap: {[key: string]: DocType} = {
 };
 
 export const DocAPI = {
-  createDoc(data: string | {title: string; contents: string; folder: string}, fields?: {[key: string]: string}): Promise<{id: string}> {
-    if (typeof data === 'string') {
-      return setGlobalLoading(
-        request.get('/dream/pen/template/get', {params: {id: data}}).then((res) => {
-          const item: ItemDetail = res.data.data || {};
-          return request
-            .post(`/dream/pen/template/createArticle`, {
-              id: data,
-              fields: fields && Object.keys(fields).map((name) => ({key: name, value: fields[name]})),
-              content: (item.contents || '')
-                .replace(/(<cite data-w-e-type="variable" .+? data-source=")(.+?)(">[^$]*)\$[^<]*(<.*?\/cite>)/g, '$1$2$3$2$4')
-                .replace(/(<cite data-w-e-type="variable" [^>]+?)><span( [\w\W]+?)<\/span>.*?(<\/cite>)/g, '$1$2$3'),
-            })
-            .then((res) => res.data.data);
-        }),
-        GetClientRouter().getActivePage().store
-      );
-    } else {
-      const {title, folder} = data;
-      const contents = data.contents || '<p style="line-height: 1.5;"><span style="font-size: 16px; font-family: 黑体;"></span></p>';
-      return request
-        .post(`/dream/pen/article/save`, {
-          title: title || '新建文档',
-          articleDsl: '',
-          contents,
-          folder,
-        })
-        .then((res) => res.data.data);
-    }
+  createDoc(data: {title: string; contents: string; folder: string}): Promise<{id: string}> {
+    const {title, folder} = data;
+    const contents = data.contents || '<p style="line-height: 1.5;"><span style="font-size: 16px; font-family: 黑体;"></span></p>';
+    return request
+      .post(`/dream/pen/article/save`, {
+        title: title || '新建文档',
+        articleDsl: '',
+        contents,
+        folder,
+      })
+      .then((res) => res.data.data);
+    // if (typeof data === 'string') {
+    //   return setGlobalLoading(
+    //     request.get('/dream/pen/template/get', {params: {id: data}}).then((res) => {
+    //       const item: ItemDetail = res.data.data || {};
+    //       return request
+    //         .post(`/dream/pen/template/createArticle`, {
+    //           id: data,
+    //           //fields: fields && Object.keys(fields).map((name) => ({key: name, value: fields[name]})),
+    //           content: (item.contents || '')
+    //             .replace(/(<cite data-w-e-type="variable" .+? data-source=")(.+?)(">[^$]*)\$[^<]*(<.*?\/cite>)/g, '$1$2$3$2$4')
+    //             .replace(/(<cite data-w-e-type="variable" [^>]+?)><span( [\w\W]+?)<\/span>.*?(<\/cite>)/g, '$1$2$3'),
+    //         })
+    //         .then((res) => res.data.data);
+    //     }),
+    //     GetClientRouter().getActivePage().store
+    //   );
+    // } else {
+
+    // }
   },
   createDir({folder}: {folder: string}): Promise<{id: string}> {
     return request.post(`/dream/pen/dFolder/save`, {folderName: `新建文件夹`, parent: folder}).then((res) => res.data.data);

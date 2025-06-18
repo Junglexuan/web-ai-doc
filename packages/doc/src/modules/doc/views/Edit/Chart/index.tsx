@@ -49,9 +49,7 @@ const Component: FC<Props> = ({editor}) => {
       </div>
       <div ref={panelRef} className={styles.panel + (show ? ' on' : '')}>
         <Button className={styles.close} size="small" icon={<CloseOutlined />} type="text" onClick={() => setShow(!show)} />
-        <div className="bd">
-          <iframe className={styles.iframe} src={`${KnowledgePrefix}/chat/window`} />
-        </div>
+        <div className="bd">{show && <iframe className={styles.iframe} src={`${KnowledgePrefix}/chat/window`} />}</div>
       </div>
     </>
   );

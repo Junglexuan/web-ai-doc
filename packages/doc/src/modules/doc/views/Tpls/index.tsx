@@ -54,14 +54,21 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
     });
   });
 
+  const onCreateByTpl = useEvent((tplId: string, fields?: {[field: string]: string}) => {
+    DocAPI.getDoc({id: tplId, render: 'tpl'}).then((tpl) => {
+      DocAPI.createDoc({folder: '0', title: tpl.title, contents: ''}).then(async ({id}) => {
+        window.sessionStorage.setItem('__temp_tpl__', JSON.stringify({id: tplId, fields}));
+        GetClientRouter().push({url: `/admin/doc/item/edit/${id}?&tpl=${tpl.id}&__c=_dialog`}, singleWindow);
+      });
+    });
+  });
+
   const onApplyTpl = useEvent((tplId: string) => {
     DocAPI.getTplFields(tplId).then((fields) => {
       if (fields.length) {
         setWizardData({tplId, fields});
       } else {
-        DocAPI.createDoc(tplId).then(({id}) => {
-          GetClientRouter().push({url: `/admin/doc/item/edit/${id}?__c=_dialog`}, singleWindow);
-        });
+        onCreateByTpl(tplId);
       }
     });
   });
@@ -76,9 +83,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
 
   const onWizardSubmit = useEvent(({__tplId, ...fields}: {__tplId: string; [field: string]: string}) => {
     setWizardData(undefined);
-    DocAPI.createDoc(__tplId, fields).then(({id}) => {
-      GetClientRouter().push({url: `/admin/doc/item/edit/${id}?__c=_dialog`}, singleWindow);
-    });
+    onCreateByTpl(__tplId, fields);
   });
 
   useEffect(() => {

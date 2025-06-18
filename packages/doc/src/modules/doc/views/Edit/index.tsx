@@ -25,6 +25,7 @@ import DocAPI from '../../api';
 import {ItemDetail} from '../../entity';
 import AIButton from './AIButton';
 import './AIMenu';
+import AITpl from './AITpl';
 import {SaveMgr} from './autoSave';
 import Chart from './Chart';
 import {editorConfig, toolbarConfig} from './editorConfig';
@@ -114,7 +115,7 @@ const Component: FC<Props> = ({itemDetail}) => {
 
   const onCreatDoc = useEvent(() => {
     setLoading('create');
-    DocAPI.createDoc(itemDetail.isTpl ? itemDetail.id : {folder: itemDetail.folder, title: '', contents: ''})
+    DocAPI.createDoc({folder: itemDetail.folder, title: '', contents: ''})
       .then(({id}) => {
         window.open(toNativeUrl(`/admin/doc/item/edit/${id}?__c=_dialog`));
       })
@@ -256,7 +257,8 @@ const Component: FC<Props> = ({itemDetail}) => {
         <div className="hd">
           <Space size="large">
             <HomeOutlined className="icon-link" onClick={() => GetClientRouter().relaunch({url: `/admin/home`}, 'window')} />
-            {loading === 'create' ? <Spin size="small" /> : <PlusOutlined className="icon-link" onClick={onCreatDoc} title="新建文档" />}
+            {!itemDetail.isTpl &&
+              (loading === 'create' ? <Spin size="small" /> : <PlusOutlined className="icon-link" onClick={onCreatDoc} title="新建文档" />)}
             {!itemDetail.isTpl && (
               <Dropdown
                 menu={{
@@ -315,9 +317,14 @@ const Component: FC<Props> = ({itemDetail}) => {
           </Space>
         </div>
         <div className="cd">
-          {editor && <AIButton editor={editor} />}
-          {editor && <Toolbar editor={editor} defaultConfig={toolbarConfig} mode="default" className="tools" />}
-          {editor && itemDetail.isTpl && <VarButton editor={editor} />}
+          {editor && (
+            <>
+              <AIButton editor={editor} />
+              <Toolbar editor={editor} defaultConfig={toolbarConfig} mode="default" className="tools" />
+              <AITpl editor={editor} />
+              {itemDetail.isTpl && <VarButton editor={editor} />}
+            </>
+          )}
         </div>
         <div className="bd" id="_ai_editor_scroller" style={{width: SizeEnum[size]}}>
           <header>
@@ -348,9 +355,13 @@ const Component: FC<Props> = ({itemDetail}) => {
             <Dropdown menu={layoutSize}>
               <span className="btn size"></span>
             </Dropdown>
-            {editor && <Outline editor={editor} />}
-            {editor && <Review editor={editor} />}
-            {editor && <Chart editor={editor} />}
+            {editor && (
+              <>
+                <Outline editor={editor} />
+                <Review editor={editor} />
+                <Chart editor={editor} />
+              </>
+            )}
           </div>
         </div>
       </div>
