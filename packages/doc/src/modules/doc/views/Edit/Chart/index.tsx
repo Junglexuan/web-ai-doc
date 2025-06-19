@@ -48,7 +48,9 @@ const Component: FC<Props> = ({editor}) => {
         智能体
       </div>
       <div ref={panelRef} className={styles.panel + (show ? ' on' : '')}>
-        <Button className={styles.close} size="small" icon={<CloseOutlined />} type="text" onClick={() => setShow(!show)} />
+        <span className={styles.close} onClick={() => setShow(!show)}>
+          <CloseOutlined />
+        </span>
         <div className="bd">{show && <iframe className={styles.iframe} src={`${KnowledgePrefix}/chat/window`} />}</div>
       </div>
     </>

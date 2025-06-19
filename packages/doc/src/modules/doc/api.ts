@@ -15,14 +15,17 @@ export const DocAPI = {
   createDoc(data: {title: string; contents: string; folder: string}): Promise<{id: string}> {
     const {title, folder} = data;
     const contents = data.contents || '<p style="line-height: 1.5;"><span style="font-size: 16px; font-family: 黑体;"></span></p>';
-    return request
-      .post(`/dream/pen/article/save`, {
-        title: title || '新建文档',
-        articleDsl: '',
-        contents,
-        folder,
-      })
-      .then((res) => res.data.data);
+    return setGlobalLoading(
+      request
+        .post(`/dream/pen/article/save`, {
+          title: title || '新建文档',
+          articleDsl: '',
+          contents,
+          folder,
+        })
+        .then((res) => res.data.data),
+      GetClientRouter().getActivePage().store
+    );
     // if (typeof data === 'string') {
     //   return setGlobalLoading(
     //     request.get('/dream/pen/template/get', {params: {id: data}}).then((res) => {

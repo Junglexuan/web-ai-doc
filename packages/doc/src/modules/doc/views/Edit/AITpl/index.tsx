@@ -1,10 +1,9 @@
-import {CheckOutlined, PauseCircleOutlined, ReloadOutlined} from '@ant-design/icons';
+import {PauseCircleOutlined, ReloadOutlined} from '@ant-design/icons';
 import {IDomEditor} from '@wangeditor-next/editor';
-import {Button} from 'antd';
+import {Button, Spin} from 'antd';
 import {marked} from 'marked';
-import {FC, memo, useEffect, useRef, useState} from 'react';
-import {KnowledgePrefix} from '@/Global';
-import {debounce, getUrlParam, useEvent} from '@/utils/tools';
+import {FC, memo, useCallback, useEffect, useRef, useState} from 'react';
+import {addClass, getUrlParam, removeClass} from '@/utils/tools';
 import AiAPI, {RunningState} from '../api';
 import styles from './index.module.less';
 interface Props {
@@ -13,17 +12,34 @@ interface Props {
 
 const Component: FC<Props> = ({editor}) => {
   const [runningState, setRunningState] = useState<RunningState>('');
-
-  useEffect(() => {
+  const [tplData] = useState(() => {
     const tplId = getUrlParam('tpl');
     const tplData: {id: string; fields: {[key: string]: string}} = JSON.parse(window.sessionStorage.getItem('__temp_tpl__') || '{}');
     window.sessionStorage.removeItem('__temp_tpl__');
-    if (tplId === tplData.id) {
+    return tplId === tplData.id ? tplData : null;
+  });
+  const requestRef = useRef<AbortController>();
+  const dialogDivRef = useRef<HTMLElement>(null as any);
+  const tmpDivRef = useRef<HTMLElement>(null as any);
+
+  const onStop = useCallback(() => {
+    requestRef.current?.abort();
+    setTimeout(() => {
+      setRunningState('Fulfilled');
+    });
+  }, []);
+
+  const onClose = useCallback(() => setRunningState(''), []);
+
+  const retry = useCallback(() => {
+    if (tplData) {
       setRunningState('Pending');
-      AiAPI.tpl(
+      requestRef.current = AiAPI.tpl(
         tplData,
         (html) => {
-          console.log(html);
+          tmpDivRef.current.innerHTML = html.replace(/<body>|<\/body>/g, '').replace(/\n/g, '');
+          console.log(tmpDivRef.current.innerHTML);
+          editor.setHtml(tmpDivRef.current.innerHTML);
         },
         (e) => {
           setRunningState('Rejected');
@@ -33,34 +49,45 @@ const Component: FC<Props> = ({editor}) => {
         }
       );
     }
+  }, [editor, tplData]);
+
+  const onMaskClick = useCallback(() => {
+    addClass(dialogDivRef.current!, 'anmi');
+    setTimeout(() => removeClass(dialogDivRef.current!, 'anmi'), 200);
   }, []);
+
+  useEffect(() => {
+    retry();
+  }, [retry]);
 
   if (!runningState) {
     return null;
   }
   return (
     <>
-      <div className={styles.dialog + ' ' + runningState}>
+      <div ref={dialogDivRef as any} className={styles.dialog + ' ' + runningState}>
         <div className="wrap">
           {runningState === 'Pending' && (
             <>
+              <Spin size="small" />
               <span>生成中...</span>
-              <Button className="stop" title="停止" size="small" type="text" icon={<PauseCircleOutlined />}></Button>
+              <Button className="stop" title="停止" size="small" type="text" icon={<PauseCircleOutlined />} onClick={onStop}></Button>
             </>
           )}
           {runningState !== 'Pending' && (
             <>
-              <Button size="small" type="text" icon={<ReloadOutlined />}>
+              <Button size="small" type="text" icon={<ReloadOutlined />} onClick={retry}>
                 重新生成
               </Button>
-              <Button size="small" type="primary" icon={<CheckOutlined />}>
+              <Button size="small" type="primary" onClick={onClose}>
                 确定
               </Button>
             </>
           )}
         </div>
       </div>
-      <div className={styles.mask}></div>
+      <div className={styles.mask} onClick={onMaskClick}></div>
+      <div ref={tmpDivRef as any} className={styles.temp}></div>
     </>
   );
 };
