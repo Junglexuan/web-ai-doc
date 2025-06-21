@@ -1,9 +1,8 @@
 import {PauseCircleOutlined, ReloadOutlined} from '@ant-design/icons';
 import {IDomEditor} from '@wangeditor-next/editor';
 import {Button, Spin} from 'antd';
-import {marked} from 'marked';
-import {FC, memo, useCallback, useEffect, useRef, useState} from 'react';
-import {addClass, getUrlParam, removeClass} from '@/utils/tools';
+import {FC, memo, useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {addClass, getUrlParam, removeClass, throttle} from '@/utils/tools';
 import AiAPI, {RunningState} from '../api';
 import styles from './index.module.less';
 interface Props {
@@ -31,16 +30,27 @@ const Component: FC<Props> = ({editor}) => {
 
   const onClose = useCallback(() => setRunningState(''), []);
 
+  const insertHtml = useMemo(() => {
+    return throttle((html: string) => {
+      console.log('--do----');
+      tmpDivRef.current.innerHTML = html
+        .replace(/<body>|<\/body>/g, '')
+        .replace(/\n/g, '')
+        .trim();
+      //console.log(tmpDivRef.current.innerHTML);
+      editor.setHtml(tmpDivRef.current.innerHTML);
+      editor.focus();
+      editor.move(999999999);
+    }, 500);
+  }, [editor]);
+
   const retry = useCallback(() => {
     if (tplData) {
       setRunningState('Pending');
+
       requestRef.current = AiAPI.tpl(
         tplData,
-        (html) => {
-          tmpDivRef.current.innerHTML = html.replace(/<body>|<\/body>/g, '').replace(/\n/g, '');
-          console.log(tmpDivRef.current.innerHTML);
-          editor.setHtml(tmpDivRef.current.innerHTML);
-        },
+        insertHtml,
         (e) => {
           setRunningState('Rejected');
         },
@@ -70,7 +80,7 @@ const Component: FC<Props> = ({editor}) => {
           {runningState === 'Pending' && (
             <>
               <Spin size="small" />
-              <span>生成中...</span>
+              <span>模版生成中...</span>
               <Button className="stop" title="停止" size="small" type="text" icon={<PauseCircleOutlined />} onClick={onStop}></Button>
             </>
           )}

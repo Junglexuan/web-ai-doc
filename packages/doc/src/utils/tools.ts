@@ -279,18 +279,36 @@ export function debounce<T extends Function>(callbak: T, delay = 0, every?: T): 
     }, delay);
   }) as any;
 }
-export function throttle<T extends Function>(callbak: T, delay = 0): T {
-  let inThrottle: any;
-  return ((...args: any[]) => {
-    if (!inThrottle) {
-      callbak(...args);
-      inThrottle = true;
-      setTimeout(function () {
-        inThrottle = false;
-      }, delay);
-    }
-  }) as any;
-}
+
+// type ThrottledFunction<T extends (...args: any[]) => any> = (...args: Parameters<T>) => void;
+
+// export function throttle<T extends (...args: any[]) => any>(fn: T, delay: number): ThrottledFunction<T> {
+//   let lastExecTime = 0;
+//   let timer: ReturnType<typeof setTimeout> | null = null;
+//   let lastArgs: Parameters<T>;
+
+//   return function (this: ThisParameterType<T>, ...args: Parameters<T>) {
+//     const now = Date.now();
+//     const remaining = delay - (now - lastExecTime);
+//     lastArgs = args;
+
+//     if (remaining <= 0) {
+//       if (timer) {
+//         clearTimeout(timer);
+//         timer = null;
+//       }
+//       lastExecTime = now;
+//       fn.apply(this, args);
+//     } else if (!timer) {
+//       timer = setTimeout(() => {
+//         lastExecTime = Date.now();
+//         timer = null;
+//         fn.apply(this, lastArgs);
+//       }, remaining);
+//     }
+//   };
+// }
+
 export function getRandomNumber(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
@@ -304,4 +322,73 @@ export function closestTarget(el: HTMLElement, find: (dom: HTMLElement) => boole
     el = el.parentElement as any;
   } while (el && el !== root && n < limit);
   return null;
+}
+
+/**
+ * 节流函数 (throttle)
+ * @param func 要执行的函数
+ * @param wait 节流时间间隔(毫秒)
+ * @param options 配置选项
+ * @param options.leading 是否在节流开始时调用 (默认true)
+ * @param options.trailing 是否在节流结束后调用 (默认true)
+ */
+export function throttle<T extends (...args: any[]) => any>(
+  func: T,
+  wait: number,
+  options: {leading?: boolean; trailing?: boolean} = {}
+): (...args: Parameters<T>) => void {
+  let timeout: ReturnType<typeof setTimeout> | null = null;
+  let lastArgs: Parameters<T> | null = null;
+  let lastCallTime: number | null = null;
+  let result: ReturnType<T>;
+
+  const {leading = true, trailing = true} = options;
+
+  const invokeFunc = (args: Parameters<T>) => {
+    result = func(...args);
+    lastCallTime = Date.now();
+    timeout = null;
+    lastArgs = null;
+    return result;
+  };
+
+  const shouldInvoke = () => {
+    if (lastCallTime === null) return true;
+    const timeSinceLastCall = Date.now() - lastCallTime;
+    return timeSinceLastCall >= wait;
+  };
+
+  const trailingEdge = () => {
+    if (timeout) {
+      clearTimeout(timeout);
+      timeout = null;
+    }
+    if (trailing && lastArgs) {
+      return invokeFunc(lastArgs);
+    }
+    lastArgs = null;
+    return result;
+  };
+
+  return function (this: ThisParameterType<T>, ...args: Parameters<T>) {
+    const shouldCallLeading = leading && lastCallTime === null;
+
+    lastArgs = args;
+
+    if (shouldInvoke()) {
+      if (timeout) {
+        trailingEdge();
+      }
+      if (shouldCallLeading) {
+        return invokeFunc(args);
+      }
+      // 设置定时器，确保 trailing 调用
+      timeout = setTimeout(trailingEdge, wait);
+    } else if (!timeout && trailing) {
+      // 确保最后一次调用会被执行
+      timeout = setTimeout(trailingEdge, wait - (Date.now() - (lastCallTime || 0)));
+    }
+
+    return result;
+  };
 }

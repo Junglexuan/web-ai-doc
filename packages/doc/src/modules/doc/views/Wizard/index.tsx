@@ -83,7 +83,7 @@ const Component: FC<Props> = ({tplsOptions = [], data, onCancel, onsubmit}) => {
   // });
 
   return (
-    <Modal open={true} footer={null} onCancel={onCancel} width={800} title="起草公文">
+    <Modal open={true} footer={null} onCancel={onCancel} width={800} maskClosable={false} title="起草公文">
       <div className={styles.root}>
         <div className="hd">
           {step0Able ? (

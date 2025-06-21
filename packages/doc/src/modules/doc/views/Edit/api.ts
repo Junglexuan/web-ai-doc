@@ -88,6 +88,7 @@ function decodeHtml() {
       str = '';
     }
     html += str;
+    console.log(str);
     return html;
   };
 }
