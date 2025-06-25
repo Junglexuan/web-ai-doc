@@ -1,11 +1,10 @@
-import {DocumentHead, Link, connectStore} from '@elux/react-web';
+import {DocumentHead, connectStore} from '@elux/react-web';
 import {Carousel} from 'antd';
-import {FC, useEffect, useMemo, useState} from 'react';
-import {GetClientRouter} from '@/Global';
+import {FC, MouseEvent, useEffect, useMemo, useState} from 'react';
 import {PathPrefix} from '@/Global';
 import DocAPI from '@/modules/doc/api';
 import Wizard, {WizardFormData} from '@/modules/doc/views/Wizard';
-import {useEvent} from '@/utils/tools';
+import {openArticle, useEvent} from '@/utils/tools';
 import HomeAPI from '../api';
 import {HotArticle, HotTemplate} from '../entity';
 import styles from './index.module.less';
@@ -37,7 +36,7 @@ const Component: FC = () => {
     DocAPI.getDoc({id: tplId, render: 'tpl'}).then((tpl) => {
       DocAPI.createDoc({folder: '0', title: tpl.title, contents: ''}).then(async ({id}) => {
         window.sessionStorage.setItem('__temp_tpl__', JSON.stringify({id: tplId, fields}));
-        GetClientRouter().push({url: `/admin/doc/item/edit/${id}?&tpl=${tpl.id}&__c=_dialog`}, 'window');
+        openArticle(`/admin/doc/item/edit/${id}?&tpl=${tpl.id}&__c=_dialog`);
       });
     });
   });
@@ -57,27 +56,23 @@ const Component: FC = () => {
     onCreateByTpl(__tplId, fields);
   });
 
+  const onShowDetail = useEvent((evt: MouseEvent, id: string) => {
+    openArticle(`/admin/doc/item/edit/${id}?__c=_dialog`);
+  });
+
   const renderHotArticle = useMemo(() => {
     // 获取最近创作的项目
     return (
       <div className="recent-creations">
         {hotArticleList.map((item, index) => (
-          <Link
-            key={index}
-            className="creation-item"
-            title={item.title}
-            to={`/admin/doc/item/edit/${item.id}`}
-            action="push"
-            target="window"
-            cname="_dialog"
-          >
+          <a key={index} className="creation-item" title={item.title} onClick={(e) => onShowDetail(e, item.id)}>
             <div className="title" title={item.title}>
               {item.title}
             </div>
             <div className="content" title={item.levelPath}>
               {item.levelPath}
             </div>
-          </Link>
+          </a>
         ))}
       </div>
     );

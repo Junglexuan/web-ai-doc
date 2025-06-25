@@ -1,9 +1,9 @@
 import {EllipsisOutlined, PlusOutlined, StarFilled, StarOutlined} from '@ant-design/icons';
 import {Dispatch, DocumentHead} from '@elux/react-web';
 import {Button, Dropdown, Input, Modal} from 'antd';
-import {FC, memo, useCallback, useEffect, useState} from 'react';
-import {GetActions, GetClientRouter} from '@/Global';
-import {confirm, debounce, useEvent, useSingleWindow} from '@/utils/tools';
+import {FC, MouseEvent, memo, useCallback, useEffect, useState} from 'react';
+import {GetActions} from '@/Global';
+import {confirm, debounce, openArticle, useEvent} from '@/utils/tools';
 import {DocAPI} from '../../api';
 import {ListItem, ListSearch, ListSummary} from '../../entity';
 import styles from '../Maintain/index.module.less';
@@ -20,7 +20,6 @@ interface Props {
 const {doc: docActions} = GetActions('doc');
 
 const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
-  const singleWindow = useSingleWindow();
   const [scrollHeight, setScrollHeight] = useState(() => window.innerHeight - 215);
   const [curEdit, setCurEdit] = useState<ListItem>();
   const [wizardData, setWizardData] = useState<WizardFormData>();
@@ -49,7 +48,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
       setCurEdit(undefined);
       await refreshList();
       if (!curId) {
-        GetClientRouter().push({url: `/admin/doc/item/tpl/${id}?__c=_dialog`}, singleWindow);
+        openArticle(`/admin/doc/item/tpl/${id}?__c=_dialog`);
       }
     });
   });
@@ -58,7 +57,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
     DocAPI.getDoc({id: tplId, render: 'tpl'}).then((tpl) => {
       DocAPI.createDoc({folder: '0', title: tpl.title, contents: ''}).then(async ({id}) => {
         window.sessionStorage.setItem('__temp_tpl__', JSON.stringify({id: tplId, fields}));
-        GetClientRouter().push({url: `/admin/doc/item/edit/${id}?&tpl=${tpl.id}&__c=_dialog`}, singleWindow);
+        openArticle(`/admin/doc/item/edit/${id}?&tpl=${tpl.id}&__c=_dialog`);
       });
     });
   });
@@ -73,8 +72,8 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
     });
   });
 
-  const onShowTpl = useEvent((tplId: string) => {
-    GetClientRouter().push({url: `/admin/doc/item/tpl/${tplId}?__c=_dialog`}, singleWindow);
+  const onShowTpl = useEvent((evt: MouseEvent, tplId: string) => {
+    openArticle(`/admin/doc/item/tpl/${tplId}?__c=_dialog`);
   });
 
   const onSearch = useEvent((name: string) => {
@@ -109,7 +108,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
       <div className="md" style={{height: scrollHeight}}>
         {list.map((item) => {
           return (
-            <div className={styles.card} key={item.id} onClick={() => onShowTpl(item.id)}>
+            <div className={styles.card} key={item.id} onClick={(e) => onShowTpl(e as MouseEvent, item.id)}>
               {item.collect ? (
                 <StarFilled className="collect" onClick={(e) => onCollect(e, item.id, !item.collect)} />
               ) : (

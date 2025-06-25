@@ -1,10 +1,10 @@
 import {DeleteOutlined, DownOutlined, StarFilled} from '@ant-design/icons';
 import {Dispatch, DocumentHead, setLoading as setGlobalLoading} from '@elux/react-web';
 import {Button, Dropdown, Input, Popover, Space, Table, TableProps} from 'antd';
-import {FC, memo, useCallback, useEffect, useMemo, useState} from 'react';
+import {FC, MouseEvent, memo, useCallback, useEffect, useMemo, useState} from 'react';
 import {GetActions, GetClientRouter} from '@/Global';
 import {downloadFile, replaceBaseUrl} from '@/utils/request';
-import {confirm, debounce, useEvent, useSingleWindow} from '@/utils/tools';
+import {confirm, debounce, openArticle, useEvent} from '@/utils/tools';
 import {DocAPI} from '../../api';
 import {DocType, ListItem, ListSearch, ListSummary} from '../../entity';
 import styles from '../Maintain/index.module.less';
@@ -18,7 +18,6 @@ interface Props {
 const {doc: docActions} = GetActions('doc');
 
 const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
-  const singleWindow = useSingleWindow();
   const [loading, setLoading] = useState<'create' | 'createDir' | 'upload' | 'batchDelete' | ''>('');
   const [selectedRows, setSelectedRows] = useState<{ids: string[]; rows: ListItem[]}>({ids: [], rows: []});
   const [scrollHeight, setScrollHeight] = useState(() => window.innerHeight - 275);
@@ -29,11 +28,11 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
     return dispatch(docActions.fetchList());
   }, [dispatch]);
 
-  const onShowDetail = useEvent((id: string, type: DocType) => {
+  const onShowDetail = useEvent((evt: MouseEvent, id: string, type: DocType) => {
     if (type === 'doc') {
-      GetClientRouter().push({url: `/admin/doc/item/edit/${id}?__c=_dialog`}, singleWindow);
+      openArticle(`/admin/doc/item/edit/${id}?__c=_dialog`);
     } else if (type === 'tpl') {
-      GetClientRouter().push({url: `/admin/doc/item/tpl/${id}?__c=_dialog`}, singleWindow);
+      openArticle(`/admin/doc/item/tpl/${id}?__c=_dialog`);
     } else {
       GetClientRouter().push({url: `/admin/doc/list/maintain?id=${id}`}, 'page');
     }
@@ -60,7 +59,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
         key: 'title',
         render: (text, row) => (
           <div className="file-name">
-            <a className={'ico-' + row.type} title={text} onClick={() => onShowDetail(row.id, row.type)}>
+            <a className={'ico-' + row.type} title={text} onClick={(e) => onShowDetail(e, row.id, row.type)}>
               {text}
             </a>
             <StarFilled onClick={() => DocAPI.collectItem(row.id, row.type, !row.collect).then(refreshList)} />

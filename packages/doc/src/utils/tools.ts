@@ -98,6 +98,11 @@ export function toNativeUrl(url: string): string {
   return PathPrefix + url;
 }
 
+export function openArticle(url: string): void {
+  //GetClientRouter().push({url}, 'window');
+  window.open(toNativeUrl(url));
+}
+
 export const sleep = (ms: number): Promise<void> => new Promise((r) => setTimeout(r, ms));
 
 export interface TreeItem {

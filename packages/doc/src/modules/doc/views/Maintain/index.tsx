@@ -11,10 +11,10 @@ import {
 } from '@ant-design/icons';
 import {Dispatch, DocumentHead, Link, setLoading as setGlobalLoading} from '@elux/react-web';
 import {Breadcrumb, Button, Dropdown, Input, Popover, Space, Table, TableProps, Tree, Upload, UploadProps} from 'antd';
-import {FC, memo, useCallback, useEffect, useMemo, useState} from 'react';
+import {FC, MouseEvent, memo, useCallback, useEffect, useMemo, useState} from 'react';
 import {GetActions, GetClientRouter} from '@/Global';
 import {downloadFile, getUploadProps, replaceBaseUrl} from '@/utils/request';
-import {confirm, debounce, useEvent, useSingleWindow} from '@/utils/tools';
+import {confirm, debounce, openArticle, useEvent, useSingleWindow} from '@/utils/tools';
 import {DocAPI} from '../../api';
 import {DocType, ListItem, ListSearch, ListSummary, TplsOptions} from '../../entity';
 import Wizard, {WizardFormData} from '../Wizard';
@@ -42,9 +42,10 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
     return dispatch(docActions.fetchList());
   }, [dispatch]);
 
-  const onShowDetail = useEvent((id: string, type: DocType) => {
+  const onShowDetail = useEvent((evt: MouseEvent, id: string, type: DocType) => {
     if (type === 'doc') {
-      GetClientRouter().push({url: `/admin/doc/item/edit/${id}?__c=_dialog`}, singleWindow);
+      openArticle(`/admin/doc/item/edit/${id}?__c=_dialog`);
+      //GetClientRouter().push({url: `/admin/doc/item/edit/${id}?__c=_dialog`}, singleWindow);
     } else {
       GetClientRouter().push({url: `/admin/doc/list/maintain?id=${id}`}, 'page');
     }
@@ -76,7 +77,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
         key: 'title',
         render: (text, row) => (
           <div className="file-name">
-            <a className={'ico-' + row.type} title={text} onClick={() => onShowDetail(row.id, row.type)}>
+            <a className={'ico-' + row.type} title={text} onClick={(e) => onShowDetail(e, row.id, row.type)}>
               {text}
             </a>
             {row.type === 'dir' ? null : !row.collect ? (

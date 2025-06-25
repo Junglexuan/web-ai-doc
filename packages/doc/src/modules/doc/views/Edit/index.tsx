@@ -14,13 +14,11 @@ import {Editor, Toolbar} from '@wangeditor-next/editor-for-react';
 import {Breadcrumb, Dropdown, Space, Spin} from 'antd';
 import dayjs from 'dayjs';
 import {FC, memo, useCallback, useEffect, useMemo, useState} from 'react';
-import Redo from '@/assets/images/Redo';
-import Undo from '@/assets/images/Undo';
 import BlurInput from '@/components/BlurInput';
 import DialogPage from '@/components/DialogPage';
 import {GetClientRouter} from '@/Global';
 import {downloadFile, replaceBaseUrl} from '@/utils/request';
-import {confirm, debounce, message, toNativeUrl, useEvent} from '@/utils/tools';
+import {confirm, debounce, openArticle, useEvent} from '@/utils/tools';
 import DocAPI from '../../api';
 import {ItemDetail} from '../../entity';
 import AIButton from './AIButton';
@@ -117,7 +115,7 @@ const Component: FC<Props> = ({itemDetail}) => {
     setLoading('create');
     DocAPI.createDoc({folder: itemDetail.folder, title: '', contents: ''})
       .then(({id}) => {
-        window.open(toNativeUrl(`/admin/doc/item/edit/${id}?__c=_dialog`));
+        openArticle(`/admin/doc/item/edit/${id}?__c=_dialog`);
       })
       .finally(() => setLoading(''));
   });
