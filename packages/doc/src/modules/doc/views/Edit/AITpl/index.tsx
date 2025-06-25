@@ -32,7 +32,7 @@ const Component: FC<Props> = ({editor}) => {
 
   const insertHtml = useMemo(() => {
     return throttle((html: string) => {
-      console.log('--do----');
+      console.log(html);
       tmpDivRef.current.innerHTML = html
         .replace(/<body>|<\/body>/g, '')
         .replace(/\n/g, '')
@@ -59,7 +59,7 @@ const Component: FC<Props> = ({editor}) => {
         }
       );
     }
-  }, [editor, tplData]);
+  }, [insertHtml, tplData]);
 
   const onMaskClick = useCallback(() => {
     addClass(dialogDivRef.current!, 'anmi');
@@ -80,7 +80,7 @@ const Component: FC<Props> = ({editor}) => {
           {runningState === 'Pending' && (
             <>
               <Spin size="small" />
-              <span>模版生成中...</span>
+              <span>AI生成中...</span>
               <Button className="stop" title="停止" size="small" type="text" icon={<PauseCircleOutlined />} onClick={onStop}></Button>
             </>
           )}

@@ -99,13 +99,11 @@ const Component: FC<Props> = ({onCreated, editor}) => {
     editor.focus();
   });
 
-  const onProofreadSuccess = useEvent(({content, html}: {content: string; html: string}) => {
+  const onProofreadSuccess = useEvent(({content}: {content: string}) => {
     setRunningState('Fulfilled');
     closeMenu(true);
     if (content) {
-      const arr = JSON.parse(content);
-      const newHtml = proofreadHtml(html, arr);
-      console.log(newHtml);
+      editor.setHtml(content);
     }
   });
 

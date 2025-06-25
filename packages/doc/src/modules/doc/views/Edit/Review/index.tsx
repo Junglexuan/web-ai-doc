@@ -110,7 +110,8 @@ const Component: FC<Props> = ({editor}) => {
 
   return (
     <>
-      <Button id="_ai_review_btn" className={styles.button} icon={<PicRightOutlined />} type="text" onClick={() => setShow(!show)} />
+      <span id="_ai_review_btn" className="btn check" onClick={() => setShow(!show)} />
+
       {/* <div className={styles.mask + (show ? ' on' : '')} onClick={() => setShow(!show)}></div> */}
       <div className={styles.panel + (show ? ' on' : '')}>
         <div className="hd">

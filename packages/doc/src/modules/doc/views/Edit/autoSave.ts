@@ -14,6 +14,7 @@ export class SaveMgr extends SimpleDispatcher<{loading: boolean}> {
   toBeSent: ISource | undefined;
   sending: ISource | undefined;
   lasted: string | undefined;
+  retry = 0;
 
   constructor() {
     super({loading: {}});
@@ -30,6 +31,7 @@ export class SaveMgr extends SimpleDispatcher<{loading: boolean}> {
     }
     this.lasted = source.html;
     this.toBeSent = source;
+    this.retry = 2;
     if (!this.sending) {
       this.send();
     }
@@ -52,7 +54,12 @@ export class SaveMgr extends SimpleDispatcher<{loading: boolean}> {
           setTimeout(this.checkNext, this.cycleTime);
         },
         () => {
-          setTimeout(this.checkNext, this.cycleTime);
+          if (this.retry) {
+            this.retry--;
+            setTimeout(this.checkNext, this.cycleTime);
+          } else {
+            this.sending = undefined;
+          }
         }
       );
     } else {

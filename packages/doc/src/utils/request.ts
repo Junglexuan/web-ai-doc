@@ -3,6 +3,24 @@ import axios, {AxiosError, AxiosResponse} from 'axios';
 import {ApiPrefix, PathPrefix} from '@/Global';
 import {Message, getToken} from './tools';
 
+function toErrorMessage(status: number) {
+  switch (status) {
+    case 400:
+      return '请求错误:请求参数错误';
+    case 401:
+      return '登录失效';
+    case 403:
+      return '禁止访问:您没有权限访问改资源';
+    case 404:
+      return '未找到:请求的资源不存在';
+    case 500:
+      return '服务器错误:请稍后重试';
+    case 502:
+      return '服务器错误:请求超时';
+    default:
+      return '请求错误:发生未知错误';
+  }
+}
 export interface IRequest<Req, Res> {
   Request: Req;
   Response: Res;
@@ -105,8 +123,7 @@ instance.interceptors.response.use(
       const config = response.config!;
       const requestHeaders = config.headers;
       const requestUrl = config.url;
-      const errorData = data.msg || `failed to call ${requestUrl}`;
-      const errorMessage = typeof errorData === 'string' ? errorData : JSON.stringify(errorData);
+      const errorMessage = `请求错误${data.msg ? '（' + data.msg + '）' : ''}`;
       if (!requestHeaders.quiet) {
         Message.error(errorMessage);
       }
@@ -124,9 +141,8 @@ instance.interceptors.response.use(
     }
     const config = error.config!;
     const requestHeaders = config.headers;
-    const requestUrl = config.url;
-    const errorData = data.msg || `failed to call ${requestUrl}`;
-    const errorMessage = typeof errorData === 'string' ? errorData : JSON.stringify(errorData);
+    //const requestUrl = config.url;
+    const errorMessage = `${toErrorMessage(httpErrorCode)}${data.msg ? '(' + data.msg + '）' : ''}`;
     if (!requestHeaders.quiet) {
       Message.error(errorMessage);
     }

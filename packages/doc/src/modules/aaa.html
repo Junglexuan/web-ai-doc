@@ -1,0 +1,29 @@
+<p style="line-height: 1.5;">
+        <span data-kind="replace" data-field="地址" data-info="%E6%B9%96%E5%8D%97%E9%95%BF%E6%B2%99" data-source="${DOC.REPLACE('湖南长沙')}">
+                <span style="color: rgb(231, 95, 51); font-size: 24px;"><strong>湖南长沙</strong></span>
+        </span>
+        <span style="color: rgb(231, 95, 51); font-size: 24px;"><strong>关于加强城市环境卫生管理的通知</strong></span>
+</p>
+
+<p style="line-height: 1.5;"><cite><span style="color: rgb(231, 95, 51); font-size: 24px;"><strong>湖南长沙</strong></span></cite><span style="color: rgb(231, 95, 51); font-size: 24px;"><strong>关于加强城市环境卫生管理的通知</strong></span></p>
+
+
+<p style="line-height: 1.5;"><span style="color: rgb(231, 95, 51); font-size: 24px;"><strong>湖南长沙</strong></span><span style="color: rgb(231, 95, 51); font-size: 24px;"><strong>关于加强城市环境卫生管理的通知</strong></span></p>
+
+
+<p style="line-height: 1.5;">
+        <cite data-w-e-type="variable" data-kind="replace" data-field="%E5%9C%B0%E5%9D%80" data-info="%E6%B9%96%E5%8D%97%E9%95%BF%E6%B2%99" data-source="${DOC.REPLACE(\'%E6%B9%96%E5%8D%97%E9%95%BF%E6%B2%99\')}">
+                <span style="color: rgb(231, 95, 51); font-size: 24px;"><strong>$内容替换</strong></span>
+        </cite>
+        <span style="color: rgb(231, 95, 51); font-size: 24px;"><strong>你好！</strong></span>
+</p>
+
+.replace(/(<cite data-w-e-type="variable" .+? data-source=")(.+?)(">[^$]*)\$[^<]*(<.*?\/cite>)/g, '$1$2$3$2$4').replace(/(<cite data-w-e-type="variable" [^>]+?)><span( [\w\W]+?)<\/span>.*?(<\/cite>)/g, '$1$2$3')
+
+
+<p style="line-height: 1.5;">
+        <cite data-w-e-type="variable" data-kind="replace" data-field="%E5%9C%B0%E5%9D%80" data-info="%E6%B9%96%E5%8D%97%E9%95%BF%E6%B2%99" data-source="${DOC.REPLACE(\'%E6%B9%96%E5%8D%97%E9%95%BF%E6%B2%99\')}" style="color: rgb(231, 95, 51); font-size: 24px;">
+                <strong>${DOC.REPLACE(\'%E6%B9%96%E5%8D%97%E9%95%BF%E6%B2%99\')}</strong>
+        </cite>
+        <span style="color: rgb(231, 95, 51); font-size: 24px;"><strong>你好！</strong></span>
+</p>

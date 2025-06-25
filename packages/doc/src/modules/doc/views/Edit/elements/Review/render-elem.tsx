@@ -11,7 +11,7 @@ function renderElem(elem: SlateElement, children: VNode[] | null, editor: IDomEd
     {
       props: {
         className: 'w-e-review',
-        contentEditable: false,
+        //contentEditable: false,
         // title: reason,
       },
       // style: {

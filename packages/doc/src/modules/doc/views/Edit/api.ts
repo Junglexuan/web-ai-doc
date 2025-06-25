@@ -88,7 +88,6 @@ function decodeHtml() {
       str = '';
     }
     html += str;
-    console.log(str);
     return html;
   };
 }
@@ -328,12 +327,12 @@ function proofread(docId: string, content: string, html: string): {controller: A
         '/dream/pen/ai/writer/proofread',
         {
           articleId: docId,
-          content,
+          content: html,
           type: 'proofread',
         },
         {signal}
       )
-      .then((res) => ({...res.data.data, html})),
+      .then((res) => res.data.data),
   };
 }
 

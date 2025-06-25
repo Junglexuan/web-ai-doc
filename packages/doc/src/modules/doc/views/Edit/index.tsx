@@ -78,7 +78,7 @@ const Component: FC<Props> = ({itemDetail}) => {
       isTpl: itemDetail.isTpl,
     };
     setSource(newSource);
-    //autoSave.onChange(newSource);
+    autoSave.onChange(newSource);
   });
 
   const onChange = useMemo(() => debounce(onSave, 1000), [onSave]);
