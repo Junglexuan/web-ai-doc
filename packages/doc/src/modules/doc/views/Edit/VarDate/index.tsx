@@ -21,7 +21,7 @@ const options = [
 function matchValue(code: string): string[] {
   if (code.startsWith('${DATE.CUSTOMIZE(')) {
     const arr = code.match(/CUSTOMIZE\((.+?)\)/);
-    return ['${DATE.CUSTOMIZE(***)}', arr ? arr[1].slice(1, -1) : 'YYYY-MM-DD HH:MM:SS'];
+    return ['${DATE.CUSTOMIZE(***)}', arr ? arr[1].slice(1, -1) : 'YYYY-MM-dd HH:mm:ss'];
   } else {
     return [code];
   }
@@ -38,7 +38,7 @@ const Component: FC<Props> = ({onSubmit, onCancel, elem}) => {
 
   const onRadioChange = useCallback((e: any) => {
     const fun = e.target.value;
-    setValue(fun === '${DATE.CUSTOMIZE(***)}' ? [fun, 'YYYY-MM-DD HH:MM:SS'] : [fun]);
+    setValue(fun === '${DATE.CUSTOMIZE(***)}' ? [fun, 'YYYY-MM-dd HH:mm:ss'] : [fun]);
   }, []);
 
   const onInputChange = useEvent((e: any) => {
@@ -54,7 +54,7 @@ const Component: FC<Props> = ({onSubmit, onCancel, elem}) => {
     <div className={styles.root}>
       <div className="bd">
         <Radio.Group style={style} onChange={onRadioChange} value={value[0]} options={options}></Radio.Group>
-        {value[0] === '${DATE.CUSTOMIZE(***)}' && <Input placeholder="YYYY-MM-DD HH:MM:SS" value={value[1]} onChange={onInputChange} />}
+        {value[0] === '${DATE.CUSTOMIZE(***)}' && <Input placeholder="YYYY-MM-dd HH:mm:ss" value={value[1]} onChange={onInputChange} />}
       </div>
       <div className="dialogFooter">
         <Button size="small" type="primary" onClick={onOk}>
