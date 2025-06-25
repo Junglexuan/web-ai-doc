@@ -3,7 +3,7 @@ import {pathToRegexp} from 'path-to-regexp';
 import {APPState, PathPrefix} from '@/Global';
 import {InIframe} from '@/utils/base';
 import {CustomError, ErrorCode, toLoginPage} from '@/utils/request';
-import {Message} from '@/utils/tools';
+import {confirm, message} from '@/utils/tools';
 import api, {guest} from './api';
 import {CurView, SubModule} from './entity';
 import type {CurUser} from '@/utils/base';
@@ -90,7 +90,7 @@ export class Model extends BaseModel<ModuleState, APPState> {
         setTimeout(() => this.getRouter().back(''), 0);
       }
     } else if (error.message) {
-      Message.error(error.message);
+      message.error(error.message);
     }
     throw error;
   }
@@ -107,7 +107,20 @@ export class Model extends BaseModel<ModuleState, APPState> {
     if (this.getRouter().location.pathname.startsWith('/admin/doc/item/edit/')) {
       const saving = document.getElementById('_ai_saving');
       if (saving) {
-        throw new CustomError(ErrorCode.unkown, '当前页面正在保存，请稍候...');
+        return new Promise((resolve, reject) => {
+          confirm(
+            '当前页面未保存，确定离开吗？',
+            (ok) => {
+              if (ok) {
+                resolve();
+              } else {
+                saving.click();
+                reject(new CustomError(ErrorCode.unkown, '终止跳转...'));
+              }
+            },
+            {okText: '离开', cancelText: '保存'}
+          );
+        });
       }
     }
   }

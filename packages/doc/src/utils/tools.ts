@@ -211,23 +211,6 @@ export function createAutoId(ids: string[]): () => number {
   };
 }
 
-class GlobalDispatcher extends SimpleDispatcher<{message: {type: 'success' | 'error'; text: string}}> {
-  constructor() {
-    super({message: {}});
-  }
-}
-
-export const globalDispatcher = new GlobalDispatcher();
-
-export const Message = {
-  success(text: string): void {
-    globalDispatcher.dispatch('message', {type: 'success', text});
-  },
-  error(text: string): void {
-    globalDispatcher.dispatch('message', {type: 'error', text});
-  },
-};
-
 export const getToken = (): string => {
   //const [agencyID, token] = (localStorage.getItem(TokenStorageKey) || '').split('|');
   const token = localStorage.getItem('zov-user-token') || '';

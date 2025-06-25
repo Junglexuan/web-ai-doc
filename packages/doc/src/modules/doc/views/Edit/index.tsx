@@ -13,7 +13,7 @@ import {IDomEditor} from '@wangeditor-next/editor';
 import {Editor, Toolbar} from '@wangeditor-next/editor-for-react';
 import {Breadcrumb, Dropdown, Space, Spin} from 'antd';
 import dayjs from 'dayjs';
-import {FC, memo, useEffect, useMemo, useState} from 'react';
+import {FC, memo, useCallback, useEffect, useMemo, useState} from 'react';
 import Redo from '@/assets/images/Redo';
 import Undo from '@/assets/images/Undo';
 import BlurInput from '@/components/BlurInput';
@@ -303,7 +303,7 @@ const Component: FC<Props> = ({itemDetail}) => {
               <span> {itemDetail.createDate ? dayjs(itemDetail.createDate).format('YYYY-MM-DD HH:mm:ss') : ''} 创建</span>
             </div>
             {saving ? (
-              <span id="_ai_saving">
+              <span id="_ai_saving" onClick={() => editor && onSave(editor)}>
                 <Spin size="small" />
               </span>
             ) : (

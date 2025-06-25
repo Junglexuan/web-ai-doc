@@ -64,7 +64,7 @@ export const DocAPI = {
     return request.post(`/dream/pen/template/delete/${id}`);
   },
   saveDSL(id: string, dsl: string, html: string, text: string, isTpl?: boolean): Promise<void> {
-    return request.post(isTpl ? '/dream/pen/template/save' : `/dream/pen/article/save1`, {
+    return request.post(isTpl ? '/dream/pen/template/save' : `/dream/pen/article/save`, {
       id,
       contents: html,
       articleDsl: dsl,

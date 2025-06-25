@@ -1,7 +1,7 @@
 import {ActionError} from '@elux/react-web';
 import axios, {AxiosError, AxiosResponse} from 'axios';
 import {ApiPrefix, PathPrefix} from '@/Global';
-import {Message, getToken} from './tools';
+import {getToken, message} from './tools';
 
 function toErrorMessage(status: number) {
   switch (status) {
@@ -125,7 +125,7 @@ instance.interceptors.response.use(
       const requestUrl = config.url;
       const errorMessage = `请求错误${data.msg ? '（' + data.msg + '）' : ''}`;
       if (!requestHeaders.quiet) {
-        Message.error(errorMessage);
+        message.error(errorMessage);
       }
       throw new CustomError(ErrorCode.unkown, '', data);
     }
@@ -144,7 +144,7 @@ instance.interceptors.response.use(
     //const requestUrl = config.url;
     const errorMessage = `${toErrorMessage(httpErrorCode)}${data.msg ? '(' + data.msg + '）' : ''}`;
     if (!requestHeaders.quiet) {
-      Message.error(errorMessage);
+      message.error(errorMessage);
     }
     throw new CustomError(mapHttpErrorCode(httpErrorCode), '', data);
   }
@@ -172,11 +172,11 @@ export function getUploadProps(
         if (res.success) {
           callback.onSuccess(file, res.data);
         } else {
-          Message.error(`${res.msg}.`);
+          message.error(`${res.msg}.`);
           callback.onError(file, res);
         }
       } else if (file.status === 'error') {
-        Message.error(`${file.name} file upload failed.`);
+        message.error(`${file.name} file upload failed.`);
         callback.onError(file, res);
       }
     },

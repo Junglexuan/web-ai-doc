@@ -2,13 +2,12 @@ import '@wangeditor-next/editor/dist/css/style.css';
 import '@/assets/css/global.module.less';
 import '@/assets/css/editor.less';
 import {Dispatch, DocumentHead, LoadingState, Switch, connectStore} from '@elux/react-web';
-import {ConfigProvider, message} from 'antd';
+import {ConfigProvider} from 'antd';
 import zhCN from 'antd/es/locale/zh_CN';
-import {FC, useEffect} from 'react';
+import {FC} from 'react';
 import ErrorPage from '@/components/ErrorPage';
 import LoadingPanel from '@/components/LoadingPanel';
 import {APPState, LoadComponent} from '@/Global';
-import {globalDispatcher} from '@/utils/tools';
 import {CurView, SubModule} from '../entity';
 import LoginForm from './LoginForm';
 
@@ -41,16 +40,6 @@ const defaultTheme: any = {
 };
 
 const Component: FC<StoreProps & {dispatch: Dispatch}> = ({dispatch, subModule, curView, globalLoading, error}) => {
-  useEffect(() => {
-    return globalDispatcher.addListener('message', (data) => {
-      const {type, text} = data;
-      if (type === 'error') {
-        message.error(text);
-      } else {
-        message.success(text);
-      }
-    });
-  }, []);
   return (
     <ConfigProvider
       locale={zhCN}
