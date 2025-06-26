@@ -1,0 +1,42 @@
+:global {
+  :local(.root) {
+    > .hd {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: flex-end;
+      padding-top: 10px;
+
+      > .ant-select {
+        width: 110px;
+      }
+
+      > .search {
+        width: 250px;
+      }
+    }
+
+    > .cd {
+      padding: 10px 0 30px;
+
+      .ant-btn {
+        gap: 3px;
+        font-size: 13px;
+      }
+
+      .ant-btn-icon {
+        margin-inline-end: 5px !important;
+      }
+    }
+
+    > .bd {
+      .ant-table-row > .ant-table-cell-row-hover {
+        background-color: #1b68fc14;
+      }
+
+      td.ant-table-column-sort {
+        background: inherit;
+      }
+    }
+  }
+}

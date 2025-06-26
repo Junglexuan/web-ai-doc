@@ -11,6 +11,7 @@ export const ModuleGetter = {
   admin: () => admin,
   home: () => import('@/modules/home'),
   doc: () => import('@/modules/doc'),
+  contractReview: () => import('@/modules/contractReview'),
 };
 
 export const appConfig: AppConfig = setConfig({

@@ -14,7 +14,7 @@ import {Breadcrumb, Button, Dropdown, Input, Popover, Space, Table, TableProps, 
 import {FC, MouseEvent, memo, useCallback, useEffect, useMemo, useState} from 'react';
 import {GetActions, GetClientRouter} from '@/Global';
 import {downloadFile, getUploadProps, replaceBaseUrl} from '@/utils/request';
-import {confirm, debounce, openArticle, useEvent, useSingleWindow} from '@/utils/tools';
+import {confirm, debounce, openArticle, useEvent} from '@/utils/tools';
 import {DocAPI} from '../../api';
 import {DocType, ListItem, ListSearch, ListSummary, TplsOptions} from '../../entity';
 import Wizard, {WizardFormData} from '../Wizard';
@@ -29,7 +29,6 @@ interface Props {
 const {doc: docActions} = GetActions('doc');
 
 const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
-  const singleWindow = useSingleWindow();
   const [loading, setLoading] = useState<'create' | 'createDir' | 'createByTpl' | 'upload' | 'batchDelete' | ''>('');
   const [selectedRows, setSelectedRows] = useState<{ids: string[]; rows: ListItem[]}>({ids: [], rows: []});
   const [scrollHeight, setScrollHeight] = useState(() => window.innerHeight - 285);

@@ -1,4 +1,4 @@
-import {AppstoreOutlined, EditOutlined, FileOutlined, HomeOutlined, StarOutlined} from '@ant-design/icons';
+import {AppstoreOutlined, EditOutlined, FileOutlined, HomeOutlined, SafetyCertificateOutlined, StarOutlined} from '@ant-design/icons';
 import {Link} from '@elux/react-web';
 import {Button, Menu} from 'antd';
 import {FC, useCallback, useEffect, useMemo, useState} from 'react';
@@ -49,6 +49,15 @@ const items: any[] = [
     ),
   },
   {
+    key: '合同审查规则',
+    icon: <SafetyCertificateOutlined />,
+    label: (
+      <Link to="/admin/contractReview/list/maintain" action="relaunch" target="window">
+        合同审查规则
+      </Link>
+    ),
+  },
+  {
     key: '回收站',
     icon: <Delete />,
     label: (
@@ -73,6 +82,9 @@ const Component: FC<{}> = () => {
     }
     if (pathname.startsWith('/admin/doc/list/tpls')) {
       return ['模版管理'];
+    }
+    if (pathname.startsWith('/admin/contractReview')) {
+      return ['合同审查规则'];
     }
     if (pathname.startsWith('/admin/home')) {
       return ['首页'];
