@@ -18,8 +18,6 @@ interface Props {
 const {contractReview: contractReviewActions} = GetActions('contractReview');
 
 const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
-  const [loading, setLoading] = useState<'create' | 'createDir' | 'createByTpl' | 'upload' | 'batchDelete' | ''>('');
-  const [selectedRows, setSelectedRows] = useState<{ids: string[]; rows: ListItem[]}>({ids: [], rows: []});
   const [scrollHeight, setScrollHeight] = useState(() => window.innerHeight - 285);
   const [curEdit, setCurEdit] = useState<ListItem>();
   const [cateOptions, setCateOptions] = useState<{label: string; value: number}[]>([]);
@@ -98,13 +96,6 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [listSearch, listSummary]);
 
-  const onTableChange = useEvent((pagination: any, filter: any, _sorter: any) => {
-    const sorter = _sorter as {field: string; order: 'ascend' | 'descend' | undefined};
-    const sorterField = (sorter.order && sorter.field) || undefined;
-    const sorterOrder = sorter.order || undefined;
-    return dispatch(contractReviewActions.fetchList({...listSearch, sorterField, sorterOrder}));
-  });
-
   useEffect(() => {
     ContractReviewAPI.getCateList().then(setCateOptions);
     const onResize = debounce(() => setScrollHeight(window.innerHeight - 285), 300);
@@ -137,7 +128,6 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
           className="g-table-dir"
           pagination={false}
           scroll={{y: scrollHeight}}
-          onChange={onTableChange}
         />
       </div>
       {curEdit && (

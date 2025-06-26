@@ -9,7 +9,7 @@ export const ContractReviewAPI = {
         keyWord,
         pageNo: 1,
         pageSize: 999999,
-        types: type && type !== 1 ? [type] : [1, 7490128298725378, 7490170141102081, 7491046532624386],
+        types: type ? [type] : [1],
       })
       .then((res) => {
         const list: any[] = res.data.data;

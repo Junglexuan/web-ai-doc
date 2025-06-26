@@ -175,6 +175,11 @@ export const DocAPI = {
       }));
     });
   },
+  contractReview(docId: string, ruleCate: number): Promise<any> {
+    return request.post('/dream/pen/rag/contract/check', {docId, type: ruleCate}).then((res) => {
+      return res.data?.data?.checks || [];
+    });
+  },
 };
 
 export default DocAPI;
