@@ -33,7 +33,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
   });
 
   const onCreate = useEvent(() => {
-    setCurEdit({} as ListItem);
+    setCurEdit({isShare: true} as ListItem);
   });
 
   const onCollect = useEvent((e: any, id: string, collect: boolean) => {

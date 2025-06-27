@@ -175,7 +175,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
   }, [showRename, listSearch, listSummary]);
 
   const batchDelete = useEvent(() => {
-    confirm(`您确定要删除${selectedRows.rows.length}项吗？`, (ok) => {
+    confirm(`您确定要删除所有选择的文档吗？`, (ok) => {
       if (ok) {
         setLoading('batchDelete');
         DocAPI.batchDelete(selectedRows.rows.map((item) => ({id: item.id, type: item.type})))

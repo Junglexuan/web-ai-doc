@@ -237,9 +237,9 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
         await refreshList();
         if (tpl) {
           window.sessionStorage.setItem('__temp_tpl__', JSON.stringify(tpl));
-          GetClientRouter().push({url: `/admin/doc/item/edit/${id}?&tpl=${tpl.id}&__c=_dialog`}, 'window');
+          openArticle(`/admin/doc/item/edit/${id}?&tpl=${tpl.id}&__c=_dialog`);
         } else if (!title) {
-          GetClientRouter().push({url: `/admin/doc/item/edit/${id}?__c=_dialog`}, 'window');
+          openArticle(`/admin/doc/item/edit/${id}?__c=_dialog`);
         }
       })
       .finally(() => setLoading(''));
@@ -256,7 +256,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
   });
 
   const batchDelete = useEvent(() => {
-    confirm(`您确定要删除${selectedRows.rows.length}项吗？`, (ok) => {
+    confirm(`您确定要删除所有选择的文档吗？`, (ok) => {
       if (ok) {
         setLoading('batchDelete');
         DocAPI.batchDelete(selectedRows.rows.map((item) => ({id: item.id, type: item.type})))
