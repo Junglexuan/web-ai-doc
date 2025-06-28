@@ -224,6 +224,10 @@ export const getToken = (): string => {
   return token;
 };
 
+export const clearToken = (): void => {
+  localStorage.removeItem('zov-user-token');
+  localStorage.removeItem('Authorization');
+};
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function countPagination(pageCurrent: number, totalItems: number, pageSize: number) {
   const totalPages = Math.ceil(totalItems / pageSize) || 1;

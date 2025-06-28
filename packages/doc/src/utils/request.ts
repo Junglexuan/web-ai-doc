@@ -1,7 +1,7 @@
 import {ActionError} from '@elux/react-web';
 import axios, {AxiosError, AxiosResponse} from 'axios';
 import {ApiPrefix, PathPrefix} from '@/Global';
-import {getToken, message} from './tools';
+import {clearToken, getToken, message} from './tools';
 
 function toErrorMessage(status: number) {
   switch (status) {
@@ -136,6 +136,7 @@ instance.interceptors.response.use(
     const httpErrorCode = response.status || 0;
     const data: any = response.data || {};
     if (httpErrorCode === 401) {
+      clearToken();
       toLoginPage();
       throw new CustomError(mapHttpErrorCode(httpErrorCode), '请登录！');
     }

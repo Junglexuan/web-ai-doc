@@ -1,9 +1,12 @@
-import {AppstoreOutlined, EditOutlined, FileOutlined, HomeOutlined, SafetyCertificateOutlined, StarOutlined} from '@ant-design/icons';
+import {AppstoreOutlined, EditOutlined, SafetyCertificateOutlined} from '@ant-design/icons';
 import {Link} from '@elux/react-web';
 import {Button, Menu} from 'antd';
 import {FC, useCallback, useEffect, useMemo, useState} from 'react';
 import Delete from '@/assets/images/Delete';
+import FileOutlined from '@/assets/images/Doc';
+import HomeOutlined from '@/assets/images/Home';
 import Logo from '@/assets/images/logo.svg';
+import StarOutlined from '@/assets/images/Star';
 import TPL from '@/assets/images/tpl';
 import {GetClientRouter, KnowledgePrefix} from '@/Global';
 import DocAPI from '@/modules/doc/api';
@@ -129,7 +132,7 @@ const Component: FC<{}> = () => {
         <Menu mode="inline" items={items} selectedKeys={selectedKeys} />
       </div>
       <div className="ft">
-        <a href={KnowledgePrefix + '/dashboard'}>
+        <a target="_blank" href={KnowledgePrefix + '/dashboard'} rel="noreferrer">
           <AppstoreOutlined className="icon" />
           <span>智能体平台</span>
         </a>

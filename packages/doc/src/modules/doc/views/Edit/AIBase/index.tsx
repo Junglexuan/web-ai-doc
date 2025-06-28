@@ -16,9 +16,10 @@ interface Props {
   automatic?: boolean;
   modelIsRobot?: boolean;
   hideButton?: Array<'onKeep' | 'selectModel'>;
+  className?: string;
 }
 
-const Component: FC<Props> = ({title, children, hooks, automatic, hideButton, modelIsRobot}) => {
+const Component: FC<Props> = ({title, children, hooks, automatic, hideButton, modelIsRobot, className}) => {
   const {onPromptSubmit, inputRef, model, fragment, fragmentRef, runningState, onRedo, onKeep, onStop, onInsert, onAdjust, onModelChange} = hooks;
   const hideButtonMap: {[key: string]: boolean} = useMemo(() => {
     if (hideButton) {
@@ -69,7 +70,7 @@ const Component: FC<Props> = ({title, children, hooks, automatic, hideButton, mo
         <EnterIcon onClick={onPromptSubmit} />
         {children}
       </div>
-      <div className="result">
+      <div className={'result' + (className ? ` ${className}` : '')}>
         <Spin className="loading" size="small" />
         <div className="title">{inputRef.current?.getValue() || title}...</div>
         <Button size="small" className="pause-btn" type="text" icon={<PauseCircleOutlined />} ref={stopRef} onClick={onStop}>

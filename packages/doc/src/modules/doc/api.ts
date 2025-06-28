@@ -2,7 +2,7 @@ import {setLoading as setGlobalLoading} from '@elux/react-web';
 import dayjs from 'dayjs';
 import {GetClientRouter} from '@/Global';
 import request from '@/utils/request';
-import {mapTree} from '@/utils/tools';
+import {mapTree, message} from '@/utils/tools';
 import {CurRender, DocType, ItemDetail, ListItem, ListResult, ListSearch, TplFields, TplsOptions} from './entity';
 
 const TypeMap: {[key: string]: DocType} = {
@@ -105,7 +105,13 @@ export const DocAPI = {
     return request.post('/dream/pen/dFolder/move', {original: id, targetFolder, type: type === 'dir' ? 1 : 2});
   },
   collectItem(id: string, type: DocType, checked: boolean): Promise<void> {
-    return request.post(type !== 'dir' ? `/dream/pen/article/collect` : '', {id, type: type === 'doc' ? 2 : 3, isCollect: checked});
+    return request.post(type !== 'dir' ? `/dream/pen/article/collect` : '', {id, type: type === 'doc' ? 2 : 3, isCollect: checked}).then(() => {
+      if (checked) {
+        message.success('已经添加收藏');
+      } else {
+        message.error('已经取消收藏');
+      }
+    });
   },
   getDoc({id, render}: {id: string; render?: CurRender}): Promise<ItemDetail> {
     const isTpl = render === 'tpl';

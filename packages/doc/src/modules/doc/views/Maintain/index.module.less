@@ -13,7 +13,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding-top: 10px;
+      padding-top: 0;
 
       > .search {
         flex: none;
@@ -28,7 +28,7 @@
     }
 
     > .cd {
-      padding: 30px 0;
+      padding: 25px 0 20px;
 
       .ant-btn {
         gap: 3px;
@@ -43,7 +43,12 @@
     > .bd {
       .file-name {
         position: relative;
-        line-height: 22px;
+        display: flex;
+
+        > a {
+          overflow: hidden;
+          line-height: 22px;
+        }
       }
 
       :where(.ico-dir, .ico-doc, .ico-tpl) {

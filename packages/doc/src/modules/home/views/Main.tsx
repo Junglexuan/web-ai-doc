@@ -16,7 +16,7 @@ const carouselItems = [
   },
 ];
 // 定义最近创作的数量
-const RECENT_CREATIONS_LIMIT = 4;
+const RECENT_CREATIONS_LIMIT = 5;
 
 const Component: FC = () => {
   const [wizardData, setWizardData] = useState<WizardFormData>();
@@ -121,7 +121,9 @@ const Component: FC = () => {
         {renderCarousel}
         <div className="title-box">最近创作</div>
         {renderHotArticle}
-        <div className="title-box">热门创作类型</div>
+        <div className="title-box" style={{marginBottom: '10px'}}>
+          热门创作类型
+        </div>
         {renderHotTemplate}
       </div>
       {wizardData && <Wizard data={wizardData} onCancel={() => setWizardData(undefined)} onsubmit={onWizardSubmit} />}
