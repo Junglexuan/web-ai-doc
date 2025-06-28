@@ -21,7 +21,7 @@ const Component: FC<{
           <Input maxLength={64} placeholder="必填，最大长度64个字符" />
         </Form.Item>
         <Form.Item name="des" label="规则描述" rules={[{required: true, whitespace: true}]}>
-          <Input.TextArea maxLength={256} placeholder="必填，最大长度256个字符" rows={4} />
+          <Input.TextArea maxLength={512} placeholder="必填，最大长度512个字符" rows={4} />
         </Form.Item>
       </Form>
       <div className="ft">

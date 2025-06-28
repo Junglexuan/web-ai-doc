@@ -147,16 +147,14 @@
           margin-bottom: 18px;
 
           .icon {
-            display: flex;
-            align-items: center;
-            justify-content: center;
             width: 24px;
             height: 24px;
             margin-right: 10px;
-            font-weight: bold;
-            color: #fff; // Text color
-            background-color: #1b68fc; // You can change the color as needed
-            border-radius: 50%;
+            background: url('@/assets/images/personal.svg') no-repeat center center;
+
+            &.share {
+              background-image: url('@/assets/images/enterprise.svg');
+            }
           }
 
           .title {

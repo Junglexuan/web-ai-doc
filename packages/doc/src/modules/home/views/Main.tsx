@@ -84,7 +84,7 @@ const Component: FC = () => {
         {hotTemplateList.map((item, index) => (
           <div key={index} className="creation-item" onClick={() => onApplyTpl(item.id)}>
             <div className="icon-title">
-              <div className="icon">{item.title.charAt(0)}</div>
+              <div className={'icon' + (item.isShare && ` share`)}></div>
               <div className="title">{item.title}</div>
             </div>
             <div className="description" title={item.remark}>

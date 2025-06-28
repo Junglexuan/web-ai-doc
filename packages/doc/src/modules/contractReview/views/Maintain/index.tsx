@@ -73,6 +73,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
         title: '规则名称',
         dataIndex: 'name',
         key: 'name',
+        width: 250,
         ellipsis: true,
       },
       {

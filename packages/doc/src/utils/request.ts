@@ -144,7 +144,7 @@ instance.interceptors.response.use(
     const requestHeaders = config.headers;
     //const requestUrl = config.url;
     const errorMessage = `${toErrorMessage(httpErrorCode)}${data.msg ? '(' + data.msg + '）' : ''}`;
-    if (!requestHeaders.quiet) {
+    if (httpErrorCode && !requestHeaders.quiet) {
       message.error(errorMessage);
     }
     throw new CustomError(mapHttpErrorCode(httpErrorCode), '', data);
