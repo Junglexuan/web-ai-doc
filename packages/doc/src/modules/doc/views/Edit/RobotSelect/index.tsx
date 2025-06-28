@@ -1,0 +1,26 @@
+import {Select} from 'antd';
+import {FC, memo, useEffect, useState} from 'react';
+import {AiAPI} from '../api';
+import styles from './index.module.less';
+
+interface Props {
+  size?: 'small';
+  value?: string;
+  onChange: (value: string) => void;
+}
+
+const Component: FC<Props> = ({size, value = 'qwen-turbo', onChange}) => {
+  const [options, setOptions] = useState<{label: string; value: string}[]>([]);
+  useEffect(() => {
+    AiAPI.getMyRobots().then((list) => {
+      setOptions(list);
+      if (!list.some((item) => item.value === value)) {
+        onChange(list[0]?.value);
+      }
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  return <Select size={size} className={styles.root} placeholder="请选择..." options={options} value={value} onChange={onChange} />;
+};
+
+export default memo(Component);

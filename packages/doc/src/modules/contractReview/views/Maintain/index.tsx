@@ -114,7 +114,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
       </div>
       <div className="cd">
         <Space align="end">
-          <Button type="primary" icon={<PlusOutlined />} onClick={onCreate}>
+          <Button color="primary" variant="outlined" icon={<PlusOutlined />} onClick={onCreate}>
             添加规则
           </Button>
         </Space>

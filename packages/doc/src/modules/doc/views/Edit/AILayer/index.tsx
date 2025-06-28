@@ -9,10 +9,10 @@ import AIDialog from '../AIDialog';
 import AIImage from '../AIImage';
 import AIMenu, {MenuEvent, applicationTemplates, menuKeysMap, officialTemplates} from '../AIMenu';
 import AIOutline from '../AIOutline';
+import AIRobot from '../AIRobot';
 import AIStylize from '../AIStylize';
 import AIWeb from '../AIWeb';
 import api, {RunningState} from '../api';
-import {proofreadHtml} from '../utils';
 import styles from './index.module.less';
 import type {AIEvent} from '../utils';
 
@@ -183,7 +183,7 @@ const Component: FC<Props> = ({onCreated, editor}) => {
       if (aiKey === 'K') {
         return (
           <AIDialog event={aiEvent}>
-            <AIAsk aiRef={aiRef} onRunningStateChange={setRunningState} />
+            <AIRobot aiRef={aiRef} onRunningStateChange={setRunningState} />
           </AIDialog>
         );
       }

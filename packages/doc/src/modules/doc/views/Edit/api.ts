@@ -254,6 +254,28 @@ const ask: AIRequest = ({args, onMessage, onError, onDone}) => {
   });
   return controller;
 };
+
+const robot: AIRequest = ({args, onMessage, onError, onDone}) => {
+  const controller = new AbortController();
+  const {signal} = controller;
+  const {sid, docId, prompt, model, previous} = args;
+  const markdown = decodeMarkdown();
+  fetchEventSource(replaceBaseUrl('/dream/pen/ai/knowledge'), {
+    method: 'POST',
+    headers: getHeaders(),
+    body: JSON.stringify({type: 'knowledge', articleId: docId, conversation_id: sid, prompt, dialogId: model, previous: previous || undefined}),
+    signal,
+    openWhenHidden: true,
+    onmessage: (ev) => onMessage(markdown(ev.data)),
+    onerror: (e) => {
+      setTimeout(() => onError(e));
+      throw e;
+    },
+    onclose: onDone,
+  });
+  return controller;
+};
+
 const web: AIRequest = ({args, onMessage, onError, onDone}) => {
   const controller = new AbortController();
   const {signal} = controller;
@@ -344,19 +366,14 @@ export const AiAPI = {
   stylize,
   proofread,
   ask,
+  robot,
   web,
   tpl,
-  async byTemplate(docId: string, content: string): Promise<string> {
-    return request
-      .post(`/dream/pen/ai/full/text `, {
-        conversation_id: docId,
-        content,
-      })
-      .then((res) => {
-        const html = dslToHtml(res.data.data);
-        console.log(html);
-        return html;
-      });
+  getMyRobots(): Promise<{label: string; value: string}[]> {
+    return request.get('/dream/pen/know/dialog').then((res) => {
+      const list: any[] = res.data.data || [];
+      return list.map((item) => ({label: item.name, value: item.id}));
+    });
   },
 };
 

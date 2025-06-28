@@ -6,6 +6,7 @@ import ColorAIcon from '../ColorAIcon';
 import EnterIcon from '../EnterIcon';
 import {AIDialogHooks} from '../hooks';
 import ModelSelect from '../ModelSelect';
+import RobotSelect from '../RobotSelect';
 import styles from './index.module.less';
 
 interface Props {
@@ -13,10 +14,11 @@ interface Props {
   children: ReactElement;
   hooks: AIDialogHooks;
   automatic?: boolean;
+  modelIsRobot?: boolean;
   hideButton?: Array<'onKeep' | 'selectModel'>;
 }
 
-const Component: FC<Props> = ({title, children, hooks, automatic, hideButton}) => {
+const Component: FC<Props> = ({title, children, hooks, automatic, hideButton, modelIsRobot}) => {
   const {onPromptSubmit, inputRef, model, fragment, fragmentRef, runningState, onRedo, onKeep, onStop, onInsert, onAdjust, onModelChange} = hooks;
   const hideButtonMap: {[key: string]: boolean} = useMemo(() => {
     if (hideButton) {
@@ -96,7 +98,12 @@ const Component: FC<Props> = ({title, children, hooks, automatic, hideButton}) =
           </Button>
         </Space>
         <div className="prompt">
-          {!hideButtonMap['selectModel'] && <ModelSelect size="small" value={model} onChange={onModelChange} />}
+          {!hideButtonMap['selectModel'] &&
+            (modelIsRobot ? (
+              <RobotSelect size="small" value={model} onChange={onModelChange} />
+            ) : (
+              <ModelSelect size="small" value={model} onChange={onModelChange} />
+            ))}
           <div style={{color: '#aaa', fontSize: '12px'}}>* 回车直接提交，shift+回车可换行，esc键可关闭</div>
         </div>
       </div>

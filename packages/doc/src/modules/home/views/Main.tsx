@@ -99,7 +99,7 @@ const Component: FC = () => {
   const renderCarousel = useMemo(() => {
     //carouselItems
     return (
-      <Carousel dots={true} dotPosition="bottom" autoplay={true} rootClassName={'carousel'}>
+      <Carousel dots={false} dotPosition="bottom" autoplay={true} rootClassName={'carousel'}>
         {carouselItems.map((item, index) => (
           <div key={index} className={'carousel-item'}>
             <div style={{backgroundImage: `url(${PathPrefix + item.url})`}}></div>
