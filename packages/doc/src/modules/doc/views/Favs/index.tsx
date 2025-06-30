@@ -41,6 +41,8 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
   const onRename = useEvent((id: string, type: DocType, name: string) => {
     if (type === 'doc') {
       DocAPI.updateDocName(id, name).then(refreshList);
+    } else if (type === 'tpl') {
+      DocAPI.updateDocName(id, name, true).then(refreshList);
     } else {
       DocAPI.updateDirName(id, name).then(refreshList);
     }

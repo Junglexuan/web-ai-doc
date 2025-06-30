@@ -131,7 +131,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
                       } else if (key === 'delete') {
                         confirm(`您确定要删除《${item.title}》吗？`, (ok) => {
                           if (ok) {
-                            DocAPI.deleteTpl(item.id).then(refreshList);
+                            DocAPI.deleteItem(item.id, 'tpl').then(refreshList);
                           }
                         });
                       } else if (key === 'apply') {

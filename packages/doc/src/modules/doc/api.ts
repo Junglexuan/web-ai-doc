@@ -10,6 +10,11 @@ const TypeMap: {[key: string]: DocType} = {
   '2': 'doc',
   '3': 'tpl',
 };
+const TypeSourceMap: {[key in DocType]: string} = {
+  dir: '1',
+  doc: '2',
+  tpl: '3',
+};
 
 export const DocAPI = {
   createDoc(data: {title: string; contents: string; folder: string}): Promise<{id: string}> {
@@ -60,9 +65,6 @@ export const DocAPI = {
       })
       .then((res) => res.data.data);
   },
-  deleteTpl(id: string): Promise<void> {
-    return request.post(`/dream/pen/template/delete/${id}`);
-  },
   saveDSL(id: string, dsl: string, html: string, text: string, isTpl?: boolean): Promise<void> {
     return request.post(isTpl ? '/dream/pen/template/save' : `/dream/pen/article/save`, {
       id,
@@ -83,7 +85,7 @@ export const DocAPI = {
   batchDelete(items: {id: string; type: DocType}[]): Promise<void> {
     return request.post(
       `/dream/pen/dFolder/batch/delete`,
-      items.map((item) => ({id: item.id, type: item.type === 'dir' ? 1 : 2}))
+      items.map((item) => ({id: item.id, type: TypeSourceMap[item.type]}))
     );
   },
   cleanRecycle(): Promise<void> {
@@ -96,7 +98,11 @@ export const DocAPI = {
     return request.post(`/dream/pen/recycle/restore`, {id, type: type === 'dir' ? 1 : 2});
   },
   deleteItem(id: string, type: DocType): Promise<void> {
-    return type === 'doc' ? request.post(`/dream/pen/article/delete/${id}`) : request.post(`/dream/pen/dFolder/delete`, {id});
+    return type === 'doc'
+      ? request.post(`/dream/pen/article/delete/${id}`)
+      : type === 'tpl'
+      ? request.post(`/dream/pen/template/delete/${id}`)
+      : request.post(`/dream/pen/dFolder/delete`, {id});
   },
   copyItem(id: string, type: DocType): Promise<void> {
     return request.post(type === 'doc' ? `/dream/pen/article/copy` : '', {id});
