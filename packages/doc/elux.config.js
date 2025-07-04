@@ -9,7 +9,7 @@ module.exports = {
   all: {
     serverPort: 4003,
     clientGlobalVar: {
-      PathPrefix: '/ai-doc',
+      PathPrefix: '/verse',
       ApiPrefix: {
         '/auth/': 'http://8.130.27.129/auth/',
         '/dream/': 'http://116.204.93.242/dream/',
@@ -19,7 +19,7 @@ module.exports = {
         '/imgs/': '/imgs/',
       },
     },
-    clientPublicPath: '/ai-doc/client/',
+    clientPublicPath: '/verse/client/',
     urlLoaderLimitSize: 100,
     webpackConfigTransform: (config) => {
       // config.plugins.push(

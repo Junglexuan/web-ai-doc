@@ -2,7 +2,7 @@
 module.exports = {
   prod: {
     clientGlobalVar: {
-      PathPrefix: '/ai-doc',
+      PathPrefix: '/verse',
       ApiPrefix: {
         '/auth/': 'http://8.130.27.129/auth/',
         '/dream/': '/dream/',
@@ -11,7 +11,7 @@ module.exports = {
         '/imgs/': '/imgs/',
       },
     },
-    clientPublicPath: '/ai-doc/client/',
+    clientPublicPath: '/verse/client/',
     clientMinimize: false,
     eslint: false,
     stylelint: false,

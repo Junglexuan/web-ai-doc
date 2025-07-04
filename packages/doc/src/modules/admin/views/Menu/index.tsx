@@ -123,7 +123,7 @@ const Component: FC<{}> = () => {
     <div className={styles.root}>
       <div className="hd">
         <img className="logo" src={Logo} />
-        <span className="title">梦笔公文</span>
+        <span className="title">星启·文枢</span>
         <Button className="writer" block type="primary" icon={<EditOutlined />} onClick={onCreate} loading={loading === 'create'}>
           开始写作
         </Button>

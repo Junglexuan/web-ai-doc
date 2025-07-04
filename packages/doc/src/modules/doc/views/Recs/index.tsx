@@ -65,7 +65,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
         key: 'articleCount',
         width: 140,
         render: (num, row) => {
-          return row.articleId ? `${num}字` : '';
+          return `${num || 0}字`;
         },
       },
       {
