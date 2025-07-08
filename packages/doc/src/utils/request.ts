@@ -1,6 +1,6 @@
 import {ActionError} from '@elux/react-web';
 import axios, {AxiosError, AxiosResponse} from 'axios';
-import {ApiPrefix, PathPrefix} from '@/Global';
+import {ApiBaseUrl, ApiPrefix, PathPrefix} from '@/Global';
 import {clearToken, getToken, message} from './tools';
 
 function toErrorMessage(status: number) {
@@ -34,8 +34,12 @@ export enum ErrorCode {
 }
 
 export function replaceBaseUrl(url: string): string {
-  ///dream/pen/ai/writer/test
-  return url.replace(/^\/(dream|auth)\//, (pre) => ApiPrefix[pre]);
+  url = url.replace(/^\/(dream|auth)\//, (pre) => ApiPrefix[pre] || pre);
+  console.log(url);
+  if (ApiBaseUrl && url.startsWith('/')) {
+    url = ApiBaseUrl + url;
+  }
+  return url;
 }
 
 export class CustomError<Detail = any> implements ActionError {

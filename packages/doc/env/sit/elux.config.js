@@ -3,8 +3,9 @@ module.exports = {
   prod: {
     clientGlobalVar: {
       PathPrefix: '/verse',
+      ApiBaseUrl: '/verse',
       ApiPrefix: {
-        '/auth/': 'http://8.130.27.129/auth/',
+        '/auth/': '/auth/',
         '/dream/': '/dream/',
       },
       StaticPrefix: {

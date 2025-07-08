@@ -20,11 +20,15 @@ export const {Modules, LoadComponent, GetActions, GetClientRouter, useStore, use
 const EnvConfig = process.env.PROJ_ENV as {
   PathPrefix: string;
   StaticPrefix: string;
+  ApiBaseUrl: string;
   ApiPrefix: {[key: string]: string};
 };
 
 export const {StaticPrefix, PathPrefix = ''} = EnvConfig;
-export const ApiPrefix = window['ApiPrefix'] || EnvConfig.ApiPrefix;
+export const ApiBaseUrl: string = window['ApiBaseUrl'] || EnvConfig.ApiBaseUrl;
+export const ApiPrefix: {[key: string]: string} = window['ApiPrefix'] || EnvConfig.ApiPrefix;
+
+console.log(ApiPrefix);
 export const KnowledgePrefix: string = '/pulse';
 
 export const InIframe = window.parent !== window;

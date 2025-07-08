@@ -10,6 +10,7 @@ module.exports = {
     serverPort: 4004,
     clientGlobalVar: {
       PathPrefix: '/verse',
+      ApiBaseUrl: '',
       ApiPrefix: {
         '/auth/': 'http://8.130.27.129/auth/',
         '/dream/': 'http://116.204.93.242/dream/',
