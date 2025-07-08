@@ -14,7 +14,7 @@ const Component: FC<Props> = ({aiRef, onRunningStateChange}) => {
   const hooks = useAIDialog(aiRef, onRunningStateChange, AiAPI.web, {}, false, true);
 
   return (
-    <AIBase title="总结网页" hooks={hooks}>
+    <AIBase title="总结网页" hooks={hooks} hideButton={['onKeep']}>
       <AntInput onSubmit={hooks.onPromptSubmit} ref={hooks.inputRef} placeholder="请输入网址..." />
     </AIBase>
   );

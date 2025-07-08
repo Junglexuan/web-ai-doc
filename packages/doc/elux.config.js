@@ -7,7 +7,7 @@ module.exports = {
   mockServer: {port: 3003},
   cssProcessors: {less: true},
   all: {
-    serverPort: 4003,
+    serverPort: 4004,
     clientGlobalVar: {
       PathPrefix: '/verse',
       ApiPrefix: {

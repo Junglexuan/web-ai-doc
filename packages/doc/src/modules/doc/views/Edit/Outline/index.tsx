@@ -50,7 +50,7 @@ const Component: FC<Props> = ({editor}) => {
   return (
     <>
       <span className="btn outline" onClick={() => setShow(!show)} />
-      <div className={styles.mask + (show ? ' on' : '')} onClick={() => setShow(!show)}></div>
+      {/* <div className={styles.mask + (show ? ' on' : '')} onClick={() => setShow(!show)}></div> */}
       <div className={styles.panel + (show ? ' on' : '')}>
         <div className="hd">
           <span>大纲</span>

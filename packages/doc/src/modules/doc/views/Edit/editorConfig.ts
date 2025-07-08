@@ -119,6 +119,9 @@ export const editorConfig: Partial<IEditorConfig> = {
         'Courier New',
       ],
     },
+    // fontSize: {
+    //   fontSizeList: [{name: '小四', value: '14px'}],
+    // },
     uploadImage: {
       base64LimitSize: 2 * 1024,
       fieldName: 'file',

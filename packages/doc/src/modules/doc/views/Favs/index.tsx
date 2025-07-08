@@ -1,12 +1,14 @@
 import {DeleteOutlined, DownOutlined, StarFilled} from '@ant-design/icons';
 import {Dispatch, DocumentHead, setLoading as setGlobalLoading} from '@elux/react-web';
-import {Button, Dropdown, Input, Popover, Space, Table, TableProps} from 'antd';
+import {Button, Dropdown, Input, Modal, Popover, Space, Table, TableProps} from 'antd';
 import {FC, MouseEvent, memo, useCallback, useEffect, useMemo, useState} from 'react';
 import {GetActions, GetClientRouter} from '@/Global';
+import {ContractReviewAPI} from '@/modules/contractReview/api';
 import {downloadFile, replaceBaseUrl} from '@/utils/request';
 import {confirm, debounce, openArticle, useEvent} from '@/utils/tools';
 import {DocAPI} from '../../api';
 import {DocType, ListItem, ListSearch, ListSummary} from '../../entity';
+import ContractReview from '../Maintain/ContractReview';
 import styles from '../Maintain/index.module.less';
 interface Props {
   dispatch: Dispatch;
@@ -22,6 +24,8 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
   const [selectedRows, setSelectedRows] = useState<{ids: string[]; rows: ListItem[]}>({ids: [], rows: []});
   const [scrollHeight, setScrollHeight] = useState(() => window.innerHeight - 275);
   const [showRename, setShowRename] = useState('');
+  const [contractReviewCates, setContractReviewCates] = useState<{label: string; value: number}[]>();
+  const [contractReview, setContractReview] = useState<ListItem>();
   //const [showMove, setShowMove] = useState('');
 
   const refreshList = useCallback(() => {
@@ -52,6 +56,8 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
   const onSearch = useEvent((name: string) => {
     dispatch(docActions.fetchList({...listSearch, name}));
   });
+
+  const onCloseContractReview = useEvent(() => setContractReview(undefined));
 
   const columns = useMemo<TableProps<ListItem>['columns']>(() => {
     return [
@@ -147,6 +153,8 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
                       downloadFile(replaceBaseUrl(`/dream/pen/article/down?id=${record.id}&type=pdf`), record.title),
                       GetClientRouter().getActivePage().store
                     );
+                  } else if (key === '合同审查') {
+                    setContractReview(record);
                   }
                 },
                 items:
@@ -159,6 +167,10 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
                         {
                           key: '下载PDF',
                           label: '下载PDF',
+                        },
+                        {
+                          key: '合同审查',
+                          label: '合同审查',
                         },
                         {key: '删除', label: '删除'},
                       ]
@@ -213,6 +225,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
   });
 
   useEffect(() => {
+    ContractReviewAPI.getCateList().then(setContractReviewCates);
     const onResize = debounce(() => setScrollHeight(window.innerHeight - 275), 300);
     window.addEventListener('resize', onResize);
     return () => {
@@ -247,6 +260,22 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
           onChange={onTableChange}
         />
       </div>
+      {contractReview && (
+        <Modal
+          title={
+            <div className={styles.contractReviewTitle}>
+              <span>合同审查</span>
+              <small> ({contractReview.title})</small>
+            </div>
+          }
+          width={800}
+          open={true}
+          footer={null}
+          onCancel={onCloseContractReview}
+        >
+          <ContractReview cateOptions={contractReviewCates!} onClose={onCloseContractReview} data={contractReview} />
+        </Modal>
+      )}
     </div>
   );
 };

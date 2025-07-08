@@ -115,7 +115,7 @@ export class Model extends BaseModel<ModuleState, APPState> {
                 resolve();
               } else {
                 saving.click();
-                reject(new CustomError(ErrorCode.unkown, '终止跳转...'));
+                reject(new CustomError(ErrorCode.unkown, ''));
               }
             },
             {okText: '离开', cancelText: '保存'}

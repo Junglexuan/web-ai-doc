@@ -141,6 +141,7 @@ const createFullText: AIRequest = ({args, onMessage, onError, onDone}) => {
     openWhenHidden: true,
     onmessage: (ev) => onMessage(markdown(ev.data)),
     onerror: (e) => {
+      console.log(e);
       setTimeout(() => onError(e));
       throw e;
     },
