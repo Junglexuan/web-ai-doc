@@ -3,7 +3,7 @@ module.exports = {
   prod: {
     clientGlobalVar: {
       PathPrefix: '/verse',
-      ApiBaseUrl: '/verse',
+      ApiBaseUrl: '',
       ApiPrefix: {
         '/auth/': '/auth/',
         '/dream/': '/dream/',

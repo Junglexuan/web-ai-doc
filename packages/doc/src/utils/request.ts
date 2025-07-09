@@ -35,7 +35,6 @@ export enum ErrorCode {
 
 export function replaceBaseUrl(url: string): string {
   url = url.replace(/^\/(dream|auth)\//, (pre) => ApiPrefix[pre] || pre);
-  console.log(url);
   if (ApiBaseUrl && url.startsWith('/')) {
     url = ApiBaseUrl + url;
   }
