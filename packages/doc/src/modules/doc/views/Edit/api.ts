@@ -88,7 +88,7 @@ function decodeHtml() {
       str = '';
     }
     html += str;
-    return html;
+    return html.replace(/>\s+<br/g, '><br');
   };
 }
 

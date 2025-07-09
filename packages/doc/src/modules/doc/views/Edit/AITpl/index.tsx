@@ -96,7 +96,7 @@ const Component: FC<Props> = ({editor}) => {
           )}
         </div>
       </div>
-      <div className={styles.mask} onClick={onMaskClick}></div>
+      {/* <div className={styles.mask} onClick={onMaskClick}></div> */}
       <div ref={tmpDivRef as any} className={styles.temp}></div>
     </>
   );
