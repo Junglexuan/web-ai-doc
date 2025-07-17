@@ -2,6 +2,8 @@ import {AppstoreOutlined, EditOutlined, SafetyCertificateOutlined} from '@ant-de
 import {Link} from '@elux/react-web';
 import {Button, Menu} from 'antd';
 import {FC, useCallback, useEffect, useMemo, useState} from 'react';
+import AskOutlined from '@/assets/images/ask';
+import BarChartOutlined from '@/assets/images/Chart';
 import Delete from '@/assets/images/Delete';
 import FileOutlined from '@/assets/images/Doc';
 import HomeOutlined from '@/assets/images/Home';
@@ -132,9 +134,13 @@ const Component: FC<{}> = () => {
         <Menu mode="inline" items={items} selectedKeys={selectedKeys} />
       </div>
       <div className="ft">
-        <a target="_blank" href={KnowledgePrefix + '/dashboard'} rel="noreferrer">
-          <AppstoreOutlined className="icon" />
-          <span>智能体平台</span>
+        <a target="_blank" title="智能体平台" href="//pulse.binarysee.com" rel="noreferrer">
+          <AskOutlined className="icon" />
+          <span>星启·脉擎</span>
+        </a>
+        <a target="_blank" title="数据智能体" href="//helix.binarysee.com" rel="noreferrer">
+          <BarChartOutlined className="icon" />
+          <span>星启·数璇</span>
         </a>
       </div>
     </div>
