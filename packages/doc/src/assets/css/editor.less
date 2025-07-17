@@ -9,10 +9,19 @@
     max-width: 100%;
     min-height: 1px;
   }
+
+  .w-e-textarea-divider {
+    padding: 10px 0;
+    margin: 0;
+  }
 }
 
 .w-e-review {
   border-bottom: 1px solid red;
+
+  &.ignored {
+    border-bottom: none;
+  }
 }
 
 .w-e-variable {
@@ -27,7 +36,17 @@
     box-shadow: 0 0 3px 2px #0048ff27;
   }
 
+  &.editable {
+    border-color: #73c475;
+
+    &::before {
+      background-color: #73c475;
+    }
+  }
+
   > * {
+    display: flex;
+    align-items: center;
     padding: 3px 5px;
     white-space: nowrap;
   }
@@ -41,6 +60,19 @@
   //   background-color: #70b0ff;
   // }
 
+  &::before {
+    display: flex;
+    align-items: center;
+    padding: 0 5px;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: normal;
+    color: #fff;
+    white-space: nowrap;
+    content: attr(lang);
+    background-color: #70b0ff;
+  }
+
   &::after {
     display: flex;
     align-items: center;
@@ -49,11 +81,12 @@
     font-style: normal;
     font-weight: normal;
     line-height: 1.5;
-    color: #fff;
+    color: #999;
     text-decoration: none;
     vertical-align: bottom;
     content: attr(title);
-    background-color: #70b0ff;
+    background-color: #fff;
+    border-radius: 4px;
   }
 
   // * {
@@ -79,6 +112,7 @@
 }
 
 .w-e-review-info {
+  width: 20px;
   height: 150px;
 
   > div {
@@ -97,9 +131,14 @@
   }
 
   .reason {
+    width: 220px;
     padding: 0 15px;
+    margin-top: 5px;
+    overflow: hidden;
     font-size: 12px;
     color: #999;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .target {

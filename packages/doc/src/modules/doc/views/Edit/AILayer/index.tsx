@@ -138,18 +138,18 @@ const Component: FC<Props> = ({onCreated, editor}) => {
       const aiKey = aiEvent.key;
       //校阅
       if (aiKey === 'X') {
-        const {controller, result} = api.proofread(aiRef.getDocId(), editor.getText(), editor.getHtml());
-        result.then(onProofreadSuccess, onProofreadError);
-        setRunningState('Pending');
-        return (
-          <div className={styles.dialog}>
-            <Spin />
-            <div className="info">正在校阅</div>
-            <Button size="small" onClick={() => controller.abort()}>
-              取消
-            </Button>
-          </div>
-        );
+        // const {controller, result} = api.proofread(aiRef.getDocId(), editor.getText(), editor.getHtml());
+        // result.then(onProofreadSuccess, onProofreadError);
+        // setRunningState('Pending');
+        // return (
+        //   <div className={styles.dialog}>
+        //     <Spin />
+        //     <div className="info">正在校阅</div>
+        //     <Button size="small" onClick={() => controller.abort()}>
+        //       取消
+        //     </Button>
+        //   </div>
+        // );
         //setGlobalLoading(api.proofread(aiRef.getDocId(), editor.getText()), GetClientRouter().getActivePage().store);
       }
       if (aiKey === 'A') {

@@ -196,7 +196,7 @@ const createImage: AIRequest = ({args, onMessage, onError, onDone}) => {
 const stylize: AIRequest = ({args, onMessage, onError, onDone}) => {
   const controller = new AbortController();
   const {signal} = controller;
-  const {sid, docId, prompt, model, context, previous} = args;
+  const {sid, docId, prompt, model, context, previous, title} = args;
   const req: {
     url: string;
     body: {type: string; articleId: string; conversation_id: string; content: string; model: string; previous?: string; tone?: string};
@@ -204,13 +204,13 @@ const stylize: AIRequest = ({args, onMessage, onError, onDone}) => {
     url: '',
     body: {type: '', articleId: docId, conversation_id: sid, content: context, model, previous: previous || undefined},
   };
-  if (prompt === '精简内容') {
+  if (title === '精简内容') {
     req.url = '/dream/pen/ai/writer/simplify';
     req.body.type = 'simplify';
-  } else if (prompt === '生成摘要') {
+  } else if (title === '生成摘要') {
     req.url = '/dream/pen/ai/writer/excerpt';
     req.body.type = 'excerpt';
-  } else if (prompt === '丰富内容') {
+  } else if (title === '丰富内容') {
     req.url = '/dream/pen/ai/writer/enrich';
     req.body.type = 'enrich';
   } else {
@@ -359,13 +359,43 @@ function proofread(docId: string, content: string, html: string): {controller: A
   };
 }
 
+let reviewRequest: AbortController | undefined;
+
+function autoReview(
+  args: {content: string},
+  onMessage: (item: {long: string; origin: string; target: string; type: string; message: string}) => void
+): void {
+  if (reviewRequest) {
+    reviewRequest.abort();
+  }
+  const controller = new AbortController();
+  const {signal} = controller;
+  const {content} = args;
+  const html = decodeHtml();
+  fetchEventSource(replaceBaseUrl('/dream/pen/ai/template'), {
+    method: 'POST',
+    headers: getHeaders(),
+    body: JSON.stringify({content}),
+    signal,
+    openWhenHidden: true,
+    onmessage: (ev) => onMessage({long: 'xxx', origin: 'xxx', target: 'xxx', type: '错别字', message: 'xxxx'}),
+    onerror: (e) => {
+      throw e;
+    },
+    onclose: () => {
+      reviewRequest = undefined;
+    },
+  });
+  reviewRequest = controller;
+}
+
 export const AiAPI = {
   continueWrite,
   createFullText,
   createOutline,
   createImage,
   stylize,
-  proofread,
+  autoReview,
   ask,
   robot,
   web,

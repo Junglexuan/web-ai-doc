@@ -99,6 +99,12 @@ export const editorConfig: Partial<IEditorConfig> = {
       ],
     },
     review: {
+      match: (editor, node: any) => {
+        if (node.type === 'review') {
+          return node.source;
+        }
+        return false;
+      },
       menuKeys: ['applyReplace', 'unReplace', 'reviewList'],
     },
   },

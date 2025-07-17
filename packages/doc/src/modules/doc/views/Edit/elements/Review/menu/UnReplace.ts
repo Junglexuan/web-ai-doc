@@ -1,4 +1,5 @@
 import {DomEditor, IButtonMenu, IDomEditor, SlateTransforms} from '@wangeditor-next/editor';
+import {ReviewElement} from '../custom-types';
 
 class UnReplace implements IButtonMenu {
   readonly title = '忽略';
@@ -18,7 +19,7 @@ class UnReplace implements IButtonMenu {
   isDisabled(editor: IDomEditor): boolean {
     if (editor.selection == null) return true;
 
-    const reviewNode = DomEditor.getSelectedNodeByType(editor, 'review');
+    const reviewNode = DomEditor.getSelectedNodeByType(editor, 'review') as ReviewElement;
     if (reviewNode == null) {
       // 选区未处于 link node ，则禁用
       return true;

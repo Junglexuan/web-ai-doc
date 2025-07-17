@@ -4,15 +4,16 @@ import {VNode, h} from 'snabbdom';
 import {VariableElement} from './custom-types';
 
 function renderElem(elem: SlateElement, children: VNode[] | null, editor: IDomEditor): VNode {
-  const {info} = elem as VariableElement;
+  const {info, field, editable} = elem as VariableElement;
   const selected = DomEditor.isNodeSelected(editor, elem);
   const vnode = h(
     'span',
     {
       props: {
-        className: selected ? 'w-e-variable on' : 'w-e-variable',
+        className: selected ? `w-e-variable on${editable ? ' editable' : ''}` : `w-e-variable${editable ? ' editable' : ''}`,
         contentEditable: false,
         title: info,
+        lang: field,
       },
       on: {
         click(event) {

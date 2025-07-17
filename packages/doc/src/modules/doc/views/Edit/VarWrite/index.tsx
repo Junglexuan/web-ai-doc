@@ -1,7 +1,6 @@
-import {Button, Checkbox, Input, Space} from 'antd';
+import {Button, Checkbox, Input} from 'antd';
 import {FC, memo, useState} from 'react';
 import {message, useEvent} from '@/utils/tools';
-import AllowModify from '../AllowModify';
 import {VariableElement} from '../elements/Variable/custom-types';
 import WritePrompt, {WritePromptValue} from '../WritePrompt';
 import styles from './index.module.less';
@@ -41,19 +40,30 @@ interface Props {
 const Component: FC<Props> = ({onSubmit, onCancel, elem}) => {
   const [value, setValue] = useState(() => matchValue(elem.source));
   const [fieldName, setFieldValue] = useState(elem.field);
+  const [editable, setEditable] = useState(elem.editable);
 
   const onOk = useEvent(() => {
-    if (value?.desc) {
-      onSubmit(elem, {source: formatValue(value), info: value.desc || '...', field: fieldName});
+    if (value?.desc && fieldName) {
+      onSubmit(elem, {source: formatValue(value), info: value.desc || '...', field: fieldName, editable});
     } else {
-      message.error('请输入内容描述...');
+      message.error('请输入字段定义和AI提示词...');
     }
   });
 
   return (
     <div className={styles.root}>
+      <div className="hd">
+        <Checkbox className="allowInput" checked={editable} onChange={(e) => setEditable(e.target.checked)}>
+          允许用户修改
+        </Checkbox>
+        <div className="formItem">
+          <div className="label">
+            <em>*</em>字段定义:
+          </div>
+          <Input className="input" value={fieldName} onChange={(e) => setFieldValue(e.target.value.trim())} />
+        </div>
+      </div>
       <div className="bd">
-        <AllowModify value={fieldName} onChange={setFieldValue} />
         <WritePrompt value={value} onChange={setValue} />
       </div>
       <div className="dialogFooter">

@@ -6,5 +6,6 @@ export type VariableElement = {
   source: string;
   info: string;
   field?: string;
+  editable?: boolean;
   children: Text[];
 };

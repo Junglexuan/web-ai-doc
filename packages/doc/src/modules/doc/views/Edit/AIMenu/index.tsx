@@ -435,16 +435,16 @@ const originItems: MenuItem[] = [
       </span>
     ),
   },
-  {
-    key: 'X',
-    icon: <ReadOutlined />,
-    title: '校阅',
-    label: (
-      <span>
-        <sub>(X)</sub>校阅
-      </span>
-    ),
-  },
+  // {
+  //   key: 'X',
+  //   icon: <ReadOutlined />,
+  //   title: '校阅',
+  //   label: (
+  //     <span>
+  //       <sub>(X)</sub>校阅
+  //     </span>
+  //   ),
+  // },
   {
     key: 'P',
     icon: <PictureOutlined />,

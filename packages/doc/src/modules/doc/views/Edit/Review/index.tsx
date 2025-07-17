@@ -36,7 +36,15 @@ const Component: FC<Props> = ({editor}) => {
   });
 
   const ignoreItem = useEvent((item: ReviewItem) => {
-    SlateTransforms.unwrapNodes(editor, {
+    console.log(item);
+    // SlateTransforms.wrapNodes(
+    //   editor,
+    //   {},
+    //   {
+    //     at: item.at,
+    //   }
+    // );
+    SlateTransforms.setNodes(editor, {source: '', target: '', reason: ''} as any, {
       at: item.at,
     });
   });
@@ -86,7 +94,10 @@ const Component: FC<Props> = ({editor}) => {
     });
     let i = 0;
     for (const entry of nodes) {
-      items.push({...elems[i], at: entry[1]});
+      const item: ReviewItem = {...elems[i], at: entry[1]};
+      if (item.source) {
+        items.push(item);
+      }
       i++;
     }
     setList(items);

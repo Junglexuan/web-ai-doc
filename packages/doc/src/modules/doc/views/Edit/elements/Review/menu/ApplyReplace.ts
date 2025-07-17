@@ -1,5 +1,5 @@
 import {DomEditor, IButtonMenu, IDomEditor, SlateNode, SlateTransforms} from '@wangeditor-next/editor';
-
+import {ReviewElement} from '../custom-types';
 class ApplyReplace implements IButtonMenu {
   title = '替换';
   //readonly iconSvg = UN_LINK_SVG;
@@ -11,7 +11,7 @@ class ApplyReplace implements IButtonMenu {
   }
 
   isActive(editor: IDomEditor): boolean {
-    const reviewNode = DomEditor.getSelectedNodeByType(editor, 'review');
+    const reviewNode = DomEditor.getSelectedNodeByType(editor, 'review') as ReviewElement;
     if (reviewNode) {
       const {target, source, reason} = reviewNode as any;
       const btn = document.querySelector('[data-menu-key=applyReplace]') as HTMLElement;

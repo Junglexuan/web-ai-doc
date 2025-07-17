@@ -6,6 +6,7 @@ function parseElemHtml(elem: Element, children: SlateDescendant[], editor: IDomE
   const vid = elem.getAttribute('data-vid') || '';
   const info = decodeURI(elem.getAttribute('data-info') || '');
   const field = decodeURI(elem.getAttribute('data-field') || '') || undefined;
+  const editable = elem.getAttribute('data-editable') || '';
   const source = elem.getAttribute('data-source') || '';
 
   children = children.filter((child) => {
@@ -26,6 +27,7 @@ function parseElemHtml(elem: Element, children: SlateDescendant[], editor: IDomE
     source,
     info,
     field,
+    editable: editable === '1' ? true : false,
     children,
   } as VariableElement;
 }

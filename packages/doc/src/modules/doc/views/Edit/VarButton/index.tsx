@@ -91,16 +91,16 @@ const Component: FC<Props> = ({editor}) => {
           label: '内容替换',
           icon: <ScanOutlined />,
         },
-        {
-          key: 'image',
-          label: '智能生图',
-          icon: <PictureOutlined />,
-        },
-        {
-          key: 'ask',
-          label: '知识库问答',
-          icon: <QuestionCircleOutlined />,
-        },
+        // {
+        //   key: 'image',
+        //   label: '智能生图',
+        //   icon: <PictureOutlined />,
+        // },
+        // {
+        //   key: 'ask',
+        //   label: '知识库问答',
+        //   icon: <QuestionCircleOutlined />,
+        // },
       ],
     };
   }, [editor]);
