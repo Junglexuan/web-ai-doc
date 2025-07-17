@@ -29,7 +29,7 @@ const Component: FC<Props> = ({editor}) => {
 
   const ignoreAll = useEvent(() => {
     editor.deselect();
-    SlateTransforms.unwrapNodes(editor, {
+    SlateTransforms.setNodes(editor, {source: '', target: '', reason: ''} as any, {
       at: [],
       match: (node) => DomEditor.checkNodeType(node, 'review'),
     });

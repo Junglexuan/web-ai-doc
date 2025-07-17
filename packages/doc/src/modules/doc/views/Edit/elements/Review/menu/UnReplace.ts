@@ -31,7 +31,7 @@ class UnReplace implements IButtonMenu {
     if (this.isDisabled(editor)) return;
 
     // 取消链接
-    SlateTransforms.unwrapNodes(editor, {
+    SlateTransforms.setNodes(editor, {source: '', target: '', reason: ''} as any, {
       match: (n) => DomEditor.checkNodeType(n, 'review'),
     });
   }
