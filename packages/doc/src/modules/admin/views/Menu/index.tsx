@@ -138,10 +138,10 @@ const Component: FC<{}> = () => {
           <AskOutlined className="icon" />
           <span>星启·脉擎</span>
         </a>
-        <a target="_blank" title="数据智能体" href="//helix.binarysee.com" rel="noreferrer">
+        {/* <a target="_blank" title="数据智能体" href="//helix.binarysee.com" rel="noreferrer">
           <BarChartOutlined className="icon" />
           <span>星启·数璇</span>
-        </a>
+        </a> */}
       </div>
     </div>
   );
