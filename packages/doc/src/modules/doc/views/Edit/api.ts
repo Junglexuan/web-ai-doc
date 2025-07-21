@@ -362,7 +362,7 @@ function proofread(docId: string, content: string, html: string): {controller: A
 let reviewRequest: AbortController | undefined;
 
 function autoReview(
-  args: {content: string},
+  args: {articleId: string; content: string},
   onMessage: (item: {long: string; origin: string; target: string; type: string; message: string}) => void
 ): void {
   if (reviewRequest) {
@@ -370,15 +370,18 @@ function autoReview(
   }
   const controller = new AbortController();
   const {signal} = controller;
-  const {content} = args;
+  const {articleId, content} = args;
   const html = decodeHtml();
-  fetchEventSource(replaceBaseUrl('/dream/pen/ai/template'), {
+  fetchEventSource(replaceBaseUrl('/dream/pen/ai/writer/proofread'), {
     method: 'POST',
     headers: getHeaders(),
-    body: JSON.stringify({content}),
+    body: JSON.stringify({articleId, content, type: 'proofread'}),
     signal,
     openWhenHidden: true,
-    onmessage: (ev) => onMessage({long: 'xxx', origin: 'xxx', target: 'xxx', type: '错别字', message: 'xxxx'}),
+    onmessage: (ev) => {
+      console.log(ev.data);
+      onMessage({long: 'xxx', origin: 'xxx', target: 'xxx', type: '错别字', message: 'xxxx'});
+    },
     onerror: (e) => {
       throw e;
     },

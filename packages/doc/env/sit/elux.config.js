@@ -2,17 +2,12 @@
 module.exports = {
   prod: {
     clientGlobalVar: {
-      PathPrefix: '/verse',
-      ApiBaseUrl: '',
-      ApiPrefix: {
-        '/auth/': '/auth/',
-        '/dream/': '/dream/',
-      },
+      PathPrefix: '',
       StaticPrefix: {
         '/imgs/': '/imgs/',
       },
     },
-    clientPublicPath: '/verse/client/',
+    clientPublicPath: '/client/',
     clientMinimize: false,
     eslint: false,
     stylelint: false,

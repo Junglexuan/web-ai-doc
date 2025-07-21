@@ -1,7 +1,11 @@
-window.ApiPrefix = null;
-// {
-//   '/meta/': 'http://172.16.0.197/meta/',
-//   '/user/': 'http://172.16.0.197/user/',
-//   '/upload/': 'http://172.16.0.197/upload/',
-//   '/app/': 'http://172.16.0.197/app/',
-// };
+window.ApiBaseUrl = '';
+window.ApiPrefix = {
+  '/auth/': 'http://8.130.27.129/auth/',
+  '/dream/': 'http://192.168.99.166:85/verse/dream/',
+};
+window.SitesUrl = {
+  nexus: '//nexus.binarysee.com',
+  helix: '//helix.binarysee.com',
+  verse: '//verse.binarysee.com',
+  pulse: '//pulse.binarysee.com',
+};

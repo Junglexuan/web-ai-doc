@@ -25,11 +25,9 @@ const EnvConfig = process.env.PROJ_ENV as {
 };
 
 export const {StaticPrefix, PathPrefix = ''} = EnvConfig;
-export const ApiBaseUrl: string = window['ApiBaseUrl'] || EnvConfig.ApiBaseUrl;
-export const ApiPrefix: {[key: string]: string} = window['ApiPrefix'] || EnvConfig.ApiPrefix;
-
-console.log(ApiPrefix);
-export const KnowledgePrefix: string = '/pulse';
+export const ApiBaseUrl: string = window['ApiBaseUrl'] || '';
+export const ApiPrefix: {[key: string]: string} = window['ApiPrefix'] || {};
+export const SitesUrl: {nexus: string; pulse: string; helix: string; verse: string} = window['SitesUrl'] || {};
 
 export const InIframe = window.parent !== window;
 

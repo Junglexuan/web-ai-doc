@@ -1,4 +1,4 @@
-import {AppstoreOutlined, EditOutlined, SafetyCertificateOutlined} from '@ant-design/icons';
+import {EditOutlined, SafetyCertificateOutlined} from '@ant-design/icons';
 import {Link} from '@elux/react-web';
 import {Button, Menu} from 'antd';
 import {FC, useCallback, useEffect, useMemo, useState} from 'react';
@@ -10,7 +10,7 @@ import HomeOutlined from '@/assets/images/Home';
 import Logo from '@/assets/images/logo.svg';
 import StarOutlined from '@/assets/images/Star';
 import TPL from '@/assets/images/tpl';
-import {GetClientRouter, KnowledgePrefix} from '@/Global';
+import {GetClientRouter, SitesUrl} from '@/Global';
 import DocAPI from '@/modules/doc/api';
 import {getUrlParam} from '@/utils/tools';
 import styles from './index.module.less';
@@ -134,14 +134,14 @@ const Component: FC<{}> = () => {
         <Menu mode="inline" items={items} selectedKeys={selectedKeys} />
       </div>
       <div className="ft">
-        <a target="_blank" title="智能体平台" href="//pulse.binarysee.com" rel="noreferrer">
+        <a target="_blank" title="智能体平台" href={SitesUrl.pulse} rel="noreferrer">
           <AskOutlined className="icon" />
           <span>星启·脉擎</span>
         </a>
-        {/* <a target="_blank" title="数据智能体" href="//helix.binarysee.com" rel="noreferrer">
+        <a target="_blank" title="数据智能体" href="//helix.binarysee.com" rel="noreferrer">
           <BarChartOutlined className="icon" />
           <span>星启·数璇</span>
-        </a> */}
+        </a>
       </div>
     </div>
   );

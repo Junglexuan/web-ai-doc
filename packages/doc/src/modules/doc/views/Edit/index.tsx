@@ -83,44 +83,44 @@ const Component: FC<Props> = ({itemDetail}) => {
   const onSave = useMemo(() => debounce(_onSave, 1000), [_onSave]);
 
   const _onReview = useEvent((editor: IDomEditor) => {
-    const items = [
-      {
-        long: '简单家常菜到如今餐馆中的热门选择',
-        source: '家常菜',
-        target: '家长菜',
-        type: '错别字',
-        reason: '建议将“家常菜”替换为“家长菜建议将“家常菜”替换为“家长菜”',
-      },
-      {long: '切成薄片后用适量生抽、老抽及少许淀粉腌制片刻', source: '老抽', target: '生抽', type: '错别字', reason: '建议将“老抽”替换为“生抽”'},
-    ];
-    const originHtml = editor.getHtml();
-    let newHtml = originHtml;
-    items.forEach((item) => {
-      const longReg = item.long.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      newHtml = newHtml.replace(new RegExp(longReg, 'g'), (a, b) => {
-        console.log(a, b);
-        const sourceReg = item.source.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        return a.replace(
-          new RegExp(sourceReg, 'g'),
-          `<span data-w-e-type="review" data-source="${item.source}" data-target="${item.target}" data-reason="${item.reason}">${item.source}</span>`
-        );
-      });
-    });
-    console.log(newHtml === originHtml);
-    if (newHtml !== originHtml) {
-      editor.setHtml(newHtml);
-    }
-
-    // AiAPI.autoReview({content: editor.getHtml()}, (item) => {
-    //   console.log(item);
+    // const items = [
+    //   {
+    //     long: '简单家常菜到如今餐馆中的热门选择',
+    //     source: '家常菜',
+    //     target: '家长菜',
+    //     type: '错别字',
+    //     reason: '建议将“家常菜”替换为“家长菜建议将“家常菜”替换为“家长菜”',
+    //   },
+    //   {long: '切成薄片后用适量生抽、老抽及少许淀粉腌制片刻', source: '老抽', target: '生抽', type: '错别字', reason: '建议将“老抽”替换为“生抽”'},
+    // ];
+    // const originHtml = editor.getHtml();
+    // let newHtml = originHtml;
+    // items.forEach((item) => {
+    //   const longReg = item.long.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    //   newHtml = newHtml.replace(new RegExp(longReg, 'g'), (a, b) => {
+    //     console.log(a, b);
+    //     const sourceReg = item.source.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    //     return a.replace(
+    //       new RegExp(sourceReg, 'g'),
+    //       `<span data-w-e-type="review" data-source="${item.source}" data-target="${item.target}" data-reason="${item.reason}">${item.source}</span>`
+    //     );
+    //   });
     // });
+    // console.log(newHtml === originHtml);
+    // if (newHtml !== originHtml) {
+    //   editor.setHtml(newHtml);
+    // }
+
+    AiAPI.autoReview({articleId: itemDetail.id, content: editor.getHtml()}, (item) => {
+      console.log(item);
+    });
   });
 
   const onReview = useMemo(() => debounce(_onReview, 3000), [_onReview]);
 
   const onChange = useEvent((editor: IDomEditor) => {
     onSave(editor);
-    // onReview(editor);
+    onReview(editor);
   });
 
   const onDocTitleChange = useEvent((title: string) => {

@@ -9,13 +9,7 @@ module.exports = {
   all: {
     serverPort: 4004,
     clientGlobalVar: {
-      PathPrefix: '/verse',
-      ApiBaseUrl: '/verse',
-      ApiPrefix: {
-        '/auth/': 'http://8.130.27.129/auth/',
-        '/dream/': 'http://192.168.99.166:85/verse/dream/',
-        //'/dream/': 'http://331qy963dj35.vicp.fun:15537/dream/',
-      },
+      PathPrefix: '',
       StaticPrefix: {
         '/imgs/': '/imgs/',
       },

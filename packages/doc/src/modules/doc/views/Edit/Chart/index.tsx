@@ -1,9 +1,8 @@
 import {CloseOutlined} from '@ant-design/icons';
 import {IDomEditor} from '@wangeditor-next/editor';
-import {Button} from 'antd';
 import {marked} from 'marked';
 import {FC, memo, useEffect, useRef, useState} from 'react';
-import {KnowledgePrefix} from '@/Global';
+import {SitesUrl} from '@/Global';
 import {debounce, useEvent} from '@/utils/tools';
 import styles from './index.module.less';
 interface Props {
@@ -51,7 +50,7 @@ const Component: FC<Props> = ({editor}) => {
         <span className={styles.close} onClick={() => setShow(!show)}>
           <CloseOutlined />
         </span>
-        <div className="bd">{show && <iframe className={styles.iframe} src={`${KnowledgePrefix}/chat/window`} />}</div>
+        <div className="bd">{show && <iframe className={styles.iframe} src={`${SitesUrl}/chat/window`} />}</div>
       </div>
     </>
   );
