@@ -9,16 +9,8 @@ export interface WizardFormData {
   tplId: string;
   type?: string;
   fields?: {name: string; label: string; value: string}[];
+  kind?: 'conts' | 'docs';
 }
-
-const StepsItems = [
-  {
-    title: '写作场景',
-  },
-  {
-    title: '关键信息',
-  },
-];
 
 const FormLayout = {labelCol: {span: 3}, wrapperCol: {span: 20}};
 
@@ -27,9 +19,10 @@ interface Props {
   data: WizardFormData;
   onCancel: () => void;
   onsubmit: (data: {__tplId: string; [field: string]: string}) => void;
+  kind?: 'conts' | 'docs';
 }
 
-const Component: FC<Props> = ({tplsOptions = [], data, onCancel, onsubmit}) => {
+const Component: FC<Props> = ({tplsOptions = [], data, onCancel, onsubmit, kind}) => {
   const [curType, setCurType] = useState(() => tplsOptions.find((item) => item.value === data.type));
   const [curTplId, setCurTplId] = useState(data.tplId);
   const [curTplFields, setCurTplFields] = useState<{name: string; label: string; value: string}[] | undefined>(data.fields);
@@ -37,6 +30,8 @@ const Component: FC<Props> = ({tplsOptions = [], data, onCancel, onsubmit}) => {
   const [curStep, setCurStep] = useState(curTplFields ? 1 : 0);
   const fieldsFormRef = useRef<FormInstance>();
   const [step0Able] = useState(!data.fields);
+
+  const [StepsItems] = useState(kind === 'conts' ? [{title: '合同场景'}, {title: '关键信息'}] : [{title: '写作场景'}, {title: '关键信息'}]);
 
   const onTypeChange = useEvent((type: string) => {
     const item = tplsOptions.find((item) => item.value === type);
@@ -51,7 +46,7 @@ const Component: FC<Props> = ({tplsOptions = [], data, onCancel, onsubmit}) => {
     if (curStep === 1) {
       fieldsFormRef.current?.submit();
     } else {
-      DocAPI.getTplFields(curTplId).then((tplFields) => {
+      DocAPI.getTplFields(curTplId, kind).then((tplFields) => {
         setCurStep(1);
         setFieldsValues({__tplId: curTplId});
         setCurTplFields(tplFields);
@@ -83,7 +78,7 @@ const Component: FC<Props> = ({tplsOptions = [], data, onCancel, onsubmit}) => {
   // });
 
   return (
-    <Modal open={true} footer={null} onCancel={onCancel} width={800} maskClosable={false} title="起草公文">
+    <Modal open={true} footer={null} onCancel={onCancel} width={800} maskClosable={false} title={kind === 'conts' ? '起草合同' : '起草公文'}>
       <div className={styles.root}>
         <div className="hd">
           {step0Able ? (
@@ -102,7 +97,7 @@ const Component: FC<Props> = ({tplsOptions = [], data, onCancel, onsubmit}) => {
                 <RadioCard options={tplsOptions} value={curType.value} onChange={onTypeChange} />
               </div>
               <div className="form-item">
-                <label>类型</label>
+                <label>{kind === 'conts' ? '立场' : '类型'}</label>
                 <RadioCard options={curType.children} value={curTplId} onChange={setCurTplId} />
               </div>
             </div>
@@ -114,7 +109,7 @@ const Component: FC<Props> = ({tplsOptions = [], data, onCancel, onsubmit}) => {
               </Form.Item>
               {curTplFields.map((item) => (
                 <Form.Item key={item.name} name={item.name} label={item.label}>
-                  <Input.TextArea rows={1} placeholder={item.value} />
+                  <Input.TextArea rows={1} placeholder={item.value} autoSize />
                 </Form.Item>
               ))}
             </Form>

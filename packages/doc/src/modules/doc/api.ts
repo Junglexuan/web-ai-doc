@@ -167,7 +167,20 @@ export const DocAPI = {
       };
     });
   },
-  getTplsOptions(): Promise<TplsOptions> {
+  getTplsOptions(kind: 'conts' | 'docs' = 'docs'): Promise<TplsOptions> {
+    if (kind === 'conts') {
+      return request.get('/dream/pen/template/getTemplateType').then((docRes) => {
+        const list: any[] = docRes.data.data || [];
+        return list.map((item) => ({
+          value: item.id,
+          label: item.title,
+          children: [
+            {value: item.id + ',甲方', label: '甲方'},
+            {value: item.id + ',乙方', label: '乙方'},
+          ],
+        }));
+      });
+    }
     return request.get('/dream/pen/template/getTemplateType').then((docRes) => {
       const list: any[] = docRes.data.data || [];
       return list.map((item) => ({
@@ -177,8 +190,9 @@ export const DocAPI = {
       }));
     });
   },
-  getTplFields(id: string): Promise<TplFields[]> {
-    return request.get('/dream/pen/template/getTemplateByType/' + id).then((docRes) => {
+  getTplFields(id: string, kind: 'conts' | 'docs' = 'docs'): Promise<TplFields[]> {
+    console.log(kind);
+    return request.get('/dream/pen/template/getTemplateByType/' + id.split(',')[0]).then((docRes) => {
       const list: any[] = docRes.data.data.pluginVo || [];
       return list.map((item) => ({
         name: item.field,

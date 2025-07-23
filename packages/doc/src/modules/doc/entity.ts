@@ -1,7 +1,7 @@
 import {BaseCurRender, BaseCurView, BaseListItem, BaseListSearch, BaseListSummary} from '@/utils/resource';
 
 export type CurView = BaseCurView;
-export type CurRender = BaseCurRender | 'favs' | 'recs' | 'tpls';
+export type CurRender = BaseCurRender | 'favs' | 'recs' | 'tpls' | 'conts';
 export type DocType = 'dir' | 'doc' | 'tpl';
 
 export interface ListSearch extends BaseListSearch {
@@ -49,6 +49,7 @@ export interface ItemDetail {
   size: '常规' | '全宽' | '超宽';
   levelPath: {id: string; folderName: string; parent: string}[];
   isTpl?: boolean;
+  isCont?: boolean;
   isShare?: boolean;
   readonly?: boolean;
 }

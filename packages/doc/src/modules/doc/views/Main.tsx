@@ -3,6 +3,7 @@ import {FC} from 'react';
 import ErrorPage from '@/components/ErrorPage';
 import {APPState} from '@/Global';
 import {CurRender, CurView, ItemDetail, ListItem, ListSearch, ListSummary} from '../entity';
+import Conts from './Conts';
 import Edit from './Edit';
 import Favs from './Favs';
 import Maintain from './Maintain';
@@ -38,6 +39,9 @@ const Component: FC<StoreProps & {dispatch: Dispatch}> = ({curView, curRender, i
       {curView === 'list' &&
         curRender === 'tpls' &&
         (listSummary ? <Tpls dispatch={dispatch} listSearch={listSearch!} list={list!} listSummary={listSummary!} /> : <div></div>)}
+      {curView === 'list' &&
+        curRender === 'conts' &&
+        (listSummary ? <Conts dispatch={dispatch} listSearch={listSearch!} list={list!} listSummary={listSummary!} /> : <div></div>)}
       {curView === 'item' && (itemDetail ? <Edit itemDetail={itemDetail} /> : <div></div>)}
     </Switch>
   );

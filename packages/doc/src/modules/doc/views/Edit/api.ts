@@ -92,6 +92,27 @@ function decodeHtml() {
   };
 }
 
+function decodeReviews(str: string): {long: string; source: string; target: string; type: string; reason: string}[] {
+  let data: any;
+  try {
+    data = JSON.parse(str);
+  } catch (error) {
+    data = null;
+  }
+  if (data) {
+    const items = Array.isArray(data) ? data : [data];
+    return items.map((item) => ({
+      long: item.long,
+      source: item.error_text,
+      type: item.type,
+      reason: item.message,
+      target: item.suggestions,
+    }));
+  } else {
+    return [];
+  }
+}
+
 function getHeaders() {
   return {
     'Content-Type': 'application/json',
@@ -340,30 +361,11 @@ function tpl(
   return controller;
 }
 
-function proofread(docId: string, content: string, html: string): {controller: AbortController; result: Promise<{content: string; html: string}>} {
-  const controller = new AbortController();
-  const {signal} = controller;
-  return {
-    controller,
-    result: request
-      .post(
-        '/dream/pen/ai/writer/proofread',
-        {
-          articleId: docId,
-          content: html,
-          type: 'proofread',
-        },
-        {signal}
-      )
-      .then((res) => res.data.data),
-  };
-}
-
 let reviewRequest: AbortController | undefined;
 
 function autoReview(
   args: {articleId: string; content: string},
-  onMessage: (item: {long: string; origin: string; target: string; type: string; message: string}) => void
+  onMessage: (items: {long: string; source: string; target: string; type: string; reason: string}[]) => void
 ): void {
   if (reviewRequest) {
     reviewRequest.abort();
@@ -371,17 +373,13 @@ function autoReview(
   const controller = new AbortController();
   const {signal} = controller;
   const {articleId, content} = args;
-  const html = decodeHtml();
   fetchEventSource(replaceBaseUrl('/dream/pen/ai/writer/proofread'), {
     method: 'POST',
     headers: getHeaders(),
     body: JSON.stringify({articleId, content, type: 'proofread'}),
     signal,
     openWhenHidden: true,
-    onmessage: (ev) => {
-      console.log(ev.data);
-      onMessage({long: 'xxx', origin: 'xxx', target: 'xxx', type: '错别字', message: 'xxxx'});
-    },
+    onmessage: (ev) => onMessage(decodeReviews(ev.data)),
     onerror: (e) => {
       throw e;
     },

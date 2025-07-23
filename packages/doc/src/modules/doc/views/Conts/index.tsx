@@ -17,8 +17,9 @@ import {downloadFile, getUploadProps, replaceBaseUrl} from '@/utils/request';
 import {confirm, debounce, openArticle, useEvent} from '@/utils/tools';
 import {DocAPI} from '../../api';
 import {DocType, ListItem, ListSearch, ListSummary, TplsOptions} from '../../entity';
+import styles from '../Maintain/index.module.less';
 import Wizard, {WizardFormData} from '../Wizard';
-import styles from './index.module.less';
+
 interface Props {
   dispatch: Dispatch;
   listSearch: ListSearch;
@@ -260,7 +261,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
   const onCreateByTpl = useEvent(async () => {
     let options = tplsOptions;
     if (!options) {
-      options = await DocAPI.getTplsOptions();
+      options = await DocAPI.getTplsOptions('conts');
       setTplsOptions(options);
     }
     return setWizardData({type: options[0].value, tplId: options[0].children[0].value});
@@ -352,18 +353,17 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
       <div className="cd">
         <Space>
           <Button icon={<SignatureOutlined />} onClick={onCreateByTpl}>
-            起草公文
+            起草合同
           </Button>
           <Button id="_create-doc-btn" loading={loading === 'create'} icon={<PlusOutlined />} onClick={() => onCreate()}>
             快速创建
           </Button>
-          {/* <Button icon={<ExceptionOutlined />}>创建模版</Button> */}
           <Button loading={loading === 'createDir'} icon={<FolderAddOutlined />} onClick={onCreateDir}>
             新建文件夹
           </Button>
           <Upload showUploadList={false} accept=".docx" {...uploadProps}>
             <Button loading={loading === 'upload'} icon={<UploadOutlined />}>
-              上传文档
+              上传合同
             </Button>
           </Upload>
           <Button loading={loading === 'batchDelete'} icon={<DeleteOutlined />} onClick={batchDelete} disabled={!selectedRows.ids.length}>
@@ -384,7 +384,9 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
           onChange={onTableChange}
         />
       </div>
-      {wizardData && <Wizard tplsOptions={tplsOptions} data={wizardData} onCancel={() => setWizardData(undefined)} onsubmit={onWizardSubmit} />}
+      {wizardData && (
+        <Wizard kind="conts" tplsOptions={tplsOptions} data={wizardData} onCancel={() => setWizardData(undefined)} onsubmit={onWizardSubmit} />
+      )}
     </div>
   );
 };

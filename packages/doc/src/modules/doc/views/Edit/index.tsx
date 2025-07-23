@@ -20,13 +20,14 @@ import {GetClientRouter} from '@/Global';
 import {downloadFile, replaceBaseUrl} from '@/utils/request';
 import {confirm, debounce, openArticle, useEvent} from '@/utils/tools';
 import DocAPI from '../../api';
-import AiAPI from './api';
 import {ItemDetail} from '../../entity';
 import AIButton from './AIButton';
 import './AIMenu';
 import AITpl from './AITpl';
+import AiAPI from './api';
 import {SaveMgr} from './autoSave';
 import Chart from './Chart';
+import ContButton from './ContButton';
 import {editorConfig, toolbarConfig} from './editorConfig';
 import styles from './index.module.less';
 import Outline from './Outline';
@@ -43,6 +44,8 @@ const SizeEnum = {
 interface Props {
   itemDetail: ItemDetail;
 }
+
+const ii = 0;
 
 const Component: FC<Props> = ({itemDetail}) => {
   const defaultConfig = useMemo(() => {
@@ -83,18 +86,31 @@ const Component: FC<Props> = ({itemDetail}) => {
   const onSave = useMemo(() => debounce(_onSave, 1000), [_onSave]);
 
   const _onReview = useEvent((editor: IDomEditor) => {
-    // const items = [
-    //   {
-    //     long: '简单家常菜到如今餐馆中的热门选择',
-    //     source: '家常菜',
-    //     target: '家长菜',
-    //     type: '错别字',
-    //     reason: '建议将“家常菜”替换为“家长菜建议将“家常菜”替换为“家长菜”',
-    //   },
-    //   {long: '切成薄片后用适量生抽、老抽及少许淀粉腌制片刻', source: '老抽', target: '生抽', type: '错别字', reason: '建议将“老抽”替换为“生抽”'},
-    // ];
-    // const originHtml = editor.getHtml();
-    // let newHtml = originHtml;
+    const items = [
+      {
+        long: '晓炒肉',
+        source: '晓炒肉',
+        target: '小炒肉',
+        type: '错别字',
+        reason: '建议将“家常菜”替换为“家长菜建议将“家常菜”替换为“家长菜”',
+      },
+      // {long: '农家晓炒肉的做法，美丽得地球我的家', source: '得', target: '的', type: '错别字', reason: '建议将“老抽”替换为“生抽”'},
+    ];
+    const originHtml = editor.getHtml();
+    let newHtml = originHtml;
+    items.forEach((item) => {
+      const longReg = item.long.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      newHtml = newHtml.replace(new RegExp(`((<(?!\\/)[^>]+>)+)([^>]*${longReg}[^<]*)((<(?=\\/)[^>]+>)+)`, 'g'), (code, start, tag, text, end) => {
+        const sourceReg = item.source.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        start = start.replace(/<(?!span|s|u|em|strong|sup|sub)[^>]+>/g, '');
+        end = end.replace(/<\/(?!span|s|u|em|strong|sup|sub)[^>]+>/g, '');
+        console.log(start, text, end);
+        return code.replace(
+          new RegExp(sourceReg, 'g'),
+          `${end}<span data-w-e-type="review" data-source="${item.source}" data-target="${item.target}" data-reason="${item.reason}">${start}${item.source}${end}</span>${start}`
+        );
+      });
+    });
     // items.forEach((item) => {
     //   const longReg = item.long.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     //   newHtml = newHtml.replace(new RegExp(longReg, 'g'), (a, b) => {
@@ -106,14 +122,38 @@ const Component: FC<Props> = ({itemDetail}) => {
     //     );
     //   });
     // });
-    // console.log(newHtml === originHtml);
-    // if (newHtml !== originHtml) {
-    //   editor.setHtml(newHtml);
-    // }
+    console.log(newHtml === originHtml);
+    if (newHtml !== originHtml) {
+      console.log('originHtml', originHtml);
+      console.log('newHtml', newHtml);
+      //editor.setHtml(newHtml);
+    }
 
-    AiAPI.autoReview({articleId: itemDetail.id, content: editor.getHtml()}, (item) => {
-      console.log(item);
-    });
+    // AiAPI.autoReview({articleId: itemDetail.id, content: editor.getHtml()}, (items) => {
+    //   ii++;
+    //   console.log(items);
+    //   if (ii > 1) {
+    //     return;
+    //   }
+    //   const originHtml = editor.getHtml();
+    //   let newHtml = originHtml;
+    //   items.forEach((item) => {
+    //     const longReg = item.long.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    //     newHtml = newHtml.replace(new RegExp(longReg, 'g'), (a, b) => {
+    //       console.log(a, b);
+    //       const sourceReg = item.source.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    //       return a.replace(
+    //         new RegExp(sourceReg, 'g'),
+    //         `<span data-w-e-type="review" data-source="${item.source}" data-target="${item.target}" data-reason="${item.reason}">${item.source}</span>`
+    //       );
+    //     });
+    //   });
+    //   if (newHtml !== originHtml) {
+    //     console.log('originHtml', originHtml);
+    //     console.log('newHtml', newHtml);
+    //     editor.setHtml(newHtml);
+    //   }
+    // });
   });
 
   const onReview = useMemo(() => debounce(_onReview, 3000), [_onReview]);
@@ -363,6 +403,7 @@ const Component: FC<Props> = ({itemDetail}) => {
               <Toolbar editor={editor} defaultConfig={toolbarConfig} mode="default" className="tools" />
               <AITpl editor={editor} />
               {itemDetail.isTpl && <VarButton editor={editor} />}
+              {<ContButton editor={editor} />}
             </>
           )}
         </div>

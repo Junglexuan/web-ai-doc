@@ -54,13 +54,28 @@ const items: any[] = [
     ),
   },
   {
+    type: 'divider',
+  },
+  {
+    key: '我的合同',
+    icon: <SafetyCertificateOutlined />,
+    label: (
+      <Link to="/admin/doc/list/conts" action="relaunch" target="window">
+        我的合同
+      </Link>
+    ),
+  },
+  {
     key: '合同审查规则',
     icon: <SafetyCertificateOutlined />,
     label: (
       <Link to="/admin/contractReview/list/maintain" action="relaunch" target="window">
-        合同审查规则
+        审查规则
       </Link>
     ),
+  },
+  {
+    type: 'divider',
   },
   {
     key: '回收站',
@@ -87,6 +102,9 @@ const Component: FC<{}> = () => {
     }
     if (pathname.startsWith('/admin/doc/list/tpls')) {
       return ['模版管理'];
+    }
+    if (pathname.startsWith('/admin/doc/list/conts')) {
+      return ['我的合同'];
     }
     if (pathname.startsWith('/admin/contractReview')) {
       return ['合同审查规则'];

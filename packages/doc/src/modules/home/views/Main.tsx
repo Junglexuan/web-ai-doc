@@ -101,8 +101,8 @@ const Component: FC = () => {
     return (
       <Carousel dots={false} dotPosition="bottom" autoplay={true} rootClassName={'carousel'}>
         {carouselItems.map((item, index) => (
-          <div key={index} className={'carousel-item'}>
-            <div style={{backgroundImage: `url(${PathPrefix + item.url})`}}></div>
+          <div key={index}>
+            <div className="carousel-item" style={{backgroundImage: `url(${PathPrefix + item.url})`}}></div>
           </div>
         ))}
       </Carousel>
