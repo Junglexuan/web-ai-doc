@@ -80,6 +80,12 @@ const Component: FC<Props> = ({editor}) => {
 
   const onSelect = useEvent((item: ReviewItem) => {
     SlateTransforms.select(editor, {path: [...item.at, 0], offset: 1});
+    setTimeout(() => {
+      const panel = document.getElementById('_ai_review_panel');
+      if (panel) {
+        panel.parentElement!.parentElement!.scrollIntoView({behavior: 'smooth', block: 'center'});
+      }
+    }, 300);
   });
 
   const onDocChange = useEvent(() => {

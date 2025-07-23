@@ -112,8 +112,8 @@
 }
 
 .w-e-review-info {
-  width: 20px;
-  height: 150px;
+  width: 30px;
+  height: 160px;
 
   > div {
     position: absolute;
@@ -131,14 +131,17 @@
   }
 
   .reason {
-    width: 220px;
+    display: box;
+    width: 225px;
+    height: 2.2rem;
     padding: 0 15px;
     margin-top: 5px;
     overflow: hidden;
     font-size: 12px;
     color: #999;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
     text-overflow: ellipsis;
-    white-space: nowrap;
   }
 
   .target {

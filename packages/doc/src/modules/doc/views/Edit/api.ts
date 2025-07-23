@@ -362,6 +362,7 @@ function tpl(
 }
 
 let reviewRequest: AbortController | undefined;
+let sensitiveRequest: AbortController | undefined;
 
 function autoReview(
   args: {articleId: string; content: string},
@@ -370,24 +371,43 @@ function autoReview(
   if (reviewRequest) {
     reviewRequest.abort();
   }
-  const controller = new AbortController();
-  const {signal} = controller;
+  if (sensitiveRequest) {
+    sensitiveRequest.abort();
+  }
+  const reviewController = new AbortController();
   const {articleId, content} = args;
   fetchEventSource(replaceBaseUrl('/dream/pen/ai/writer/proofread'), {
     method: 'POST',
     headers: getHeaders(),
     body: JSON.stringify({articleId, content, type: 'proofread'}),
-    signal,
+    signal: reviewController.signal,
     openWhenHidden: true,
     onmessage: (ev) => onMessage(decodeReviews(ev.data)),
     onerror: (e) => {
       throw e;
     },
     onclose: () => {
-      reviewRequest = undefined;
+      //reviewRequest = undefined;
     },
   });
-  reviewRequest = controller;
+  reviewRequest = reviewController;
+
+  const sensitiveController = new AbortController();
+  fetchEventSource(replaceBaseUrl('/dream/pen/ai/writer/sensitive'), {
+    method: 'POST',
+    headers: getHeaders(),
+    body: JSON.stringify({articleId, content, type: 'sensitive'}),
+    signal: sensitiveController.signal,
+    openWhenHidden: true,
+    onmessage: (ev) => onMessage(decodeReviews(ev.data)),
+    onerror: (e) => {
+      throw e;
+    },
+    onclose: () => {
+      //sensitiveRequest = undefined;
+    },
+  });
+  sensitiveRequest = sensitiveController;
 }
 
 export const AiAPI = {

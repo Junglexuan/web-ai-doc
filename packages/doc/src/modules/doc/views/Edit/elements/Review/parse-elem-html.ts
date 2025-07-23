@@ -2,9 +2,8 @@ import {IDomEditor, SlateDescendant, SlateElement, SlateText} from '@wangeditor-
 import {ReviewElement} from './custom-types';
 
 function parseElemHtml(elem: Element, children: SlateDescendant[], editor: IDomEditor): SlateElement {
-  const source = elem.getAttribute('data-source') || '';
-  const target = elem.getAttribute('data-target') || '';
-  const reason = elem.getAttribute('data-reason') || '';
+  const review = decodeURIComponent(elem.getAttribute('data-review') || '');
+  const {source = '', target = '', reason = ''} = review ? JSON.parse(review) : {};
 
   children = children.filter((child) => {
     if (SlateText.isText(child)) return true;

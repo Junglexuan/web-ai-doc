@@ -1,5 +1,7 @@
+import {IDomEditor} from '@wangeditor-next/editor';
 import {SimpleDispatcher} from '@/utils/tools';
 import DocAPI from '../../api';
+import AiAPI from './api';
 
 export interface ISource {
   id: string;
@@ -15,6 +17,7 @@ export class SaveMgr extends SimpleDispatcher<{loading: boolean}> {
   sending: ISource | undefined;
   lasted: string | undefined;
   retry = 0;
+  reviewedHtml = '';
 
   constructor() {
     super({loading: {}});
@@ -70,4 +73,49 @@ export class SaveMgr extends SimpleDispatcher<{loading: boolean}> {
   destroy(): void {
     this.checkNext = () => undefined;
   }
+  onReview = (editor: IDomEditor, articleId: string): void => {
+    const html = editor.getHtml();
+    if (html === this.reviewedHtml) {
+      return;
+    }
+    AiAPI.autoReview({articleId, content: html}, (items) => {
+      const originHtml = editor.getHtml();
+      let newHtml = originHtml;
+      items.forEach((item) => {
+        newHtml = replaceReviewItem(newHtml, item);
+      });
+      if (newHtml !== originHtml) {
+        const curSelection = editor.selection;
+        const scroller = document.getElementById('_ai_editor_scroller')!;
+        const curScroll = scroller.scrollTop;
+        try {
+          editor.setHtml(newHtml);
+        } catch (e) {
+          console.error(e);
+          editor.setHtml(originHtml);
+        }
+        setTimeout(() => {
+          editor.select(curSelection!);
+          scroller.scrollTop = curScroll;
+          this.reviewedHtml = editor.getHtml();
+        });
+      }
+    });
+  };
+}
+
+function replaceReviewItem(html: string, item: {long: string; source: string; target: string; type: string; reason: string}): string {
+  const {source, target, long, reason} = item;
+  const longReg = long.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return html.replace(new RegExp(`((<(?!\\/)[^>]+>)+)([^>]*${longReg}[^<]*)((<(?=\\/)[^>]+>)+)`, 'g'), (code, start, tag, text, end) => {
+    const sourceReg = source.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    start = start.replace(/<(?!span|s|u|em|strong|sup|sub)[^>]+>/g, '').replace(/<ul[^>]*>/, '');
+    end = end.replace(/<\/(?!span|s|u|em|strong|sup|sub)[^>]+>/g, '').replace(/<\/ul>/, '');
+    // console.log(start, text, end);
+    const reviewData = encodeURIComponent(JSON.stringify({source, target, reason}));
+    return code.replace(
+      new RegExp(sourceReg, 'g'),
+      `${end}<span data-w-e-type="review" data-review="${reviewData}">${start}${source}${end}</span>${start}`
+    );
+  });
 }

@@ -23,7 +23,7 @@ class ApplyReplace implements IButtonMenu {
           div.className = 'w-e-review-info';
           parent.insertBefore(div, parent.children[0]);
         }
-        div.innerHTML = `<div><div class="tips">你可能想要输入：</div><div class="target">${target}</div><div class="reason">${reason}</div></div>`;
+        div.innerHTML = `<div id="_ai_review_panel"><div class="tips">你可能想要输入：</div><div class="target">${target}</div><div class="reason">${reason}</div></div>`;
       }
     }
     return false;

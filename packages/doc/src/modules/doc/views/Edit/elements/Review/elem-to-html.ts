@@ -3,7 +3,8 @@ import {ReviewElement} from './custom-types';
 
 function elemToHtml(elem: SlateElement, childrenHtml: string): string {
   const {reason = '', source = '', target = ''} = elem as ReviewElement;
-  return `<span data-w-e-type="review" data-source="${source}" data-target="${target}" data-reason="${reason}">${childrenHtml}</span>`;
+  const review = encodeURIComponent(JSON.stringify({source, target, reason}));
+  return `<span data-w-e-type="review" data-review="${review}">${childrenHtml}</span>`;
 }
 
 export default {
