@@ -1,4 +1,5 @@
 import ApplyReplace from './ApplyReplace';
+import Review from './Review';
 import ReviewList from './ReviewList';
 import UnReplace from './UnReplace';
 
@@ -26,4 +27,12 @@ const reviewListMenuConf = {
   },
 };
 
-export {applyReplaceMenuConf, unReplaceMenuConf, reviewListMenuConf};
+const reviewMenuConf = {
+  key: 'review',
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+  factory() {
+    return new Review();
+  },
+};
+
+export {reviewMenuConf, applyReplaceMenuConf, unReplaceMenuConf, reviewListMenuConf};

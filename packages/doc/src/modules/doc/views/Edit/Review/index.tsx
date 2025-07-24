@@ -1,31 +1,41 @@
-import {CloseOutlined, PicRightOutlined} from '@ant-design/icons';
+import {CloseOutlined, PauseCircleOutlined} from '@ant-design/icons';
 import {DomEditor, IDomEditor, SlateEditor, SlateTransforms} from '@wangeditor-next/editor';
-// eslint-disable-next-line import/order
-import type {NodeEntry} from 'slate';
-import {Button} from 'antd';
-import {FC, memo, useEffect, useState} from 'react';
-import {useEvent} from '@/utils/tools';
+import {Button, Spin} from 'antd';
+import {FC, memo, useEffect, useRef, useState} from 'react';
+import {addClass, removeClass, useEvent} from '@/utils/tools';
 import styles from './index.module.less';
 interface Props {
+  onCancel: () => void;
+  loading?: boolean;
   editor: IDomEditor;
 }
 
 type ReviewItem = {id: string; source: string; target: string; reason: string; at: number[]};
 
-const Component: FC<Props> = ({editor}) => {
+const Component: FC<Props> = ({onCancel, loading, editor}) => {
   const [show, setShow] = useState(false);
   const [list, setList] = useState<ReviewItem[]>([]);
+  const scrollerRef = useRef<HTMLDivElement>(null);
+  const controllerRef = useRef<HTMLDivElement>(null);
 
-  const onClick = useEvent((e: any) => {
-    if (e.target.tagName !== 'LI') return;
-    e.preventDefault();
-    const id = e.target.getAttribute('data-id');
-    const dom = document.getElementById(id);
-    if (dom) {
-      dom.scrollIntoView();
+  const onClose = useEvent(() => {
+    const dialog = controllerRef.current as any;
+    if (dialog) {
+      addClass(dialog, 'anmi');
+      setTimeout(() => removeClass(dialog, 'anmi'), 200);
     }
-    //editor.scrollToElem(id);
   });
+
+  // const onClick = useEvent((e: any) => {
+  //   if (e.target.tagName !== 'LI') return;
+  //   e.preventDefault();
+  //   const id = e.target.getAttribute('data-id');
+  //   const dom = document.getElementById(id);
+  //   if (dom) {
+  //     dom.scrollIntoView();
+  //   }
+  //   //editor.scrollToElem(id);
+  // });
 
   const ignoreAll = useEvent(() => {
     editor.deselect();
@@ -107,6 +117,16 @@ const Component: FC<Props> = ({editor}) => {
       i++;
     }
     setList(items);
+    if (loading) {
+      setTimeout(() => {
+        scrollerRef.current!.scrollTop = 999999999;
+        const ul = scrollerRef.current!.children[0];
+        const li = ul.children[ul.children.length - 1];
+        if (li) {
+          (li as any).click();
+        }
+      });
+    }
   });
 
   useEffect(() => {
@@ -127,7 +147,7 @@ const Component: FC<Props> = ({editor}) => {
 
   return (
     <>
-      <span id="_ai_review_btn" className="btn check" onClick={() => setShow(!show)} />
+      <span id="_ai_reviewList_btn" className="btn check" onClick={() => setShow(!show)} />
       {/* <div className={styles.mask + (show ? ' on' : '')} onClick={() => setShow(!show)}></div> */}
       <div className={styles.panel + (show ? ' on' : '')}>
         <div className="hd">
@@ -142,8 +162,8 @@ const Component: FC<Props> = ({editor}) => {
             </Button>
           </div>
         </div>
-        <div className="bd">
-          <ul onClick={onClick}>
+        <div className="bd" ref={scrollerRef}>
+          <ul>
             {list.map((item) => {
               return (
                 <li key={item.id} data-id={item.id} onClick={() => onSelect(item)}>
@@ -168,8 +188,24 @@ const Component: FC<Props> = ({editor}) => {
               );
             })}
           </ul>
+          {loading && (
+            <div className="more">
+              <Spin size="small" />
+            </div>
+          )}
         </div>
       </div>
+      {loading && (
+        <div className={styles.mask} onClick={onClose}>
+          <div ref={controllerRef}>
+            <div className="wrap">
+              <Spin size="small" />
+              <span>AI校阅中...</span>
+              <Button className="stop" title="停止" size="small" type="text" icon={<PauseCircleOutlined />} onClick={onCancel}></Button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };

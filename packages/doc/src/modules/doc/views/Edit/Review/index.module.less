@@ -1,8 +1,19 @@
 :global {
+  @keyframes vibrate {
+    from {
+      margin-left: 4px;
+    }
+
+    to {
+      margin-left: 0;
+    }
+  }
+
   :local(.panel) {
     position: absolute;
     right: 0;
     bottom: 0;
+    z-index: 1001;
     box-sizing: border-box;
     //display: flex;
     flex-direction: column;
@@ -41,9 +52,13 @@
 
     > .bd {
       flex: 1;
-      height: 80%;
+      height: calc(100% - 120px);
       padding: 0 20px;
       overflow: auto;
+
+      > .more {
+        text-align: center;
+      }
 
       ul {
         padding: 0;
@@ -123,11 +138,32 @@
     right: 0;
     bottom: 0;
     left: 0;
-    display: none;
+    z-index: 1000;
     background-color: rgba(0, 0, 0, 0);
 
-    &.on {
-      display: block;
+    > div {
+      position: absolute;
+      bottom: 30px;
+      left: 50%;
+      padding: 2.2px;
+      background: linear-gradient(90deg, #24aafd 0%, #1f67fd 50%, #6b51ff 100%);
+      border-radius: 100px;
+      box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.1);
+      transform: translateX(-50%);
+
+      &.anmi {
+        animation: doc-Edit-Review_vibrate 0.1s infinite;
+      }
+
+      > .wrap {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        padding: 10px 30px;
+        overflow: hidden;
+        background: #fff;
+        border-radius: 100px;
+      }
     }
   }
 }

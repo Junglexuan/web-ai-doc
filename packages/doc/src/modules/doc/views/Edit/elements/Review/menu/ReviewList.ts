@@ -18,7 +18,7 @@ class UnReplace implements IButtonMenu {
   }
 
   exec(editor: IDomEditor, value: string | boolean): void {
-    const btn = document.getElementById('_ai_review_btn');
+    const btn = document.getElementById('_ai_reviewList_btn');
     if (btn) {
       btn.click();
     }

@@ -33,6 +33,25 @@ export function htmlToDsl(html: string): string {
   return '';
 }
 
+export function replaceReviewItem(html: string, item: {long: string; source: string; target: string; type: string; reason: string}): string {
+  const {source, target, long, reason} = item;
+  const longReg = long.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return html.replace(new RegExp(`((<(?!\\/)[^>]+>)+)([^>]*${longReg}[^<]*)((<(?=\\/)[^>]+>)*)`, 'g'), (code, start, tag, text, end) => {
+    const sourceReg = source.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    start = start
+      .replace(/<(?!span|s|u|em|strong|sup|sub)[^>]+>/g, '')
+      .replace(/<ul[^>]*>/, '')
+      .replace(/<span data-w-e-type="review"/g, '<span');
+    end = end.replace(/<\/(?!span|s|u|em|strong|sup|sub)[^>]+>/g, '').replace(/<\/ul>/, '');
+    // console.log(start, text, end);
+    const reviewData = encodeURIComponent(JSON.stringify({source, target, reason}));
+    return code.replace(
+      new RegExp(sourceReg, 'g'),
+      `${end}<span data-w-e-type="review" data-review="${reviewData}">${start}${source}${end}</span>${start}`
+    );
+  });
+}
+
 export function proofreadHtml2(html: string, items: {index: number; corrected: string; original: string; type: string}[]): string {
   console.log(html);
   const itemsMap = items.reduce((obj, cur) => {

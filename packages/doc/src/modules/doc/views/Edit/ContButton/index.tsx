@@ -9,12 +9,9 @@ import styles from './index.module.less';
 //import './registerMenu';
 
 interface LayerProps {
+  disable?: boolean;
   editor: IDomEditor;
 }
-
-const VarPortal: FC<LayerProps> = ({editor}) => {
-  return createPortal(<VarLayer editor={editor} />, document.body);
-};
 
 interface Props {
   editor: IDomEditor;
@@ -60,7 +57,7 @@ const Component: FC<Props> = ({editor}) => {
   return (
     <>
       <div className="w-e-bar-divider"></div>
-      <Button disabled={editor.getConfig().readOnly} id="_ai_cont_button" className={styles.button} type="text" icon={<FileProtectOutlined />}>
+      <Button disabled={editor.getConfig().readOnly} id="_ai_cont_button" className={styles.button} type="text">
         合同审查
       </Button>
     </>

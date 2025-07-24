@@ -102,7 +102,7 @@ const Component: FC<Props> = ({onCreated, editor}) => {
   const onProofreadSuccess = useEvent(({content}: {content: string}) => {
     setRunningState('Fulfilled');
     closeMenu(true);
-    const btn = document.getElementById('_ai_review_btn');
+    const btn = document.getElementById('_ai_reviewList_btn');
     if (btn) {
       btn.click();
     }

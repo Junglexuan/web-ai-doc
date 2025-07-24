@@ -24,13 +24,16 @@ import {ItemDetail} from '../../entity';
 import AIButton from './AIButton';
 import './AIMenu';
 import AITpl from './AITpl';
+import AiAPI from './api';
 import {SaveMgr} from './autoSave';
 import Chart from './Chart';
 import ContButton from './ContButton';
-import {editorConfig, toolbarConfig} from './editorConfig';
+import {editorConfig, getToolbarConfig} from './editorConfig';
 import styles from './index.module.less';
 import Outline from './Outline';
 import Review from './Review';
+import ReviewButton from './ReviewButton';
+import {replaceReviewItem} from './utils';
 import VarButton from './VarButton';
 import type {ISource} from './autoSave';
 import type {MenuProps} from 'antd';
@@ -54,6 +57,7 @@ const Component: FC<Props> = ({itemDetail}) => {
       return editorConfig;
     }
   }, [itemDetail.readonly]);
+  const [toolbarConfig] = useState(getToolbarConfig(itemDetail));
   const [editor, setEditor] = useState<IDomEditor>();
   const [docTitle, setDocTitle] = useState(itemDetail.title);
   const [collect, setCollect] = useState(itemDetail.collect);
@@ -68,6 +72,7 @@ const Component: FC<Props> = ({itemDetail}) => {
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState<'create' | ''>('');
   const [size, setSize] = useState<'常规' | '全宽' | '超宽'>(itemDetail.size || '常规');
+  const [reviewing, setReviewing] = useState<[AbortController, AbortController]>();
 
   const _onSave = useEvent((editor: IDomEditor) => {
     //JSON.stringify(editor.children, null, 2)
@@ -83,11 +88,48 @@ const Component: FC<Props> = ({itemDetail}) => {
   });
 
   const onSave = useMemo(() => debounce(_onSave, 1000), [_onSave]);
-  const onReview = useMemo(() => debounce(autoSave.onReview, 3000), [autoSave.onReview]);
 
   const onChange = useEvent((editor: IDomEditor) => {
     onSave(editor);
-    onReview(editor, itemDetail.id);
+  });
+
+  const onReview = useEvent(() => {
+    const btn = document.getElementById('_ai_reviewList_btn');
+    if (btn) {
+      btn.click();
+    }
+    const reqs = AiAPI.autoReview(
+      {articleId: itemDetail.id, content: editor!.getHtml()},
+      (items) => {
+        if (!reviewing) {
+          return;
+        }
+        const originHtml = editor!.getHtml();
+        let newHtml = originHtml;
+        items.forEach((item) => {
+          newHtml = replaceReviewItem(newHtml, item);
+        });
+        if (newHtml !== originHtml) {
+          editor!.setHtml(newHtml);
+        }
+      },
+      () => {
+        setReviewing(undefined);
+      },
+      () => {
+        setReviewing(undefined);
+      }
+    );
+    setReviewing(reqs);
+  });
+
+  const onCancelReview = useEvent(() => {
+    const reqs = reviewing;
+    setReviewing(undefined);
+    if (reqs) {
+      reqs[0].abort();
+      reqs[1].abort();
+    }
   });
 
   const onDocTitleChange = useEvent((title: string) => {
@@ -329,6 +371,7 @@ const Component: FC<Props> = ({itemDetail}) => {
               <AIButton editor={editor} />
               <Toolbar editor={editor} defaultConfig={toolbarConfig} mode="default" className="tools" />
               <AITpl editor={editor} />
+              {!itemDetail.isTpl && <ReviewButton editor={editor} onClick={onReview} />}
               {itemDetail.isTpl && <VarButton editor={editor} />}
               {<ContButton editor={editor} />}
             </>
@@ -366,7 +409,7 @@ const Component: FC<Props> = ({itemDetail}) => {
             {editor && (
               <>
                 <Outline editor={editor} />
-                <Review editor={editor} />
+                <Review editor={editor} loading={Boolean(reviewing)} onCancel={onCancelReview} />
                 <Chart editor={editor} />
               </>
             )}

@@ -364,15 +364,11 @@ function tpl(
 function autoReview(
   args: {articleId: string; content: string},
   onMessage: (items: {long: string; source: string; target: string; type: string; reason: string}[]) => void,
-  requestMgr: {reviewRequest?: AbortController; sensitiveRequest?: AbortController}
-): void {
-  if (requestMgr.reviewRequest) {
-    requestMgr.reviewRequest.abort();
-  }
-  if (requestMgr.sensitiveRequest) {
-    requestMgr.sensitiveRequest.abort();
-  }
+  onError: (e: any) => void,
+  onDone: () => void
+): [AbortController, AbortController] {
   const reviewController = new AbortController();
+  const sensitiveController = new AbortController();
   const {articleId, content} = args;
   fetchEventSource(replaceBaseUrl('/dream/pen/ai/writer/proofread'), {
     method: 'POST',
@@ -382,15 +378,11 @@ function autoReview(
     openWhenHidden: true,
     onmessage: (ev) => onMessage(decodeReviews(ev.data)),
     onerror: (e) => {
+      setTimeout(() => onError(e));
       throw e;
     },
-    onclose: () => {
-      //requestMgr.reviewRequest = undefined;
-    },
+    onclose: onDone,
   });
-  requestMgr.reviewRequest = reviewController;
-
-  const sensitiveController = new AbortController();
   fetchEventSource(replaceBaseUrl('/dream/pen/ai/writer/sensitive'), {
     method: 'POST',
     headers: getHeaders(),
@@ -399,13 +391,11 @@ function autoReview(
     openWhenHidden: true,
     onmessage: (ev) => onMessage(decodeReviews(ev.data)),
     onerror: (e) => {
+      setTimeout(() => onError(e));
       throw e;
     },
-    onclose: () => {
-      //requestMgr.sensitiveRequest = undefined;
-    },
   });
-  requestMgr.sensitiveRequest = sensitiveController;
+  return [reviewController, sensitiveController];
 }
 
 export const AiAPI = {

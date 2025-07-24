@@ -50,7 +50,7 @@ const Component: FC<Props> = ({editor}) => {
         <span className={styles.close} onClick={() => setShow(!show)}>
           <CloseOutlined />
         </span>
-        <div className="bd">{show && <iframe className={styles.iframe} src={`${SitesUrl}/chat/window`} />}</div>
+        <div className="bd">{show && <iframe className={styles.iframe} src={`${SitesUrl.pulse}/chat/window`} />}</div>
       </div>
     </>
   );
