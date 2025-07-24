@@ -46,7 +46,7 @@ const Component: FC<Props> = ({onSubmit, onCancel, elem}) => {
     if (value?.desc && fieldName) {
       onSubmit(elem, {source: formatValue(value), info: value.desc || '...', field: fieldName, editable});
     } else {
-      message.error('请输入字段定义和AI提示词...');
+      message.error('请输入项目名称和AI提示词...');
     }
   });
 
@@ -54,13 +54,18 @@ const Component: FC<Props> = ({onSubmit, onCancel, elem}) => {
     <div className={styles.root}>
       <div className="hd">
         <Checkbox className="allowInput" checked={editable} onChange={(e) => setEditable(e.target.checked)}>
-          允许用户修改
+          用户输入
         </Checkbox>
         <div className="formItem">
           <div className="label">
-            <em>*</em>字段定义:
+            <em>*</em>项目名称:
           </div>
-          <Input className="input" value={fieldName} onChange={(e) => setFieldValue(e.target.value.trim())} />
+          <Input
+            className="input"
+            placeholder="请给本词条取一个标识名称..."
+            value={fieldName}
+            onChange={(e) => setFieldValue(e.target.value.trim())}
+          />
         </div>
       </div>
       <div className="bd">

@@ -1,6 +1,6 @@
 import {EllipsisOutlined, PlusOutlined, StarFilled, StarOutlined} from '@ant-design/icons';
 import {Dispatch, DocumentHead} from '@elux/react-web';
-import {Button, Dropdown, Input, Modal} from 'antd';
+import {Button, Dropdown, Input, Modal, Tabs} from 'antd';
 import {FC, MouseEvent, memo, useCallback, useEffect, useState} from 'react';
 import {GetActions} from '@/Global';
 import {confirm, debounce, openArticle, useEvent} from '@/utils/tools';
@@ -19,8 +19,23 @@ interface Props {
 
 const {doc: docActions} = GetActions('doc');
 
+const tabTtems = [
+  {
+    key: 'all',
+    label: '全部模版',
+  },
+  {
+    key: 'mine',
+    label: '我的模版',
+  },
+  {
+    key: 'system',
+    label: '系统模版',
+  },
+];
+
 const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
-  const [scrollHeight, setScrollHeight] = useState(() => window.innerHeight - 215);
+  const [scrollHeight, setScrollHeight] = useState(() => window.innerHeight - 220);
   const [curEdit, setCurEdit] = useState<ListItem>();
   const [wizardData, setWizardData] = useState<WizardFormData>();
 
@@ -80,13 +95,17 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
     dispatch(docActions.fetchList({...listSearch, name}));
   });
 
+  const onTabChange = useEvent((type: string) => {
+    dispatch(docActions.fetchList({...listSearch, name: undefined, type}));
+  });
+
   const onWizardSubmit = useEvent(({__tplId, ...fields}: {__tplId: string; [field: string]: string}) => {
     setWizardData(undefined);
     onCreateByTpl(__tplId, fields);
   });
 
   useEffect(() => {
-    const onResize = debounce(() => setScrollHeight(window.innerHeight - 215), 300);
+    const onResize = debounce(() => setScrollHeight(window.innerHeight - 220), 300);
     window.addEventListener('resize', onResize);
     return () => {
       window.removeEventListener('resize', onResize);
@@ -98,12 +117,24 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
       <DocumentHead title="模版管理" />
       <div className="hd">
         <span className="ant-breadcrumb">模版管理</span>
-        <Input.Search allowClear className="search" placeholder="请输入搜索关键字..." onSearch={onSearch} />
+        <Input.Search value={listSearch.name} allowClear className="search" placeholder="请输入搜索关键字..." onSearch={onSearch} />
       </div>
-      <div className="cd" style={{padding: '20px 0'}}>
-        <Button color="primary" variant="outlined" icon={<PlusOutlined />} onClick={onCreate}>
-          创建模版
-        </Button>
+      <div className="cd">
+        <Tabs
+          hideAdd
+          centered
+          type="card"
+          items={tabTtems}
+          activeKey={listSearch.type || 'all'}
+          onChange={onTabChange}
+          tabBarExtraContent={{
+            left: (
+              <Button color="primary" variant="outlined" icon={<PlusOutlined />} onClick={onCreate}>
+                创建模版
+              </Button>
+            ),
+          }}
+        />
       </div>
       <div className="md" style={{height: scrollHeight}}>
         {list.map((item) => {

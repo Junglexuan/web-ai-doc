@@ -361,18 +361,16 @@ function tpl(
   return controller;
 }
 
-let reviewRequest: AbortController | undefined;
-let sensitiveRequest: AbortController | undefined;
-
 function autoReview(
   args: {articleId: string; content: string},
-  onMessage: (items: {long: string; source: string; target: string; type: string; reason: string}[]) => void
+  onMessage: (items: {long: string; source: string; target: string; type: string; reason: string}[]) => void,
+  requestMgr: {reviewRequest?: AbortController; sensitiveRequest?: AbortController}
 ): void {
-  if (reviewRequest) {
-    reviewRequest.abort();
+  if (requestMgr.reviewRequest) {
+    requestMgr.reviewRequest.abort();
   }
-  if (sensitiveRequest) {
-    sensitiveRequest.abort();
+  if (requestMgr.sensitiveRequest) {
+    requestMgr.sensitiveRequest.abort();
   }
   const reviewController = new AbortController();
   const {articleId, content} = args;
@@ -387,10 +385,10 @@ function autoReview(
       throw e;
     },
     onclose: () => {
-      //reviewRequest = undefined;
+      //requestMgr.reviewRequest = undefined;
     },
   });
-  reviewRequest = reviewController;
+  requestMgr.reviewRequest = reviewController;
 
   const sensitiveController = new AbortController();
   fetchEventSource(replaceBaseUrl('/dream/pen/ai/writer/sensitive'), {
@@ -404,10 +402,10 @@ function autoReview(
       throw e;
     },
     onclose: () => {
-      //sensitiveRequest = undefined;
+      //requestMgr.sensitiveRequest = undefined;
     },
   });
-  sensitiveRequest = sensitiveController;
+  requestMgr.sensitiveRequest = sensitiveController;
 }
 
 export const AiAPI = {

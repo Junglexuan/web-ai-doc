@@ -8,6 +8,7 @@ export interface ListSearch extends BaseListSearch {
   render?: CurRender;
   id?: string;
   name?: string;
+  type?: string;
 }
 export interface ListItem extends BaseListItem {
   title: string;
@@ -62,6 +63,7 @@ export const defaultListSearch: ListSearch = {
   sorterField: undefined,
   id: undefined,
   name: undefined,
+  type: undefined,
   render: undefined,
 };
 export type TplsOptions = {value: string; label: string; children: {value: string; label: string}[]}[];

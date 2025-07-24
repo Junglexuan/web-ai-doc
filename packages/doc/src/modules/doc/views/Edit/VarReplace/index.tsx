@@ -33,7 +33,7 @@ const Component: FC<Props> = ({onSubmit, onCancel, elem}) => {
     if (fieldName) {
       onSubmit(elem, {source: formatValue(value), info: value || '...', field: fieldName});
     } else {
-      message.error('请输入字段定义...');
+      message.error('请输入项目名称...');
     }
   });
 
@@ -42,9 +42,9 @@ const Component: FC<Props> = ({onSubmit, onCancel, elem}) => {
       <div className="bd">
         <div className="title">
           <em>*</em>
-          <span>字段定义：</span>
+          <span>项目名称：</span>
         </div>
-        <Input className="field" placeholder="显示给用户的字段名称" value={fieldName} onChange={(e) => setFieldValue(e.target.value.trim())} />
+        <Input className="field" placeholder="请给本词条取一个标识名称..." value={fieldName} onChange={(e) => setFieldValue(e.target.value.trim())} />
         <div className="title">默认值：</div>
         <Input.TextArea placeholder="请输入默认值..." value={value} onChange={onInputChange} />
       </div>

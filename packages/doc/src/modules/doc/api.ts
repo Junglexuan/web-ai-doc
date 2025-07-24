@@ -128,7 +128,7 @@ export const DocAPI = {
     });
   },
   getList(search: ListSearch): Promise<ListResult> {
-    const {id = '0', render, name, sorterOrder, sorterField} = search;
+    const {id = '0', render, name, type, sorterOrder, sorterField} = search;
     return Promise.all([
       render === 'favs'
         ? request.get(`/dream/pen/article/collectList`, {
@@ -140,7 +140,7 @@ export const DocAPI = {
           })
         : render === 'tpls'
         ? request.get(`/dream/pen/template/list`, {
-            params: {name, order: sorterOrder === 'ascend' ? 'asc' : undefined, page: 1, pageSize: 99999},
+            params: {name, type, order: sorterOrder === 'ascend' ? 'asc' : undefined, page: 1, pageSize: 99999},
           })
         : request.get(`/dream/pen/dFolder/list`, {params: {id, name, order: sorterOrder === 'ascend' ? 'asc' : undefined}}),
       render === 'maintain' ? request.get(`/dream/pen/dFolder/level`, {params: {id}}) : ({} as any),
