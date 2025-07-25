@@ -101,9 +101,6 @@ const Component: FC<Props> = ({itemDetail}) => {
     const reqs = AiAPI.autoReview(
       {articleId: itemDetail.id, content: editor!.getHtml()},
       (items) => {
-        if (!reviewing) {
-          return;
-        }
         const originHtml = editor!.getHtml();
         let newHtml = originHtml;
         items.forEach((item) => {

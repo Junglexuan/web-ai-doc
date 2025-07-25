@@ -1,13 +1,8 @@
 :global {
   :local(.root) {
     > .hd {
-      padding: 20px;
+      padding: 20px 150px;
       margin-bottom: 15px;
-
-      > .steps {
-        width: 300px;
-        margin: auto;
-      }
     }
 
     > .bd {
@@ -35,6 +30,19 @@
         line-height: 32px;
         text-align: right;
       }
+    }
+  }
+
+  :local(.reference) {
+    padding: 0 30px;
+
+    > .tips {
+      margin-top: 20px;
+      color: #999;
+    }
+
+    .ant-select {
+      width: 300px;
     }
   }
 }

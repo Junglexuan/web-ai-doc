@@ -19,10 +19,14 @@ const Component: FC<Props> = ({onCancel, loading, editor}) => {
   const controllerRef = useRef<HTMLDivElement>(null);
 
   const onClose = useEvent(() => {
-    const dialog = controllerRef.current as any;
-    if (dialog) {
-      addClass(dialog, 'anmi');
-      setTimeout(() => removeClass(dialog, 'anmi'), 200);
+    if (loading) {
+      const dialog = controllerRef.current as any;
+      if (dialog) {
+        addClass(dialog, 'anmi');
+        setTimeout(() => removeClass(dialog, 'anmi'), 200);
+      }
+    } else {
+      setShow(false);
     }
   });
 
@@ -138,21 +142,18 @@ const Component: FC<Props> = ({onCancel, loading, editor}) => {
     editor.on('change', onDocChange);
     const div = document.getElementById('w-e-textarea-1')?.parentElement;
     if (div) {
-      div.addEventListener('click', () => {
-        setShow(false);
-      });
+      div.addEventListener('click', onClose);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
     <>
-      <span id="_ai_reviewList_btn" className="btn check" onClick={() => setShow(!show)} />
-      {/* <div className={styles.mask + (show ? ' on' : '')} onClick={() => setShow(!show)}></div> */}
+      <span id="_ai_reviewList_btn" className="btn check" onClick={() => setShow(true)} />
       <div className={styles.panel + (show ? ' on' : '')}>
         <div className="hd">
           <span>校阅</span>
-          <Button size="small" icon={<CloseOutlined />} type="text" onClick={() => setShow(!show)} />
+          <Button size="small" icon={<CloseOutlined />} type="text" onClick={onClose} />
         </div>
         <div className="cd">
           <strong>共{list.length}条</strong>

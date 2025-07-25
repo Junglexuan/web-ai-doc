@@ -1,4 +1,4 @@
-import {Button, Form, FormInstance, Input, Modal, Steps} from 'antd';
+import {Button, Form, FormInstance, Input, Modal, Select, Steps} from 'antd';
 import {FC, memo, useMemo, useRef, useState} from 'react';
 import RadioCard from '@/components/RadioCard';
 import {useEvent} from '@/utils/tools';
@@ -18,7 +18,7 @@ interface Props {
   tplsOptions?: {value: string; label: string; children: {value: string; label: string}[]}[];
   data: WizardFormData;
   onCancel: () => void;
-  onsubmit: (data: {__tplId: string; [field: string]: string}) => void;
+  onsubmit: (data: {__tplId: string; [field: string]: string}, knowledges: string[]) => void;
   kind?: 'conts' | 'docs';
 }
 
@@ -26,12 +26,18 @@ const Component: FC<Props> = ({tplsOptions = [], data, onCancel, onsubmit, kind}
   const [curType, setCurType] = useState(() => tplsOptions.find((item) => item.value === data.type));
   const [curTplId, setCurTplId] = useState(data.tplId);
   const [curTplFields, setCurTplFields] = useState<{name: string; label: string; value: string}[] | undefined>(data.fields);
-  const [fieldsValues, setFieldsValues] = useState<{[name: string]: string}>({__tplId: data.tplId});
+  const [fieldsValues, setFieldsValues] = useState<{__tplId: string; [field: string]: string}>({__tplId: data.tplId});
+  const [knowledgesOptions, setKnowledgesOptions] = useState<{label: string; value: string}[]>([
+    {label: 'aa', value: '11'},
+    {label: 'bb', value: '22'},
+    {label: 'cc', value: '33'},
+  ]);
+  const [knowledges, setKnowledges] = useState<string[]>([]);
   const [curStep, setCurStep] = useState(curTplFields ? 1 : 0);
   const fieldsFormRef = useRef<FormInstance>();
   const [step0Able] = useState(!data.fields);
 
-  const [StepsItems] = useState(kind === 'conts' ? [{title: '合同场景'}, {title: '关键信息'}] : [{title: '写作场景'}, {title: '关键信息'}]);
+  const [StepsItems] = useState([{title: kind === 'conts' ? '合同场景' : '写作场景'}, {title: '关键信息'}, {title: '参考资料'}]);
 
   const onTypeChange = useEvent((type: string) => {
     const item = tplsOptions.find((item) => item.value === type);
@@ -45,6 +51,8 @@ const Component: FC<Props> = ({tplsOptions = [], data, onCancel, onsubmit, kind}
   const onNext = useEvent(() => {
     if (curStep === 1) {
       fieldsFormRef.current?.submit();
+    } else if (curStep === 2) {
+      onsubmit(fieldsValues, knowledges);
     } else {
       DocAPI.getTplFields(curTplId, kind).then((tplFields) => {
         setCurStep(1);
@@ -54,10 +62,19 @@ const Component: FC<Props> = ({tplsOptions = [], data, onCancel, onsubmit, kind}
     }
   });
 
+  const onFinish = useEvent((data: {__tplId: string; [field: string]: string}) => {
+    setFieldsValues(data);
+    setCurStep(2);
+  });
+
   const onPrev = useEvent(() => {
-    setCurStep(curStep - 1);
-    setFieldsValues({});
-    setCurTplFields(undefined);
+    if (curStep === 1) {
+      setCurStep(0);
+      setFieldsValues({__tplId: ''});
+      setCurTplFields(undefined);
+    } else if (curStep === 2) {
+      setCurStep(1);
+    }
   });
 
   const showPrev = useMemo(() => {
@@ -84,9 +101,7 @@ const Component: FC<Props> = ({tplsOptions = [], data, onCancel, onsubmit, kind}
           {step0Able ? (
             <Steps className="steps" size="small" current={curStep} items={StepsItems} />
           ) : (
-            <div className="steps" style={{width: 'auto', lineHeight: '30px', backgroundColor: '#f7f7f7', textAlign: 'center', fontWeight: 'bold'}}>
-              关键信息
-            </div>
+            <Steps className="steps" size="small" current={curStep - 1} items={StepsItems.slice(1)} />
           )}
         </div>
         <div className="bd">
@@ -103,7 +118,7 @@ const Component: FC<Props> = ({tplsOptions = [], data, onCancel, onsubmit, kind}
             </div>
           )}
           {curStep === 1 && curTplFields && (
-            <Form {...FormLayout} ref={fieldsFormRef as any} colon={false} initialValues={fieldsValues} onFinish={onsubmit}>
+            <Form {...FormLayout} ref={fieldsFormRef as any} colon={false} initialValues={fieldsValues} onFinish={onFinish}>
               <Form.Item name="__tplId" hidden>
                 <Input />
               </Form.Item>
@@ -113,6 +128,15 @@ const Component: FC<Props> = ({tplsOptions = [], data, onCancel, onsubmit, kind}
                 </Form.Item>
               ))}
             </Form>
+          )}
+          {curStep === 2 && (
+            <div className={styles.reference}>
+              <div>
+                <label>知识库：</label>
+                <Select placeholder="请选择..." options={knowledgesOptions} mode="multiple" onChange={setKnowledges} />
+              </div>
+              <div className="tips">* 若无参考资料，可直接跳过...</div>
+            </div>
           )}
         </div>
         <div className="ft">

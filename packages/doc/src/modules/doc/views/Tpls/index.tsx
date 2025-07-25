@@ -68,10 +68,12 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
     });
   });
 
-  const onCreateByTpl = useEvent((tplId: string, fields?: {[field: string]: string}) => {
+  const onCreateByTpl = useEvent((tplId: string, fields?: {[field: string]: string}, knowledges?: string[]) => {
     DocAPI.getDoc({id: tplId, render: 'tpl'}).then((tpl) => {
       DocAPI.createDoc({folder: '0', title: tpl.title, contents: ''}).then(async ({id}) => {
-        window.sessionStorage.setItem('__temp_tpl__', JSON.stringify({id: tplId, fields}));
+        const data = {id: tplId, fields, knowledges};
+        console.log(data);
+        window.sessionStorage.setItem('__temp_tpl__', JSON.stringify(data));
         openArticle(`/admin/doc/item/edit/${id}?&tpl=${tpl.id}&__c=_dialog`);
       });
     });
@@ -99,9 +101,9 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
     dispatch(docActions.fetchList({...listSearch, name: undefined, type}));
   });
 
-  const onWizardSubmit = useEvent(({__tplId, ...fields}: {__tplId: string; [field: string]: string}) => {
+  const onWizardSubmit = useEvent(({__tplId, ...fields}: {__tplId: string; [field: string]: string}, knowledges: string[]) => {
     setWizardData(undefined);
-    onCreateByTpl(__tplId, fields);
+    onCreateByTpl(__tplId, fields, knowledges);
   });
 
   useEffect(() => {
