@@ -30,6 +30,7 @@ import Chart from './Chart';
 import ContButton from './ContButton';
 import {editorConfig, getToolbarConfig} from './editorConfig';
 import styles from './index.module.less';
+import Inspect from './Inspect';
 import Outline from './Outline';
 import Review from './Review';
 import ReviewButton from './ReviewButton';
@@ -73,6 +74,7 @@ const Component: FC<Props> = ({itemDetail}) => {
   const [loading, setLoading] = useState<'create' | ''>('');
   const [size, setSize] = useState<'常规' | '全宽' | '超宽'>(itemDetail.size || '常规');
   const [reviewing, setReviewing] = useState<[AbortController, AbortController]>();
+  const [inspecting, setInspecting] = useState<AbortController>();
 
   const _onSave = useEvent((editor: IDomEditor) => {
     //JSON.stringify(editor.children, null, 2)
@@ -126,6 +128,20 @@ const Component: FC<Props> = ({itemDetail}) => {
     if (reqs) {
       reqs[0].abort();
       reqs[1].abort();
+    }
+  });
+
+  const onInspect = useEvent(() => {
+    const btn = document.getElementById('_ai_inspectList_btn');
+    if (btn) {
+      btn.click();
+    }
+  });
+  const onCancelInspecting = useEvent(() => {
+    const reqs = inspecting;
+    setInspecting(undefined);
+    if (reqs) {
+      reqs.abort();
     }
   });
 
@@ -370,7 +386,7 @@ const Component: FC<Props> = ({itemDetail}) => {
               <AITpl editor={editor} />
               {!itemDetail.isTpl && <ReviewButton editor={editor} onClick={onReview} />}
               {itemDetail.isTpl && <VarButton editor={editor} />}
-              {<ContButton editor={editor} />}
+              {<ContButton editor={editor} onSubmit={onInspect} />}
             </>
           )}
         </div>
@@ -406,6 +422,7 @@ const Component: FC<Props> = ({itemDetail}) => {
             {editor && (
               <>
                 <Outline editor={editor} />
+                <Inspect editor={editor} loading={Boolean(inspecting)} onCancel={onCancelInspecting} />
                 <Review editor={editor} loading={Boolean(reviewing)} onCancel={onCancelReview} />
                 <Chart editor={editor} />
               </>

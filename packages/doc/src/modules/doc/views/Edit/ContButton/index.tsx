@@ -1,65 +1,61 @@
 import {FileProtectOutlined} from '@ant-design/icons';
 import {DomEditor, IDomEditor} from '@wangeditor-next/editor';
-import {Button, Dropdown} from 'antd';
-import {FC, memo, useMemo} from 'react';
+import {Button, Form, Modal, Select} from 'antd';
+import {FC, memo, useEffect, useMemo, useState} from 'react';
 import {createPortal} from 'react-dom';
+import {useEvent} from '@/utils/tools';
 import {VariableElement} from '../elements/Variable/custom-types';
 import VarLayer from '../VarLayer';
 import styles from './index.module.less';
 //import './registerMenu';
 
-interface LayerProps {
-  disable?: boolean;
-  editor: IDomEditor;
-}
-
 interface Props {
   editor: IDomEditor;
+  onSubmit: (value: {type: string; stand: string}) => void;
 }
 
-function insertVarByTpl(editor: IDomEditor, kind: string) {
-  editor.focus();
-  if (editor.selection) {
-    const variable = DomEditor.getSelectedNodeByType(editor, 'variable');
-    if (variable) {
-      const path = [...DomEditor.findPath(editor, variable)];
-      const last = path.pop();
-      path.push(last! + 1);
-      editor.select(path);
-    }
-    let node: VariableElement | undefined;
-    if (kind === 'date') {
-      node = {type: 'variable', kind, source: '${DATE.NOW()}', info: '此时此刻', children: [{text: '$日期时间'}]};
-    } else if (kind === 'sign') {
-      node = {type: 'variable', kind, source: '${USER.CURRENT()}', info: '当前用户', children: [{text: '$用户署名'}]};
-    } else if (kind === 'image') {
-      node = {type: 'variable', kind, source: '${AI.IMAGE()}', info: '...', children: [{text: '$智能生图'}]};
-    } else if (kind === 'ask') {
-      node = {type: 'variable', kind, source: '${KNOWLEDGE.ASK()}', info: '...', children: [{text: '$知识库问答'}]};
-    } else if (kind === 'write') {
-      node = {type: 'variable', kind, source: '${AI.ASK()}', info: '...', children: [{text: '$AI写作'}]};
-    } else if (kind === 'replace') {
-      node = {type: 'variable', kind, source: '${DOC.REPLACE()}', info: '...', children: [{text: '$内容替换'}]};
-    }
-    if (node) {
-      editor.insertNode(node);
-      setTimeout(() => {
-        const dom = editor.toDOMNode(node!);
-        if (dom) {
-          (dom.children[0] as any).click();
-        }
-      });
-    }
-  }
-}
+const Component: FC<Props> = ({editor, onSubmit}) => {
+  const [showModal, setShowModal] = useState(false);
+  const [typeOptions, setTypeOptions] = useState<{label: string; value: string}[]>([{label: 'aaa', value: '111'}]);
+  const [standOptions, setStandOptions] = useState<{label: string; value: string}[]>([{label: 'bbb', value: '222'}]);
 
-const Component: FC<Props> = ({editor}) => {
+  const onCancel = useEvent(() => {
+    setShowModal(false);
+  });
+
+  const _onSubmit = useEvent((vals: any) => {
+    onSubmit(vals);
+    setShowModal(false);
+  });
+
+  useEffect(() => {}, []);
+
   return (
     <>
       <div className="w-e-bar-divider"></div>
-      <Button disabled={editor.getConfig().readOnly} id="_ai_cont_button" className={styles.button} type="text">
+      <Button disabled={editor.getConfig().readOnly} id="_ai_cont_button" className={styles.button} type="text" onClick={() => setShowModal(true)}>
         合同审查
       </Button>
+      {showModal && (
+        <Modal title="合同审查" width={400} open={true} footer={null} onCancel={onCancel}>
+          <div className={styles.dialog}>
+            <Form onFinish={_onSubmit}>
+              <Form.Item label="合同类型" name="type" rules={[{required: true}]}>
+                <Select options={typeOptions} />
+              </Form.Item>
+              <Form.Item label="审查立场" name="stand" rules={[{required: true}]}>
+                <Select options={standOptions} />
+              </Form.Item>
+              <div className="footer">
+                <Button htmlType="submit" type="primary">
+                  开始审查
+                </Button>
+                <Button onClick={onCancel}>取消</Button>
+              </div>
+            </Form>
+          </div>
+        </Modal>
+      )}
     </>
   );
 };
