@@ -9,3 +9,4 @@ window.SitesUrl = {
   verse: '//verse.binarysee.com',
   pulse: '//pulse.binarysee.com',
 };
+window.PathPrefix = '';

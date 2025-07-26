@@ -8,13 +8,8 @@ module.exports = {
   cssProcessors: {less: true},
   all: {
     serverPort: 4004,
-    clientGlobalVar: {
-      PathPrefix: '',
-      StaticPrefix: {
-        '/imgs/': '/imgs/',
-      },
-    },
-    clientPublicPath: '/verse/client/',
+    clientGlobalVar: {},
+    clientPublicPath: '/client/',
     urlLoaderLimitSize: 100,
     webpackConfigTransform: (config) => {
       // config.plugins.push(
