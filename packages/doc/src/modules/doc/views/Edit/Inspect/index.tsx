@@ -100,7 +100,7 @@ const Component: FC<Props> = ({onCancel, loading, editor}) => {
           <div ref={controllerRef}>
             <div className="wrap">
               <Spin size="small" />
-              <span>AI审核中...</span>
+              <span>AI审查中...</span>
               <Button className="stop" title="停止" size="small" type="text" icon={<PauseCircleOutlined />} onClick={onCancel}></Button>
             </div>
           </div>

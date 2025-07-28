@@ -9,15 +9,20 @@ interface Props {
   onChange: (value: string) => void;
 }
 
+let RobotOptions: {label: string; value: string}[] | null = null;
+
 const Component: FC<Props> = ({size, value = 'qwen-turbo', onChange}) => {
-  const [options, setOptions] = useState<{label: string; value: string}[]>([]);
+  const [options, setOptions] = useState<{label: string; value: string}[]>(RobotOptions || []);
   useEffect(() => {
-    AiAPI.getMyRobots().then((list) => {
-      setOptions(list);
-      if (!list.some((item) => item.value === value)) {
-        onChange(list[0]?.value);
-      }
-    });
+    if (!RobotOptions) {
+      AiAPI.getMyRobots().then((list) => {
+        RobotOptions = list;
+        setOptions(list);
+        if (!list.some((item) => item.value === value)) {
+          onChange(list[0]?.value);
+        }
+      });
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   return <Select size={size} className={styles.root} placeholder="请选择..." options={options} value={value} onChange={onChange} />;

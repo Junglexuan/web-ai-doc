@@ -3,6 +3,7 @@ import {FC, memo, useMemo, useRef, useState} from 'react';
 import RadioCard from '@/components/RadioCard';
 import {useEvent} from '@/utils/tools';
 import DocAPI from '../../api';
+import KnowledgeSelect from '../Edit/KnowledgeSelect';
 import styles from './index.module.less';
 
 export interface WizardFormData {
@@ -27,11 +28,7 @@ const Component: FC<Props> = ({tplsOptions = [], data, onCancel, onsubmit, kind}
   const [curTplId, setCurTplId] = useState(data.tplId);
   const [curTplFields, setCurTplFields] = useState<{name: string; label: string; value: string}[] | undefined>(data.fields);
   const [fieldsValues, setFieldsValues] = useState<{__tplId: string; [field: string]: string}>({__tplId: data.tplId});
-  const [knowledgesOptions, setKnowledgesOptions] = useState<{label: string; value: string}[]>([
-    {label: 'aa', value: '11'},
-    {label: 'bb', value: '22'},
-    {label: 'cc', value: '33'},
-  ]);
+
   const [knowledges, setKnowledges] = useState<string[]>([]);
   const [curStep, setCurStep] = useState(curTplFields ? 1 : 0);
   const fieldsFormRef = useRef<FormInstance>();
@@ -133,7 +130,7 @@ const Component: FC<Props> = ({tplsOptions = [], data, onCancel, onsubmit, kind}
             <div className={styles.reference}>
               <div>
                 <label>知识库：</label>
-                <Select placeholder="请选择..." options={knowledgesOptions} mode="multiple" onChange={setKnowledges} />
+                <KnowledgeSelect onChange={setKnowledges} />
               </div>
               <div className="tips">* 若无参考资料，可直接跳过...</div>
             </div>

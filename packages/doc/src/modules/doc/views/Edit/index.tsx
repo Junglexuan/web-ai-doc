@@ -136,6 +136,26 @@ const Component: FC<Props> = ({itemDetail}) => {
     if (btn) {
       btn.click();
     }
+    const reqs = AiAPI.autoInspect(
+      {articleId: itemDetail.id, content: editor!.getHtml()},
+      (items) => {
+        const originHtml = editor!.getHtml();
+        let newHtml = originHtml;
+        items.forEach((item) => {
+          newHtml = replaceReviewItem(newHtml, item);
+        });
+        if (newHtml !== originHtml) {
+          editor!.setHtml(newHtml);
+        }
+      },
+      () => {
+        setInspecting(undefined);
+      },
+      () => {
+        setInspecting(undefined);
+      }
+    );
+    setInspecting(reqs);
   });
   const onCancelInspecting = useEvent(() => {
     const reqs = inspecting;

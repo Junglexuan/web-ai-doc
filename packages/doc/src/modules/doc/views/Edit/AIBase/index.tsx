@@ -5,6 +5,7 @@ import AdjustIcon from '@/assets/images/Adjust';
 import ColorAIcon from '../ColorAIcon';
 import EnterIcon from '../EnterIcon';
 import {AIDialogHooks} from '../hooks';
+import KnowledgeSelect from '../KnowledgeSelect';
 import ModelSelect from '../ModelSelect';
 import RobotSelect from '../RobotSelect';
 import styles from './index.module.less';
@@ -105,6 +106,7 @@ const Component: FC<Props> = ({title, children, hooks, automatic, hideButton, mo
             ) : (
               <ModelSelect size="small" value={model} onChange={onModelChange} />
             ))}
+          {title === '生成全文' && <KnowledgeSelect size="small" />}
           <div style={{color: '#aaa', fontSize: '12px'}}>* 回车直接提交，shift+回车可换行，esc键可关闭</div>
         </div>
       </div>

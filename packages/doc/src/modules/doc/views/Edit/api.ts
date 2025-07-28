@@ -397,6 +397,29 @@ function autoReview(
   });
   return [reviewController, sensitiveController];
 }
+function autoInspect(
+  args: {articleId: string; content: string},
+  onMessage: (items: {long: string; source: string; target: string; type: string; reason: string}[]) => void,
+  onError: (e: any) => void,
+  onDone: () => void
+): AbortController {
+  const controller = new AbortController();
+  const {articleId, content} = args;
+  fetchEventSource(replaceBaseUrl('/dream/pen/ai/writer/proofread'), {
+    method: 'POST',
+    headers: getHeaders(),
+    body: JSON.stringify({articleId, content, type: 'proofread'}),
+    signal: controller.signal,
+    openWhenHidden: true,
+    onmessage: (ev) => onMessage(decodeReviews(ev.data)),
+    onerror: (e) => {
+      setTimeout(() => onError(e));
+      throw e;
+    },
+    onclose: onDone,
+  });
+  return controller;
+}
 
 export const AiAPI = {
   continueWrite,
@@ -405,10 +428,22 @@ export const AiAPI = {
   createImage,
   stylize,
   autoReview,
+  autoInspect,
   ask,
   robot,
   web,
   tpl,
+  getMyKnowledges(): Promise<{label: string; value: string}[]> {
+    return request.get('/dream/pen/know/dialog').then((res) => {
+      return [
+        {label: 'aa', value: '11'},
+        {label: 'bb', value: '22'},
+        {label: 'cc', value: '33'},
+      ];
+      // const list: any[] = res.data.data || [];
+      // return list.map((item) => ({label: item.name, value: item.id}));
+    });
+  },
   getMyRobots(): Promise<{label: string; value: string}[]> {
     return request.get('/dream/pen/know/dialog').then((res) => {
       const list: any[] = res.data.data || [];

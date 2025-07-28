@@ -17,7 +17,10 @@ interface Props {
 const Component: FC<Props> = ({editor, onSubmit}) => {
   const [showModal, setShowModal] = useState(false);
   const [typeOptions, setTypeOptions] = useState<{label: string; value: string}[]>([{label: 'aaa', value: '111'}]);
-  const [standOptions, setStandOptions] = useState<{label: string; value: string}[]>([{label: 'bbb', value: '222'}]);
+  const [standOptions, setStandOptions] = useState<{label: string; value: string}[]>([
+    {label: '甲方', value: '111'},
+    {label: '乙方', value: '222'},
+  ]);
 
   const onCancel = useEvent(() => {
     setShowModal(false);
@@ -41,10 +44,10 @@ const Component: FC<Props> = ({editor, onSubmit}) => {
           <div className={styles.dialog}>
             <Form onFinish={_onSubmit}>
               <Form.Item label="合同类型" name="type" rules={[{required: true}]}>
-                <Select options={typeOptions} />
+                <Select options={typeOptions} placeholder="请选择..." />
               </Form.Item>
               <Form.Item label="审查立场" name="stand" rules={[{required: true}]}>
-                <Select options={standOptions} />
+                <Select options={standOptions} placeholder="请选择..." />
               </Form.Item>
               <div className="footer">
                 <Button htmlType="submit" type="primary">
