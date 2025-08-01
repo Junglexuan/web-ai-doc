@@ -51,9 +51,9 @@ const Component: FC = () => {
     });
   });
 
-  const onWizardSubmit = useEvent(({__tplId, ...fields}: {__tplId: string; [field: string]: string}) => {
+  const onWizardSubmit = useEvent((tplId: string, fields: {[field: string]: string}) => {
     setWizardData(undefined);
-    onCreateByTpl(__tplId, fields);
+    onCreateByTpl(tplId, fields);
   });
 
   const onShowDetail = useEvent((evt: MouseEvent, id: string) => {

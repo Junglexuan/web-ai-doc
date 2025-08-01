@@ -183,19 +183,20 @@ export const DocAPI = {
   },
   getTplsOptions(kind: 'conts' | 'docs' = 'docs'): Promise<TplsOptions> {
     if (kind === 'conts') {
-      return request.get('/dream/pen/template/getTemplateType').then((docRes) => {
+      return request.get('/dream/pen/template/getTemplateType?type=4').then((docRes) => {
         const list: any[] = docRes.data.data || [];
-        return list.map((item) => ({
-          value: item.id,
+        const conts = list.pop();
+        return conts.children.map((item: any) => ({
+          value: item.templateId,
           label: item.title,
           children: [
-            {value: item.id + ',甲方', label: '甲方'},
-            {value: item.id + ',乙方', label: '乙方'},
+            {value: item.templateId + ',甲方', label: '甲方'},
+            {value: item.templateId + ',乙方', label: '乙方'},
           ],
         }));
       });
     }
-    return request.get('/dream/pen/template/getTemplateType').then((docRes) => {
+    return request.get('/dream/pen/template/getTemplateType?type=2').then((docRes) => {
       const list: any[] = docRes.data.data || [];
       return list.map((item) => ({
         value: item.id,

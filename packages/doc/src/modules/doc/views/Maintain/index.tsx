@@ -269,10 +269,10 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
     return setWizardData({type: options[0].value, tplId: options[0].children[0].value});
   });
 
-  const onWizardSubmit = useEvent(({__tplId, ...fields}: {__tplId: string; [field: string]: string}, knowledges: string[]) => {
+  const onWizardSubmit = useEvent((tplId: string, fields: {[field: string]: string}, knowledges: string[]) => {
     setWizardData(undefined);
-    DocAPI.getDoc(__tplId).then((tpl) => {
-      onCreate(tpl.title, '', {id: __tplId, fields, knowledges});
+    DocAPI.getDoc(tplId).then((tpl) => {
+      onCreate(tpl.title, '', {id: tplId, fields, knowledges});
     });
   });
 

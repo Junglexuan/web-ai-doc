@@ -24,6 +24,25 @@
         flex: none;
         font-size: 16px;
         font-weight: 600;
+
+        &.tab {
+          display: flex;
+          gap: 20px;
+
+          > * {
+            padding-bottom: 10px;
+            cursor: pointer;
+            border-bottom: 3px solid #fff;
+
+            &:hover {
+              opacity: 0.8;
+            }
+
+            &.on {
+              border-color: #1b68fc;
+            }
+          }
+        }
       }
     }
 
@@ -37,10 +56,6 @@
 
       .ant-btn-icon {
         margin-inline-end: 5px !important;
-      }
-
-      .ant-tabs-nav {
-        margin-bottom: 0;
       }
     }
 

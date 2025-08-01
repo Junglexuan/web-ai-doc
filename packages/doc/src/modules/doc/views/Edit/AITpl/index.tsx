@@ -13,7 +13,10 @@ const Component: FC<Props> = ({editor}) => {
   const [runningState, setRunningState] = useState<RunningState>('');
   const [tplData] = useState(() => {
     const tplId = getUrlParam('tpl');
-    const tplData: {id: string; fields: {[key: string]: string}} = JSON.parse(window.sessionStorage.getItem('__temp_tpl__') || '{}');
+    const tplData: {id: string; fields: {[key: string]: string}; knowledges: string[]; stand: string} = JSON.parse(
+      window.sessionStorage.getItem('__temp_tpl__') || '{}'
+    );
+    console.log(tplData);
     window.sessionStorage.removeItem('__temp_tpl__');
     return tplId === tplData.id ? tplData : null;
   });
@@ -32,16 +35,17 @@ const Component: FC<Props> = ({editor}) => {
 
   const insertHtml = useMemo(() => {
     return throttle((html: string) => {
-      console.log(html);
+      //console.log(html);
       tmpDivRef.current.innerHTML = html
         .replace(/<body>|<\/body>/g, '')
         .replace(/\n/g, '')
         .trim();
-      //console.log(tmpDivRef.current.innerHTML);
-      editor.setHtml(tmpDivRef.current.innerHTML);
-      editor.focus();
-      editor.move(999999999);
-    }, 500);
+      setTimeout(() => {
+        editor.setHtml(tmpDivRef.current.innerHTML);
+        editor.focus();
+        editor.move(999999999);
+      });
+    }, 1000);
   }, [editor]);
 
   const retry = useCallback(() => {

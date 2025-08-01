@@ -275,8 +275,8 @@ const Component: FC<Props> = ({itemDetail}) => {
     }));
     arr.unshift({
       title: (
-        <Link to="/admin/doc/list/maintain" action="relaunch" target="window">
-          我的文档
+        <Link to={itemDetail.docType === 'con' ? '/admin/doc/list/conts' : '/admin/doc/list/maintain'} action="relaunch" target="window">
+          {itemDetail.docType === 'con' ? '我的合同' : '我的文档'}
         </Link>
       ),
     });
@@ -404,7 +404,7 @@ const Component: FC<Props> = ({itemDetail}) => {
               <AITpl editor={editor} />
               {itemDetail.docType !== 'tpl' && <ReviewButton editor={editor} onClick={onReview} />}
               {itemDetail.docType === 'tpl' && <VarButton editor={editor} />}
-              {<ContButton editor={editor} onSubmit={onInspect} />}
+              {itemDetail.docType === 'con' && <ContButton editor={editor} onSubmit={onInspect} />}
             </>
           )}
         </div>

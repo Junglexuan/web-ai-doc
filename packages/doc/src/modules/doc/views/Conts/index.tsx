@@ -218,21 +218,23 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showRename, showMove, listSearch, listSummary]);
 
-  const onCreate = useEvent((title: string = '', contents: string = '', tpl?: {id: string; fields: {[field: string]: string}}) => {
-    setLoading('create');
-    DocAPI.createDoc({folder: listSearch.id || '1', title, contents}, 'con')
-      .then(async ({id}) => {
-        setSelectedRows({ids: [], rows: []});
-        await refreshList();
-        if (tpl) {
-          window.sessionStorage.setItem('__temp_tpl__', JSON.stringify(tpl));
-          openArticle(`/admin/doc/item/edit/${id}?&tpl=${tpl.id}&__c=_dialog`);
-        } else if (!title) {
-          openArticle(`/admin/doc/item/edit/${id}?__c=_dialog`);
-        }
-      })
-      .finally(() => setLoading(''));
-  });
+  const onCreate = useEvent(
+    (title: string = '', contents: string = '', tpl?: {id: string; fields: {[field: string]: string}; knowledges?: string[]; stand?: string}) => {
+      setLoading('create');
+      DocAPI.createDoc({folder: listSearch.id || '1', title, contents}, 'con')
+        .then(async ({id}) => {
+          setSelectedRows({ids: [], rows: []});
+          await refreshList();
+          if (tpl) {
+            window.sessionStorage.setItem('__temp_tpl__', JSON.stringify(tpl));
+            openArticle(`/admin/doc/item/edit/${id}?&tpl=${tpl.id}&__c=_dialog`);
+          } else if (!title) {
+            openArticle(`/admin/doc/item/edit/${id}?__c=_dialog`);
+          }
+        })
+        .finally(() => setLoading(''));
+    }
+  );
 
   const onCreateDir = useEvent(() => {
     setLoading('createDir');
@@ -264,13 +266,14 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
       options = await DocAPI.getTplsOptions('conts');
       setTplsOptions(options);
     }
-    return setWizardData({type: options[0].value, tplId: options[0].children[0].value});
+    return setWizardData({type: options[0].value, tplId: ''});
   });
 
-  const onWizardSubmit = useEvent(({__tplId, ...fields}: {__tplId: string; [field: string]: string}) => {
+  const onWizardSubmit = useEvent((tplId: string, fields: {[field: string]: string}, knowledges: string[]) => {
     setWizardData(undefined);
-    DocAPI.getDoc(__tplId).then((tpl) => {
-      onCreate(tpl.title, '', {id: __tplId, fields});
+    const [id, ...arr] = tplId.split(',');
+    DocAPI.getDoc(id).then((tpl) => {
+      onCreate(tpl.title, '', {id, fields, knowledges, stand: arr.join(',')});
     });
   });
 

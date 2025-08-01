@@ -69,7 +69,11 @@ function decodeMarkdown() {
   return (str: string) => {
     try {
       const item = JSON.parse(str);
-      str = item.content;
+      if (item.success) {
+        str = item.data;
+      } else {
+        str = '';
+      }
     } catch (error) {
       str = '';
     }
@@ -83,7 +87,11 @@ function decodeHtml() {
   return (str: string) => {
     try {
       const item = JSON.parse(str);
-      str = item.content;
+      if (item.success) {
+        str = item.data;
+      } else {
+        str = '';
+      }
     } catch (error) {
       str = '';
     }
@@ -99,7 +107,8 @@ function decodeReviews(str: string): {long: string; source: string; target: stri
   } catch (error) {
     data = null;
   }
-  if (data) {
+  if (data && data.success) {
+    data = data.data;
     const items = Array.isArray(data) ? data : [data];
     return items.map((item) => ({
       long: item.long,
@@ -336,19 +345,19 @@ const web: AIRequest = ({args, onMessage, onError, onDone}) => {
 };
 
 function tpl(
-  args: {id: string; fields?: {[key: string]: string}},
+  args: {id: string; fields?: {[key: string]: string}; knowledges?: string[]; stand?: string},
   onMessage: (html: string) => void,
   onError: (e: any) => void,
   onDone: () => void
 ): AbortController {
   const controller = new AbortController();
   const {signal} = controller;
-  const {id, fields = {}} = args;
+  const {id, fields = {}, knowledges, stand} = args;
   const html = decodeHtml();
   fetchEventSource(replaceBaseUrl('/dream/pen/ai/template'), {
     method: 'POST',
     headers: getHeaders(),
-    body: JSON.stringify({id, fields: Object.keys(fields).map((name) => ({key: name, value: fields[name]}))}),
+    body: JSON.stringify({id, knowledges, standpoint: stand, fields: Object.keys(fields).map((name) => ({key: name, value: fields[name]}))}),
     signal,
     openWhenHidden: true,
     onmessage: (ev) => onMessage(html(ev.data)),
@@ -434,15 +443,20 @@ export const AiAPI = {
   web,
   tpl,
   getMyKnowledges(): Promise<{label: string; value: string}[]> {
-    return request.get('/dream/pen/know/dialog').then((res) => {
-      return [
-        {label: 'aa', value: '11'},
-        {label: 'bb', value: '22'},
-        {label: 'cc', value: '33'},
-      ];
-      // const list: any[] = res.data.data || [];
-      // return list.map((item) => ({label: item.name, value: item.id}));
-    });
+    return Promise.resolve([
+      {label: 'aa', value: '11'},
+      {label: 'bb', value: '22'},
+      {label: 'cc', value: '33'},
+    ]);
+    // return request.get('/dream/pen/know/dialog').then((res) => {
+    //   return [
+    //     {label: 'aa', value: '11'},
+    //     {label: 'bb', value: '22'},
+    //     {label: 'cc', value: '33'},
+    //   ];
+    //   // const list: any[] = res.data.data || [];
+    //   // return list.map((item) => ({label: item.name, value: item.id}));
+    // });
   },
   getMyRobots(): Promise<{label: string; value: string}[]> {
     return request.get('/dream/pen/know/dialog').then((res) => {
