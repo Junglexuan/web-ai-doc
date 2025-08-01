@@ -67,7 +67,7 @@ const Component: FC<Props> = ({itemDetail}) => {
     dsl: itemDetail.articleDsl,
     html: itemDetail.contents,
     text: '',
-    isTpl: itemDetail.isTpl,
+    docType: itemDetail.docType,
   });
   const [autoSave] = useState(() => new SaveMgr());
   const [saving, setSaving] = useState(false);
@@ -83,7 +83,7 @@ const Component: FC<Props> = ({itemDetail}) => {
       dsl: JSON.stringify(editor.children),
       html: editor.getHtml(),
       text: editor.getText(),
-      isTpl: itemDetail.isTpl,
+      docType: itemDetail.docType,
     };
     setSource(newSource);
     autoSave.onChange(newSource);
@@ -173,14 +173,14 @@ const Component: FC<Props> = ({itemDetail}) => {
         setDocTitle(_docTitle);
       });
     } else {
-      DocAPI.updateDocName(itemDetail.id, title, itemDetail.isTpl).catch(() => {
+      DocAPI.updateDocName(itemDetail.id, title, itemDetail.docType).catch(() => {
         setDocTitle(_docTitle);
       });
     }
   });
 
   const onDocSizeChange = useEvent((size: '常规' | '全宽' | '超宽') => {
-    DocAPI.updateDocSize(itemDetail.id, size, itemDetail.isTpl).then(() => {
+    DocAPI.updateDocSize(itemDetail.id, size, itemDetail.docType).then(() => {
       setSize(size);
     });
   });
@@ -197,7 +197,7 @@ const Component: FC<Props> = ({itemDetail}) => {
 
   const onCreatDoc = useEvent(() => {
     setLoading('create');
-    DocAPI.createDoc({folder: itemDetail.folder, title: '', contents: ''})
+    DocAPI.createDoc({folder: itemDetail.folder, title: '', contents: ''}, itemDetail.docType)
       .then(({id}) => {
         openArticle(`/admin/doc/item/edit/${id}?__c=_dialog`);
       })
@@ -236,7 +236,7 @@ const Component: FC<Props> = ({itemDetail}) => {
   });
 
   const breadcrumb = useMemo(() => {
-    if (itemDetail.isTpl) {
+    if (itemDetail.docType === 'tpl') {
       return (
         <Breadcrumb
           items={[
@@ -254,12 +254,10 @@ const Component: FC<Props> = ({itemDetail}) => {
                   {!collect ? (
                     <StarOutlined
                       className="anticon-star-outline"
-                      onClick={() => DocAPI.collectItem(itemDetail.id, itemDetail.isTpl ? 'tpl' : 'doc', true).then(() => setCollect(1))}
+                      onClick={() => DocAPI.collectItem(itemDetail.id, itemDetail.docType, true).then(() => setCollect(1))}
                     />
                   ) : (
-                    <StarFilled
-                      onClick={() => DocAPI.collectItem(itemDetail.id, itemDetail.isTpl ? 'tpl' : 'doc', false).then(() => setCollect(0))}
-                    />
+                    <StarFilled onClick={() => DocAPI.collectItem(itemDetail.id, itemDetail.docType, false).then(() => setCollect(0))} />
                   )}
                 </>
               ),
@@ -339,9 +337,9 @@ const Component: FC<Props> = ({itemDetail}) => {
         <div className="hd">
           <Space size="large">
             <HomeOutlined className="icon-link" onClick={() => GetClientRouter().relaunch({url: `/admin/home`}, 'window')} />
-            {!itemDetail.isTpl &&
+            {itemDetail.docType !== 'tpl' &&
               (loading === 'create' ? <Spin size="small" /> : <PlusOutlined className="icon-link" onClick={onCreatDoc} title="新建文档" />)}
-            {!itemDetail.isTpl && (
+            {itemDetail.docType !== 'tpl' && (
               <Dropdown
                 menu={{
                   onClick: ({key}: {key: string}) => {
@@ -404,8 +402,8 @@ const Component: FC<Props> = ({itemDetail}) => {
               <AIButton editor={editor} />
               <Toolbar editor={editor} defaultConfig={toolbarConfig} mode="default" className="tools" />
               <AITpl editor={editor} />
-              {!itemDetail.isTpl && <ReviewButton editor={editor} onClick={onReview} />}
-              {itemDetail.isTpl && <VarButton editor={editor} />}
+              {itemDetail.docType !== 'tpl' && <ReviewButton editor={editor} onClick={onReview} />}
+              {itemDetail.docType === 'tpl' && <VarButton editor={editor} />}
               {<ContButton editor={editor} onSubmit={onInspect} />}
             </>
           )}

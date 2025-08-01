@@ -126,7 +126,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
 
   return (
     <div className={styles.root}>
-      <DocumentHead title="回收站" />
+      <DocumentHead title="回收站-星启·文枢" />
       <div className="hd">
         <span className="ant-breadcrumb">回收站</span>
         <Input.Search allowClear className="search" placeholder="请输入搜索关键字..." onSearch={onSearch} />

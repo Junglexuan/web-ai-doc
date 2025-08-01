@@ -2,7 +2,7 @@ import {BaseCurRender, BaseCurView, BaseListItem, BaseListSearch, BaseListSummar
 
 export type CurView = BaseCurView;
 export type CurRender = BaseCurRender | 'favs' | 'recs' | 'tpls' | 'conts';
-export type DocType = 'dir' | 'doc' | 'tpl';
+export type DocType = 'dir' | 'doc' | 'tpl' | 'con';
 
 export interface ListSearch extends BaseListSearch {
   render?: CurRender;
@@ -49,8 +49,7 @@ export interface ItemDetail {
   articleCount: number;
   size: '常规' | '全宽' | '超宽';
   levelPath: {id: string; folderName: string; parent: string}[];
-  isTpl?: boolean;
-  isCont?: boolean;
+  docType: DocType;
   isShare?: boolean;
   readonly?: boolean;
 }

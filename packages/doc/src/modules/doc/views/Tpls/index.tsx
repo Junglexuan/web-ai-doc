@@ -59,7 +59,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
 
   const onEditSubmit = useEvent((data: {title: string; remark: string; isShare: boolean}) => {
     const curId = curEdit?.id || '';
-    DocAPI.saveTpl({...data, id: curId}).then(async ({id}) => {
+    DocAPI.saveTpl({...data, id: curId}, 'tpl').then(async ({id}) => {
       setCurEdit(undefined);
       await refreshList();
       if (!curId) {
@@ -69,8 +69,8 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
   });
 
   const onCreateByTpl = useEvent((tplId: string, fields?: {[field: string]: string}, knowledges?: string[]) => {
-    DocAPI.getDoc({id: tplId, render: 'tpl'}).then((tpl) => {
-      DocAPI.createDoc({folder: '0', title: tpl.title, contents: ''}).then(async ({id}) => {
+    DocAPI.getDoc(tplId).then((tpl) => {
+      DocAPI.createDoc({folder: '0', title: tpl.title, contents: ''}, 'doc').then(async ({id}) => {
         const data = {id: tplId, fields, knowledges};
         console.log(data);
         window.sessionStorage.setItem('__temp_tpl__', JSON.stringify(data));
@@ -116,7 +116,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
 
   return (
     <div className={styles.root}>
-      <DocumentHead title="模版管理" />
+      <DocumentHead title="模版管理-星启·文枢" />
       <div className="hd">
         <span className="ant-breadcrumb">模版管理</span>
         <Input.Search value={listSearch.name} allowClear className="search" placeholder="请输入搜索关键字..." onSearch={onSearch} />

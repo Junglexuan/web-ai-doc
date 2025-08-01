@@ -43,12 +43,10 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
   });
 
   const onRename = useEvent((id: string, type: DocType, name: string) => {
-    if (type === 'doc') {
-      DocAPI.updateDocName(id, name).then(refreshList);
-    } else if (type === 'tpl') {
-      DocAPI.updateDocName(id, name, true).then(refreshList);
+    if (type !== 'dir') {
+      DocAPI.updateDocName(id, name, type).then(refreshList);
     } else {
-      DocAPI.updateDirName(id, name).then(refreshList);
+      DocAPI.updateDirName(id, name, type).then(refreshList);
     }
     setShowRename('');
   });
@@ -235,7 +233,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
 
   return (
     <div className={styles.root}>
-      <DocumentHead title="我的收藏" />
+      <DocumentHead title="我的收藏-星启·文枢" />
       <div className="hd">
         <span className="ant-breadcrumb">我的收藏</span>
         <Input.Search allowClear className="search" placeholder="请输入搜索关键字..." onSearch={onSearch} />

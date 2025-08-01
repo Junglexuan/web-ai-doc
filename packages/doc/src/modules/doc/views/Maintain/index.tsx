@@ -52,9 +52,9 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
 
   const onRename = useEvent((id: string, type: DocType, name: string) => {
     if (type === 'doc') {
-      DocAPI.updateDocName(id, name).then(refreshList);
+      DocAPI.updateDocName(id, name, type).then(refreshList);
     } else {
-      DocAPI.updateDirName(id, name).then(refreshList);
+      DocAPI.updateDirName(id, name, type).then(refreshList);
     }
     setShowRename('');
   });
@@ -221,7 +221,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
     (title: string = '', contents: string = '', tpl?: {id: string; fields: {[field: string]: string}; knowledges?: string[]}) => {
       setLoading('create');
       console.log(tpl);
-      DocAPI.createDoc({folder: listSearch.id || '0', title, contents})
+      DocAPI.createDoc({folder: listSearch.id || '0', title, contents}, 'doc')
         .then(async ({id}) => {
           setSelectedRows({ids: [], rows: []});
           await refreshList();
@@ -238,7 +238,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
 
   const onCreateDir = useEvent(() => {
     setLoading('createDir');
-    DocAPI.createDir({folder: listSearch.id || '0'})
+    DocAPI.createDir({folder: listSearch.id || '0'}, 'doc')
       .then(() => {
         setSelectedRows({ids: [], rows: []});
         refreshList();
@@ -271,7 +271,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
 
   const onWizardSubmit = useEvent(({__tplId, ...fields}: {__tplId: string; [field: string]: string}, knowledges: string[]) => {
     setWizardData(undefined);
-    DocAPI.getDoc({id: __tplId, render: 'tpl'}).then((tpl) => {
+    DocAPI.getDoc(__tplId).then((tpl) => {
       onCreate(tpl.title, '', {id: __tplId, fields, knowledges});
     });
   });
@@ -347,7 +347,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
 
   return (
     <div className={styles.root}>
-      <DocumentHead title="我的文档" />
+      <DocumentHead title="我的文档-星启·文枢" />
       <div className="hd">
         {breadcrumb}
         <Input.Search allowClear className="search" placeholder="请输入搜索关键字..." onSearch={onSearch} />

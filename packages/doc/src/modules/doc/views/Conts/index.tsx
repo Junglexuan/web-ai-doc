@@ -47,15 +47,15 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
       openArticle(`/admin/doc/item/edit/${id}?__c=_dialog`);
       //GetClientRouter().push({url: `/admin/doc/item/edit/${id}?__c=_dialog`}, singleWindow);
     } else {
-      GetClientRouter().push({url: `/admin/doc/list/maintain?id=${id}`}, 'page');
+      GetClientRouter().push({url: `/admin/doc/list/conts?id=${id}`}, 'page');
     }
   });
 
   const onRename = useEvent((id: string, type: DocType, name: string) => {
-    if (type === 'doc') {
-      DocAPI.updateDocName(id, name).then(refreshList);
+    if (type !== 'dir') {
+      DocAPI.updateDocName(id, name, type).then(refreshList);
     } else {
-      DocAPI.updateDirName(id, name).then(refreshList);
+      DocAPI.updateDirName(id, name, type).then(refreshList);
     }
     setShowRename('');
   });
@@ -160,8 +160,8 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
                   className={styles.move}
                   showIcon
                   icon={<FolderOpenOutlined />}
-                  defaultExpandedKeys={[listSearch.id || '0']}
-                  defaultSelectedKeys={[listSearch.id || '0']}
+                  defaultExpandedKeys={[listSearch.id || '1']}
+                  defaultSelectedKeys={[listSearch.id || '1']}
                   treeData={listSummary.dirTree}
                   onSelect={(selected) => onMove(record.id, record.type, selected[0] as string)}
                 />
@@ -220,7 +220,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
 
   const onCreate = useEvent((title: string = '', contents: string = '', tpl?: {id: string; fields: {[field: string]: string}}) => {
     setLoading('create');
-    DocAPI.createDoc({folder: listSearch.id || '0', title, contents})
+    DocAPI.createDoc({folder: listSearch.id || '1', title, contents}, 'con')
       .then(async ({id}) => {
         setSelectedRows({ids: [], rows: []});
         await refreshList();
@@ -236,7 +236,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
 
   const onCreateDir = useEvent(() => {
     setLoading('createDir');
-    DocAPI.createDir({folder: listSearch.id || '0'})
+    DocAPI.createDir({folder: listSearch.id || '1'}, 'con')
       .then(() => {
         setSelectedRows({ids: [], rows: []});
         refreshList();
@@ -269,7 +269,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
 
   const onWizardSubmit = useEvent(({__tplId, ...fields}: {__tplId: string; [field: string]: string}) => {
     setWizardData(undefined);
-    DocAPI.getDoc({id: __tplId, render: 'tpl'}).then((tpl) => {
+    DocAPI.getDoc(__tplId).then((tpl) => {
       onCreate(tpl.title, '', {id: __tplId, fields});
     });
   });
@@ -307,22 +307,22 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
     if (curDir) {
       const arr = listSummary.levelPath.map((item) => ({
         title: (
-          <Link to={`/admin/doc/list/maintain?id=${item.id}`} action="push" target="page">
+          <Link to={`/admin/doc/list/conts?id=${item.id}`} action="push" target="page">
             {item.folderName}
           </Link>
         ),
       }));
       arr.unshift({
         title: (
-          <Link to="/admin/doc/list/maintain" action="push" target="page">
-            我的文档
+          <Link to="/admin/doc/list/conts" action="push" target="page">
+            我的合同
           </Link>
         ),
       });
       arr.push({title: <span>{curDir.folderName}</span>});
       return <Breadcrumb items={arr} />;
     } else {
-      return <span className="ant-breadcrumb">我的文档</span>;
+      return <span className="ant-breadcrumb">我的合同</span>;
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -345,7 +345,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
 
   return (
     <div className={styles.root}>
-      <DocumentHead title="我的文档" />
+      <DocumentHead title="我的合同-星启·文枢" />
       <div className="hd">
         {breadcrumb}
         <Input.Search allowClear className="search" placeholder="请输入搜索关键字..." onSearch={onSearch} />

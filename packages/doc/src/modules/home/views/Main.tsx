@@ -33,8 +33,8 @@ const Component: FC = () => {
   });
 
   const onCreateByTpl = useEvent((tplId: string, fields?: {[field: string]: string}) => {
-    DocAPI.getDoc({id: tplId, render: 'tpl'}).then((tpl) => {
-      DocAPI.createDoc({folder: '0', title: tpl.title, contents: ''}).then(async ({id}) => {
+    DocAPI.getDoc(tplId).then((tpl) => {
+      DocAPI.createDoc({folder: '0', title: tpl.title, contents: ''}, 'doc').then(async ({id}) => {
         window.sessionStorage.setItem('__temp_tpl__', JSON.stringify({id: tplId, fields}));
         openArticle(`/admin/doc/item/edit/${id}?&tpl=${tpl.id}&__c=_dialog`);
       });
@@ -76,7 +76,7 @@ const Component: FC = () => {
         ))}
       </div>
     );
-  }, [hotArticleList]);
+  }, [hotArticleList, onShowDetail]);
 
   const renderHotTemplate = useMemo(() => {
     return (

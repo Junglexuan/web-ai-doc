@@ -123,7 +123,7 @@ const Component: FC<{}> = () => {
       btn.click();
     } else {
       setLoading('create');
-      DocAPI.createDoc({folder: '0', title: '', contents: ''})
+      DocAPI.createDoc({folder: '0', title: '', contents: ''}, 'doc')
         .then(({id}) => {
           GetClientRouter().push({url: `/admin/doc/item/edit/${id}?__c=_dialog`}, 'window');
         })

@@ -2,6 +2,7 @@ import {IDomEditor} from '@wangeditor-next/editor';
 import {createEditor} from '@wangeditor-next/editor';
 import {SimpleDispatcher} from '@/utils/tools';
 import DocAPI from '../../api';
+import {DocType} from '../../entity';
 
 const cloneEditor = createEditor();
 
@@ -10,7 +11,7 @@ export interface ISource {
   dsl: string;
   html: string;
   text: string;
-  isTpl?: boolean;
+  docType: DocType;
 }
 export class SaveMgr extends SimpleDispatcher<{loading: boolean}> {
   cycleTime = 2000;
@@ -55,7 +56,7 @@ export class SaveMgr extends SimpleDispatcher<{loading: boolean}> {
       this.sending = this.toBeSent;
       this.toBeSent = undefined;
       this.dispatch('loading', true);
-      DocAPI.saveDSL(this.sending.id, this.sending.dsl, this.sending.html, this.sending.text, this.sending.isTpl).then(
+      DocAPI.saveDSL(this.sending.id, this.sending.dsl, this.sending.html, this.sending.text, this.sending.docType).then(
         () => {
           this.sending = undefined;
           setTimeout(this.checkNext, this.cycleTime);

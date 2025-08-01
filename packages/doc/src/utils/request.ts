@@ -126,7 +126,7 @@ instance.interceptors.response.use(
       const config = response.config!;
       const requestHeaders = config.headers;
       const requestUrl = config.url;
-      const errorMessage = `请求错误${data.msg ? '（' + data.msg + '）' : ''}`;
+      const errorMessage = `请求错误${data.message ? '（' + data.message + '）' : ''}`;
       if (!requestHeaders.quiet) {
         message.error(errorMessage);
       }
@@ -146,7 +146,7 @@ instance.interceptors.response.use(
     const config = error.config!;
     const requestHeaders = config.headers;
     //const requestUrl = config.url;
-    const errorMessage = `${toErrorMessage(httpErrorCode)}${data.msg ? '(' + data.msg + '）' : ''}`;
+    const errorMessage = `${toErrorMessage(httpErrorCode)}${data.message ? '(' + data.message + '）' : ''}`;
     if (httpErrorCode && !requestHeaders.quiet) {
       message.error(errorMessage);
     }
@@ -176,7 +176,7 @@ export function getUploadProps(
         if (res.success) {
           callback.onSuccess(file, res.data);
         } else {
-          message.error(`${res.msg}.`);
+          message.error(`${res.message}.`);
           callback.onError(file, res);
         }
       } else if (file.status === 'error') {

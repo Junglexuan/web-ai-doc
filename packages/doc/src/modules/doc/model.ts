@@ -94,7 +94,7 @@ export class Model extends BaseModel<ModuleState, APPState> {
 
   @effect()
   public async fetchItem(itemId: string, render?: CurRender): Promise<void> {
-    const item = await DocAPI.getDoc({id: itemId, render});
+    const item = await DocAPI.getDoc(itemId);
     this.dispatch(this.actions.putCurrentItem(itemId, item));
   }
 }
