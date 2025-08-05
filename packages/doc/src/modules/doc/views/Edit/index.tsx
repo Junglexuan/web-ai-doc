@@ -34,7 +34,7 @@ import Inspect from './Inspect';
 import Outline from './Outline';
 import Review from './Review';
 import ReviewButton from './ReviewButton';
-import {replaceReviewItem} from './utils';
+import {replaceInspectItem, replaceReviewItem} from './utils';
 import VarButton from './VarButton';
 import type {ISource} from './autoSave';
 import type {MenuProps} from 'antd';
@@ -131,18 +131,37 @@ const Component: FC<Props> = ({itemDetail}) => {
     }
   });
 
-  const onInspect = useEvent(() => {
+  const onInspect = useEvent(({type, stand}: {type: string; stand: string}) => {
     const btn = document.getElementById('_ai_inspectList_btn');
     if (btn) {
       btn.click();
     }
     const reqs = AiAPI.autoInspect(
-      {articleId: itemDetail.id, content: editor!.getHtml()},
+      {articleId: itemDetail.id, content: editor!.getHtml(), contType: type, stand},
       (items) => {
+        console.log(items);
+        items = [
+          {
+            long: '乙方在租用房屋院内建设厕所、厢房、平房、栽植树木等必须做到不碍四邻的通风、透光、人行、排水、修房、环境卫生等，否则要承担由此引起的一切责任。',
+            source:
+              '乙方在租用房屋院内建设厕所、厢房、平房、栽植树木等必须做到不碍四邻的通风、透光、人行、排水、修房、环境卫生等，否则要承担由此引起的一切责任。',
+            type: '禁止行为范围模糊',
+            reason: '未明确禁止行为的具体范围，可能导致乙方不当行为风险。',
+            target:
+              "建议修改为：'乙方不得在租赁房屋院内擅自建设厕所、厢房、平房或栽植树木，不得影响四邻的通风、采光、通行、排水及环境卫生，否则应承担相应法律责任。'",
+          },
+          {
+            long: '依据《中华人民共和国民法典》及相关法律法规，甲乙双方在平等、自愿的基础上，就房屋租赁事宜达成如下协议：',
+            source: '《中华人民共和国民法典》',
+            type: '禁止行为范围模糊',
+            reason: '未明确禁止行为的具体范围，可能导致乙方不当行为风险。',
+            target: '《中华人民共和国民宪法》',
+          },
+        ];
         const originHtml = editor!.getHtml();
         let newHtml = originHtml;
         items.forEach((item) => {
-          newHtml = replaceReviewItem(newHtml, item);
+          newHtml = replaceInspectItem(newHtml, item);
         });
         if (newHtml !== originHtml) {
           editor!.setHtml(newHtml);

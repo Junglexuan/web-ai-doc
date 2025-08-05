@@ -140,16 +140,23 @@ const Component: FC<Props> = ({onCancel, loading, editor}) => {
 
   useEffect(() => {
     editor.on('change', onDocChange);
-    const div = document.getElementById('w-e-textarea-1')?.parentElement;
-    if (div) {
-      div.addEventListener('click', onClose);
-    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
     <>
-      <span id="_ai_reviewList_btn" className="btn check" onClick={() => setShow(true)} />
+      <span
+        id="_ai_reviewList_btn"
+        className="btn check"
+        onClick={() => {
+          const inspectBtn = document.getElementById('_ai_inspectList_btnClose');
+          const chartBtn = document.getElementById('_ai_chart_btnClose');
+          inspectBtn?.click();
+          chartBtn?.click();
+          setShow(true);
+        }}
+      />
+      <span id="_ai_reviewList_btnClose" style={{display: 'none'}} onClick={() => setShow(false)} />
       <div className={styles.panel + (show ? ' on' : '')}>
         <div className="hd">
           <span>校阅</span>

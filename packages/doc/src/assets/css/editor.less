@@ -24,6 +24,19 @@
   }
 }
 
+.w-e-inspect {
+  border-bottom: 1px solid red;
+
+  &.ignored {
+    border-bottom: none;
+  }
+
+  &::before {
+    color: red;
+    content: '▼';
+  }
+}
+
 .w-e-variable {
   display: inline-flex;
   margin: 0 5px;

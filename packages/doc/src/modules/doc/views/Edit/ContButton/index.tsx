@@ -3,7 +3,9 @@ import {DomEditor, IDomEditor} from '@wangeditor-next/editor';
 import {Button, Form, Modal, Select} from 'antd';
 import {FC, memo, useEffect, useMemo, useState} from 'react';
 import {createPortal} from 'react-dom';
+import Inspect from '@/assets/images/Inspect';
 import {useEvent} from '@/utils/tools';
+import {DocAPI} from '../../../api';
 import {VariableElement} from '../elements/Variable/custom-types';
 import VarLayer from '../VarLayer';
 import styles from './index.module.less';
@@ -16,27 +18,35 @@ interface Props {
 
 const Component: FC<Props> = ({editor, onSubmit}) => {
   const [showModal, setShowModal] = useState(false);
-  const [typeOptions, setTypeOptions] = useState<{label: string; value: string}[]>([{label: 'aaa', value: '111'}]);
-  const [standOptions, setStandOptions] = useState<{label: string; value: string}[]>([
-    {label: '甲方', value: '111'},
-    {label: '乙方', value: '222'},
-  ]);
+  const [typeOptions, setTypeOptions] = useState<{label: string; value: string}[]>([]);
 
   const onCancel = useEvent(() => {
     setShowModal(false);
   });
 
   const _onSubmit = useEvent((vals: any) => {
-    onSubmit(vals);
+    const {type, stand} = vals;
+    onSubmit({type, stand: stand[0]});
     setShowModal(false);
   });
 
-  useEffect(() => {}, []);
+  useEffect(() => {
+    DocAPI.getTplsOptions('conts').then((cates) => {
+      setTypeOptions(cates);
+    });
+  }, []);
 
   return (
     <>
       <div className="w-e-bar-divider"></div>
-      <Button disabled={editor.getConfig().readOnly} id="_ai_cont_button" className={styles.button} type="text" onClick={() => setShowModal(true)}>
+      <Button
+        disabled={editor.getConfig().readOnly}
+        id="_ai_cont_button"
+        icon={<Inspect />}
+        className={styles.button}
+        type="text"
+        onClick={() => setShowModal(true)}
+      >
         合同审查
       </Button>
       {showModal && (
@@ -44,10 +54,10 @@ const Component: FC<Props> = ({editor, onSubmit}) => {
           <div className={styles.dialog}>
             <Form onFinish={_onSubmit}>
               <Form.Item label="合同类型" name="type" rules={[{required: true}]}>
-                <Select options={typeOptions} placeholder="请选择..." />
+                <Select options={typeOptions} placeholder="请选择合同类型" />
               </Form.Item>
               <Form.Item label="审查立场" name="stand" rules={[{required: true}]}>
-                <Select options={standOptions} placeholder="请选择..." />
+                <Select placeholder="请选择或输入合同立场" mode="tags" maxCount={1} options={[{value: '甲方'}, {value: '乙方'}]} />
               </Form.Item>
               <div className="footer">
                 <Button htmlType="submit" type="primary">

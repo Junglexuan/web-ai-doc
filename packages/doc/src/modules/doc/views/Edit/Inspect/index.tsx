@@ -1,7 +1,7 @@
-import {CloseOutlined, PauseCircleOutlined} from '@ant-design/icons';
+import {CaretRightOutlined, CloseOutlined, PauseCircleOutlined} from '@ant-design/icons';
 import {DomEditor, IDomEditor, SlateEditor, SlateTransforms} from '@wangeditor-next/editor';
-import {Button, Spin} from 'antd';
-import {FC, memo, useEffect, useRef, useState} from 'react';
+import {Button, Collapse, Spin} from 'antd';
+import {FC, memo, useEffect, useMemo, useRef, useState} from 'react';
 import {addClass, removeClass, useEvent} from '@/utils/tools';
 import styles from './index.module.less';
 interface Props {
@@ -10,11 +10,20 @@ interface Props {
   editor: IDomEditor;
 }
 
-type ReviewItem = {id: string; source: string; target: string; reason: string; at: number[]};
+type ReviewItem = {id: string; source: string; target: string; reason: string; level: Level; at: number[]};
+
+type Level = 'high' | 'mid' | 'low';
+
+const LevelLabels = {
+  high: '高风险',
+  mid: '中风险',
+  low: '低风险',
+};
 
 const Component: FC<Props> = ({onCancel, loading, editor}) => {
   const [show, setShow] = useState(false);
   const [list, setList] = useState<ReviewItem[]>([]);
+  const [curLevel, setCurLevel] = useState<Level>();
   const scrollerRef = useRef<HTMLDivElement>(null);
   const controllerRef = useRef<HTMLDivElement>(null);
 
@@ -30,15 +39,49 @@ const Component: FC<Props> = ({onCancel, loading, editor}) => {
     }
   });
 
+  const onSelect = useEvent((item: ReviewItem) => {
+    SlateTransforms.select(editor, {path: [...item.at, 0], offset: 1});
+    const dom = document.getElementById(item.id);
+    if (dom) {
+      dom.scrollIntoView({behavior: 'smooth', block: 'center'});
+    }
+  });
+
+  const replaceItem = useEvent((item: ReviewItem) => {
+    onSelect(item);
+    setTimeout(() => {
+      const textNode = DomEditor.getSelectedTextNode(editor);
+      if (textNode) {
+        const path = DomEditor.findPath(editor, textNode);
+        SlateTransforms.select(editor, path);
+        SlateTransforms.insertText(editor, item.target || '');
+        editor.deselect();
+        SlateTransforms.unwrapNodes(editor, {
+          at: item.at,
+        });
+      }
+    }, 300);
+
+    // SlateTransforms.unwrapNodes(editor, {
+    //   at: item.at,
+    // });
+  });
+
+  const ignoreItem = useEvent((item: ReviewItem) => {
+    SlateTransforms.unwrapNodes(editor, {
+      at: item.at,
+    });
+  });
+
   const onDocChange = useEvent(() => {
     if (!show) {
       return;
     }
     const items: ReviewItem[] = [];
-    const elems: any[] = editor.getElemsByType('review') || [];
+    const elems: any[] = editor.getElemsByType('inspect') || [];
     const nodes = SlateEditor.nodes(editor, {
       at: [],
-      match: (node: any, path) => node.type === 'review',
+      match: (node: any, path) => node.type === 'inspect',
     });
     let i = 0;
     for (const entry of nodes) {
@@ -61,33 +104,104 @@ const Component: FC<Props> = ({onCancel, loading, editor}) => {
     }
   });
 
+  const collapseItems = useMemo(() => {
+    return list.map((item) => {
+      return {
+        key: item.id,
+        label: (
+          <>
+            <span className="tag h1">{LevelLabels[item.level]}</span>
+            <span className="title" onClick={() => onSelect(item)}>
+              {item.reason}
+            </span>
+          </>
+        ),
+        children: (
+          <div>
+            <dl>
+              <dt>风险说明：</dt>
+              <dd>{item.reason}</dd>
+              <dt>原文引用：</dt>
+              <dd>{item.source}</dd>
+              <dt>建议修改：</dt>
+              <dd>{item.target}</dd>
+              <dt>
+                <Button size="small" variant="outlined" color="primary" onClick={() => replaceItem(item)}>
+                  插入
+                </Button>
+              </dt>
+            </dl>
+          </div>
+        ),
+      };
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [list, curLevel]);
+
   useEffect(() => {
     onDocChange();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [show]);
 
   useEffect(() => {
+    const onItemScelect = (data: {elem: any}) => {
+      console.log(data);
+      const btn = document.getElementById('_ai_inspectList_btn');
+      if (btn) {
+        setTimeout(() => btn.click());
+      }
+    };
     editor.on('change', onDocChange);
-    const div = document.getElementById('w-e-textarea-1')?.parentElement;
-    if (div) {
-      div.addEventListener('click', onClose);
-    }
+    editor.on('inspect-selected', onItemScelect);
+    return () => {
+      editor.off('change', onDocChange);
+      editor.off('inspect-selected', onItemScelect);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
     <>
-      <span id="_ai_inspectList_btn" className="btn inspect" onClick={() => setShow(true)} />
+      <span
+        id="_ai_inspectList_btn"
+        className="btn inspect"
+        onClick={() => {
+          const reviewBtn = document.getElementById('_ai_reviewList_btnClose');
+          const chartBtn = document.getElementById('_ai_chart_btnClose');
+          reviewBtn?.click();
+          chartBtn?.click();
+          setShow(true);
+        }}
+      />
+      <span id="_ai_inspectList_btnClose" style={{display: 'none'}} onClick={() => setShow(false)} />
       <div className={styles.panel + (show ? ' on' : '')}>
         <div className="hd">
           <span>合同审查</span>
           <Button size="small" icon={<CloseOutlined />} type="text" onClick={onClose} />
         </div>
         <div className="cd">
-          <strong>共{list.length}条</strong>
+          <div className={'h0' + (!curLevel ? ' on' : '')} onClick={() => setCurLevel(undefined)}>
+            全部（{list.length}）
+          </div>
+          <div className={'h1' + (curLevel === 'high' ? ' on' : '')} onClick={() => setCurLevel('high')}>
+            {`${LevelLabels.high}（${list.length}）`}
+          </div>
+          <div className={'h2' + (curLevel === 'mid' ? ' on' : '')} onClick={() => setCurLevel('mid')}>
+            {`${LevelLabels.mid}（${list.length}）`}
+          </div>
+          <div className={'h3' + (curLevel === 'low' ? ' on' : '')} onClick={() => setCurLevel('low')}>
+            {`${LevelLabels.low}（${list.length}）`}
+          </div>
         </div>
         <div className="bd" ref={scrollerRef}>
-          <ul></ul>
+          <Collapse
+            ghost
+            size="small"
+            collapsible="icon"
+            expandIcon={({isActive}) => <CaretRightOutlined rotate={isActive ? 90 : 0} />}
+            // style={{background: token.colorBgContainer}}
+            items={collapseItems}
+          />
           {loading && (
             <div className="more">
               <Spin size="small" />

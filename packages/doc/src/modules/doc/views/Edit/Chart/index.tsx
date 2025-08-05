@@ -46,6 +46,7 @@ const Component: FC<Props> = ({editor}) => {
       <div className={styles.button} onClick={() => setShow(!show)}>
         智能体
       </div>
+      <span id="_ai_chart_btnClose" style={{display: 'none'}} onClick={() => setShow(false)} />
       <div ref={panelRef} className={styles.panel + (show ? ' on' : '')}>
         <span className={styles.close} onClick={() => setShow(!show)}>
           <CloseOutlined />

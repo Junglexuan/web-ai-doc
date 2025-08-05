@@ -3,6 +3,7 @@ import {Boot, IEditorConfig, IToolbarConfig, i18nGetResources} from '@wangeditor
 import {replaceBaseUrl} from '@/utils/request';
 import {getToken} from '@/utils/tools';
 import {ItemDetail} from '../../entity';
+import Inspect from './elements/Inspect';
 import Review from './elements/Review';
 import Variable from './elements/Variable';
 
@@ -226,4 +227,5 @@ export const editorConfig: Partial<IEditorConfig> = {
 //   return node;
 // });
 Boot.registerModule(Review);
+Boot.registerModule(Inspect);
 Boot.registerModule(Variable);

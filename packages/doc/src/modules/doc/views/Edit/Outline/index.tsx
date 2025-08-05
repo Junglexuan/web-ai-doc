@@ -1,4 +1,4 @@
-import {CloseOutlined, PicRightOutlined} from '@ant-design/icons';
+import {CloseOutlined} from '@ant-design/icons';
 import {IDomEditor, SlateNode} from '@wangeditor-next/editor';
 import {Button} from 'antd';
 import {FC, memo, useEffect, useState} from 'react';

@@ -407,17 +407,17 @@ function autoReview(
   return [reviewController, sensitiveController];
 }
 function autoInspect(
-  args: {articleId: string; content: string},
+  args: {articleId: string; content: string; contType: string; stand: string},
   onMessage: (items: {long: string; source: string; target: string; type: string; reason: string}[]) => void,
   onError: (e: any) => void,
   onDone: () => void
 ): AbortController {
   const controller = new AbortController();
-  const {articleId, content} = args;
-  fetchEventSource(replaceBaseUrl('/dream/pen/ai/writer/proofread'), {
+  const {articleId, content, stand, contType} = args;
+  fetchEventSource(replaceBaseUrl('/dream/pen/ai/verify'), {
     method: 'POST',
     headers: getHeaders(),
-    body: JSON.stringify({articleId, content, type: 'proofread'}),
+    body: JSON.stringify({conversation_id: articleId, content, standpoint: stand, type: 'verify'}),
     signal: controller.signal,
     openWhenHidden: true,
     onmessage: (ev) => onMessage(decodeReviews(ev.data)),
