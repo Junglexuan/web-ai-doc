@@ -98,43 +98,52 @@ const Component: FC<Props> = ({onCancel, loading, editor}) => {
         const ul = scrollerRef.current!.children[0];
         const li = ul.children[ul.children.length - 1];
         if (li) {
-          (li as any).click();
+          const span = li.getElementsByClassName('inspect-item');
+          if (span && span[0]) {
+            (span[0] as any).click();
+          }
         }
       });
     }
   });
 
   const collapseItems = useMemo(() => {
-    return list.map((item) => {
-      return {
-        key: item.id,
-        label: (
-          <>
-            <span className="tag h1">{LevelLabels[item.level]}</span>
-            <span className="title" onClick={() => onSelect(item)}>
-              {item.reason}
-            </span>
-          </>
-        ),
-        children: (
-          <div>
-            <dl>
-              <dt>风险说明：</dt>
-              <dd>{item.reason}</dd>
-              <dt>原文引用：</dt>
-              <dd>{item.source}</dd>
-              <dt>建议修改：</dt>
-              <dd>{item.target}</dd>
-              <dt>
-                <Button size="small" variant="outlined" color="primary" onClick={() => replaceItem(item)}>
-                  插入
-                </Button>
-              </dt>
-            </dl>
-          </div>
-        ),
-      };
-    });
+    return list
+      .filter((item) => {
+        return !curLevel ? true : item.level === curLevel;
+      })
+      .map((item) => {
+        return {
+          key: item.id,
+          label: (
+            <>
+              <span className="tag h1">{LevelLabels[item.level]}</span>
+              <span className="title inspect-item" onClick={() => onSelect(item)}>
+                {item.reason}
+              </span>
+            </>
+          ),
+          children: (
+            <div>
+              <dl>
+                <dt>风险说明：</dt>
+                <dd>{item.reason}</dd>
+                <dt>原文引用：</dt>
+                <dd onClick={() => onSelect(item)} className="source">
+                  {item.source}
+                </dd>
+                <dt>建议改为：</dt>
+                <dd>{item.target}</dd>
+                <dt>
+                  <Button size="small" variant="outlined" color="primary" onClick={() => replaceItem(item)}>
+                    修改
+                  </Button>
+                </dt>
+              </dl>
+            </div>
+          ),
+        };
+      });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [list, curLevel]);
 
@@ -153,6 +162,7 @@ const Component: FC<Props> = ({onCancel, loading, editor}) => {
     };
     editor.on('change', onDocChange);
     editor.on('inspect-selected', onItemScelect);
+
     return () => {
       editor.off('change', onDocChange);
       editor.off('inspect-selected', onItemScelect);
@@ -184,13 +194,13 @@ const Component: FC<Props> = ({onCancel, loading, editor}) => {
             全部（{list.length}）
           </div>
           <div className={'h1' + (curLevel === 'high' ? ' on' : '')} onClick={() => setCurLevel('high')}>
-            {`${LevelLabels.high}（${list.length}）`}
+            {`${LevelLabels.high}（${list.filter((item) => item.level === 'high').length}）`}
           </div>
           <div className={'h2' + (curLevel === 'mid' ? ' on' : '')} onClick={() => setCurLevel('mid')}>
-            {`${LevelLabels.mid}（${list.length}）`}
+            {`${LevelLabels.mid}（${list.filter((item) => item.level === 'mid').length}）`}
           </div>
           <div className={'h3' + (curLevel === 'low' ? ' on' : '')} onClick={() => setCurLevel('low')}>
-            {`${LevelLabels.low}（${list.length}）`}
+            {`${LevelLabels.low}（${list.filter((item) => item.level === 'low').length}）`}
           </div>
         </div>
         <div className="bd" ref={scrollerRef}>

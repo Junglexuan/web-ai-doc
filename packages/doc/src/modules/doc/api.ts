@@ -19,6 +19,18 @@ const TypeSourceMap: {[key in DocType]: string} = {
 };
 
 export const DocAPI = {
+  createSnapshot(data: {tplId: string; contents?: string}, type: DocType): Promise<{id: string}> {
+    const contents = data.contents || '<p style="line-height: 1.5;"><span style="font-size: 16px; font-family: 黑体;"></span></p>';
+    return setGlobalLoading(
+      request
+        .post(`/dream/pen/template/snapshot/save`, {
+          id: data.tplId,
+          contents,
+        })
+        .then((res) => res.data.data),
+      GetClientRouter().getActivePage().store
+    );
+  },
   createDoc(data: {title: string; contents: string; folder: string}, type: DocType): Promise<{id: string}> {
     const {title, folder} = data;
     const contents = data.contents || '<p style="line-height: 1.5;"><span style="font-size: 16px; font-family: 黑体;"></span></p>';
@@ -130,6 +142,7 @@ export const DocAPI = {
     return request.get('/dream/pen/article/get', {params: {id}}).then((docRes) => {
       const item: ItemDetail = docRes.data.data;
       item.docType = TypeMap[(item as any).type];
+      item.levelPath = item.levelPath || [];
       return item;
     });
   },

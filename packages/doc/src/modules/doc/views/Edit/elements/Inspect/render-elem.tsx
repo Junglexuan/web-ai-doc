@@ -10,7 +10,7 @@ function renderElem(elem: SlateElement, children: VNode[] | null, editor: IDomEd
     'span',
     {
       props: {
-        className: 'w-e-inspect' + (!source ? ' ignored' : ''),
+        className: 'w-e-inspect' + (!source && !target ? ' ignored' : ''),
         //contentEditable: false,
         // title: reason,
       },

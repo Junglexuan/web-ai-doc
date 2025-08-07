@@ -1,4 +1,5 @@
 import {
+  ArrowLeftOutlined,
   ClockCircleOutlined,
   CloudUploadOutlined,
   HomeOutlined,
@@ -11,14 +12,14 @@ import {
 import {Link, setLoading as setGlobalLoading} from '@elux/react-web';
 import {IDomEditor} from '@wangeditor-next/editor';
 import {Editor, Toolbar} from '@wangeditor-next/editor-for-react';
-import {Breadcrumb, Dropdown, Space, Spin} from 'antd';
+import {Breadcrumb, Button, Dropdown, Space, Spin} from 'antd';
 import dayjs from 'dayjs';
-import {FC, memo, useEffect, useMemo, useRef, useState} from 'react';
+import {FC, memo, useEffect, useMemo, useState} from 'react';
 import BlurInput from '@/components/BlurInput';
 import DialogPage from '@/components/DialogPage';
 import {GetClientRouter} from '@/Global';
 import {downloadFile, replaceBaseUrl} from '@/utils/request';
-import {debounce, openArticle, useEvent} from '@/utils/tools';
+import {debounce, getUrlParam, openArticle, useEvent} from '@/utils/tools';
 import DocAPI from '../../api';
 import {ItemDetail} from '../../entity';
 import AIButton from './AIButton';
@@ -34,6 +35,7 @@ import Inspect from './Inspect';
 import Outline from './Outline';
 import Review from './Review';
 import ReviewButton from './ReviewButton';
+import TplRun from './TplRun';
 import {replaceInspectItem, replaceReviewItem} from './utils';
 import VarButton from './VarButton';
 import type {ISource} from './autoSave';
@@ -75,6 +77,7 @@ const Component: FC<Props> = ({itemDetail}) => {
   const [size, setSize] = useState<'常规' | '全宽' | '超宽'>(itemDetail.size || '常规');
   const [reviewing, setReviewing] = useState<[AbortController, AbortController]>();
   const [inspecting, setInspecting] = useState<AbortController>();
+  const isPreview = useMemo(() => getUrlParam('preview'), []);
 
   const _onSave = useEvent((editor: IDomEditor) => {
     //JSON.stringify(editor.children, null, 2)
@@ -140,24 +143,6 @@ const Component: FC<Props> = ({itemDetail}) => {
       {articleId: itemDetail.id, content: editor!.getHtml(), contType: type, stand},
       (items) => {
         console.log(items);
-        items = [
-          {
-            long: '乙方在租用房屋院内建设厕所、厢房、平房、栽植树木等必须做到不碍四邻的通风、透光、人行、排水、修房、环境卫生等，否则要承担由此引起的一切责任。',
-            source:
-              '乙方在租用房屋院内建设厕所、厢房、平房、栽植树木等必须做到不碍四邻的通风、透光、人行、排水、修房、环境卫生等，否则要承担由此引起的一切责任。',
-            type: '禁止行为范围模糊',
-            reason: '未明确禁止行为的具体范围，可能导致乙方不当行为风险。',
-            target:
-              "建议修改为：'乙方不得在租赁房屋院内擅自建设厕所、厢房、平房或栽植树木，不得影响四邻的通风、采光、通行、排水及环境卫生，否则应承担相应法律责任。'",
-          },
-          {
-            long: '依据《中华人民共和国民法典》及相关法律法规，甲乙双方在平等、自愿的基础上，就房屋租赁事宜达成如下协议：',
-            source: '《中华人民共和国民法典》',
-            type: '禁止行为范围模糊',
-            reason: '未明确禁止行为的具体范围，可能导致乙方不当行为风险。',
-            target: '《中华人民共和国民宪法》',
-          },
-        ];
         const originHtml = editor!.getHtml();
         let newHtml = originHtml;
         items.forEach((item) => {
@@ -354,43 +339,47 @@ const Component: FC<Props> = ({itemDetail}) => {
     <DialogPage size="max" maskClosable={false} showControls={false} showClose={false}>
       <div className={styles.root}>
         <div className="hd">
-          <Space size="large">
-            <HomeOutlined className="icon-link" onClick={() => GetClientRouter().relaunch({url: `/admin/home`}, 'window')} />
-            {itemDetail.docType !== 'tpl' &&
-              (loading === 'create' ? <Spin size="small" /> : <PlusOutlined className="icon-link" onClick={onCreatDoc} title="新建文档" />)}
-            {itemDetail.docType !== 'tpl' && (
-              <Dropdown
-                menu={{
-                  onClick: ({key}: {key: string}) => {
-                    if (key === '下载Word') {
-                      setGlobalLoading(
-                        downloadFile(replaceBaseUrl(`/dream/pen/article/down?id=${itemDetail.id}&type=word`), itemDetail.title),
-                        GetClientRouter().getActivePage().store
-                      );
-                    } else if (key === '下载PDF') {
-                      setGlobalLoading(
-                        downloadFile(replaceBaseUrl(`/dream/pen/article/down?id=${itemDetail.id}&type=pdf`), itemDetail.title),
-                        GetClientRouter().getActivePage().store
-                      );
-                    }
-                  },
-                  items: [
-                    {
-                      key: '下载Word',
-                      label: '下载Word',
+          {isPreview ? (
+            <div>模版预览...</div>
+          ) : (
+            <Space size="large">
+              <HomeOutlined className="icon-link" onClick={() => GetClientRouter().relaunch({url: `/admin/home`}, 'window')} />
+              {itemDetail.docType !== 'tpl' &&
+                (loading === 'create' ? <Spin size="small" /> : <PlusOutlined className="icon-link" onClick={onCreatDoc} title="新建文档" />)}
+              {itemDetail.docType !== 'tpl' && (
+                <Dropdown
+                  menu={{
+                    onClick: ({key}: {key: string}) => {
+                      if (key === '下载Word') {
+                        setGlobalLoading(
+                          downloadFile(replaceBaseUrl(`/dream/pen/article/down?id=${itemDetail.id}&type=word`), itemDetail.title),
+                          GetClientRouter().getActivePage().store
+                        );
+                      } else if (key === '下载PDF') {
+                        setGlobalLoading(
+                          downloadFile(replaceBaseUrl(`/dream/pen/article/down?id=${itemDetail.id}&type=pdf`), itemDetail.title),
+                          GetClientRouter().getActivePage().store
+                        );
+                      }
                     },
-                    {
-                      key: '下载PDF',
-                      label: '下载PDF',
-                    },
-                  ],
-                }}
-              >
-                <MenuOutlined className="icon-link" />
-              </Dropdown>
-            )}
-            {breadcrumb}
-          </Space>
+                    items: [
+                      {
+                        key: '下载Word',
+                        label: '下载Word',
+                      },
+                      {
+                        key: '下载PDF',
+                        label: '下载PDF',
+                      },
+                    ],
+                  }}
+                >
+                  <MenuOutlined className="icon-link" />
+                </Dropdown>
+              )}
+              {breadcrumb}
+            </Space>
+          )}
           <Space align="center" className="info">
             {itemDetail.readonly && <span>只读模式</span>}
             <div>
@@ -408,11 +397,9 @@ const Component: FC<Props> = ({itemDetail}) => {
             ) : (
               <CloudUploadOutlined />
             )}
+            {itemDetail.docType === 'tpl' && <TplRun tpl={itemDetail} />}
             {/* <Undo className="undo" onClick={() => editor?.undo!()} />
             <Redo className="undo" onClick={() => editor?.redo!()} /> */}
-            {/* <Button type="primary" style={{marginLeft: '10px'}}>
-              分享
-            </Button> */}
           </Space>
         </div>
         <div className="cd">

@@ -33,9 +33,21 @@ export function htmlToDsl(html: string): string {
   return '';
 }
 
-export function replaceReviewItem(html: string, item: {long: string; source: string; target: string; type: string; reason: string}): string {
-  const {source, target, long, reason} = item;
-  const longReg = long.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+export function replaceReviewItem(
+  html: string,
+  item: {long: string; source: string; target: string; type: string; reason: string; level: string}
+): string {
+  const {source, target, long, reason, level} = item;
+  if (!source || !long || source === target) {
+    return html;
+  }
+  const sourceReg = source.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const arr = long.match(new RegExp(`[^\\n]*${sourceReg}[^\\n]*`)) || [];
+  const safeLong = arr[0];
+  if (!safeLong) {
+    return html;
+  }
+  const longReg = safeLong.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   return html.replace(new RegExp(`((<(?!\\/)[^>]+>)+)([^>]*${longReg}[^<]*)((<(?=\\/)[^>]+>)*)`, 'g'), (code, start, tag, text, end) => {
     const sourceReg = source.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     start = start
@@ -44,7 +56,7 @@ export function replaceReviewItem(html: string, item: {long: string; source: str
       .replace(/<span data-w-e-type="review"/g, '<span');
     end = end.replace(/<\/(?!span|s|u|em|strong|sup|sub)[^>]+>/g, '').replace(/<\/ul>/, '');
     // console.log(start, text, end);
-    const reviewData = encodeURIComponent(JSON.stringify({source, target, reason}));
+    const reviewData = encodeURIComponent(JSON.stringify({source, target, reason, level}));
     return code.replace(
       new RegExp(sourceReg, 'g'),
       `${end}<span data-w-e-type="review" data-review="${reviewData}">${start}${source}${end}</span>${start}`
@@ -52,9 +64,21 @@ export function replaceReviewItem(html: string, item: {long: string; source: str
   });
 }
 
-export function replaceInspectItem(html: string, item: {long: string; source: string; target: string; type: string; reason: string}): string {
-  const {source, target, long, reason} = item;
-  const longReg = long.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+export function replaceInspectItem(
+  html: string,
+  item: {long: string; source: string; target: string; type: string; reason: string; level: string}
+): string {
+  const {source, target, long, reason, level} = item;
+  if (!source || !long || source === target) {
+    return html;
+  }
+  const sourceReg = source.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const arr = long.match(new RegExp(`[^\\n]*${sourceReg}[^\\n]*`)) || [];
+  const safeLong = arr[0];
+  if (!safeLong) {
+    return html;
+  }
+  const longReg = safeLong.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   return html.replace(new RegExp(`((<(?!\\/)[^>]+>)+)([^>]*${longReg}[^<]*)((<(?=\\/)[^>]+>)*)`, 'g'), (code, start, tag, text, end) => {
     const sourceReg = source.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     start = start
@@ -63,7 +87,7 @@ export function replaceInspectItem(html: string, item: {long: string; source: st
       .replace(/<span data-w-e-type="inspect"/g, '<span');
     end = end.replace(/<\/(?!span|s|u|em|strong|sup|sub)[^>]+>/g, '').replace(/<\/ul>/, '');
     // console.log(start, text, end);
-    const reviewData = encodeURIComponent(JSON.stringify({source, target, reason}));
+    const reviewData = encodeURIComponent(JSON.stringify({source, target, reason, level}));
     return code.replace(
       new RegExp(sourceReg, 'g'),
       `${end}<span data-w-e-type="inspect" data-inspect="${reviewData}">${start}${source}${end}</span>${start}`

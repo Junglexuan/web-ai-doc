@@ -5,5 +5,6 @@ export type InspectElement = {
   reason: string;
   target: string;
   source: string;
+  level: string;
   children: Text[];
 };

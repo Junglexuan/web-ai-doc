@@ -10,7 +10,7 @@ import HomeOutlined from '@/assets/images/Home';
 import Logo from '@/assets/images/logo.svg';
 import StarOutlined from '@/assets/images/Star';
 import TPL from '@/assets/images/tpl';
-import {GetClientRouter, SitesUrl} from '@/Global';
+import {GetClientRouter, SiteInfo, SitesUrl} from '@/Global';
 import DocAPI from '@/modules/doc/api';
 import {getUrlParam} from '@/utils/tools';
 import styles from './index.module.less';
@@ -142,8 +142,8 @@ const Component: FC<{}> = () => {
   return (
     <div className={styles.root}>
       <div className="hd">
-        <img className="logo" src={Logo} />
-        <span className="title">星启·文枢</span>
+        <img className="logo" src={SiteInfo.logo} />
+        <span className="title">{SiteInfo.name}</span>
         <Button className="writer" block type="primary" icon={<EditOutlined />} onClick={onCreate} loading={loading === 'create'}>
           开始写作
         </Button>

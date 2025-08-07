@@ -3,7 +3,7 @@ import {InspectElement} from './custom-types';
 
 function parseElemHtml(elem: Element, children: SlateDescendant[], editor: IDomEditor): SlateElement {
   const inspect = decodeURIComponent(elem.getAttribute('data-inspect') || '');
-  const {source = '', target = '', reason = ''} = inspect ? JSON.parse(inspect) : {};
+  const {source = '', target = '', reason = '', level = ''} = inspect ? JSON.parse(inspect) : {};
 
   children = children.filter((child) => {
     if (SlateText.isText(child)) return true;
@@ -21,6 +21,7 @@ function parseElemHtml(elem: Element, children: SlateDescendant[], editor: IDomE
     reason,
     source,
     target,
+    level,
     children,
   } as InspectElement;
 }

@@ -2,7 +2,7 @@ import {EllipsisOutlined, PlusOutlined, StarFilled, StarOutlined} from '@ant-des
 import {Dispatch, DocumentHead} from '@elux/react-web';
 import {Button, Dropdown, Input, Modal, Tabs} from 'antd';
 import {FC, MouseEvent, memo, useCallback, useEffect, useState} from 'react';
-import {GetActions} from '@/Global';
+import {GetActions, SiteInfo} from '@/Global';
 import {confirm, debounce, openArticle, useEvent} from '@/utils/tools';
 import {DocAPI} from '../../api';
 import {ListItem, ListSearch, ListSummary} from '../../entity';
@@ -101,7 +101,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
 
   return (
     <div className={styles.root}>
-      <DocumentHead title="模版管理-星启·文枢" />
+      <DocumentHead title={'模版管理-' + SiteInfo.name} />
       <div className="hd">
         <div className="ant-breadcrumb tab">
           <span>我的模版</span>

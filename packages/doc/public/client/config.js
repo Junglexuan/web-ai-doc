@@ -10,3 +10,7 @@ window.SitesUrl = {
   pulse: '//pulse.binarysee.com',
 };
 window.PathPrefix = '';
+window.SiteInfo = {
+  logo: '/client/logo.svg',
+  name: '星启·文枢',
+};

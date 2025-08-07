@@ -7,7 +7,7 @@ import zhCN from 'antd/es/locale/zh_CN';
 import {FC} from 'react';
 import ErrorPage from '@/components/ErrorPage';
 import LoadingPanel from '@/components/LoadingPanel';
-import {APPState, LoadComponent} from '@/Global';
+import {APPState, LoadComponent, SiteInfo} from '@/Global';
 import {CurView, SubModule} from '../entity';
 import LoginForm from './LoginForm';
 
@@ -60,7 +60,7 @@ const Component: FC<StoreProps & {dispatch: Dispatch}> = ({dispatch, subModule, 
         },
       }}
     >
-      <DocumentHead title="星启·文枢" />
+      <DocumentHead title={SiteInfo.name} />
       <Switch elseView={<ErrorPage />}>
         {!!error && <ErrorPage message={error} />}
         {subModule === 'admin' && <Admin />}

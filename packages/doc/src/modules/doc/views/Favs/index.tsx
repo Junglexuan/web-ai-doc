@@ -2,7 +2,7 @@ import {DeleteOutlined, DownOutlined, StarFilled} from '@ant-design/icons';
 import {Dispatch, DocumentHead, setLoading as setGlobalLoading} from '@elux/react-web';
 import {Button, Dropdown, Input, Modal, Popover, Space, Table, TableProps} from 'antd';
 import {FC, MouseEvent, memo, useCallback, useEffect, useMemo, useState} from 'react';
-import {GetActions, GetClientRouter} from '@/Global';
+import {GetActions, GetClientRouter, SiteInfo} from '@/Global';
 import {ContractReviewAPI} from '@/modules/contractReview/api';
 import {downloadFile, replaceBaseUrl} from '@/utils/request';
 import {confirm, debounce, openArticle, useEvent} from '@/utils/tools';
@@ -33,7 +33,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
   }, [dispatch]);
 
   const onShowDetail = useEvent((evt: MouseEvent, id: string, type: DocType) => {
-    if (type === 'doc') {
+    if (type === 'doc' || type === 'con') {
       openArticle(`/admin/doc/item/edit/${id}?__c=_dialog`);
     } else if (type === 'tpl') {
       openArticle(`/admin/doc/item/tpl/${id}?__c=_dialog`);
@@ -233,7 +233,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
 
   return (
     <div className={styles.root}>
-      <DocumentHead title="我的收藏-星启·文枢" />
+      <DocumentHead title={'我的收藏-' + SiteInfo.name} />
       <div className="hd">
         <span className="ant-breadcrumb">我的收藏</span>
         <Input.Search allowClear className="search" placeholder="请输入搜索关键字..." onSearch={onSearch} />

@@ -1,13 +1,9 @@
-import {FileProtectOutlined} from '@ant-design/icons';
-import {DomEditor, IDomEditor} from '@wangeditor-next/editor';
+import {IDomEditor} from '@wangeditor-next/editor';
 import {Button, Form, Modal, Select} from 'antd';
-import {FC, memo, useEffect, useMemo, useState} from 'react';
-import {createPortal} from 'react-dom';
+import {FC, memo, useEffect, useState} from 'react';
 import Inspect from '@/assets/images/Inspect';
 import {useEvent} from '@/utils/tools';
 import {DocAPI} from '../../../api';
-import {VariableElement} from '../elements/Variable/custom-types';
-import VarLayer from '../VarLayer';
 import styles from './index.module.less';
 //import './registerMenu';
 

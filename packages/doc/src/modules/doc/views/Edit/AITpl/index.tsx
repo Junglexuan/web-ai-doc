@@ -65,7 +65,9 @@ const Component: FC<Props> = ({editor}) => {
     }
   }, [insertHtml, tplData]);
 
-  const onMaskClick = useCallback(() => {
+  const onMaskClick = useCallback((e: any) => {
+    e.stopPropagation();
+    e.preventDefault();
     addClass(dialogDivRef.current!, 'anmi');
     setTimeout(() => removeClass(dialogDivRef.current!, 'anmi'), 200);
   }, []);
@@ -100,7 +102,7 @@ const Component: FC<Props> = ({editor}) => {
           )}
         </div>
       </div>
-      {/* <div className={styles.mask} onClick={onMaskClick}></div> */}
+      {runningState === 'Pending' && <div className={styles.mask} onMouseDown={onMaskClick}></div>}
       <div ref={tmpDivRef as any} className={styles.temp}></div>
     </>
   );

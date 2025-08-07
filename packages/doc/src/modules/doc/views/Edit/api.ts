@@ -100,7 +100,7 @@ function decodeHtml() {
   };
 }
 
-function decodeReviews(str: string): {long: string; source: string; target: string; type: string; reason: string}[] {
+function decodeReviews(str: string): {long: string; source: string; target: string; type: string; reason: string; level: string}[] {
   let data: any;
   try {
     data = JSON.parse(str);
@@ -116,6 +116,7 @@ function decodeReviews(str: string): {long: string; source: string; target: stri
       type: item.type,
       reason: item.message,
       target: item.suggestions,
+      level: item.lever || '',
     }));
   } else {
     return [];
@@ -372,7 +373,7 @@ function tpl(
 
 function autoReview(
   args: {articleId: string; content: string},
-  onMessage: (items: {long: string; source: string; target: string; type: string; reason: string}[]) => void,
+  onMessage: (items: {long: string; source: string; target: string; type: string; reason: string; level: string}[]) => void,
   onError: (e: any) => void,
   onDone: () => void
 ): [AbortController, AbortController] {
@@ -408,7 +409,7 @@ function autoReview(
 }
 function autoInspect(
   args: {articleId: string; content: string; contType: string; stand: string},
-  onMessage: (items: {long: string; source: string; target: string; type: string; reason: string}[]) => void,
+  onMessage: (items: {long: string; source: string; target: string; type: string; reason: string; level: string}[]) => void,
   onError: (e: any) => void,
   onDone: () => void
 ): AbortController {
