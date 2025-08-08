@@ -10,7 +10,7 @@ const Component: FC<{
   const [form] = Form.useForm();
 
   return (
-    <div className={styles.root}>
+    <div className={styles.edit}>
       <Form className="bd" labelCol={{span: 5}} wrapperCol={{span: 18}} initialValues={data} preserve={false} form={form} onFinish={onSubmit}>
         <Form.Item name="title" label="模版名称" rules={[{required: true, whitespace: true}]}>
           <Input />

@@ -1,9 +1,174 @@
 :global {
-  :local(.root) {
+  :local(.edit) {
+    padding-top: 20px;
+
     > .ft {
       padding: 10px 20px;
       text-align: right;
       border-top: 1px solid #eee;
+    }
+  }
+
+  :local(.card) {
+    position: relative;
+
+    > .collect {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      color: #ffb601;
+    }
+
+    > .anticon-star-outline {
+      color: #ccc;
+    }
+
+    > .title {
+      padding: 22px 20px 18px;
+      overflow: hidden;
+      font-size: 16px;
+      font-weight: bold;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      background: linear-gradient(180deg, rgba(27, 104, 252, 0.15) 0%, rgba(27, 104, 252, 0) 100%);
+    }
+
+    > .remark {
+      /* stylelint-disable-next-line value-no-vendor-prefix */
+      display: -webkit-box;
+      height: 4.5em;
+      margin: 0 20px;
+      overflow: hidden;
+      font-size: 14px;
+      line-height: 1.5;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+    }
+
+    > .tags {
+      display: flex;
+      padding: 14px 0;
+      margin: 0 20px;
+
+      > * {
+        padding: 2px 5px;
+        font-size: 12px;
+        color: #1b68fc;
+        background: rgba(27, 104, 252, 0.15);
+        border-radius: 2px;
+      }
+
+      > .on {
+        color: #828384;
+        background: rgba(130, 131, 132, 0.15);
+      }
+    }
+
+    > .creater {
+      padding-top: 14px;
+      margin: 0 20px 20px;
+      color: #999;
+      border-top: 1px solid #eee;
+    }
+
+    > .mask {
+      position: absolute;
+      top: 0;
+      left: 0;
+      box-sizing: border-box;
+      display: none;
+      width: 100%;
+      height: 100%;
+      padding-top: 97px;
+      text-align: center;
+      background-color: #0008;
+    }
+
+    &:hover {
+      > .mask {
+        display: block;
+      }
+    }
+  }
+
+  :local(.mask) {
+    > .ant-btn {
+      display: inline-block;
+      padding: 0 10px;
+      margin: 0 4px;
+      font-size: 13px;
+      line-height: 30px;
+      vertical-align: middle;
+      background-color: #fff;
+      border-radius: 5px;
+
+      &.use {
+        color: #fff;
+        background: linear-gradient(270deg, #1b68fc 0%, #81acff 100%);
+
+        &:hover {
+          background: linear-gradient(270deg, #1b68fc 0%, #1b68fc 100%);
+        }
+      }
+
+      &.more {
+        position: relative;
+
+        &:hover {
+          > .dropdown {
+            display: block;
+          }
+        }
+      }
+    }
+
+    .dropdown {
+      position: absolute;
+      left: 0;
+      display: none;
+      width: 100px;
+      padding-top: 10px;
+      margin-top: -5px;
+      overflow: hidden;
+      border-radius: 5px;
+
+      > div {
+        padding: 0 20px;
+        font-size: 13px;
+        background-color: #fff;
+        border-bottom: 1px solid #eee;
+
+        &:first-child {
+          border-radius: 5px 5px 0 0;
+        }
+
+        &:hover {
+          background-color: #f7f7f7;
+        }
+      }
+    }
+  }
+
+  :local(.tab) {
+    display: flex;
+    gap: 20px;
+    font-size: 16px;
+    font-weight: 600;
+
+    > a {
+      padding-bottom: 10px;
+      color: inherit;
+      text-decoration: none;
+      cursor: pointer;
+      border-bottom: 3px solid #fff;
+
+      &:hover {
+        opacity: 0.8;
+      }
+
+      &.on {
+        border-color: #1b68fc;
+      }
     }
   }
 }

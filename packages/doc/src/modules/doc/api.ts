@@ -147,7 +147,7 @@ export const DocAPI = {
     });
   },
   getList(search: ListSearch): Promise<ListResult> {
-    const {render, name, type, sorterOrder, sorterField} = search;
+    const {render, name, type, owner, sorterOrder, sorterField} = search;
     const id = search.id || (render === 'conts' ? '1' : '0');
     const docOrCont = render === 'conts' ? '4' : '2';
     return Promise.all([
@@ -161,7 +161,7 @@ export const DocAPI = {
           })
         : render === 'tpls'
         ? request.get(`/dream/pen/template/list`, {
-            params: {name, type, order: sorterOrder === 'ascend' ? 'asc' : undefined, page: 1, pageSize: 99999},
+            params: {name, type, key: owner, order: sorterOrder === 'ascend' ? 'asc' : undefined, page: 1, pageSize: 99999},
           })
         : request.get(`/dream/pen/dFolder/list`, {params: {id, name, order: sorterOrder === 'ascend' ? 'asc' : undefined}}),
       render === 'maintain' || render === 'conts' ? request.get(`/dream/pen/dFolder/level`, {params: {id, type: docOrCont}}) : ({} as any),

@@ -444,20 +444,15 @@ export const AiAPI = {
   web,
   tpl,
   getMyKnowledges(): Promise<{label: string; value: string}[]> {
-    return Promise.resolve([
-      {label: 'aa', value: '11'},
-      {label: 'bb', value: '22'},
-      {label: 'cc', value: '33'},
-    ]);
-    // return request.get('/dream/pen/know/dialog').then((res) => {
-    //   return [
-    //     {label: 'aa', value: '11'},
-    //     {label: 'bb', value: '22'},
-    //     {label: 'cc', value: '33'},
-    //   ];
-    //   // const list: any[] = res.data.data || [];
-    //   // return list.map((item) => ({label: item.name, value: item.id}));
-    // });
+    return request.get('/dream/pen/know/dialog').then((res) => {
+      return [
+        {label: 'aa', value: '11'},
+        {label: 'bb', value: '22'},
+        {label: 'cc', value: '33'},
+      ];
+      // const list: any[] = res.data.data || [];
+      // return list.map((item) => ({label: item.name, value: item.id}));
+    });
   },
   getMyRobots(): Promise<{label: string; value: string}[]> {
     return request.get('/dream/pen/know/dialog').then((res) => {

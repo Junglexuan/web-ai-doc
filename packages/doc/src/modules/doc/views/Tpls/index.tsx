@@ -1,6 +1,6 @@
-import {EllipsisOutlined, PlusOutlined, StarFilled, StarOutlined} from '@ant-design/icons';
-import {Dispatch, DocumentHead} from '@elux/react-web';
-import {Button, Dropdown, Input, Modal, Tabs} from 'antd';
+import {EllipsisOutlined, EyeOutlined, PlusOutlined, StarFilled, StarOutlined} from '@ant-design/icons';
+import {Dispatch, DocumentHead, Link} from '@elux/react-web';
+import {Button, Input, Modal} from 'antd';
 import {FC, MouseEvent, memo, useCallback, useEffect, useState} from 'react';
 import {GetActions, SiteInfo} from '@/Global';
 import {confirm, debounce, openArticle, useEvent} from '@/utils/tools';
@@ -9,6 +9,7 @@ import {ListItem, ListSearch, ListSummary} from '../../entity';
 import styles from '../Maintain/index.module.less';
 import Wizard, {WizardFormData} from '../Wizard';
 import Edit from './Edit';
+import styles2 from './index.module.less';
 
 interface Props {
   dispatch: Dispatch;
@@ -103,9 +104,13 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
     <div className={styles.root}>
       <DocumentHead title={'模版管理-' + SiteInfo.name} />
       <div className="hd">
-        <div className="ant-breadcrumb tab">
-          <span>我的模版</span>
-          <span>全部模版</span>
+        <div className={styles2.tab}>
+          <Link className={listSearch.owner === 'mine' ? '' : 'on'} to="/admin/doc/list/tpls" action="relaunch" target="window">
+            全部模版
+          </Link>
+          <Link className={listSearch.owner === 'mine' ? 'on' : ''} to="/admin/doc/list/tpls?owner=mine" action="relaunch" target="window">
+            我的模版
+          </Link>
         </div>
         <Input.Search value={listSearch.name} allowClear className="search" placeholder="请输入搜索关键字..." onSearch={onSearch} />
       </div>
@@ -117,7 +122,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
       <div className="md" style={{height: scrollHeight}}>
         {list.map((item) => {
           return (
-            <div className={styles.card} key={item.id} onClick={(e) => onShowTpl(e as MouseEvent, item.id)}>
+            <div className={styles2.card} key={item.id}>
               {item.collect ? (
                 <StarFilled className="collect" onClick={(e) => onCollect(e, item.id, !item.collect)} />
               ) : (
@@ -130,41 +135,35 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
               </div>
               <div className="creater">
                 <span>{`${item.createUserName} 创建于 ${item.createDate}`}</span>
-                <Dropdown
-                  menu={{
-                    onClick({key, domEvent}) {
-                      domEvent.stopPropagation();
-                      domEvent.preventDefault();
-                      if (key === 'edit') {
-                        setCurEdit(item);
-                      } else if (key === 'delete') {
-                        confirm(`您确定要删除《${item.title}》吗？`, (ok) => {
-                          if (ok) {
-                            DocAPI.deleteItem(item.id, 'tpl').then(refreshList);
-                          }
-                        });
-                      } else if (key === 'apply') {
-                        onApplyTpl(item.id);
-                      }
-                    },
-                    items: [
-                      {
-                        key: 'apply',
-                        label: '立即使用',
-                      },
-                      {
-                        key: 'edit',
-                        label: '重命名',
-                      },
-                      {
-                        key: 'delete',
-                        label: '删除模版',
-                      },
-                    ],
-                  }}
-                >
-                  <EllipsisOutlined />
-                </Dropdown>
+              </div>
+              <div className={'mask ' + styles2.mask}>
+                {item.isSystem || item.isShare ? (
+                  <div className="ant-btn">
+                    <EyeOutlined />
+                  </div>
+                ) : (
+                  <div className="ant-btn more">
+                    <EllipsisOutlined />
+                    <div className="dropdown">
+                      <div>预览模版</div>
+                      <div onClick={() => setCurEdit(item)}>修改信息</div>
+                      <div
+                        onClick={() => {
+                          confirm(`您确定要删除《${item.title}》吗？`, (ok) => {
+                            if (ok) {
+                              DocAPI.deleteItem(item.id, 'tpl').then(refreshList);
+                            }
+                          });
+                        }}
+                      >
+                        删除模版
+                      </div>
+                    </div>
+                  </div>
+                )}
+                <div className="ant-btn use" onClick={() => onApplyTpl(item.id)}>
+                  立即使用
+                </div>
               </div>
             </div>
           );
