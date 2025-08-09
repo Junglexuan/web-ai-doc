@@ -18,6 +18,7 @@ import {confirm, debounce, openArticle, useEvent} from '@/utils/tools';
 import {DocAPI} from '../../api';
 import {DocType, ListItem, ListSearch, ListSummary, TplsOptions} from '../../entity';
 import styles from '../Maintain/index.module.less';
+import Preview from '../Preview';
 import Wizard, {WizardFormData} from '../Wizard';
 
 interface Props {
@@ -37,6 +38,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
   const [showMove, setShowMove] = useState('');
   const [wizardData, setWizardData] = useState<WizardFormData>();
   const [tplsOptions, setTplsOptions] = useState<TplsOptions>();
+  const [previewTpl, setPreviewTpl] = useState<{tplId: string; snapshot: string; isMine: boolean}>();
 
   const refreshList = useCallback(() => {
     return dispatch(docActions.fetchList());
@@ -331,6 +333,10 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [listSummary.levelPath]);
 
+  const onPriview = useEvent((tplId: string) => {
+    setPreviewTpl({tplId, snapshot: '', isMine: false});
+  });
+
   const onTableChange = useEvent((pagination: any, filter: any, _sorter: any) => {
     const sorter = _sorter as {field: string; order: 'ascend' | 'descend' | undefined};
     const sorterField = (sorter.order && sorter.field) || undefined;
@@ -388,8 +394,16 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
         />
       </div>
       {wizardData && (
-        <Wizard kind="conts" tplsOptions={tplsOptions} data={wizardData} onCancel={() => setWizardData(undefined)} onsubmit={onWizardSubmit} />
+        <Wizard
+          kind="conts"
+          tplsOptions={tplsOptions}
+          data={wizardData}
+          onCancel={() => setWizardData(undefined)}
+          onSubmit={onWizardSubmit}
+          onPriview={onPriview}
+        />
       )}
+      {previewTpl && <Preview data={previewTpl} onCancel={() => setPreviewTpl(undefined)} />}
     </div>
   );
 };

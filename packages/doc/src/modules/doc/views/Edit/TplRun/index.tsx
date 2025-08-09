@@ -49,7 +49,7 @@ const Component: FC<Props> = ({tpl}) => {
       >
         试运行
       </Button>
-      {wizardData && <Wizard data={wizardData} onCancel={() => setWizardData(undefined)} onsubmit={onWizardSubmit} />}
+      {wizardData && <Wizard data={wizardData} onCancel={() => setWizardData(undefined)} onSubmit={onWizardSubmit} />}
     </>
   );
 };

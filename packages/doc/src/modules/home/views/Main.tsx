@@ -1,8 +1,10 @@
+import {EyeOutlined} from '@ant-design/icons';
 import {DocumentHead, connectStore} from '@elux/react-web';
 import {Carousel} from 'antd';
 import {FC, MouseEvent, useEffect, useMemo, useState} from 'react';
 import {PathPrefix} from '@/Global';
 import DocAPI from '@/modules/doc/api';
+import Preview from '@/modules/doc/views/Preview';
 import Wizard, {WizardFormData} from '@/modules/doc/views/Wizard';
 import {openArticle, useEvent} from '@/utils/tools';
 import HomeAPI from '../api';
@@ -22,6 +24,7 @@ const Component: FC = () => {
   const [wizardData, setWizardData] = useState<WizardFormData>();
   const [hotArticleList, setHotArticleList] = useState<HotArticle[]>([]);
   const [hotTemplateList, setHotTemplateList] = useState<HotTemplate[]>([]);
+  const [previewTpl, setPreviewTpl] = useState<{tplId: string; snapshot: string; isMine: boolean}>();
 
   const getHotArticeList = useEvent(async () => {
     const _articleList = await HomeAPI.getHotArticleList(RECENT_CREATIONS_LIMIT);
@@ -32,10 +35,10 @@ const Component: FC = () => {
     setHotTemplateList(_templateList);
   });
 
-  const onCreateByTpl = useEvent((tplId: string, fields?: {[field: string]: string}) => {
+  const onCreateByTpl = useEvent((tplId: string, fields?: {[field: string]: string}, knowledges?: string[]) => {
     DocAPI.getDoc(tplId).then((tpl) => {
       DocAPI.createDoc({folder: '0', title: tpl.title, contents: ''}, 'doc').then(async ({id}) => {
-        window.sessionStorage.setItem('__temp_tpl__', JSON.stringify({id: tplId, fields}));
+        window.sessionStorage.setItem('__temp_tpl__', JSON.stringify({id: tplId, fields, knowledges}));
         openArticle(`/admin/doc/item/edit/${id}?&tpl=${tpl.id}&__c=_dialog`);
       });
     });
@@ -43,17 +46,13 @@ const Component: FC = () => {
 
   const onApplyTpl = useEvent((tplId: string) => {
     DocAPI.getTplFields(tplId).then((fields) => {
-      if (fields.length) {
-        setWizardData({tplId, fields});
-      } else {
-        onCreateByTpl(tplId);
-      }
+      setWizardData({tplId, fields});
     });
   });
 
-  const onWizardSubmit = useEvent((tplId: string, fields: {[field: string]: string}) => {
+  const onWizardSubmit = useEvent((tplId: string, fields: {[field: string]: string}, knowledges: string[]) => {
     setWizardData(undefined);
-    onCreateByTpl(tplId, fields);
+    onCreateByTpl(tplId, fields, knowledges);
   });
 
   const onShowDetail = useEvent((evt: MouseEvent, id: string) => {
@@ -82,13 +81,26 @@ const Component: FC = () => {
     return (
       <div className="popular-creations">
         {hotTemplateList.map((item, index) => (
-          <div key={index} className="creation-item" onClick={() => onApplyTpl(item.id)}>
+          <div key={index} className="creation-item">
             <div className="icon-title">
               <div className={'icon' + (item.isShare && ` share`)}></div>
               <div className="title">{item.title}</div>
             </div>
             <div className="description" title={item.remark}>
               {item.remark}
+            </div>
+            <div className={'mask ' + styles.mask}>
+              <div className="ant-btn view" onClick={() => setPreviewTpl({tplId: item.id, snapshot: item.snapshot, isMine: item.isMine})}>
+                <EyeOutlined />
+              </div>
+              <div
+                className="ant-btn use"
+                onClick={() => {
+                  onApplyTpl(item.id);
+                }}
+              >
+                立即使用
+              </div>
             </div>
           </div>
         ))}
@@ -126,7 +138,8 @@ const Component: FC = () => {
         </div>
         {renderHotTemplate}
       </div>
-      {wizardData && <Wizard data={wizardData} onCancel={() => setWizardData(undefined)} onsubmit={onWizardSubmit} />}
+      {wizardData && <Wizard data={wizardData} onCancel={() => setWizardData(undefined)} onSubmit={onWizardSubmit} />}
+      {previewTpl && <Preview data={previewTpl} onCancel={() => setPreviewTpl(undefined)} onApply={onApplyTpl} />}
     </div>
   );
 };

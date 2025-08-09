@@ -219,15 +219,17 @@ export const DocAPI = {
     });
   },
   getTplFields(id: string, kind: 'conts' | 'docs' = 'docs'): Promise<TplFields[]> {
-    console.log(kind);
-    return request.get('/dream/pen/template/getTemplateByType/' + id.split(',')[0]).then((docRes) => {
-      const list: any[] = docRes.data.data.pluginVo || [];
-      return list.map((item) => ({
-        name: item.field,
-        value: item.argument.desc || item.argument,
-        label: item.field,
-      }));
-    });
+    return setGlobalLoading(
+      request.get('/dream/pen/template/getTemplateByType/' + id.split(',')[0]).then((docRes) => {
+        const list: any[] = docRes.data.data.pluginVo || [];
+        return list.map((item) => ({
+          name: item.field,
+          value: item.argument.desc || item.argument,
+          label: item.field,
+        }));
+      }),
+      GetClientRouter().getActivePage().store
+    );
   },
   contractReview(
     docId: string,

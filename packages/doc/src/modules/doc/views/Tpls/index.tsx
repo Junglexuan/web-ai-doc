@@ -7,6 +7,7 @@ import {confirm, debounce, openArticle, useEvent} from '@/utils/tools';
 import {DocAPI} from '../../api';
 import {ListItem, ListSearch, ListSummary} from '../../entity';
 import styles from '../Maintain/index.module.less';
+import Preview from '../Preview';
 import Wizard, {WizardFormData} from '../Wizard';
 import Edit from './Edit';
 import styles2 from './index.module.less';
@@ -24,6 +25,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
   const [scrollHeight, setScrollHeight] = useState(() => window.innerHeight - 205);
   const [curEdit, setCurEdit] = useState<ListItem>();
   const [wizardData, setWizardData] = useState<WizardFormData>();
+  const [previewTpl, setPreviewTpl] = useState<{tplId: string; snapshot: string; isMine: boolean}>();
 
   const refreshList = useCallback(() => {
     return dispatch(docActions.fetchList());
@@ -67,11 +69,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
 
   const onApplyTpl = useEvent((tplId: string) => {
     DocAPI.getTplFields(tplId).then((fields) => {
-      if (fields.length) {
-        setWizardData({tplId, fields});
-      } else {
-        onCreateByTpl(tplId);
-      }
+      setWizardData({tplId, fields});
     });
   });
 
@@ -81,10 +79,6 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
 
   const onSearch = useEvent((name: string) => {
     dispatch(docActions.fetchList({...listSearch, name}));
-  });
-
-  const onTabChange = useEvent((type: string) => {
-    dispatch(docActions.fetchList({...listSearch, name: undefined, type}));
   });
 
   const onWizardSubmit = useEvent((tplId: string, fields: {[field: string]: string}, knowledges: string[]) => {
@@ -136,16 +130,28 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
               <div className="creater">
                 <span>{`${item.createUserName} 创建于 ${item.createDate}`}</span>
               </div>
-              <div className={'mask ' + styles2.mask}>
-                {item.isSystem || item.isShare ? (
-                  <div className="ant-btn">
+              <div
+                className={'mask ' + styles2.mask}
+                onClick={(e) => {
+                  if (e.target === e.currentTarget) {
+                    onShowTpl(e as MouseEvent, item.id);
+                  }
+                }}
+              >
+                {item.collect ? (
+                  <StarFilled className="collect" onClick={(e) => onCollect(e, item.id, !item.collect)} />
+                ) : (
+                  <StarOutlined className="collect anticon-star-outline" onClick={(e) => onCollect(e, item.id, !item.collect)} />
+                )}
+                {!item.isMine ? (
+                  <div className="ant-btn preview" onClick={() => setPreviewTpl({tplId: item.id, isMine: false, snapshot: item.snapshot || ''})}>
                     <EyeOutlined />
                   </div>
                 ) : (
                   <div className="ant-btn more">
                     <EllipsisOutlined />
                     <div className="dropdown">
-                      <div>预览模版</div>
+                      <div onClick={() => setPreviewTpl({tplId: item.id, isMine: true, snapshot: item.snapshot || ''})}>预览模版</div>
                       <div onClick={() => setCurEdit(item)}>修改信息</div>
                       <div
                         onClick={() => {
@@ -174,7 +180,8 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
           <Edit data={curEdit} onCancel={onCloseEdit} onSubmit={onEditSubmit} />
         </Modal>
       )}
-      {wizardData && <Wizard data={wizardData} onCancel={() => setWizardData(undefined)} onsubmit={onWizardSubmit} />}
+      {wizardData && <Wizard data={wizardData} onCancel={() => setWizardData(undefined)} onSubmit={onWizardSubmit} />}
+      {previewTpl && <Preview data={previewTpl} onCancel={() => setPreviewTpl(undefined)} onApply={onApplyTpl} />}
     </div>
   );
 };

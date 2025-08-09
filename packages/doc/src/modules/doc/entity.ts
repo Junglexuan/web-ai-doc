@@ -27,6 +27,8 @@ export interface ListItem extends BaseListItem {
   remark?: string;
   isShare?: boolean;
   isSystem?: boolean;
+  isMine?: boolean;
+  snapshot?: string;
 }
 export interface ListSummary extends BaseListSummary {
   levelPath: {id: string; folderName: string; parent: string}[];

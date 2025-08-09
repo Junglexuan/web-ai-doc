@@ -9,10 +9,13 @@ export interface HotArticle {
   levelPath: string; //文章路径
 }
 export interface HotTemplate {
+  id: string;
   title: string; //模板名称
   remark: string; //备注
   contents: string;
-  isShare: number;
-  isHot: number;
-  id: string;
+  snapshot: string;
+  isShare: boolean;
+  isSystem: boolean;
+  isHot: boolean;
+  isMine: boolean;
 }

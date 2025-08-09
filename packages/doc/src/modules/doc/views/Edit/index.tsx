@@ -50,8 +50,6 @@ interface Props {
   itemDetail: ItemDetail;
 }
 
-//console.log(replaceReviewItem(html, item));
-
 const Component: FC<Props> = ({itemDetail}) => {
   const defaultConfig = useMemo(() => {
     if (itemDetail.readonly) {

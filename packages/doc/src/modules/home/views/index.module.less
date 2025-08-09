@@ -117,12 +117,14 @@
       margin-left: -10px;
 
       .creation-item {
+        position: relative;
         box-sizing: border-box;
         flex: 0 0 calc(25% - 20px);
         max-width: calc(25% - 20px);
         max-height: 147px;
         padding: 20px;
         margin: 10px;
+        overflow: hidden;
         text-decoration: none;
         cursor: pointer;
         background-color: #fff;
@@ -131,6 +133,10 @@
 
         &:hover {
           box-shadow: 0 0 5px rgba(0, 87, 218, 0.2);
+
+          .mask {
+            display: block;
+          }
         }
 
         .icon-title {
@@ -172,6 +178,47 @@
           /* 限制显示行数 */
           text-overflow: ellipsis;
           letter-spacing: 0;
+        }
+
+        .mask {
+          position: absolute;
+          top: 0;
+          left: 0;
+          box-sizing: border-box;
+          display: none;
+          width: 100%;
+          height: 100%;
+          padding-top: 62px;
+          text-align: center;
+          background-color: #0008;
+        }
+      }
+    }
+  }
+
+  :local(.mask) {
+    > .ant-btn {
+      display: inline-block;
+      padding: 0 10px;
+      margin: 0 4px;
+      font-size: 13px;
+      line-height: 30px;
+      vertical-align: middle;
+      background-color: #fff;
+      border-radius: 5px;
+
+      &.use {
+        color: #fff;
+        background: linear-gradient(270deg, #1b68fc 0%, #81acff 100%);
+
+        &:hover {
+          background: linear-gradient(270deg, #1b68fc 0%, #1b68fc 100%);
+        }
+      }
+
+      &.view {
+        &:hover {
+          background-color: #eee;
         }
       }
     }

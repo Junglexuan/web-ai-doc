@@ -387,7 +387,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
           onChange={onTableChange}
         />
       </div>
-      {wizardData && <Wizard tplsOptions={tplsOptions} data={wizardData} onCancel={() => setWizardData(undefined)} onsubmit={onWizardSubmit} />}
+      {wizardData && <Wizard tplsOptions={tplsOptions} data={wizardData} onCancel={() => setWizardData(undefined)} onSubmit={onWizardSubmit} />}
     </div>
   );
 };
