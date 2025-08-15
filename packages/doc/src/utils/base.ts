@@ -1,8 +1,6 @@
 export interface CurUser {
   id: string;
   username: string;
-  agencyID: number;
-  userType: number;
   hasLogin: boolean;
 }
 

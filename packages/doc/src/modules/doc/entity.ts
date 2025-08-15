@@ -21,6 +21,7 @@ export interface ListItem extends BaseListItem {
   articleCount: number;
   articleSize: number;
   updateDate: string;
+  createUser: string;
   createUserName: string;
   createDate: string;
   collect: number;
@@ -45,8 +46,10 @@ export interface ItemDetail {
   title: string;
   contents: string;
   articleDsl: string;
+  snapshot: string;
   collect: number;
   folder: string;
+  createUser: string;
   createUserName: string;
   createDate: string;
   articleCount: number;
@@ -54,6 +57,8 @@ export interface ItemDetail {
   levelPath: {id: string; folderName: string; parent: string}[];
   docType: DocType;
   isShare?: boolean;
+  isSystem?: boolean;
+  isMine?: boolean;
   readonly?: boolean;
 }
 export interface EditItem extends BaseListItem {}

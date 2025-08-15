@@ -92,6 +92,13 @@ const Component: FC<Props> = ({tplsOptions = [], data, onCancel, onSubmit, onPri
     return null;
   }, [curStep, onPrev, step0Able]);
 
+  const onBeforePreview = useEvent(() => {
+    const tplId = kind === 'conts' ? curType?.value : curTplId;
+    if (tplId && onPriview) {
+      onPriview(tplId);
+    }
+  });
+
   return (
     <Modal open={true} footer={null} onCancel={onCancel} width={800} maskClosable={false} title={kind === 'conts' ? '起草合同' : '起草公文'}>
       <div className={styles.root}>
@@ -150,7 +157,7 @@ const Component: FC<Props> = ({tplsOptions = [], data, onCancel, onSubmit, onPri
           )}
         </div>
         <div className="ft">
-          {kind === 'conts' && curStep === 0 && <Button onClick={() => onPriview?.(curType?.value || '')}>预览</Button>}
+          {curStep === 0 && <Button onClick={onBeforePreview}>预览</Button>}
           {showPrev}
           <Button type="primary" onClick={onNext}>
             下一步

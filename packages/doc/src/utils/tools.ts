@@ -219,14 +219,19 @@ export function createAutoId(ids: string[]): () => number {
 export const getToken = (): string => {
   //const [agencyID, token] = (localStorage.getItem(TokenStorageKey) || '').split('|');
   const token = localStorage.getItem('zov-user-token') || '';
-  //const info = localStorage.getItem('zov-user-info') || '';
-  //const user = info ? JSON.parse(info) : {};
+  //
   return token;
 };
 
 export const clearToken = (): void => {
   localStorage.removeItem('zov-user-token');
   localStorage.removeItem('Authorization');
+};
+
+export const getCurUserId = (): string => {
+  const info = localStorage.getItem('zov-user-info');
+  const user = info ? JSON.parse(info) : {};
+  return user.id || '';
 };
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function countPagination(pageCurrent: number, totalItems: number, pageSize: number) {

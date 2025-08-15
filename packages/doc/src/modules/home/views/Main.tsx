@@ -24,7 +24,7 @@ const Component: FC = () => {
   const [wizardData, setWizardData] = useState<WizardFormData>();
   const [hotArticleList, setHotArticleList] = useState<HotArticle[]>([]);
   const [hotTemplateList, setHotTemplateList] = useState<HotTemplate[]>([]);
-  const [previewTpl, setPreviewTpl] = useState<{tplId: string; snapshot: string; isMine: boolean}>();
+  const [previewTpl, setPreviewTpl] = useState<string>();
 
   const getHotArticeList = useEvent(async () => {
     const _articleList = await HomeAPI.getHotArticleList(RECENT_CREATIONS_LIMIT);
@@ -90,7 +90,7 @@ const Component: FC = () => {
               {item.remark}
             </div>
             <div className={'mask ' + styles.mask}>
-              <div className="ant-btn view" onClick={() => setPreviewTpl({tplId: item.id, snapshot: item.snapshot, isMine: item.isMine})}>
+              <div className="ant-btn view" onClick={() => setPreviewTpl(item.id)}>
                 <EyeOutlined />
               </div>
               <div
@@ -139,7 +139,7 @@ const Component: FC = () => {
         {renderHotTemplate}
       </div>
       {wizardData && <Wizard data={wizardData} onCancel={() => setWizardData(undefined)} onSubmit={onWizardSubmit} />}
-      {previewTpl && <Preview data={previewTpl} onCancel={() => setPreviewTpl(undefined)} onApply={onApplyTpl} />}
+      {previewTpl && <Preview tplId={previewTpl} onCancel={() => setPreviewTpl(undefined)} onApply={onApplyTpl} />}
     </div>
   );
 };

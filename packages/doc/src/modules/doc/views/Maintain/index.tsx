@@ -17,6 +17,7 @@ import {downloadFile, getUploadProps, replaceBaseUrl} from '@/utils/request';
 import {confirm, debounce, openArticle, useEvent} from '@/utils/tools';
 import {DocAPI} from '../../api';
 import {DocType, ListItem, ListSearch, ListSummary, TplsOptions} from '../../entity';
+import Preview from '../Preview';
 import Wizard, {WizardFormData} from '../Wizard';
 import styles from './index.module.less';
 interface Props {
@@ -36,6 +37,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
   const [showMove, setShowMove] = useState('');
   const [wizardData, setWizardData] = useState<WizardFormData>();
   const [tplsOptions, setTplsOptions] = useState<TplsOptions>();
+  const [previewTpl, setPreviewTpl] = useState<string>();
 
   const refreshList = useCallback(() => {
     return dispatch(docActions.fetchList());
@@ -387,7 +389,16 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
           onChange={onTableChange}
         />
       </div>
-      {wizardData && <Wizard tplsOptions={tplsOptions} data={wizardData} onCancel={() => setWizardData(undefined)} onSubmit={onWizardSubmit} />}
+      {previewTpl && <Preview tplId={previewTpl} onCancel={() => setPreviewTpl(undefined)} />}
+      {wizardData && (
+        <Wizard
+          tplsOptions={tplsOptions}
+          data={wizardData}
+          onCancel={() => setWizardData(undefined)}
+          onSubmit={onWizardSubmit}
+          onPriview={setPreviewTpl}
+        />
+      )}
     </div>
   );
 };

@@ -8,16 +8,12 @@ export const guest: CurUser = {
   id: '',
   username: '游客',
   hasLogin: false,
-  agencyID: 1,
-  userType: 1,
 };
 
 export const admin: CurUser = {
   id: 'aaaa',
   username: '游客',
   hasLogin: true,
-  agencyID: 6,
-  userType: 1,
 };
 
 class API {
@@ -25,14 +21,19 @@ class API {
     if (ticket) {
       return request.post(`/dream/pen/sso/login?ticket=${ticket}`).then(
         (res) => {
-          const {token, tokenKnowledge, ...user} = res.data.data;
+          const {token, tokenKnowledge, userId, username} = res.data.data;
+          const user: CurUser = {
+            id: userId,
+            username,
+            hasLogin: true,
+          };
           localStorage.setItem('Authorization', tokenKnowledge);
           localStorage.setItem('zov-user-token', token);
           localStorage.setItem('zov-user-info', JSON.stringify(user));
           setTimeout(() => {
             window.location.href = redirect || '/';
           });
-          return {...user, hasLogin: true};
+          return user;
         },
         () => guest
       );
@@ -56,25 +57,25 @@ class API {
     });
   }
 
-  public login(params: LoginParams): Promise<CurUser> {
-    const {password, username} = params;
-    let passwordEncryption = '';
-    if (password) {
-      const encrypt = new JSEncrypt();
-      encrypt.setPublicKey(PublicKey);
-      passwordEncryption = encrypt.encrypt(password) || '';
-    }
-    if (!passwordEncryption) {
-      throw '密码错误';
-    }
-    return request.post('/user/usercenter/platform/agency/auth/login', {userName: username, passwordEncryption}).then((res) => {
-      const {token, ...user} = res.data.data;
-      const {agencyID, platformUserID, userType} = user;
-      localStorage.setItem('zov-user-token', token);
-      localStorage.setItem('zov-user-info', JSON.stringify(user));
-      return {id: platformUserID, username, agencyID, userType, hasLogin: true};
-    });
-  }
+  // public login(params: LoginParams): Promise<CurUser> {
+  //   const {password, username} = params;
+  //   let passwordEncryption = '';
+  //   if (password) {
+  //     const encrypt = new JSEncrypt();
+  //     encrypt.setPublicKey(PublicKey);
+  //     passwordEncryption = encrypt.encrypt(password) || '';
+  //   }
+  //   if (!passwordEncryption) {
+  //     throw '密码错误';
+  //   }
+  //   return request.post('/user/usercenter/platform/agency/auth/login', {userName: username, passwordEncryption}).then((res) => {
+  //     const {token, ...user} = res.data.data;
+  //     const {agencyID, platformUserID, userType} = user;
+  //     localStorage.setItem('zov-user-token', token);
+  //     localStorage.setItem('zov-user-info', JSON.stringify(user));
+  //     return {id: platformUserID, username, agencyID, userType, hasLogin: true};
+  //   });
+  // }
 }
 
 export default new API();

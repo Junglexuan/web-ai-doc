@@ -25,7 +25,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
   const [scrollHeight, setScrollHeight] = useState(() => window.innerHeight - 205);
   const [curEdit, setCurEdit] = useState<ListItem>();
   const [wizardData, setWizardData] = useState<WizardFormData>();
-  const [previewTpl, setPreviewTpl] = useState<{tplId: string; snapshot: string; isMine: boolean}>();
+  const [previewTpl, setPreviewTpl] = useState<string>();
 
   const refreshList = useCallback(() => {
     return dispatch(docActions.fetchList());
@@ -144,14 +144,14 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
                   <StarOutlined className="collect anticon-star-outline" onClick={(e) => onCollect(e, item.id, !item.collect)} />
                 )}
                 {!item.isMine ? (
-                  <div className="ant-btn preview" onClick={() => setPreviewTpl({tplId: item.id, isMine: false, snapshot: item.snapshot || ''})}>
+                  <div className="ant-btn preview" onClick={() => setPreviewTpl(item.id)}>
                     <EyeOutlined />
                   </div>
                 ) : (
                   <div className="ant-btn more">
                     <EllipsisOutlined />
                     <div className="dropdown">
-                      <div onClick={() => setPreviewTpl({tplId: item.id, isMine: true, snapshot: item.snapshot || ''})}>预览模版</div>
+                      <div onClick={() => setPreviewTpl(item.id)}>预览模版</div>
                       <div onClick={() => setCurEdit(item)}>修改信息</div>
                       <div
                         onClick={() => {
@@ -181,7 +181,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
         </Modal>
       )}
       {wizardData && <Wizard data={wizardData} onCancel={() => setWizardData(undefined)} onSubmit={onWizardSubmit} />}
-      {previewTpl && <Preview data={previewTpl} onCancel={() => setPreviewTpl(undefined)} onApply={onApplyTpl} />}
+      {previewTpl && <Preview tplId={previewTpl} onCancel={() => setPreviewTpl(undefined)} onApply={onApplyTpl} />}
     </div>
   );
 };

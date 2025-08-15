@@ -444,12 +444,8 @@ export const AiAPI = {
   web,
   tpl,
   getMyKnowledges(): Promise<{label: string; value: string}[]> {
-    return request.get('/dream/pen/know/dialog').then((res) => {
-      return [
-        {label: 'aa', value: '11'},
-        {label: 'bb', value: '22'},
-        {label: 'cc', value: '33'},
-      ];
+    return request.get('/dream/pen/know/kb').then((res) => {
+      return res.data.data.kbs.map((item: any) => ({label: item.name, value: item.id}));
       // const list: any[] = res.data.data || [];
       // return list.map((item) => ({label: item.name, value: item.id}));
     });

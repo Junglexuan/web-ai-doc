@@ -2,8 +2,8 @@ import {setLoading as setGlobalLoading} from '@elux/react-web';
 import dayjs from 'dayjs';
 import {GetClientRouter} from '@/Global';
 import request from '@/utils/request';
-import {mapTree, message} from '@/utils/tools';
-import {CurRender, DocType, ItemDetail, ListItem, ListResult, ListSearch, TplFields, TplsOptions} from './entity';
+import {getCurUserId, mapTree, message} from '@/utils/tools';
+import {DocType, ItemDetail, ListItem, ListResult, ListSearch, TplFields, TplsOptions} from './entity';
 
 const TypeMap: {[key: string]: DocType} = {
   '1': 'dir',
@@ -146,7 +146,15 @@ export const DocAPI = {
       return item;
     });
   },
+  getTplPreview(id: string): Promise<{tplId: string; snapshot: string; isMine: boolean}> {
+    return request.get('/dream/pen/article/get', {params: {id}}).then((docRes) => {
+      const item: ItemDetail = docRes.data.data;
+      const curUserId = getCurUserId();
+      return {tplId: item.id, snapshot: item.snapshot, isMine: !item.isSystem && !!curUserId && item.createUser === curUserId};
+    });
+  },
   getList(search: ListSearch): Promise<ListResult> {
+    const curUserId = getCurUserId();
     const {render, name, type, owner, sorterOrder, sorterField} = search;
     const id = search.id || (render === 'conts' ? '1' : '0');
     const docOrCont = render === 'conts' ? '4' : '2';
@@ -176,6 +184,7 @@ export const DocAPI = {
           item.createDate = item.createDate ? dayjs(item.createDate).format('YYYY-MM-DD HH:mm:ss') : '';
           item.createUserName = item.createUserName || '';
           item.collect = render === 'favs' ? 1 : item.collect;
+          item.isMine = !item.isSystem && !!curUserId && item.createUser === curUserId;
           return item;
         }),
         summary: {

@@ -38,7 +38,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
   const [showMove, setShowMove] = useState('');
   const [wizardData, setWizardData] = useState<WizardFormData>();
   const [tplsOptions, setTplsOptions] = useState<TplsOptions>();
-  const [previewTpl, setPreviewTpl] = useState<{tplId: string; snapshot: string; isMine: boolean}>();
+  const [previewTpl, setPreviewTpl] = useState<string>();
 
   const refreshList = useCallback(() => {
     return dispatch(docActions.fetchList());
@@ -333,10 +333,6 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [listSummary.levelPath]);
 
-  const onPriview = useEvent((tplId: string) => {
-    setPreviewTpl({tplId, snapshot: '', isMine: false});
-  });
-
   const onTableChange = useEvent((pagination: any, filter: any, _sorter: any) => {
     const sorter = _sorter as {field: string; order: 'ascend' | 'descend' | undefined};
     const sorterField = (sorter.order && sorter.field) || undefined;
@@ -400,10 +396,10 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
           data={wizardData}
           onCancel={() => setWizardData(undefined)}
           onSubmit={onWizardSubmit}
-          onPriview={onPriview}
+          onPriview={setPreviewTpl}
         />
       )}
-      {previewTpl && <Preview data={previewTpl} onCancel={() => setPreviewTpl(undefined)} />}
+      {previewTpl && <Preview tplId={previewTpl} onCancel={() => setPreviewTpl(undefined)} />}
     </div>
   );
 };
