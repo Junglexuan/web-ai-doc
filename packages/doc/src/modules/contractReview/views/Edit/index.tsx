@@ -4,7 +4,7 @@ import {ListItem} from '../../entity';
 import styles from './index.module.less';
 
 const Component: FC<{
-  cateOptions: {label: string; value: number}[];
+  cateOptions: {label: string; value: string}[];
   data: ListItem;
   onCancel: () => void;
   onSubmit: (data: ListItem) => void;

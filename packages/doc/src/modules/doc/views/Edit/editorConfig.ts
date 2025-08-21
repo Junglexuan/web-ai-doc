@@ -4,6 +4,7 @@ import {replaceBaseUrl} from '@/utils/request';
 import {getToken} from '@/utils/tools';
 import {ItemDetail} from '../../entity';
 import Inspect from './elements/Inspect';
+import Line from './elements/Line';
 import Review from './elements/Review';
 import Variable from './elements/Variable';
 
@@ -58,7 +59,7 @@ export function getToolbarConfig(itemDetail: ItemDetail): Partial<IToolbarConfig
       'insertLink',
       'insertTable',
       //'codeBlock',
-      'divider',
+      'line',
       '|',
       'formatPainter',
       'clearStyle',
@@ -102,6 +103,9 @@ export const editorConfig: Partial<IEditorConfig> = {
         'formatPainter',
         'clearStyle',
       ],
+    },
+    line: {
+      menuKeys: ['lineColor', 'lineWeight'],
     },
     review: {
       match: (editor, node: any) => {
@@ -229,3 +233,4 @@ export const editorConfig: Partial<IEditorConfig> = {
 Boot.registerModule(Review);
 Boot.registerModule(Inspect);
 Boot.registerModule(Variable);
+Boot.registerModule(Line);

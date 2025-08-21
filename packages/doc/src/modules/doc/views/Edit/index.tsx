@@ -75,7 +75,6 @@ const Component: FC<Props> = ({itemDetail}) => {
   const [size, setSize] = useState<'常规' | '全宽' | '超宽'>(itemDetail.size || '常规');
   const [reviewing, setReviewing] = useState<[AbortController, AbortController]>();
   const [inspecting, setInspecting] = useState<AbortController>();
-  const isPreview = useMemo(() => getUrlParam('preview'), []);
 
   const _onSave = useEvent((editor: IDomEditor) => {
     //JSON.stringify(editor.children, null, 2)
@@ -337,7 +336,7 @@ const Component: FC<Props> = ({itemDetail}) => {
     <DialogPage size="max" maskClosable={false} showControls={false} showClose={false}>
       <div className={styles.root}>
         <div className="hd">
-          {isPreview ? (
+          {itemDetail.docType === 'snap' ? (
             <div>模版预览...</div>
           ) : (
             <Space size="large">
@@ -406,7 +405,7 @@ const Component: FC<Props> = ({itemDetail}) => {
               <AIButton editor={editor} />
               <Toolbar editor={editor} defaultConfig={toolbarConfig} mode="default" className="tools" />
               <AITpl editor={editor} />
-              {itemDetail.docType !== 'tpl' && <ReviewButton editor={editor} onClick={onReview} />}
+              {(itemDetail.docType === 'doc' || itemDetail.docType === 'con') && <ReviewButton editor={editor} onClick={onReview} />}
               {itemDetail.docType === 'tpl' && <VarButton editor={editor} />}
               {itemDetail.docType === 'con' && <ContButton editor={editor} onSubmit={onInspect} />}
             </>
@@ -420,7 +419,7 @@ const Component: FC<Props> = ({itemDetail}) => {
               size="large"
               key={docTitle}
               value={docTitle}
-              readOnly={itemDetail.readonly}
+              readOnly={itemDetail.readonly || itemDetail.docType === 'snap'}
               className="doc-title"
               style={{background: '#fff'}}
               onChange={onDocTitleChange}

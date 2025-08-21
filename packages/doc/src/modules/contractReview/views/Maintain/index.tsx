@@ -20,7 +20,7 @@ const {contractReview: contractReviewActions} = GetActions('contractReview');
 const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
   const [scrollHeight, setScrollHeight] = useState(() => window.innerHeight - 285);
   const [curEdit, setCurEdit] = useState<ListItem>();
-  const [cateOptions, setCateOptions] = useState<{label: string; value: number}[]>([]);
+  const [cateOptions, setCateOptions] = useState<{label: string; value: string}[]>([]);
 
   const refreshList = useCallback(() => {
     return dispatch(contractReviewActions.fetchList());
@@ -110,7 +110,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
     <div className={styles.root}>
       <DocumentHead title="合同审查规则" />
       <div className="hd">
-        <Select options={cateOptions} value={listSearch.type || 1} onChange={onCateChange}></Select>
+        <Select allowClear placeholder="分类过滤" options={cateOptions} value={listSearch.type} onChange={onCateChange}></Select>
         <Input.Search allowClear className="search" placeholder="请输入搜索关键字..." onSearch={onSearch} />
       </div>
       <div className="cd">
@@ -133,7 +133,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
       </div>
       {curEdit && (
         <Modal title={curEdit.id ? '修改规则' : '创建规则'} open={true} footer={null} onCancel={onCloseEdit}>
-          <Edit cateOptions={cateOptions.filter((item) => item.value !== 1)} data={curEdit} onCancel={onCloseEdit} onSubmit={onEditSubmit} />
+          <Edit cateOptions={cateOptions} data={curEdit} onCancel={onCloseEdit} onSubmit={onEditSubmit} />
         </Modal>
       )}
     </div>

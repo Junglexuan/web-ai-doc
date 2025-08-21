@@ -4,6 +4,7 @@ import {Avatar, Badge, Button, Dropdown, Space} from 'antd';
 import {FC, useMemo} from 'react';
 import {GetActions} from '@/Global';
 import {CurUser} from '@/utils/base';
+import {toUserCenter} from '@/utils/request';
 import styles from './index.module.less';
 
 const {stage: stageActions} = GetActions('stage');
@@ -15,7 +16,7 @@ const Component: FC<{curUser: CurUser; dispatch: Dispatch}> = ({curUser, dispatc
         {
           key: 'g1',
           label: (
-            <Button size="small" type="text">
+            <Button size="small" type="text" onClick={toUserCenter}>
               {curUser.username}
             </Button>
           ),

@@ -2,7 +2,7 @@ import {setLoading as setGlobalLoading} from '@elux/react-web';
 import dayjs from 'dayjs';
 import {GetClientRouter} from '@/Global';
 import request from '@/utils/request';
-import {getCurUserId, mapTree, message} from '@/utils/tools';
+import {getCurUserId, getUrlParam, mapTree, message} from '@/utils/tools';
 import {DocType, ItemDetail, ListItem, ListResult, ListSearch, TplFields, TplsOptions} from './entity';
 
 const TypeMap: {[key: string]: DocType} = {
@@ -10,12 +10,14 @@ const TypeMap: {[key: string]: DocType} = {
   '2': 'doc',
   '3': 'tpl',
   '4': 'con',
+  '0': 'snap',
 };
 const TypeSourceMap: {[key in DocType]: string} = {
   dir: '1',
   doc: '2',
   tpl: '3',
   con: '4',
+  snap: '0',
 };
 
 export const DocAPI = {
@@ -25,7 +27,7 @@ export const DocAPI = {
       request
         .post(`/dream/pen/template/snapshot/save`, {
           id: data.tplId,
-          contents,
+          snapshot: contents,
         })
         .then((res) => res.data.data),
       GetClientRouter().getActivePage().store
@@ -84,13 +86,21 @@ export const DocAPI = {
       .then((res) => res.data.data);
   },
   saveDSL(id: string, dsl: string, html: string, text: string, docType: DocType): Promise<void> {
-    return request.post(docType === 'tpl' ? '/dream/pen/template/save' : `/dream/pen/article/save`, {
-      id,
-      contents: html,
-      articleDsl: dsl,
-      articleCount: text.length,
-      type: TypeSourceMap[docType],
-    });
+    return request.post(
+      docType === 'tpl' ? '/dream/pen/template/save' : docType === 'snap' ? '/dream/pen/template/snapshot/save' : `/dream/pen/article/save`,
+      docType === 'snap'
+        ? {
+            id,
+            snapshot: html,
+          }
+        : {
+            id,
+            contents: html,
+            articleDsl: dsl,
+            articleCount: text.length,
+            type: TypeSourceMap[docType],
+          }
+    );
   },
   updateDocName(id: string, title: string, docType: DocType): Promise<void> {
     return request.post(docType === 'tpl' ? '/dream/pen/template/save' : `/dream/pen/article/save`, {id, title, type: TypeSourceMap[docType]});
@@ -139,9 +149,11 @@ export const DocAPI = {
     });
   },
   getDoc(id: string): Promise<ItemDetail> {
+    const isPreview = getUrlParam('preview');
+    const isTpl = getUrlParam('tpl');
     return request.get('/dream/pen/article/get', {params: {id}}).then((docRes) => {
       const item: ItemDetail = docRes.data.data;
-      item.docType = TypeMap[(item as any).type];
+      item.docType = isPreview && isTpl ? 'snap' : TypeMap[(item as any).type];
       item.levelPath = item.levelPath || [];
       return item;
     });
@@ -151,6 +163,12 @@ export const DocAPI = {
       const item: ItemDetail = docRes.data.data;
       const curUserId = getCurUserId();
       return {tplId: item.id, snapshot: item.snapshot, isMine: !item.isSystem && !!curUserId && item.createUser === curUserId};
+    });
+  },
+  copyTplForMe(id: string): Promise<string> {
+    return request.post('/dream/pen/template/copy', {id}).then((docRes) => {
+      const item: ItemDetail = docRes.data.data;
+      return item.id;
     });
   },
   getList(search: ListSearch): Promise<ListResult> {

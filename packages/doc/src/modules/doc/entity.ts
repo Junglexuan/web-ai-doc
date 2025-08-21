@@ -2,7 +2,7 @@ import {BaseCurRender, BaseCurView, BaseListItem, BaseListSearch, BaseListSummar
 
 export type CurView = BaseCurView;
 export type CurRender = BaseCurRender | 'favs' | 'recs' | 'tpls' | 'conts';
-export type DocType = 'dir' | 'doc' | 'tpl' | 'con';
+export type DocType = 'dir' | 'doc' | 'tpl' | 'con' | 'snap';
 
 export interface ListSearch extends BaseListSearch {
   render?: CurRender;

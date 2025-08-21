@@ -418,7 +418,7 @@ function autoInspect(
   fetchEventSource(replaceBaseUrl('/dream/pen/ai/verify'), {
     method: 'POST',
     headers: getHeaders(),
-    body: JSON.stringify({conversation_id: articleId, content, standpoint: stand, type: 'verify'}),
+    body: JSON.stringify({conversation_id: articleId, content, standpoint: stand, contractType: contType, type: 'verify'}),
     signal: controller.signal,
     openWhenHidden: true,
     onmessage: (ev) => onMessage(decodeReviews(ev.data)),

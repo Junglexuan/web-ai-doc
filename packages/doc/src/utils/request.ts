@@ -41,6 +41,10 @@ export function replaceBaseUrl(url: string): string {
   return url;
 }
 
+export function toUserCenter(): void {
+  window.location.href = replaceBaseUrl('/auth/');
+}
+
 export class CustomError<Detail = any> implements ActionError {
   public constructor(public code: string, public message: string, public detail?: Detail, public quiet?: boolean) {}
 }
