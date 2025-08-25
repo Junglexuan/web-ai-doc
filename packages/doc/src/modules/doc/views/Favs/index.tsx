@@ -8,6 +8,8 @@ import {confirm, debounce, openArticle, useEvent} from '@/utils/tools';
 import {DocAPI} from '../../api';
 import {DocType, ListItem, ListSearch, ListSummary} from '../../entity';
 import styles from '../Maintain/index.module.less';
+import Preview from '../Preview';
+import Wizard, {WizardFormData} from '../Wizard';
 interface Props {
   dispatch: Dispatch;
   listSearch: ListSearch;
@@ -22,6 +24,8 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
   const [selectedRows, setSelectedRows] = useState<{ids: string[]; rows: ListItem[]}>({ids: [], rows: []});
   const [scrollHeight, setScrollHeight] = useState(() => window.innerHeight - 275);
   const [showRename, setShowRename] = useState('');
+  const [wizardData, setWizardData] = useState<WizardFormData>();
+  const [previewTpl, setPreviewTpl] = useState<string>();
 
   const refreshList = useCallback(() => {
     return dispatch(docActions.fetchList());
@@ -48,6 +52,22 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
 
   const onSearch = useEvent((name: string) => {
     dispatch(docActions.fetchList({...listSearch, name}));
+  });
+
+  const onCreateByTpl = useEvent((tplId: string, fields?: {[field: string]: string}, knowledges?: string[]) => {
+    DocAPI.getDoc(tplId).then((tpl) => {
+      DocAPI.createDoc({folder: '0', title: tpl.title, contents: ''}, 'doc').then(async ({id}) => {
+        const data = {id: tplId, fields, knowledges};
+        console.log(data);
+        window.sessionStorage.setItem('__temp_tpl__', JSON.stringify(data));
+        openArticle(`/admin/doc/item/edit/${id}?&tpl=${tpl.id}&__c=_dialog`);
+      });
+    });
+  });
+
+  const onWizardSubmit = useEvent((tplId: string, fields: {[field: string]: string}, knowledges: string[]) => {
+    setWizardData(undefined);
+    onCreateByTpl(tplId, fields, knowledges);
   });
 
   const columns = useMemo<TableProps<ListItem>['columns']>(() => {
@@ -134,6 +154,8 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
                         DocAPI.deleteItem(record.id, record.type).then(refreshList);
                       }
                     });
+                  } else if (key === '预览模版') {
+                    setPreviewTpl(record.id);
                   } else if (key === '下载Word') {
                     setGlobalLoading(
                       downloadFile(replaceBaseUrl(`/dream/pen/article/down?id=${record.id}&type=word`), record.title),
@@ -160,6 +182,14 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
                         {
                           key: '合同审查',
                           label: '合同审查',
+                        },
+                        {key: '删除', label: '删除'},
+                      ]
+                    : record.type === 'tpl'
+                    ? [
+                        {
+                          key: '预览模版',
+                          label: '预览模版',
                         },
                         {key: '删除', label: '删除'},
                       ]
@@ -213,6 +243,12 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
     return dispatch(docActions.fetchList({...listSearch, sorterField, sorterOrder}));
   });
 
+  const onApplyTpl = useEvent((tplId: string) => {
+    DocAPI.getTplFields(tplId).then((fields) => {
+      setWizardData({tplId, fields});
+    });
+  });
+
   useEffect(() => {
     const onResize = debounce(() => setScrollHeight(window.innerHeight - 275), 300);
     window.addEventListener('resize', onResize);
@@ -248,6 +284,8 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
           onChange={onTableChange}
         />
       </div>
+      {wizardData && <Wizard data={wizardData} onCancel={() => setWizardData(undefined)} onSubmit={onWizardSubmit} />}
+      {previewTpl && <Preview tplId={previewTpl} onCancel={() => setPreviewTpl(undefined)} onApply={onApplyTpl} />}
     </div>
   );
 };

@@ -124,7 +124,7 @@ export const DocAPI = {
     return request.post(`/dream/pen/recycle/delete/${id}`);
   },
   restoreItem(id: string, type: DocType): Promise<void> {
-    return request.post(`/dream/pen/recycle/restore`, {id, type: type === 'dir' ? 1 : 2});
+    return request.post(`/dream/pen/recycle/restore`, {id, type: TypeSourceMap[type]});
   },
   deleteItem(id: string, type: DocType): Promise<void> {
     return type === 'doc' || type === 'con'
