@@ -96,7 +96,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
         key: 'articleCount',
         width: 140,
         render: (num, row) => {
-          return row.type === 'doc' ? `${num}字` : '';
+          return `${num}字`;
         },
       },
       {
@@ -193,20 +193,17 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
                     );
                   }
                 },
-                items:
-                  record.type === 'doc'
-                    ? [
-                        {
-                          key: '下载Word',
-                          label: '下载Word',
-                        },
-                        {
-                          key: '下载PDF',
-                          label: '下载PDF',
-                        },
-                        {key: '删除', label: '删除'},
-                      ]
-                    : [{key: '删除', label: '删除'}],
+                items: [
+                  {
+                    key: '下载Word',
+                    label: '下载Word',
+                  },
+                  {
+                    key: '下载PDF',
+                    label: '下载PDF',
+                  },
+                  {key: '删除', label: '删除'},
+                ],
               }}
             >
               <a>

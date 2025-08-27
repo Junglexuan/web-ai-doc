@@ -51,11 +51,6 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
             <a className={'ico-' + row.type} title={text}>
               {text}
             </a>
-            {row.type === 'dir' ? null : !row.collect ? (
-              <StarOutlined className="anticon-star-outline" onClick={() => DocAPI.collectItem(row.id, row.type, !row.collect).then(refreshList)} />
-            ) : (
-              <StarFilled onClick={() => DocAPI.collectItem(row.id, row.type, !row.collect).then(refreshList)} />
-            )}
           </div>
         ),
       },

@@ -111,7 +111,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
       {
         title: '操作',
         key: 'action',
-        width: 250,
+        width: 260,
         render: (_: any, record) => (
           <Space size="middle">
             <Popover
@@ -145,6 +145,8 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
             >
               <a>重命名</a>
             </Popover>
+            {record.type === 'tpl' && <a onClick={() => setPreviewTpl(record.id)}>预览</a>}
+            {record.type === 'tpl' && <a onClick={() => onApplyTpl(record.id)}>使用模版</a>}
             <Dropdown
               menu={{
                 onClick: ({key}: {key: string}) => {
@@ -154,8 +156,6 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
                         DocAPI.deleteItem(record.id, record.type).then(refreshList);
                       }
                     });
-                  } else if (key === '预览模版') {
-                    setPreviewTpl(record.id);
                   } else if (key === '下载Word') {
                     setGlobalLoading(
                       downloadFile(replaceBaseUrl(`/dream/pen/article/down?id=${record.id}&type=word`), record.title),
@@ -169,7 +169,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
                   }
                 },
                 items:
-                  record.type === 'doc'
+                  record.type === 'doc' || record.type === 'con'
                     ? [
                         {
                           key: '下载Word',
@@ -178,18 +178,6 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
                         {
                           key: '下载PDF',
                           label: '下载PDF',
-                        },
-                        {
-                          key: '合同审查',
-                          label: '合同审查',
-                        },
-                        {key: '删除', label: '删除'},
-                      ]
-                    : record.type === 'tpl'
-                    ? [
-                        {
-                          key: '预览模版',
-                          label: '预览模版',
                         },
                         {key: '删除', label: '删除'},
                       ]
