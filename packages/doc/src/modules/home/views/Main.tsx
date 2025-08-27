@@ -2,7 +2,7 @@ import {EyeOutlined} from '@ant-design/icons';
 import {DocumentHead, connectStore} from '@elux/react-web';
 import {Carousel} from 'antd';
 import {FC, MouseEvent, useEffect, useMemo, useState} from 'react';
-import {PathPrefix} from '@/Global';
+import {PathPrefix, SiteInfo} from '@/Global';
 import DocAPI from '@/modules/doc/api';
 import Preview from '@/modules/doc/views/Preview';
 import Wizard, {WizardFormData} from '@/modules/doc/views/Wizard';
@@ -129,7 +129,7 @@ const Component: FC = () => {
   return (
     <div className={styles.wrap}>
       <div className={styles.root}>
-        <DocumentHead title="首页" />
+        <DocumentHead title={'首页-' + SiteInfo.name} />
         {renderCarousel}
         <div className="title-box">最近创作</div>
         {renderHotArticle}

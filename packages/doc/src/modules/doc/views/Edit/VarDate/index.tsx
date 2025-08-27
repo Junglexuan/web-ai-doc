@@ -60,6 +60,9 @@ const Component: FC<Props> = ({onSubmit, onCancel, elem}) => {
         <Button size="small" type="primary" onClick={onOk}>
           确定
         </Button>
+        <Button size="small" onClick={onOk}>
+          格式
+        </Button>
         <Button size="small" onClick={onCancel}>
           取消
         </Button>

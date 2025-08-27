@@ -26,10 +26,18 @@ const Component: FC<Props> = ({editor}) => {
     editor.focus();
   });
 
+  const selectText = useEvent(() => {
+    const textNode = DomEditor.getSelectedTextNode(editor);
+    if (textNode) {
+      const path = DomEditor.findPath(editor, textNode);
+      SlateTransforms.select(editor, path);
+    }
+  });
   const onSubmit = useEvent((elem: VariableElement, update: Partial<VariableElement>) => {
     closeMenu();
     const path = DomEditor.findPath(editor, elem);
     SlateTransforms.setNodes(editor, update, {at: path});
+    selectText();
   });
 
   const varDialog = useMemo(() => {
@@ -47,9 +55,12 @@ const Component: FC<Props> = ({editor}) => {
         return <VarWrite elem={varEvent.elem} onSubmit={onSubmit} onCancel={closeMenu} />;
       case 'replace':
         return <VarReplace elem={varEvent.elem} onSubmit={onSubmit} onCancel={closeMenu} />;
+      case 'sign':
+        selectText();
+        return null;
     }
     return null;
-  }, [onSubmit, closeMenu, varEvent]);
+  }, [onSubmit, closeMenu, selectText, varEvent]);
 
   const posStyle = useMemo(() => {
     if (!varEvent) {
