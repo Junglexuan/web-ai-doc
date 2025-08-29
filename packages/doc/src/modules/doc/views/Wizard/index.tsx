@@ -13,7 +13,7 @@ export interface WizardFormData {
   kind?: 'conts' | 'docs';
 }
 
-const FormLayout = {labelCol: {span: 4}, wrapperCol: {span: 19}};
+const FormLayout = {labelCol: {span: 5}, wrapperCol: {span: 18}};
 
 interface Props {
   tplsOptions?: {value: string; label: string; children: {value: string; label: string}[]}[];
@@ -138,7 +138,7 @@ const Component: FC<Props> = ({tplsOptions = [], data, onCancel, onSubmit, onPri
             </div>
           )}
           {curStep === 1 && curTplFields && (
-            <Form {...FormLayout} ref={fieldsFormRef as any} colon={false} initialValues={fieldsValues} onFinish={onFinish}>
+            <Form className="field-form" {...FormLayout} ref={fieldsFormRef as any} colon={false} initialValues={fieldsValues} onFinish={onFinish}>
               {curTplFields.map((item) => (
                 <Form.Item key={item.name} name={item.name} label={item.label}>
                   <Input.TextArea rows={1} placeholder={item.value} autoSize />

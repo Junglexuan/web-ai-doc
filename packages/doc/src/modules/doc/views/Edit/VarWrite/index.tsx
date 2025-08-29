@@ -46,7 +46,7 @@ const Component: FC<Props> = ({onSubmit, onCancel, elem}) => {
     if (value?.desc && fieldName) {
       onSubmit(elem, {source: formatValue(value), info: value.desc || '...', field: fieldName, editable});
     } else {
-      message.error('请输入项目名称和AI提示词...');
+      message.error('请输入名称和AI提示词...');
     }
   });
 
@@ -58,7 +58,7 @@ const Component: FC<Props> = ({onSubmit, onCancel, elem}) => {
         </Checkbox>
         <div className="formItem">
           <div className="label">
-            <em>*</em>项目名称:
+            <em>*</em>名称:
           </div>
           <Input
             className="input"

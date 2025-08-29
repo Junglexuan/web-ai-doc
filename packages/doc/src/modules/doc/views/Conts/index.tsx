@@ -96,7 +96,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
         key: 'articleCount',
         width: 140,
         render: (num, row) => {
-          return `${num}字`;
+          return row.type === 'con' ? `${num}字` : '';
         },
       },
       {
