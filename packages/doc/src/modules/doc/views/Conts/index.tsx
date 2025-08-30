@@ -193,17 +193,20 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
                     );
                   }
                 },
-                items: [
-                  {
-                    key: '下载Word',
-                    label: '下载Word',
-                  },
-                  {
-                    key: '下载PDF',
-                    label: '下载PDF',
-                  },
-                  {key: '删除', label: '删除'},
-                ],
+                items:
+                  record.type === 'con'
+                    ? [
+                        {
+                          key: '下载Word',
+                          label: '下载Word',
+                        },
+                        {
+                          key: '下载PDF',
+                          label: '下载PDF',
+                        },
+                        {key: '删除', label: '删除'},
+                      ]
+                    : [{key: '删除', label: '删除'}],
               }}
             >
               <a>

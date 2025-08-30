@@ -269,7 +269,11 @@ const Component: FC<Props> = ({itemDetail}) => {
     }
     const arr = itemDetail.levelPath.map((item) => ({
       title: (
-        <Link to={`/admin/doc/list/maintain?id=${item.id}`} action="relaunch" target="window">
+        <Link
+          to={`${itemDetail.docType === 'con' ? '/admin/doc/list/conts' : '/admin/doc/list/maintain'}?id=${item.id}`}
+          action="relaunch"
+          target="window"
+        >
           {item.folderName}
         </Link>
       ),

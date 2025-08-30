@@ -22,7 +22,7 @@ const TypeSourceMap: {[key in DocType]: string} = {
 
 export const DocAPI = {
   createSnapshot(data: {tplId: string; contents?: string}, type: DocType): Promise<{id: string}> {
-    const contents = data.contents || '<p style="line-height: 1.5;"><span style="font-size: 16px; font-family: 黑体;"></span></p>';
+    const contents = data.contents || '<p style="line-height: 1.5;"><span font-family: 黑体;"></span></p>';
     return setGlobalLoading(
       request
         .post(`/dream/pen/template/snapshot/save`, {
@@ -35,7 +35,7 @@ export const DocAPI = {
   },
   createDoc(data: {title: string; contents: string; folder: string}, type: DocType): Promise<{id: string}> {
     const {title, folder} = data;
-    const contents = data.contents || '<p style="line-height: 1.5;"><span style="font-size: 16px; font-family: 黑体;"></span></p>';
+    const contents = data.contents || '<p style="line-height: 1.5;"><span font-family: 黑体;"></span></p>';
     return setGlobalLoading(
       request
         .post(`/dream/pen/article/save`, {
@@ -78,7 +78,7 @@ export const DocAPI = {
       .post(`/dream/pen/template/save`, {
         id: data.id || undefined,
         title: data.title,
-        contents: data.id ? undefined : '<p style="line-height: 1.5;"><span style="font-size: 16px; font-family: 黑体;"></span></p>',
+        contents: data.id ? undefined : '<p style="line-height: 1.5;"><span font-family: 黑体;"></span></p>',
         remark: data.remark,
         isShare: data.isShare,
         type: TypeSourceMap[docType],
@@ -249,11 +249,20 @@ export const DocAPI = {
     return setGlobalLoading(
       request.get('/dream/pen/template/getTemplateByType/' + id.split(',')[0]).then((docRes) => {
         const list: any[] = docRes.data.data.pluginVo || [];
-        return list.map((item) => ({
-          name: item.field,
-          value: item.argument.desc || item.argument,
-          label: item.field,
-        }));
+        const reiterated: {[key: string]: boolean} = {};
+        return list
+          .map((item) => {
+            if (reiterated[item.field]) {
+              return undefined as any;
+            }
+            reiterated[item.field] = true;
+            return {
+              name: item.field,
+              value: item.argument.desc || item.argument,
+              label: item.field,
+            };
+          })
+          .filter(Boolean);
       }),
       GetClientRouter().getActivePage().store
     );
