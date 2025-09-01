@@ -39,6 +39,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
   const [wizardData, setWizardData] = useState<WizardFormData>();
   const [tplsOptions, setTplsOptions] = useState<TplsOptions>();
   const [previewTpl, setPreviewTpl] = useState<string>();
+  const [articleAmount, setArticleAmount] = useState<number>(0);
 
   const refreshList = useCallback(() => {
     return dispatch(docActions.fetchList());
@@ -223,18 +224,20 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
   const onCreate = useEvent(
     (title: string = '', contents: string = '', tpl?: {id: string; fields: {[field: string]: string}; knowledges?: string[]; stand?: string}) => {
       setLoading('create');
-      DocAPI.createDoc({folder: listSearch.id || '1', title, contents}, 'con')
-        .then(async ({id}) => {
-          setSelectedRows({ids: [], rows: []});
-          await refreshList();
-          if (tpl) {
-            window.sessionStorage.setItem('__temp_tpl__', JSON.stringify(tpl));
-            openArticle(`/admin/doc/item/edit/${id}?&tpl=${tpl.id}&__c=_dialog`);
-          } else if (!title) {
-            openArticle(`/admin/doc/item/edit/${id}?__c=_dialog`);
-          }
-        })
-        .finally(() => setLoading(''));
+      setTimeout(() => {
+        DocAPI.createDoc({folder: listSearch.id || '1', title, contents}, 'con', articleAmount)
+          .then(async ({id}) => {
+            setSelectedRows({ids: [], rows: []});
+            await refreshList();
+            if (tpl) {
+              window.sessionStorage.setItem('__temp_tpl__', JSON.stringify(tpl));
+              openArticle(`/admin/doc/item/edit/${id}?&tpl=${tpl.id}&__c=_dialog`);
+            } else if (!title) {
+              openArticle(`/admin/doc/item/edit/${id}?__c=_dialog`);
+            }
+          })
+          .finally(() => setLoading(''));
+      }, 500);
     }
   );
 
@@ -285,6 +288,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
         onProcess: () => setLoading('upload'),
         onSuccess: (file, res) => {
           setLoading('');
+          setArticleAmount(res.articleCount); //采用状态存储 不采用函数参数传递 onCreate函数调用的地方比较多
           onCreate(res.title, res.html.replace(/^<div[^>]+>(.+?)<\/div>$/, '$1'));
         },
         onError: () => setLoading(''),
