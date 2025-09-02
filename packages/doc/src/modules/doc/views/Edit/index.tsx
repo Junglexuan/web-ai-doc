@@ -341,7 +341,7 @@ const Component: FC<Props> = ({itemDetail}) => {
       <div className={styles.root}>
         <div className="hd">
           {itemDetail.docType === 'snap' ? (
-            <div>模版预览...</div>
+            <div>模版预览</div>
           ) : (
             <Space size="large">
               <HomeOutlined className="icon-link" onClick={() => GetClientRouter().relaunch({url: `/admin/home`}, 'window')} />

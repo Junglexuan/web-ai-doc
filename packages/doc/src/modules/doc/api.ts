@@ -33,7 +33,7 @@ export const DocAPI = {
       GetClientRouter().getActivePage().store
     );
   },
-  createDoc(data: {title: string; contents: string; folder: string}, type: DocType, articleCount?: number): Promise<{id: string}> {
+  createDoc(data: {title: string; contents: string; folder: string}, type: DocType, size?: number): Promise<{id: string}> {
     const {title, folder} = data;
     const contents = data.contents || '<p style="line-height: 1.5;"><span font-family: 黑体;"></span></p>';
     return setGlobalLoading(
@@ -41,10 +41,10 @@ export const DocAPI = {
         .post(`/dream/pen/article/save`, {
           title: title || '新建文档',
           articleDsl: '',
-          articleCount,
           contents,
           folder,
           type: TypeSourceMap[type],
+          articleCount: size || undefined,
         })
         .then((res) => res.data.data),
       GetClientRouter().getActivePage().store

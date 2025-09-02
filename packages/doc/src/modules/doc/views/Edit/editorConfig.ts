@@ -134,9 +134,26 @@ export const editorConfig: Partial<IEditorConfig> = {
         'Courier New',
       ],
     },
-    // fontSize: {
-    //   fontSizeList: [{name: '小四', value: '14px'}],
-    // },
+    fontSize: {
+      fontSizeList: [
+        {name: '‌初号‌', value: '56px'},
+        {name: '‌小初', value: '48px'},
+        {name: '‌一号‌', value: '34px'},
+        {name: '小一', value: '32px'},
+        {name: '‌二号‌', value: '29px'},
+        {name: '‌小二', value: '24px'},
+        {name: '三号', value: '21px'},
+        {name: '‌小三', value: '20px'},
+        {name: '‌四号‌', value: '18px'},
+        {name: '‌小四‌', value: '16px'},
+        {name: '‌五号‌', value: '14px'},
+        {name: '‌小五‌', value: '12px'},
+        {name: '‌六号‌', value: '10px'},
+        {name: '小六‌', value: '8px'},
+        {name: '‌七号‌', value: '7px'},
+        {name: '‌八号‌', value: '6px'},
+      ],
+    },
     uploadImage: {
       base64LimitSize: 2 * 1024,
       fieldName: 'file',
@@ -234,3 +251,20 @@ Boot.registerModule(Review);
 Boot.registerModule(Inspect);
 Boot.registerModule(Variable);
 Boot.registerModule(Line);
+
+// ‌初号‌：42磅。
+// ‌小初‌：36磅。
+// ‌一号‌：26磅。
+// ‌小一‌：24磅。
+// ‌二号‌：22磅。
+// ‌小二‌：18磅。
+// ‌三号‌：16磅。
+// ‌小三‌：15磅。
+// ‌四号‌：14磅。
+// ‌小四‌：12磅。
+// ‌五号‌：10.5磅。
+// ‌小五‌：9磅。
+// ‌六号‌：7.5磅。
+// ‌小六‌：6.5磅。
+// ‌七号‌：5.5磅。
+// ‌八号‌：5磅。‌‌

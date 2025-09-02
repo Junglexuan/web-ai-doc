@@ -1,6 +1,6 @@
 import {EyeOutlined} from '@ant-design/icons';
 import {DocumentHead, connectStore} from '@elux/react-web';
-import {Carousel} from 'antd';
+import {Carousel, Empty} from 'antd';
 import {FC, MouseEvent, useEffect, useMemo, useState} from 'react';
 import {PathPrefix, SiteInfo} from '@/Global';
 import DocAPI from '@/modules/doc/api';
@@ -61,6 +61,9 @@ const Component: FC = () => {
 
   const renderHotArticle = useMemo(() => {
     // 获取最近创作的项目
+    if (!hotArticleList.length) {
+      return <Empty />;
+    }
     return (
       <div className="recent-creations">
         {hotArticleList.map((item, index) => (

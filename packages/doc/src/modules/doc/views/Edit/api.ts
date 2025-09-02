@@ -78,6 +78,7 @@ function decodeMarkdown() {
       str = '';
     }
     markdown += str;
+    console.log(markdown);
     return {html: marked.parse(markdown) as string, raw: markdown};
   };
 }

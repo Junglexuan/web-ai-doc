@@ -104,7 +104,8 @@ export class Model extends BaseModel<ModuleState, APPState> {
     if (!this.state.curUser.hasLogin && this.checkNeedsLogin(pathname)) {
       throw new CustomError(ErrorCode.unauthorized, '', (PathPrefix || '') + url);
     }
-    if (this.getRouter().location.pathname.startsWith('/admin/doc/item/edit/')) {
+    const curPathname = this.getRouter().location.pathname;
+    if (curPathname.startsWith('/admin/doc/item/edit/') || curPathname.startsWith('/admin/doc/item/tpl/')) {
       const saving = document.getElementById('_ai_saving');
       if (saving) {
         return new Promise((resolve, reject) => {

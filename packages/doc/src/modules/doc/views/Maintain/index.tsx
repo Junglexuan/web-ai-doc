@@ -220,10 +220,17 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
   }, [showRename, showMove, listSearch, listSummary]);
 
   const onCreate = useEvent(
-    (title: string = '', contents: string = '', tpl?: {id: string; fields: {[field: string]: string}; knowledges?: string[]}) => {
+    (title: string = '', data: string | [string, number] = '', tpl?: {id: string; fields: {[field: string]: string}; knowledges?: string[]}) => {
       setLoading('create');
-      console.log(tpl);
-      DocAPI.createDoc({folder: listSearch.id || '0', title, contents}, 'doc')
+      let contents = '';
+      let count = 0;
+      if (typeof data === 'string') {
+        contents = data;
+      } else {
+        contents = data[0];
+        count = data[1];
+      }
+      DocAPI.createDoc({folder: listSearch.id || '0', title, contents}, 'doc', count)
         .then(async ({id}) => {
           setSelectedRows({ids: [], rows: []});
           await refreshList();
@@ -284,7 +291,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
         onProcess: () => setLoading('upload'),
         onSuccess: (file, res) => {
           setLoading('');
-          onCreate(res.title, res.html.replace(/^<div[^>]+>(.+?)<\/div>$/, '$1'));
+          onCreate(res.title, [res.html.replace(/^<div[^>]+>(.+?)<\/div>$/, '$1'), res.articleCount]);
         },
         onError: () => setLoading(''),
       }),
