@@ -64,6 +64,7 @@ const Component: FC<Props> = ({onSubmit, onCancel, elem}) => {
             className="input"
             placeholder="请给本词条取一个标识名称..."
             value={fieldName}
+            maxLength={15}
             onChange={(e) => setFieldValue(e.target.value.trim())}
           />
         </div>

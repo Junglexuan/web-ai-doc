@@ -117,7 +117,7 @@ const Component: FC<Props> = ({onCancel, loading, editor}) => {
           key: item.id,
           label: (
             <>
-              <span className="tag h1">{LevelLabels[item.level]}</span>
+              <span className={'tag ' + item.level}>{LevelLabels[item.level]}</span>
               <span className="title inspect-item" onClick={() => onSelect(item)}>
                 {item.reason}
               </span>

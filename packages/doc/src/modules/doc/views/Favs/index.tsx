@@ -22,7 +22,7 @@ const {doc: docActions} = GetActions('doc');
 const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
   const [loading, setLoading] = useState<'create' | 'createDir' | 'upload' | 'batchDelete' | ''>('');
   const [selectedRows, setSelectedRows] = useState<{ids: string[]; rows: ListItem[]}>({ids: [], rows: []});
-  const [scrollHeight, setScrollHeight] = useState(() => window.innerHeight - 275);
+  const [scrollHeight, setScrollHeight] = useState(() => window.innerHeight - 230);
   const [showRename, setShowRename] = useState('');
   const [wizardData, setWizardData] = useState<WizardFormData>();
   const [previewTpl, setPreviewTpl] = useState<string>();
@@ -147,47 +147,39 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
             </Popover>
             {record.type === 'tpl' && <a onClick={() => setPreviewTpl(record.id)}>预览</a>}
             {record.type === 'tpl' && <a onClick={() => onApplyTpl(record.id)}>使用模版</a>}
-            <Dropdown
-              menu={{
-                onClick: ({key}: {key: string}) => {
-                  if (key === '删除') {
-                    confirm(`您确定要删除《${record.title}》吗？`, (ok) => {
-                      if (ok) {
-                        DocAPI.deleteItem(record.id, record.type).then(refreshList);
-                      }
-                    });
-                  } else if (key === '下载Word') {
-                    setGlobalLoading(
-                      downloadFile(replaceBaseUrl(`/dream/pen/article/down?id=${record.id}&type=word`), record.title),
-                      GetClientRouter().getActivePage().store
-                    );
-                  } else if (key === '下载PDF') {
-                    setGlobalLoading(
-                      downloadFile(replaceBaseUrl(`/dream/pen/article/down?id=${record.id}&type=pdf`), record.title),
-                      GetClientRouter().getActivePage().store
-                    );
-                  }
-                },
-                items:
-                  record.type === 'doc' || record.type === 'con'
-                    ? [
-                        {
-                          key: '下载Word',
-                          label: '下载Word',
-                        },
-                        {
-                          key: '下载PDF',
-                          label: '下载PDF',
-                        },
-                        {key: '删除', label: '删除'},
-                      ]
-                    : [{key: '删除', label: '删除'}],
-              }}
-            >
-              <a>
-                更多 <DownOutlined style={{fontSize: 12}} />
-              </a>
-            </Dropdown>
+            {(record.type === 'doc' || record.type === 'con') && (
+              <Dropdown
+                menu={{
+                  onClick: ({key}: {key: string}) => {
+                    if (key === '下载Word') {
+                      setGlobalLoading(
+                        downloadFile(replaceBaseUrl(`/dream/pen/article/down?id=${record.id}&type=word`), record.title),
+                        GetClientRouter().getActivePage().store
+                      );
+                    } else if (key === '下载PDF') {
+                      setGlobalLoading(
+                        downloadFile(replaceBaseUrl(`/dream/pen/article/down?id=${record.id}&type=pdf`), record.title),
+                        GetClientRouter().getActivePage().store
+                      );
+                    }
+                  },
+                  items: [
+                    {
+                      key: '下载Word',
+                      label: '下载Word',
+                    },
+                    {
+                      key: '下载PDF',
+                      label: '下载PDF',
+                    },
+                  ],
+                }}
+              >
+                <a>
+                  下载 <DownOutlined style={{fontSize: 12}} />
+                </a>
+              </Dropdown>
+            )}
           </Space>
         ),
       },
@@ -238,7 +230,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
   });
 
   useEffect(() => {
-    const onResize = debounce(() => setScrollHeight(window.innerHeight - 275), 300);
+    const onResize = debounce(() => setScrollHeight(window.innerHeight - 230), 300);
     window.addEventListener('resize', onResize);
     return () => {
       window.removeEventListener('resize', onResize);
@@ -253,11 +245,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
         <Input.Search allowClear className="search" placeholder="请输入搜索关键字..." onSearch={onSearch} />
       </div>
       <div className="cd">
-        <Space>
-          <Button loading={loading === 'batchDelete'} icon={<DeleteOutlined />} onClick={batchDelete} disabled={!selectedRows.ids.length}>
-            批量删除
-          </Button>
-        </Space>
+        <Space></Space>
       </div>
       <div className="bd">
         <Table<any>

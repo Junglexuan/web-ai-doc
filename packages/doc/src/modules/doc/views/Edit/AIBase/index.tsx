@@ -21,7 +21,21 @@ interface Props {
 }
 
 const Component: FC<Props> = ({title, children, hooks, automatic, hideButton, modelIsRobot, className}) => {
-  const {onPromptSubmit, inputRef, model, fragment, fragmentRef, runningState, onRedo, onKeep, onStop, onInsert, onAdjust, onModelChange} = hooks;
+  const {
+    onPromptSubmit,
+    inputRef,
+    model,
+    fragment,
+    fragmentRef,
+    runningState,
+    onRedo,
+    onKeep,
+    onStop,
+    onInsert,
+    onAdjust,
+    onModelChange,
+    onKnowledgeChange,
+  } = hooks;
   const hideButtonMap: {[key: string]: boolean} = useMemo(() => {
     if (hideButton) {
       return hideButton.reduce((obj, cur) => {
@@ -106,7 +120,7 @@ const Component: FC<Props> = ({title, children, hooks, automatic, hideButton, mo
             ) : (
               <ModelSelect size="small" value={model} onChange={onModelChange} />
             ))}
-          {title === '生成全文' && <KnowledgeSelect size="small" />}
+          {title === '生成全文' && <KnowledgeSelect size="small" onChange={onKnowledgeChange} />}
           <div style={{color: '#aaa', fontSize: '12px'}}>* 回车直接提交，shift+回车可换行，esc键可关闭</div>
         </div>
       </div>

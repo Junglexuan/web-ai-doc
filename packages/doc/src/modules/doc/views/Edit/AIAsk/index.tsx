@@ -11,7 +11,7 @@ interface Props {
 }
 
 const Component: FC<Props> = ({aiRef, onRunningStateChange}) => {
-  const hooks = useAIDialog(aiRef, onRunningStateChange, AiAPI.ask, {}, false, true);
+  const hooks = useAIDialog(aiRef, onRunningStateChange, AiAPI.ask, {}, false, true, 'AI提问');
   return (
     <AIBase title="AI提问" hooks={hooks}>
       <AntInput ref={hooks.inputRef} onSubmit={hooks.onPromptSubmit} placeholder="请输入问题..." />

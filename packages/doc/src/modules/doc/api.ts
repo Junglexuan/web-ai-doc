@@ -145,7 +145,7 @@ export const DocAPI = {
       if (checked) {
         message.success('已经添加收藏');
       } else {
-        message.error('已经取消收藏');
+        message.warning('已经取消收藏');
       }
     });
   },

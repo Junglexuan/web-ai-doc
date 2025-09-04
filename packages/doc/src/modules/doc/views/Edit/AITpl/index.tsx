@@ -35,7 +35,7 @@ const Component: FC<Props> = ({editor}) => {
 
   const insertHtml = useMemo(() => {
     return throttle((html: string) => {
-      //console.log(html);
+      console.log(html);
       tmpDivRef.current.innerHTML = html
         .replace(/<body>|<\/body>/g, '')
         .replace(/\n/g, '')
@@ -51,6 +51,7 @@ const Component: FC<Props> = ({editor}) => {
   const retry = useCallback(() => {
     if (tplData) {
       setRunningState('Pending');
+      editor.focus();
 
       requestRef.current = AiAPI.tpl(
         tplData,
@@ -63,7 +64,7 @@ const Component: FC<Props> = ({editor}) => {
         }
       );
     }
-  }, [insertHtml, tplData]);
+  }, [insertHtml, tplData, editor]);
 
   const onMaskClick = useCallback((e: any) => {
     e.stopPropagation();

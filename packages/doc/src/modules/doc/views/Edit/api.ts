@@ -16,6 +16,7 @@ export interface AIRequest {
       previous: string;
       raw: string;
       model: string;
+      knowledge: string;
       [key: string]: string;
     };
     onMessage: (data: {html: string; raw: string}) => void;
@@ -163,12 +164,12 @@ const continueWrite: AIRequest = ({args, onMessage, onError, onDone}) => {
 const createFullText: AIRequest = ({args, onMessage, onError, onDone}) => {
   const controller = new AbortController();
   const {signal} = controller;
-  const {sid, docId, prompt, previous, model} = args;
+  const {sid, docId, prompt, previous, model, knowledge} = args;
   const markdown = decodeMarkdown();
   fetchEventSource(replaceBaseUrl('/dream/pen/ai/writer/fullText'), {
     method: 'POST',
     headers: getHeaders(),
-    body: JSON.stringify({type: 'fullText', articleId: docId, conversation_id: sid, prompt, model, previous: previous || undefined}),
+    body: JSON.stringify({type: 'fullText', articleId: docId, conversation_id: sid, prompt, model, knowledge, previous: previous || undefined}),
     signal,
     openWhenHidden: true,
     onmessage: (ev) => onMessage(markdown(ev.data)),

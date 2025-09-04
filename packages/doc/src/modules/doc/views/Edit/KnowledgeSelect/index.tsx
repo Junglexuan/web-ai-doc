@@ -23,7 +23,14 @@ const Component: FC<Props> = ({size, value, onChange}) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   return (
-    <Select size={size} className={styles.root} placeholder="请选择知识库..." mode="multiple" options={options} value={value} onChange={onChange} />
+    <Select
+      size={size}
+      className={styles.root}
+      placeholder="请选择知识库..."
+      options={options}
+      value={value?.[0]}
+      onChange={(val) => onChange?.(val ? [val] : [])}
+    />
   );
 };
 

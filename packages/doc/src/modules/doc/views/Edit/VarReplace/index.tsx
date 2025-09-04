@@ -44,7 +44,13 @@ const Component: FC<Props> = ({onSubmit, onCancel, elem}) => {
           <em>*</em>
           <span>名称：</span>
         </div>
-        <Input className="field" placeholder="请给本词条取一个标识名称..." value={fieldName} onChange={(e) => setFieldValue(e.target.value.trim())} />
+        <Input
+          className="field"
+          placeholder="请给本词条取一个标识名称..."
+          maxLength={15}
+          value={fieldName}
+          onChange={(e) => setFieldValue(e.target.value.trim())}
+        />
         <div className="title">默认值：</div>
         <Input.TextArea placeholder="请输入默认值..." value={value} onChange={onInputChange} />
       </div>

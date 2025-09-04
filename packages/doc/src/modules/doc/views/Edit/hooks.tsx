@@ -18,6 +18,7 @@ export interface AIDialogHooks {
   onInsert: () => void;
   onAdjust: () => void;
   onModelChange: (model: string) => void;
+  onKnowledgeChange: (knowledge: string[]) => void;
 }
 
 export function useAIDialog(
@@ -26,7 +27,8 @@ export function useAIDialog(
   onRequest: AIRequest,
   args?: {[key: string]: string},
   withContext?: boolean,
-  required?: boolean
+  required?: boolean,
+  title?: string
 ): AIDialogHooks {
   const [runningState, setRunningState] = useState<RunningState>('');
   const inputRef = useRef<{getValue: () => string; focus: () => void}>(null as any);
@@ -36,12 +38,20 @@ export function useAIDialog(
   const fragmentRef = useRef<HTMLDivElement>();
   const requestRef = useRef<AbortController>();
   const [model, setModel] = useState('qwen-max');
+  const [knowledge, setKnowledge] = useState<string[]>([]);
 
+  console.log(title);
   const onPromptSubmit = useEvent(({keep}: {keep?: boolean} = {}) => {
     const text = inputRef.current.getValue();
     if (required && !text) {
       message.error('请输入...');
       return;
+    }
+    if (title === '知识库问答') {
+      if (!model) {
+        message.error('请选择智能体...');
+        return;
+      }
     }
     setRunningState('Pending');
     onRunningStateChange('Pending');
@@ -67,6 +77,7 @@ export function useAIDialog(
         previous: lastText,
         raw: lastRaw,
         model,
+        knowledge: knowledge.join(','),
         ...args,
       },
       onMessage: ({html, raw}) => {
@@ -113,8 +124,6 @@ export function useAIDialog(
     setTimeout(inputRef.current.focus);
   });
 
-  const onModelChange = setModel;
-
   const onStop = useEvent(() => {
     requestRef.current?.abort();
     setTimeout(() => {
@@ -151,7 +160,8 @@ export function useAIDialog(
     onStop,
     onInsert,
     onAdjust,
-    onModelChange,
+    onModelChange: setModel,
+    onKnowledgeChange: setKnowledge,
     runningState,
     model,
     fragment,

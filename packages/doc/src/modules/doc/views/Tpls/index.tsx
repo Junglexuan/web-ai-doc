@@ -106,7 +106,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
             我的模版
           </Link>
         </div>
-        <Input.Search value={listSearch.name} allowClear className="search" placeholder="请输入搜索关键字..." onSearch={onSearch} />
+        <Input.Search allowClear className="search" placeholder="请输入搜索关键字..." onSearch={onSearch} />
       </div>
       <div className="cd" style={{padding: '15px 0 20px'}}>
         <Button color="primary" variant="outlined" icon={<PlusOutlined />} onClick={onCreate}>
@@ -131,6 +131,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
                 <span>{`${item.createUserName} 创建于 ${item.createDate}`}</span>
               </div>
               <div
+                title={item.remark}
                 className={'mask ' + styles2.mask}
                 onClick={(e) => {
                   if (e.target === e.currentTarget) {
