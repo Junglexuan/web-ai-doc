@@ -5,6 +5,7 @@ import {FC, useMemo} from 'react';
 import {GetActions} from '@/Global';
 import {CurUser} from '@/utils/base';
 import {toUserCenter} from '@/utils/request';
+import UserCenterMenu from '../UserCenterMenu';
 import styles from './index.module.less';
 
 const {stage: stageActions} = GetActions('stage');
@@ -49,7 +50,7 @@ const Component: FC<{curUser: CurUser; dispatch: Dispatch}> = ({curUser, dispatc
         {/* <Badge count={5}>
           <BellOutlined style={{fontSize: '22px', position: 'relative', top: '3px'}} />
         </Badge> */}
-        <Dropdown menu={userMenu}>
+        <Dropdown trigger={['click']} menu={userMenu} popupRender={() => <UserCenterMenu logout={() => dispatch(stageActions.logout())} />}>
           <div className="avatar" />
         </Dropdown>
       </Space>

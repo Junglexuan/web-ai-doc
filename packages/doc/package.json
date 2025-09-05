@@ -64,6 +64,7 @@
     "classnames": "^2.0.0",
     "query-string": "^7.1.1",
     "path-to-regexp": "^6.2.0",
+    "zov-cloud-ui": "*",
     "immer": "*",
     "jsencrypt": "^3.3.2",
     "mockjs":"^1.1.0",

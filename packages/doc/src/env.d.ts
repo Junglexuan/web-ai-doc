@@ -4,3 +4,4 @@ declare module '*.jpg';
 declare module '*.gif';
 declare module '*.less';
 declare module 'mockjs';
+// declare module 'zov-cloud-ui';
