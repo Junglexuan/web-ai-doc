@@ -447,7 +447,7 @@ const Component: FC<Props> = ({itemDetail}) => {
             {editor && (
               <>
                 <Outline editor={editor} />
-                <Inspect editor={editor} loading={Boolean(inspecting)} onCancel={onCancelInspecting} />
+                {itemDetail.docType === 'con' && <Inspect editor={editor} loading={Boolean(inspecting)} onCancel={onCancelInspecting} />}
                 <Review editor={editor} loading={Boolean(reviewing)} onCancel={onCancelReview} />
                 <Chart editor={editor} />
               </>

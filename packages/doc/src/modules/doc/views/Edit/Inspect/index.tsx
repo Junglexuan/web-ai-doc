@@ -24,6 +24,7 @@ const Component: FC<Props> = ({onCancel, loading, editor}) => {
   const [show, setShow] = useState(false);
   const [list, setList] = useState<ReviewItem[]>([]);
   const [curLevel, setCurLevel] = useState<Level>();
+  const [itemNum, setItemNum] = useState(0);
   const scrollerRef = useRef<HTMLDivElement>(null);
   const controllerRef = useRef<HTMLDivElement>(null);
 
@@ -74,11 +75,12 @@ const Component: FC<Props> = ({onCancel, loading, editor}) => {
   });
 
   const onDocChange = useEvent(() => {
+    const elems: any[] = editor.getElemsByType('inspect') || [];
+    setItemNum(elems.length);
     if (!show) {
       return;
     }
     const items: ReviewItem[] = [];
-    const elems: any[] = editor.getElemsByType('inspect') || [];
     const nodes = SlateEditor.nodes(editor, {
       at: [],
       match: (node: any, path) => node.type === 'inspect',
@@ -173,7 +175,7 @@ const Component: FC<Props> = ({onCancel, loading, editor}) => {
   return (
     <>
       <span
-        style={{visibility: show ? 'hidden' : 'visible'}}
+        style={{visibility: show || !itemNum ? 'hidden' : 'visible'}}
         id="_ai_inspectList_btn"
         className="btn inspect show"
         onClick={() => {

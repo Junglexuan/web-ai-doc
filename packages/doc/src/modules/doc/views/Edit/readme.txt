@@ -21,3 +21,10 @@ if (textNode) {
           at: item.at,
         });
 }
+
+editor.getElemsByType('inspect')
+
+const nodes = SlateEditor.nodes(editor, {
+      at: [],
+      match: (node: any, path) => node.type === 'inspect',
+    });
