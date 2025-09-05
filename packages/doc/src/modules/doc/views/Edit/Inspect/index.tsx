@@ -173,8 +173,9 @@ const Component: FC<Props> = ({onCancel, loading, editor}) => {
   return (
     <>
       <span
+        style={{visibility: show ? 'hidden' : 'visible'}}
         id="_ai_inspectList_btn"
-        className="btn inspect"
+        className="btn inspect show"
         onClick={() => {
           const reviewBtn = document.getElementById('_ai_reviewList_btnClose');
           const chartBtn = document.getElementById('_ai_chart_btnClose');
@@ -182,8 +183,17 @@ const Component: FC<Props> = ({onCancel, loading, editor}) => {
           chartBtn?.click();
           setShow(true);
         }}
-      />
-      <span id="_ai_inspectList_btnClose" style={{display: 'none'}} onClick={() => setShow(false)} />
+      >
+        审查内容
+      </span>
+      <span
+        className="btn inspect close"
+        id="_ai_inspectList_btnClose"
+        style={{visibility: show ? 'visible' : 'hidden', right: show ? '480px' : '0'}}
+        onClick={() => setShow(false)}
+      >
+        审查内容
+      </span>
       <div className={styles.panel + (show ? ' on' : '')}>
         <div className="hd">
           <span>合同审查</span>

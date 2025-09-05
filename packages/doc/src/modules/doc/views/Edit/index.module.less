@@ -118,12 +118,27 @@
         cursor: pointer;
 
         &:hover {
-          opacity: 0.6;
+          opacity: 0.7;
         }
       }
 
       .inspect {
-        display: none;
+        position: absolute;
+        top: 120px;
+        right: 0;
+        width: auto;
+        padding: 3px 10px 3px 25px;
+        margin-right: 0;
+        white-space: nowrap;
+        background: #fff url('@/assets/images/db-arrow-2.svg') no-repeat 5px center;
+        border: 1px solid #e2e2e2;
+        border-right: none;
+        border-radius: 4px 0 0 4px;
+        transition: right 0.2s;
+
+        &.close {
+          background-image: url('@/assets/images/db-arrow.svg');
+        }
       }
 
       .size {
