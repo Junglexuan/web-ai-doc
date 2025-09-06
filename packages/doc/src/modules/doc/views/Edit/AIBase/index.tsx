@@ -99,7 +99,7 @@ const Component: FC<Props> = ({title, children, hooks, automatic, hideButton, mo
             插入
           </Button>
           <Button type="text" icon={<SyncOutlined />} onClick={onRedo}>
-            换一换
+            重新生成
           </Button>
           {!hideButtonMap['onKeep'] && (
             <Button type="text" icon={<EditOutlined />} onClick={onKeep}>
@@ -107,7 +107,7 @@ const Component: FC<Props> = ({title, children, hooks, automatic, hideButton, mo
             </Button>
           )}
           <Button type="text" icon={<AdjustIcon />} onClick={onAdjust}>
-            调整
+            换一换
           </Button>
           <Button type="text" icon={<DeleteOutlined />} onClick={() => hooks.aiRef.closeMenu(true)}>
             弃用

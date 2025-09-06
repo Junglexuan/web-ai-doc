@@ -175,7 +175,7 @@ const Component: FC<Props> = ({onCancel, loading, editor}) => {
   return (
     <>
       <span
-        style={{visibility: show || !itemNum ? 'hidden' : 'visible'}}
+        style={{display: show || !itemNum ? 'none' : 'block'}}
         id="_ai_inspectList_btn"
         className="btn inspect show"
         onClick={() => {
@@ -188,12 +188,7 @@ const Component: FC<Props> = ({onCancel, loading, editor}) => {
       >
         审查内容
       </span>
-      <span
-        className="btn inspect close"
-        id="_ai_inspectList_btnClose"
-        style={{visibility: show ? 'visible' : 'hidden', right: show ? '480px' : '0'}}
-        onClick={() => setShow(false)}
-      >
+      <span className="btn inspect close" id="_ai_inspectList_btnClose" style={{display: 'none'}} onClick={() => setShow(false)}>
         审查内容
       </span>
       <div className={styles.panel + (show ? ' on' : '')}>
