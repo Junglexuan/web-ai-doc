@@ -45,7 +45,7 @@
     "copy-to-clipboard": "^3.0.0",
     "marked": "^15.0.10",
     "immer": "^9.0.0",
-    "zov-cloud-ui": "^0.1.43",
+    "zov-cloud-ui": "^0.1.46",
     "@wangeditor-next/core": "^1.7.36",
     "@wangeditor-next/editor-for-react": "^1.0.9"
   },

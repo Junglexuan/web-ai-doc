@@ -1,7 +1,6 @@
 import {FC, memo, useState} from 'react';
 import AIBase from '../AIBase';
-import AiAPI, {RunningState} from '../api';
-import EasyEdit from '../EasyEdit';
+import AiAPI, {AIAction, RunningState} from '../api';
 import {useAIDialog} from '../hooks';
 import ImagePrompt, {ImagePromptValue} from '../ImagePrompt';
 import type {IAIRef} from '../AILayer';
@@ -12,11 +11,11 @@ interface Props {
 }
 
 const Component: FC<Props> = ({aiRef, onRunningStateChange}) => {
-  const hooks = useAIDialog(aiRef, onRunningStateChange, AiAPI.createImage);
+  const hooks = useAIDialog(AIAction.SCTP, aiRef, onRunningStateChange, AiAPI.createImage);
   const [tplValue, setTplvalue] = useState<ImagePromptValue>();
 
   return (
-    <AIBase title="生成图片" className="ai-image" hooks={hooks} hideButton={['onKeep', 'selectModel']}>
+    <AIBase title="生成图片" action={AIAction.SCTP} className="ai-image" hooks={hooks} hideButton={['onKeep', 'selectModel']}>
       <ImagePrompt askMode ref={hooks.inputRef} value={tplValue} onChange={setTplvalue} onSubmit={hooks.onPromptSubmit} />
       {/* <EasyEdit
         ref={hooks.inputRef}

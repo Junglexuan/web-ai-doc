@@ -1,6 +1,6 @@
 import {MutableRefObject, useCallback, useEffect, useRef, useState} from 'react';
 import {message, useEvent} from '@/utils/tools';
-import {AIRequest, RunningState} from './api';
+import {AIAction, AIRequest, RunningState} from './api';
 import type {IAIRef} from './AILayer';
 
 export interface AIDialogHooks {
@@ -22,13 +22,13 @@ export interface AIDialogHooks {
 }
 
 export function useAIDialog(
+  action: string,
   aiRef: IAIRef,
   onRunningStateChange: (runningState: RunningState) => void,
   onRequest: AIRequest,
   args?: {[key: string]: string},
   withContext?: boolean,
-  required?: boolean,
-  title?: string
+  required?: boolean
 ): AIDialogHooks {
   const [runningState, setRunningState] = useState<RunningState>('');
   const inputRef = useRef<{getValue: () => string; focus: () => void}>(null as any);
@@ -40,14 +40,15 @@ export function useAIDialog(
   const [model, setModel] = useState('qwen-max');
   const [knowledge, setKnowledge] = useState<string[]>([]);
 
-  console.log(title);
+  console.log(action);
+
   const onPromptSubmit = useEvent(({keep}: {keep?: boolean} = {}) => {
     const text = inputRef.current.getValue();
     if (required && !text) {
       message.error('请输入...');
       return;
     }
-    if (title === '知识库问答') {
+    if (action === AIAction.ZSKWD) {
       if (!model) {
         message.error('请选择智能体...');
         return;
@@ -78,6 +79,7 @@ export function useAIDialog(
         raw: lastRaw,
         model,
         knowledge: knowledge.join(','),
+        action,
         ...args,
       },
       onMessage: ({html, raw}) => {
@@ -141,10 +143,10 @@ export function useAIDialog(
         .map((child) => (child.className === 'on' ? child.getAttribute('data-img') : ''))
         .filter(Boolean);
       if (imgs.length) {
-        aiRef.insertHtmlByAI(imgs.map((src) => `<img src="${src}" />`).join(''));
+        aiRef.insertHtmlByAI(imgs.map((src) => `<img src="${src}" />`).join(''), action);
       }
     } else {
-      aiRef.insertHtmlByAI(fragment.innerHTML);
+      aiRef.insertHtmlByAI(fragment.innerHTML, action);
     }
   });
 

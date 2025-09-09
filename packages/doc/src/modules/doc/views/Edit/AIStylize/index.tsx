@@ -7,15 +7,16 @@ import type {IAIRef} from '../AILayer';
 
 interface Props {
   title: string;
+  action: string;
   aiRef: IAIRef;
   onRunningStateChange: (runningState: RunningState) => void;
 }
 
-const Component: FC<Props> = ({title, aiRef, onRunningStateChange}) => {
-  const hooks = useAIDialog(aiRef, onRunningStateChange, AiAPI.stylize, {title}, true);
+const Component: FC<Props> = ({title, action, aiRef, onRunningStateChange}) => {
+  const hooks = useAIDialog(action, aiRef, onRunningStateChange, AiAPI.stylize, {}, true);
 
   return (
-    <AIBase title={title} hooks={hooks} automatic>
+    <AIBase title={title} action={action} hooks={hooks} automatic>
       <AntInput onSubmit={hooks.onPromptSubmit} ref={hooks.inputRef} defaultValue={title} />
     </AIBase>
   );

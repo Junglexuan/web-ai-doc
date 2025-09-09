@@ -7,7 +7,6 @@ import {
   MenuUnfoldOutlined,
   MessageOutlined,
   PictureOutlined,
-  ReadOutlined,
   RobotOutlined,
 } from '@ant-design/icons';
 import {IDomEditor, SlateEditor, SlateTransforms} from '@wangeditor-next/editor';
@@ -25,264 +24,6 @@ export interface MenuEvent {
 }
 
 type MenuItem = any;
-
-export const officialTemplates: MenuItem[] = [
-  {
-    key: 'GYJ',
-    title: '意见',
-    label: (
-      <span>
-        <sub>(YJ)</sub>意见
-      </span>
-    ),
-  },
-  {
-    key: 'GJD',
-    title: '决定',
-    label: (
-      <span>
-        <sub>(JD)</sub>决定
-      </span>
-    ),
-  },
-  {
-    key: 'GJY',
-    title: '决议',
-    label: (
-      <span>
-        <sub>(JY)</sub>决议
-      </span>
-    ),
-  },
-  {
-    key: 'GH',
-    title: '函',
-    label: (
-      <span>
-        <sub>(H)</sub>函
-      </span>
-    ),
-  },
-  {
-    key: 'GPF',
-    title: '批复',
-    label: (
-      <span>
-        <sub>(PF)</sub>批复
-      </span>
-    ),
-  },
-  {
-    key: 'GQS',
-    title: '请示',
-    label: (
-      <span>
-        <sub>(QS)</sub>请示
-      </span>
-    ),
-  },
-  {
-    key: 'GBG',
-    title: '报告',
-    label: (
-      <span>
-        <sub>(BG)</sub>报告
-      </span>
-    ),
-  },
-  {
-    key: 'GTB',
-    title: '通报',
-    label: (
-      <span>
-        <sub>(TB)</sub>通报
-      </span>
-    ),
-  },
-  {
-    key: 'GTZ',
-    title: '通知',
-    label: (
-      <span>
-        <sub>(TZ)</sub>通知
-      </span>
-    ),
-  },
-  {
-    key: 'GTG',
-    title: '通告',
-    label: (
-      <span>
-        <sub>(TG)</sub>通告
-      </span>
-    ),
-  },
-  {
-    key: 'GGG',
-    title: '公告',
-    label: (
-      <span>
-        <sub>(GG)</sub>公告
-      </span>
-    ),
-  },
-  {
-    key: 'GJY2',
-    title: '纪要',
-    label: (
-      <span>
-        <sub>(JY2)</sub>纪要
-      </span>
-    ),
-  },
-  {
-    key: 'GGB',
-    title: '公报',
-    label: (
-      <span>
-        <sub>(GB)</sub>公报
-      </span>
-    ),
-  },
-  {
-    key: 'GYA',
-    title: '议案',
-    label: (
-      <span>
-        <sub>(YA)</sub>议案
-      </span>
-    ),
-  },
-  {
-    key: 'GML',
-    title: '命令',
-    label: (
-      <span>
-        <sub>(ML)</sub>命令
-      </span>
-    ),
-  },
-];
-
-export const applicationTemplates: MenuItem[] = [
-  {
-    key: 'YSM',
-    title: '声明',
-    label: (
-      <span>
-        <sub>(SM)</sub>声明
-      </span>
-    ),
-  },
-  {
-    key: 'YZJ',
-    title: '总结',
-    label: (
-      <span>
-        <sub>(ZJ)</sub>总结
-      </span>
-    ),
-  },
-  {
-    key: 'YJH',
-    title: '计划',
-    label: (
-      <span>
-        <sub>(JH)</sub>计划
-      </span>
-    ),
-  },
-  {
-    key: 'YGH',
-    title: '规划',
-    label: (
-      <span>
-        <sub>(GH)</sub>规划
-      </span>
-    ),
-  },
-  {
-    key: 'YAP',
-    title: '安排',
-    label: (
-      <span>
-        <sub>(AP)</sub>安排
-      </span>
-    ),
-  },
-  {
-    key: 'YGS',
-    title: '公示',
-    label: (
-      <span>
-        <sub>(GS)</sub>公示
-      </span>
-    ),
-  },
-  {
-    key: 'YQS',
-    title: '启事',
-    label: (
-      <span>
-        <sub>(QS)</sub>启事
-      </span>
-    ),
-  },
-  {
-    key: 'YXZ',
-    title: '细则',
-    label: (
-      <span>
-        <sub>(XZ)</sub>细则
-      </span>
-    ),
-  },
-  {
-    key: 'YSZ',
-    title: '守则',
-    label: (
-      <span>
-        <sub>(SZ)</sub>守则
-      </span>
-    ),
-  },
-  {
-    key: 'YZC',
-    title: '章程',
-    label: (
-      <span>
-        <sub>(ZC)</sub>章程
-      </span>
-    ),
-  },
-  {
-    key: 'YBF',
-    title: '办法',
-    label: (
-      <span>
-        <sub>(BF)</sub>办法
-      </span>
-    ),
-  },
-  {
-    key: 'YGD',
-    title: '规定',
-    label: (
-      <span>
-        <sub>(GD)</sub>规定
-      </span>
-    ),
-  },
-  {
-    key: 'YTL',
-    title: '条例',
-    label: (
-      <span>
-        <sub>(TL)</sub>条例
-      </span>
-    ),
-  },
-];
 
 export const stylesTemplates: MenuItem[] = [
   {
@@ -435,16 +176,6 @@ const originItems: MenuItem[] = [
       </span>
     ),
   },
-  // {
-  //   key: 'X',
-  //   icon: <ReadOutlined />,
-  //   title: '校阅',
-  //   label: (
-  //     <span>
-  //       <sub>(X)</sub>校阅
-  //     </span>
-  //   ),
-  // },
   {
     key: 'P',
     icon: <PictureOutlined />,
@@ -493,14 +224,10 @@ const originItems: MenuItem[] = [
 
 const itemsMap = (function () {
   const map: {[shortcut: string]: MenuItem} = {};
-  originItems
-    .concat(officialTemplates)
-    .concat(applicationTemplates)
-    .concat(stylesTemplates)
-    .forEach((item) => {
-      const key = item!.key as string;
-      map[key] = item;
-    });
+  originItems.concat(stylesTemplates).forEach((item) => {
+    const key = item!.key as string;
+    map[key] = item;
+  });
   return map;
 })();
 
@@ -513,14 +240,6 @@ export const menuKeysMap = (function () {
   stylesTemplates.forEach((item) => {
     const key = item!.key as string;
     map.styles[key] = item.title;
-  });
-  officialTemplates.forEach((item) => {
-    const key = item!.key as string;
-    map.official[key] = item.title;
-  });
-  applicationTemplates.forEach((item) => {
-    const key = item!.key as string;
-    map.application[key] = item.title;
   });
   return map;
 })();
@@ -590,23 +309,23 @@ const Component: FC<Props> = (props) => {
       itemsMap['R'].disabled = true;
       itemsMap['J'].disabled = true;
       itemsMap['F'].disabled = true;
-      itemsMap['Z'].disabled = true;
     } else {
       itemsMap['R'].disabled = undefined;
       itemsMap['J'].disabled = undefined;
       itemsMap['F'].disabled = undefined;
-      itemsMap['Z'].disabled = undefined;
     }
     return originItems;
   });
 
   const onSelect = useEvent((key: string) => {
     const editor = event.editor;
-    if (key === 'X') {
-      props.onSelect({key} as any);
-      return;
-    }
     editor.focus();
+    if (key === 'Z') {
+      const text = editor.getSelectionText();
+      if (!text) {
+        editor.selectAll();
+      }
+    }
     const selection = editor.selection;
     if (selection) {
       let result: AIEvent;

@@ -1,5 +1,4 @@
 import {IDomEditor} from '@wangeditor-next/editor';
-import {Button, Spin} from 'antd';
 import {FC, memo, useEffect, useMemo, useRef, useState} from 'react';
 import {addClass, debounce, removeClass, useEvent} from '@/utils/tools';
 import AIAsk from '../AIAsk';
@@ -7,12 +6,12 @@ import AIContinue from '../AIContinue';
 import AICreate from '../AICreate';
 import AIDialog from '../AIDialog';
 import AIImage from '../AIImage';
-import AIMenu, {MenuEvent, applicationTemplates, menuKeysMap, officialTemplates} from '../AIMenu';
+import AIMenu, {MenuEvent, menuKeysMap} from '../AIMenu';
 import AIOutline from '../AIOutline';
 import AIRobot from '../AIRobot';
 import AIStylize from '../AIStylize';
 import AIWeb from '../AIWeb';
-import api, {RunningState} from '../api';
+import {AIAction, RunningState} from '../api';
 import styles from './index.module.less';
 import type {AIEvent} from '../utils';
 
@@ -20,7 +19,7 @@ export interface IAIRef {
   closeMenu: (force?: boolean) => void;
   openMenu: (event: MenuEvent) => void;
   menuIsOpen: () => boolean;
-  insertHtmlByAI: (html: string) => void;
+  insertHtmlByAI: (html: string, action: string) => void;
   getTitle: () => string;
   getDocId: () => string;
   getContext: () => string;
@@ -74,9 +73,17 @@ const Component: FC<Props> = ({onCreated, editor}) => {
     return !!menuEvent;
   });
 
-  const insertHtmlByAI = useEvent((html: string) => {
-    if (!menuEvent?.selectionRange?.collapsed) {
-      editor.deleteFragment();
+  const insertHtmlByAI = useEvent((html: string, action: string) => {
+    if (action === AIAction.SCZY) {
+      const selection = editor.selection;
+      editor.select({
+        anchor: selection!.anchor,
+        focus: selection!.anchor,
+      });
+    } else {
+      if (!menuEvent?.selectionRange?.collapsed) {
+        editor.deleteFragment();
+      }
     }
     editor.dangerouslyInsertHtml(html);
   });
@@ -136,22 +143,6 @@ const Component: FC<Props> = ({onCreated, editor}) => {
     }
     if (aiEvent) {
       const aiKey = aiEvent.key;
-      //校阅
-      if (aiKey === 'X') {
-        // const {controller, result} = api.proofread(aiRef.getDocId(), editor.getText(), editor.getHtml());
-        // result.then(onProofreadSuccess, onProofreadError);
-        // setRunningState('Pending');
-        // return (
-        //   <div className={styles.dialog}>
-        //     <Spin />
-        //     <div className="info">正在校阅</div>
-        //     <Button size="small" onClick={() => controller.abort()}>
-        //       取消
-        //     </Button>
-        //   </div>
-        // );
-        //setGlobalLoading(api.proofread(aiRef.getDocId(), editor.getText()), GetClientRouter().getActivePage().store);
-      }
       if (aiKey === 'A') {
         return (
           <AIDialog event={aiEvent}>
@@ -206,6 +197,7 @@ const Component: FC<Props> = ({onCreated, editor}) => {
           <AIDialog event={aiEvent}>
             <AIStylize
               title={aiKey === 'J' ? '精简内容' : aiKey === 'Z' ? '生成摘要' : '丰富内容'}
+              action={aiKey === 'J' ? AIAction.JJNR : aiKey === 'Z' ? AIAction.SCZY : AIAction.FFNR}
               aiRef={aiRef}
               onRunningStateChange={setRunningState}
             />
@@ -215,23 +207,7 @@ const Component: FC<Props> = ({onCreated, editor}) => {
       if (menuKeysMap.styles[aiKey]) {
         return (
           <AIDialog event={aiEvent}>
-            <AIStylize title={menuKeysMap.styles[aiKey]} aiRef={aiRef} onRunningStateChange={setRunningState} />
-          </AIDialog>
-        );
-      }
-      if (menuKeysMap.official[aiKey]) {
-        return (
-          <AIDialog event={aiEvent}>
-            sss
-            {/* <AITemplate templateOptions={officialTemplates} template={showDialog!} aiRef={aiRef} onRunningStateChange={setRunningState} /> */}
-          </AIDialog>
-        );
-      }
-      if (menuKeysMap.application[aiKey]) {
-        return (
-          <AIDialog event={aiEvent}>
-            sss
-            {/* <AITemplate templateOptions={applicationTemplates} template={showDialog!} aiRef={aiRef} onRunningStateChange={setRunningState} /> */}
+            <AIStylize title={menuKeysMap.styles[aiKey]} action={AIAction.BWRS} aiRef={aiRef} onRunningStateChange={setRunningState} />
           </AIDialog>
         );
       }

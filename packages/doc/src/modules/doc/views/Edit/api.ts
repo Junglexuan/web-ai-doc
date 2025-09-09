@@ -6,6 +6,20 @@ import {dslToHtml} from './utils';
 
 export type RunningState = '' | 'Pending' | 'Rejected' | 'Fulfilled';
 
+export const AIAction = {
+  ZSKWD: '知识库问答',
+  AITW: 'AI提问',
+  SCQW: '生成全文',
+  JXX: '继续写',
+  SCTP: '生成图片',
+  SCDG: '生成大纲',
+  WYZJ: '网页总结',
+  JJNR: '精简内容',
+  SCZY: '生成摘要',
+  FFNR: '丰富内容',
+  BWRS: '帮我润色',
+};
+
 export interface AIRequest {
   (data: {
     args: {
@@ -229,7 +243,7 @@ const createImage: AIRequest = ({args, onMessage, onError, onDone}) => {
 const stylize: AIRequest = ({args, onMessage, onError, onDone}) => {
   const controller = new AbortController();
   const {signal} = controller;
-  const {sid, docId, prompt, model, context, previous, title} = args;
+  const {sid, docId, prompt, model, context, previous, action} = args;
   const req: {
     url: string;
     body: {type: string; articleId: string; conversation_id: string; content: string; model: string; previous?: string; tone?: string};
@@ -237,13 +251,13 @@ const stylize: AIRequest = ({args, onMessage, onError, onDone}) => {
     url: '',
     body: {type: '', articleId: docId, conversation_id: sid, content: context, model, previous: previous || undefined},
   };
-  if (title === '精简内容') {
+  if (action === AIAction.JJNR) {
     req.url = '/dream/pen/ai/writer/simplify';
     req.body.type = 'simplify';
-  } else if (title === '生成摘要') {
+  } else if (action === AIAction.SCZY) {
     req.url = '/dream/pen/ai/writer/excerpt';
     req.body.type = 'excerpt';
-  } else if (title === '丰富内容') {
+  } else if (action === AIAction.FFNR) {
     req.url = '/dream/pen/ai/writer/enrich';
     req.body.type = 'enrich';
   } else {

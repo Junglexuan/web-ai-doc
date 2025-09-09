@@ -2,6 +2,7 @@ import {CheckOutlined, DeleteOutlined, EditOutlined, PauseCircleOutlined, SyncOu
 import {Button, Space, Spin} from 'antd';
 import {FC, ReactElement, memo, useCallback, useEffect, useMemo, useRef} from 'react';
 import AdjustIcon from '@/assets/images/Adjust';
+import {AIAction} from '../api';
 import ColorAIcon from '../ColorAIcon';
 import EnterIcon from '../EnterIcon';
 import {AIDialogHooks} from '../hooks';
@@ -12,6 +13,7 @@ import styles from './index.module.less';
 
 interface Props {
   title: string;
+  action: string;
   children: ReactElement;
   hooks: AIDialogHooks;
   automatic?: boolean;
@@ -20,7 +22,7 @@ interface Props {
   className?: string;
 }
 
-const Component: FC<Props> = ({title, children, hooks, automatic, hideButton, modelIsRobot, className}) => {
+const Component: FC<Props> = ({title, action, children, hooks, automatic, hideButton, modelIsRobot, className}) => {
   const {
     onPromptSubmit,
     inputRef,
@@ -120,7 +122,7 @@ const Component: FC<Props> = ({title, children, hooks, automatic, hideButton, mo
             ) : (
               <ModelSelect size="small" value={model} onChange={onModelChange} />
             ))}
-          {title === '生成全文' && <KnowledgeSelect size="small" onChange={onKnowledgeChange} />}
+          {action === AIAction.SCQW && <KnowledgeSelect size="small" onChange={onKnowledgeChange} />}
           <div style={{color: '#aaa', fontSize: '12px'}}>* 回车直接提交，shift+回车可换行，esc键可关闭</div>
         </div>
       </div>

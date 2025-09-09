@@ -1,7 +1,7 @@
 import {FC, memo} from 'react';
 import AIBase from '../AIBase';
 import AntInput from '../AntInput';
-import AiAPI, {RunningState} from '../api';
+import AiAPI, {AIAction, RunningState} from '../api';
 import {useAIDialog} from '../hooks';
 import type {IAIRef} from '../AILayer';
 
@@ -11,9 +11,9 @@ interface Props {
 }
 
 const Component: FC<Props> = ({aiRef, onRunningStateChange}) => {
-  const hooks = useAIDialog(aiRef, onRunningStateChange, AiAPI.robot, {}, false, true, '知识库问答');
+  const hooks = useAIDialog(AIAction.ZSKWD, aiRef, onRunningStateChange, AiAPI.robot, {}, false, true);
   return (
-    <AIBase title="知识库问答" hooks={hooks} modelIsRobot>
+    <AIBase title="知识库问答" action={AIAction.ZSKWD} hooks={hooks} modelIsRobot>
       <AntInput ref={hooks.inputRef} onSubmit={hooks.onPromptSubmit} placeholder="请输入问题..." />
     </AIBase>
   );

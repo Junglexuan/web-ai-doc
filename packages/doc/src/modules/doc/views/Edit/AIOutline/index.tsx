@@ -1,7 +1,7 @@
 import {FC, memo} from 'react';
 import AIBase from '../AIBase';
 import AntInput from '../AntInput';
-import AiAPI, {RunningState} from '../api';
+import AiAPI, {AIAction, RunningState} from '../api';
 import {useAIDialog} from '../hooks';
 import type {IAIRef} from '../AILayer';
 
@@ -11,10 +11,10 @@ interface Props {
 }
 
 const Component: FC<Props> = ({aiRef, onRunningStateChange}) => {
-  const hooks = useAIDialog(aiRef, onRunningStateChange, AiAPI.createOutline);
+  const hooks = useAIDialog(AIAction.SCDG, aiRef, onRunningStateChange, AiAPI.createOutline);
 
   return (
-    <AIBase title="生成大纲" hooks={hooks}>
+    <AIBase title="生成大纲" action={AIAction.SCDG} hooks={hooks}>
       <AntInput
         onSubmit={hooks.onPromptSubmit}
         ref={hooks.inputRef}

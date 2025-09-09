@@ -2,7 +2,7 @@ import {FC, memo} from 'react';
 //import AdjustIcon from '@/assets/images/Adjust';
 import AIBase from '../AIBase';
 import AntInput from '../AntInput';
-import AiAPI, {RunningState} from '../api';
+import AiAPI, {AIAction, RunningState} from '../api';
 import {useAIDialog} from '../hooks';
 import type {IAIRef} from '../AILayer';
 
@@ -12,10 +12,10 @@ interface Props {
 }
 
 const Component: FC<Props> = ({aiRef, onRunningStateChange}) => {
-  const hooks = useAIDialog(aiRef, onRunningStateChange, AiAPI.continueWrite, {}, true);
+  const hooks = useAIDialog(AIAction.JXX, aiRef, onRunningStateChange, AiAPI.continueWrite, {}, true);
 
   return (
-    <AIBase title="继续写" hooks={hooks}>
+    <AIBase title="继续写" action={AIAction.JXX} hooks={hooks}>
       <AntInput
         onSubmit={hooks.onPromptSubmit}
         ref={hooks.inputRef}
