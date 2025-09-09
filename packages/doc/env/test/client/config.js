@@ -2,14 +2,13 @@ window.ApiBaseUrl = '';
 window.ApiPrefix = {
   '/auth/': 'http://user.binarysee.com.cn/auth/',
   '/dream/': 'http://113.44.121.105/dream/',
-  '/user/': 'http://user.binarysee.com.cn/',
 };
 window.SitesUrl = {
-  user: '//user.binarysee.com',
-  nexus: '//nexus.binarysee.com',
-  helix: '//helix.binarysee.com',
-  verse: '//verse.binarysee.com',
-  pulse: '//pulse.binarysee.com',
+  user: '//user.binarysee.com.cn',
+  nexus: '//nexus.binarysee.com.cn',
+  helix: '//helix.binarysee.com.cn',
+  verse: '//verse.binarysee.com.cn',
+  pulse: '//pulse.binarysee.com.cn',
 };
 window.PathPrefix = '';
 window.SiteInfo = {

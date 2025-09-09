@@ -1,4 +1,5 @@
 import {useEffect, useRef} from 'react';
+import {SitesUrl} from '@/Global';
 import {getToken} from '@/utils/tools';
 import 'zov-cloud-ui/style'; //导入样式
 
@@ -22,7 +23,7 @@ const UserMenu: React.FC<{logout: () => void}> = ({logout}) => {
     <user-menu
       ref={userMenuRef}
       token={getToken()}
-      base-url={'http://user.binarysee.com.cn'} //对应用户中心接口请求地址url
+      base-url={SitesUrl.user} //对应用户中心接口请求地址url
     />
   );
 };

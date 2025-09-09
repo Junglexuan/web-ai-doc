@@ -50,7 +50,7 @@ const Component: FC<{curUser: CurUser; dispatch: Dispatch}> = ({curUser, dispatc
         {/* <Badge count={5}>
           <BellOutlined style={{fontSize: '22px', position: 'relative', top: '3px'}} />
         </Badge> */}
-        <Dropdown trigger={['click']} menu={userMenu} popupRender={() => <UserCenterMenu logout={() => dispatch(stageActions.logout())} />}>
+        <Dropdown trigger={['click']} popupRender={() => <UserCenterMenu logout={() => dispatch(stageActions.logout())} />}>
           <div className="avatar" />
         </Dropdown>
       </Space>
