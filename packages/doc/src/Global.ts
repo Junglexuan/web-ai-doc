@@ -6,6 +6,67 @@
 import {API, Facade, getApi} from '@elux/react-web';
 import type {IModuleGetter} from './Project';
 
+interface SwitchTenantProps {
+  'base-url'?: string;
+  'modal-title'?: string;
+  'modal-content'?: string;
+  'modal-cancel-text'?: string;
+  'modal-ok-text'?: string;
+  'success-tips'?: string;
+}
+
+interface UserDetailProps {
+  'base-url'?: string;
+  title?: string;
+  'skip-type'?: 'window' | 'router';
+}
+
+interface LogoutProps {
+  'base-url'?: string;
+  title?: string;
+}
+
+interface UserMenuProps {
+  'base-url'?: string;
+  title?: string;
+  'skip-type'?: 'window' | 'router';
+  'modal-title'?: string;
+  'modal-content'?: string;
+  'modal-cancel-text'?: string;
+  'modal-ok-text'?: string;
+  'success-tips'?: string;
+}
+
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      'switch-tenant': SwitchTenantProps & {
+        'onswitch-tenant'?: (event: CustomEvent) => void;
+        [propName: string]: any;
+      };
+      'user-menu': UserMenuProps & {
+        'onswitch-tenant'?: (event: CustomEvent) => void;
+        onlogout?: (event: CustomEvent) => void;
+        [propName: string]: any;
+      };
+      'user-detail': UserDetailProps & {
+        [propName: string]: any;
+      };
+      'user-logout': LogoutProps & {
+        onlogout?: (event: CustomEvent) => void;
+        [propName: string]: any;
+      };
+    }
+  }
+
+  interface HTMLElementTagNameMap {
+    'switch-tenant': HTMLElement & SwitchTenantProps;
+    'user-menu': HTMLElement & UserMenuProps;
+    'user-detail': HTMLElement & UserDetailProps;
+    'user-logout': HTMLElement & LogoutProps;
+  }
+}
+
 type APP = API<Facade<IModuleGetter>>;
 
 export type APPState = APP['State'];

@@ -1,7 +1,7 @@
 import {ActionError} from '@elux/react-web';
 import axios, {AxiosError, AxiosResponse} from 'axios';
-import {ApiBaseUrl, ApiPrefix, PathPrefix} from '@/Global';
-import {clearToken, getToken, message} from './tools';
+import {ApiBaseUrl, ApiPrefix, PathPrefix, SitesUrl} from '@/Global';
+import {clearToken, getToken, message, warning} from './tools';
 
 function toErrorMessage(status: number) {
   switch (status) {
@@ -136,6 +136,7 @@ instance.interceptors.response.use(
       }
       throw new CustomError(ErrorCode.unkown, '', data);
     }
+
     return response;
   },
   (error: AxiosError<{message: string}>) => {
@@ -146,6 +147,11 @@ instance.interceptors.response.use(
       clearToken();
       toLoginPage();
       throw new CustomError(mapHttpErrorCode(httpErrorCode), '请登录！');
+    } else if (httpErrorCode === 402) {
+      warning('检测到租户已发生变化，需要刷新数据...', () => {
+        window.location.href = SitesUrl.verse;
+      });
+      throw new CustomError('402', '');
     }
     const config = error.config!;
     const requestHeaders = config.headers;

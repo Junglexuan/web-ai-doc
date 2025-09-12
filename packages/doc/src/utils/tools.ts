@@ -8,7 +8,11 @@ import {PathPrefix, useRouter} from '@/Global';
 export {message} from 'antd';
 
 message.config({top: 47});
-export function confirm(message: string, callback: (ok: boolean) => void, props?: {title?: string; okText?: string; cancelText?: string}): void {
+export function confirm(
+  message: string,
+  callback: (ok: boolean) => void,
+  props?: {title?: string; okText?: string; cancelText?: string | null}
+): void {
   Modal.confirm({
     title: '提示',
     content: message,
@@ -18,6 +22,15 @@ export function confirm(message: string, callback: (ok: boolean) => void, props?
     },
     onCancel() {
       callback(false);
+    },
+  });
+}
+export function warning(message: string, callback: () => void): void {
+  Modal.warning({
+    title: '提示',
+    content: message,
+    onOk() {
+      callback();
     },
   });
 }

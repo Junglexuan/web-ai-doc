@@ -50,6 +50,9 @@ export class Model extends BaseModel<ModuleState, APPState> {
       const initState: ModuleState = {curUser, subModule, curView};
       this.dispatch(this.privateActions._initState(initState));
     } catch (err: any) {
+      if (err.code === '402') {
+        throw err;
+      }
       const initState: ModuleState = {curUser: {...guest}, subModule, curView, error: err.message || err.toString()};
       this.dispatch(this.privateActions._initState(initState));
     }

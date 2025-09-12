@@ -3,10 +3,9 @@
  */
 //import './default-passive-events.js';
 import {createApp} from '@elux/react-web';
-import {register} from 'zov-cloud-ui';
 import {appConfig} from './Project';
 
-register();
+window['ZovCloudUI'].register();
 createApp(appConfig)
   .render()
   .then(() => {

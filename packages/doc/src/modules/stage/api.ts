@@ -1,8 +1,5 @@
-import JSEncrypt from 'jsencrypt';
-import {PublicKey} from '@/Global';
 import {CurUser} from '@/utils/base';
 import request from '@/utils/request';
-import {LoginParams} from './entity';
 
 export const guest: CurUser = {
   id: '',
@@ -42,7 +39,11 @@ class API {
         (res) => {
           return {...res.data.data, hasLogin: true};
         },
-        () => {
+        (e) => {
+          if (e.code === '402') {
+            //402表示租户发生变化，终止执行跳往首页
+            throw e;
+          }
           return guest;
         }
       );

@@ -7,6 +7,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no" />
     <link rel="shortcut icon" href="<%= htmlWebpackPlugin.options.clientPublicPath %>favicon.ico" />
     <script src="<%= htmlWebpackPlugin.options.clientPublicPath %>config.js?t=<%= Date.now() %>"></script>
+    <script src="https://static.binarysee.com/zov-cloud-ui/1.0.0/zov-cloud-ui.common.umd.js"></script>
+    <link rel="stylesheet" href="https://static.binarysee.com/zov-cloud-ui/1.0.0/zov-cloud-ui.css" />
     <style>
       html {
         margin: 0;
@@ -91,7 +93,7 @@
       #root-loading {
         display: block;
         position: fixed;
-        z-index: 100000;
+        z-index: 999;
         width: 100%;
         height: 100%;
         top: 0;
