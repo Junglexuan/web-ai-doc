@@ -3,12 +3,14 @@ import request from '@/utils/request';
 
 export const guest: CurUser = {
   id: '',
+  nickName: '游客',
   username: '游客',
   hasLogin: false,
 };
 
 export const admin: CurUser = {
   id: 'aaaa',
+  nickName: '游客',
   username: '游客',
   hasLogin: true,
 };
@@ -18,10 +20,11 @@ class API {
     if (ticket) {
       return request.post(`/dream/pen/sso/login?ticket=${ticket}`).then(
         (res) => {
-          const {token, tokenKnowledge, userId, username} = res.data.data;
+          const {token, tokenKnowledge, userId, nickName, username} = res.data.data;
           const user: CurUser = {
             id: userId,
             username,
+            nickName,
             hasLogin: true,
           };
           localStorage.setItem('Authorization', tokenKnowledge);

@@ -1,5 +1,6 @@
 export interface CurUser {
   id: string;
+  nickName: string;
   username: string;
   hasLogin: boolean;
 }

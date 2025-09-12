@@ -148,7 +148,7 @@ instance.interceptors.response.use(
       toLoginPage();
       throw new CustomError(mapHttpErrorCode(httpErrorCode), '请登录！');
     } else if (httpErrorCode === 402) {
-      warning('检测到租户已发生变化，需要刷新数据...', () => {
+      warning(data.message || '检测到租户已发生变化，需要刷新数据...', () => {
         window.location.href = SitesUrl.verse;
       });
       throw new CustomError('402', '');

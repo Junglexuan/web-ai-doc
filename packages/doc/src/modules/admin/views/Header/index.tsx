@@ -1,48 +1,15 @@
-import {BellOutlined, LogoutOutlined, UserOutlined} from '@ant-design/icons';
 import {Dispatch} from '@elux/react-web';
-import {Avatar, Badge, Button, Dropdown, Space} from 'antd';
-import {FC, useMemo} from 'react';
-import {GetActions} from '@/Global';
+import {Dropdown, Space} from 'antd';
+import {FC} from 'react';
+import {GetActions, SitesUrl} from '@/Global';
 import {CurUser} from '@/utils/base';
-import {toUserCenter} from '@/utils/request';
+import request from '@/utils/request';
 import UserCenterMenu from '../UserCenterMenu';
 import styles from './index.module.less';
 
 const {stage: stageActions} = GetActions('stage');
 
 const Component: FC<{curUser: CurUser; dispatch: Dispatch}> = ({curUser, dispatch}) => {
-  const userMenu: any = useMemo(() => {
-    return {
-      items: [
-        {
-          key: 'g1',
-          label: (
-            <Button size="small" type="text" onClick={toUserCenter}>
-              {curUser.username}
-            </Button>
-          ),
-          type: 'group',
-        },
-        {
-          type: 'divider',
-        },
-        {
-          key: 'logout',
-          label: (
-            <Button size="small" type="link" icon={<LogoutOutlined />}>
-              退出登录
-            </Button>
-          ),
-        },
-      ],
-      onClick: ({key}: {key: string}) => {
-        if (key === 'logout') {
-          dispatch(stageActions.logout());
-        }
-      },
-    };
-  }, [curUser, dispatch]);
-
   return (
     <div className={styles.root}>
       <div></div>
@@ -52,7 +19,15 @@ const Component: FC<{curUser: CurUser; dispatch: Dispatch}> = ({curUser, dispatc
         </Badge> */}
         <Dropdown
           trigger={['click']}
-          popupRender={() => <UserCenterMenu username={curUser.username} logout={() => dispatch(stageActions.logout())} />}
+          popupRender={() => (
+            <UserCenterMenu
+              username={curUser.nickName || curUser.username}
+              logout={() => dispatch(stageActions.logout())}
+              switchTenant={() => {
+                request.get('/dream/pen/currentUser', {headers: {quiet: 1}}).finally(() => (location.href = SitesUrl.verse));
+              }}
+            />
+          )}
         >
           <div className="avatar" />
         </Dropdown>

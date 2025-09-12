@@ -29,6 +29,7 @@ export function warning(message: string, callback: () => void): void {
   Modal.warning({
     title: '提示',
     content: message,
+    okText: '确定',
     onOk() {
       callback();
     },
