@@ -1,6 +1,6 @@
 import {useEffect, useRef} from 'react';
 import {SitesUrl} from '@/Global';
-import {getToken} from '@/utils/tools';
+import {getTenant, getToken} from '@/utils/tools';
 
 const UserMenu: React.FC<{username: string; logout: () => void; switchTenant: () => void}> = ({username, logout, switchTenant}) => {
   const userMenuRef: any = useRef<HTMLElement | null>(null);
@@ -23,6 +23,7 @@ const UserMenu: React.FC<{username: string; logout: () => void; switchTenant: ()
       ref={userMenuRef}
       token={getToken()}
       user-name={username}
+      tenant-id={getTenant()}
       base-url={SitesUrl.user} //对应用户中心接口请求地址url
     />
   );

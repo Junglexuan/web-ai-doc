@@ -35,6 +35,16 @@ export function warning(message: string, callback: () => void): void {
     },
   });
 }
+export function info(message: string, callback: () => void): void {
+  Modal.info({
+    title: '提示',
+    content: message,
+    okText: '确定',
+    onOk() {
+      callback();
+    },
+  });
+}
 export function hasClass(el: HTMLElement, className: string): boolean {
   const arr = (el.getAttribute('class') || '').split(' ');
   return arr.includes(className);
@@ -237,9 +247,17 @@ export const getToken = (): string => {
   return token;
 };
 
+export const getTenant = (): string => {
+  //const [agencyID, token] = (localStorage.getItem(TokenStorageKey) || '').split('|');
+  const token = localStorage.getItem('zov-user-tenant') || '';
+  //
+  return token;
+};
+
 export const clearToken = (): void => {
   localStorage.removeItem('zov-user-token');
-  localStorage.removeItem('Authorization');
+  localStorage.removeItem('zov-user-tenant');
+  localStorage.removeItem('zov-user-info');
 };
 
 export const getCurUserId = (): string => {
