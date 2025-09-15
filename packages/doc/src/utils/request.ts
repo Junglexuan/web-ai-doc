@@ -1,7 +1,7 @@
 import {ActionError} from '@elux/react-web';
 import axios, {AxiosError, AxiosResponse} from 'axios';
 import {ApiBaseUrl, ApiPrefix, PathPrefix, SitesUrl} from '@/Global';
-import {clearToken, getToken, message, warning} from './tools';
+import {clearToken, getTenant, getToken, info, message} from './tools';
 
 function toErrorMessage(status: number) {
   switch (status) {
@@ -107,10 +107,8 @@ const instance = axios.create({
 //instance.defaults.withCredentials = true;
 
 instance.interceptors.request.use((req) => {
-  const token = getToken();
-  if (token) {
-    req.headers['Authorization'] = token;
-  }
+  req.headers['Authorization'] = getToken();
+  req.headers['Tenant'] = getTenant();
   req.url = replaceBaseUrl(req.url!);
   if (req.method === 'post') {
     if (!req.data) {
@@ -148,7 +146,7 @@ instance.interceptors.response.use(
       toLoginPage();
       throw new CustomError(mapHttpErrorCode(httpErrorCode), '请登录！');
     } else if (httpErrorCode === 402) {
-      warning(data.message || '检测到租户已发生变化，需要刷新数据...', () => {
+      info(data.message || '检测到租户已发生变化，需要刷新数据...', () => {
         window.location.href = SitesUrl.verse;
       });
       throw new CustomError('402', '');

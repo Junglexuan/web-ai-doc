@@ -19,6 +19,7 @@ const Component: FC<{curUser: CurUser; dispatch: Dispatch}> = ({curUser, dispatc
         </Badge> */}
         <Dropdown
           trigger={['click']}
+          destroyOnHidden={true}
           popupRender={() => (
             <UserCenterMenu
               username={curUser.nickName || curUser.username}
