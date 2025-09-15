@@ -415,7 +415,11 @@ const Component: FC<Props> = ({itemDetail}) => {
             </>
           )}
         </div>
-        <div className="bd" id="_ai_editor_scroller" style={{width: SizeEnum[size]}}>
+        <div
+          className="bd"
+          id="_ai_editor_scroller"
+          style={{margin: itemDetail.docType === 'tpl' ? '0' : 'auto', width: itemDetail.docType === 'tpl' ? '50%' : SizeEnum[size]}}
+        >
           <header>
             <BlurInput
               id="_doc_title"
@@ -438,6 +442,7 @@ const Component: FC<Props> = ({itemDetail}) => {
             mode="default"
           />
         </div>
+        <div className="gd">ddd</div>
         <div className="ft">
           <span className="count">{source.text ? source.text.replace(/\n|\r/gm, '').length : ''}个字</span>
           <div>
