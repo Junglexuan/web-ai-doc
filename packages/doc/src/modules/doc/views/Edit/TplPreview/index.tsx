@@ -33,7 +33,7 @@ const Component: FC<Props> = ({title, html}) => {
         <div className="subject">效果预览</div>
         <div className="title">{title}</div>
       </header>
-      <div dangerouslySetInnerHTML={{__html: html}} />
+      <div className="editor" dangerouslySetInnerHTML={{__html: html}} />
     </div>
   );
 };
