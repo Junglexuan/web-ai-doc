@@ -1,14 +1,19 @@
-import {FC, memo, useEffect, useRef} from 'react';
+import {FC, memo, useEffect, useMemo, useRef, useState} from 'react';
 import {debounce} from '@/utils/tools';
 import styles from './index.module.less';
 
 interface Props {
   title: string;
-  html: string;
+  tpl: string;
 }
 
-const Component: FC<Props> = ({title, html}) => {
+const Component: FC<Props> = ({title, tpl}) => {
   const rootRef = useRef<HTMLDivElement>(null);
+  const [html, setHtml] = useState('');
+
+  useMemo(() => {
+    setHtml(tpl);
+  }, [tpl]);
 
   useEffect(() => {
     const editorDom = document.getElementById('_ai_editor_scroller')!;

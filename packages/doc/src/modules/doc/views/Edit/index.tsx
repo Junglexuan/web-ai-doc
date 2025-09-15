@@ -445,7 +445,7 @@ const Component: FC<Props> = ({itemDetail}) => {
             mode="default"
           />
         </div>
-        {itemDetail.docType === 'tpl' && <TplPreview title={docTitle} html={source.html} />}
+        {itemDetail.docType === 'tpl' && <TplPreview title={docTitle} tpl={source.html} />}
         <div className="ft">
           <span className="count">{source.text ? source.text.replace(/\n|\r/gm, '').length : ''}个字</span>
           <div>
