@@ -166,18 +166,17 @@
         }
 
         .description {
-          display: block;
+          /* stylelint-disable-next-line value-no-vendor-prefix */
+          display: -webkit-box;
           width: 100%;
-          height: 66px;
+          height: 4.5em;
           overflow: hidden;
           font-size: 14px;
           font-weight: normal;
           line-height: 1.5;
           color: #595959;
-
-          /* 限制显示行数 */
-          text-overflow: ellipsis;
-          letter-spacing: 0;
+          -webkit-line-clamp: 3;
+          -webkit-box-orient: vertical;
         }
 
         .mask {

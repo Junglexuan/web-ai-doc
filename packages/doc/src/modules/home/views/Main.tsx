@@ -92,7 +92,7 @@ const Component: FC = () => {
             <div className="description" title={item.remark}>
               {item.remark}
             </div>
-            <div className={'mask ' + styles.mask}>
+            <div className={'mask ' + styles.mask} title={item.remark}>
               <div className="ant-btn view" onClick={() => setPreviewTpl(item.id)}>
                 <EyeOutlined />
               </div>
