@@ -75,7 +75,7 @@
       flex: 1;
       width: 750px;
       height: 100%;
-      padding: 10px 20px 0;
+      padding: 10px 30px 0;
       margin: auto;
       overflow: auto;
 
@@ -84,6 +84,7 @@
       }
 
       > header {
+        position: relative;
         border-bottom: 1px solid #eee;
 
         .ant-input-lg {
@@ -92,6 +93,17 @@
           font-size: 32px;
           font-weight: bold;
           border-color: #fff;
+        }
+
+        > .expand {
+          position: absolute;
+          top: 10px;
+          right: 0;
+          z-index: 1;
+          width: 16px;
+          height: 16px;
+          cursor: pointer;
+          background: url('@/assets/images/expand.svg');
         }
       }
     }

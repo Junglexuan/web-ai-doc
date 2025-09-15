@@ -35,6 +35,7 @@ import Inspect from './Inspect';
 import Outline from './Outline';
 import Review from './Review';
 import ReviewButton from './ReviewButton';
+import TplPreview from './TplPreview';
 import TplRun from './TplRun';
 import {replaceInspectItem, replaceReviewItem} from './utils';
 import VarButton from './VarButton';
@@ -421,6 +422,7 @@ const Component: FC<Props> = ({itemDetail}) => {
           style={{margin: itemDetail.docType === 'tpl' ? '0' : 'auto', width: itemDetail.docType === 'tpl' ? '50%' : SizeEnum[size]}}
         >
           <header>
+            <div className="expand" />
             <BlurInput
               id="_doc_title"
               data-doc={itemDetail.id}
@@ -435,14 +437,15 @@ const Component: FC<Props> = ({itemDetail}) => {
           </header>
           <Editor
             defaultConfig={defaultConfig}
-            value={source.html}
+            // value={}
             onCreated={onCreated}
             onChange={onChange}
+            defaultHtml={source.html}
             //style={{minHeight: '500px'}}
             mode="default"
           />
         </div>
-        <div className="gd">ddd</div>
+        {itemDetail.docType === 'tpl' && <TplPreview title={docTitle} html={source.html} />}
         <div className="ft">
           <span className="count">{source.text ? source.text.replace(/\n|\r/gm, '').length : ''}个字</span>
           <div>
