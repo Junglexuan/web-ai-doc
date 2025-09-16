@@ -207,6 +207,7 @@ const Component: FC<Props> = ({itemDetail}) => {
 
   const onCreated = useEvent((editor: IDomEditor) => {
     setEditor(editor);
+    editor.setHtml(source.html);
     window['editor'] = editor;
     //setTimeout(() => (window['tools'] = DomEditor.getToolbar(editor)));
     editor.on('modalOrPanelShow', (modalOrPanel) => {
@@ -431,7 +432,6 @@ const Component: FC<Props> = ({itemDetail}) => {
           </header>
           <Editor
             defaultConfig={defaultConfig}
-            value={source.html}
             onCreated={onCreated}
             onChange={onChange}
             //style={{minHeight: '500px'}}
