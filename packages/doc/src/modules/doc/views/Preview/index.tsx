@@ -3,7 +3,6 @@ import {Button, Modal, Spin} from 'antd';
 import {FC, memo, useCallback, useEffect, useState} from 'react';
 import {openArticle} from '@/utils/tools';
 import DocAPI from '../../api';
-import EditorPreview from '../EditorPreview';
 import styles from './index.module.less';
 
 interface Props {
@@ -39,7 +38,12 @@ const Component: FC<Props> = ({tplId, onCancel, onApply}) => {
         ) : (
           <>
             <div className="bd">
-              <EditorPreview html={data.snapshot} />
+              <Editor
+                defaultConfig={{readOnly: true}}
+                value={data.snapshot}
+                //style={{minHeight: '500px'}}
+                mode="simple"
+              />
             </div>
             <div className="ft">
               {data.isMine ? (
