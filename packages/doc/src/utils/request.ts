@@ -173,6 +173,7 @@ export function getUploadProps(
     action: replaceBaseUrl(url),
     headers: {
       authorization: getToken(),
+      tenant: getTenant(),
     },
     onChange(info: any) {
       const file = info.file || {};
@@ -220,6 +221,7 @@ export function downloadFile(url: string, fileName: string): Promise<void> {
     xhr.open('GET', url, true);
     xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
     xhr.setRequestHeader('Authorization', getToken());
+    xhr.setRequestHeader('Tenant', getTenant());
     xhr.send();
     xhr.responseType = 'blob';
     xhr.onload = function () {

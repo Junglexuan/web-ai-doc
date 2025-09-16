@@ -1,7 +1,7 @@
 import {fetchEventSource} from '@microsoft/fetch-event-source';
 import {marked} from 'marked';
 import request, {replaceBaseUrl} from '@/utils/request';
-import {getToken} from '@/utils/tools';
+import {getTenant, getToken} from '@/utils/tools';
 import {dslToHtml} from './utils';
 
 export type RunningState = '' | 'Pending' | 'Rejected' | 'Fulfilled';
@@ -143,6 +143,7 @@ function getHeaders() {
   return {
     'Content-Type': 'application/json',
     Authorization: getToken(),
+    Tenant: getTenant(),
   };
 }
 const continueWrite: AIRequest = ({args, onMessage, onError, onDone}) => {
