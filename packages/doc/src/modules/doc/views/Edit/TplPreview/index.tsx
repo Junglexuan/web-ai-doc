@@ -106,7 +106,7 @@ const Component: FC<Props> = ({title, tpl}) => {
         <div className="subject">效果预览</div>
         <div className="title">{title}</div>
       </header>
-      <div className="editor" dangerouslySetInnerHTML={{__html: html}} />
+      <div className="w-editor-preview" dangerouslySetInnerHTML={{__html: html}} />
     </div>
   );
 };
