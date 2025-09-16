@@ -22,7 +22,7 @@ const TypeSourceMap: {[key in DocType]: string} = {
 
 export const DocAPI = {
   createSnapshot(data: {tplId: string; contents?: string}, type: DocType): Promise<{id: string}> {
-    const contents = data.contents || '<p style="line-height: 1.5;"><span font-family: 黑体;"></span></p>';
+    const contents = data.contents || '<p style="line-height: 1.5;"><span style="font-family: 黑体;"></span></p>';
     return setGlobalLoading(
       request
         .post(`/dream/pen/template/snapshot/save`, {
@@ -35,7 +35,7 @@ export const DocAPI = {
   },
   createDoc(data: {title: string; contents: string; folder: string}, type: DocType, size?: number): Promise<{id: string}> {
     const {title, folder} = data;
-    const contents = data.contents || '<p style="line-height: 1.5;"><span font-family: 黑体;"></span></p>';
+    const contents = data.contents || '<p style="line-height: 1.5;"><span style="font-family: 黑体;"></span></p>';
     return setGlobalLoading(
       request
         .post(`/dream/pen/article/save`, {

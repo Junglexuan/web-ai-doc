@@ -5,7 +5,7 @@ export type VariableElement = {
   kind: string;
   source: string;
   info: string;
-  field?: string;
+  field: string;
   editable?: boolean;
   children: Text[];
 };

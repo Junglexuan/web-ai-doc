@@ -40,17 +40,17 @@ function insertVarByTpl(editor: IDomEditor, kind: string) {
     }
     let node: VariableElement | undefined;
     if (kind === 'date') {
-      node = {type: 'variable', kind, source: '${DATE.NOW()}', info: '此时此刻', children: [{text: '$日期时间'}]};
+      node = {type: 'variable', kind, field: 'Date', source: '${DATE.NOW()}', info: '此时此刻', children: [{text: '$日期时间'}]};
     } else if (kind === 'sign') {
-      node = {type: 'variable', kind, source: '${USER.CURRENT()}', info: '当前用户', children: [{text: '$用户署名'}]};
+      node = {type: 'variable', kind, field: 'User', source: '${USER.CURRENT()}', info: '当前用户', children: [{text: '$用户署名'}]};
     } else if (kind === 'image') {
-      node = {type: 'variable', kind, source: '${AI.IMAGE()}', info: '...', children: [{text: '$智能生图'}]};
+      node = {type: 'variable', kind, field: '$Image', source: '${AI.IMAGE()}', info: '...', children: [{text: '$智能生图'}]};
     } else if (kind === 'ask') {
-      node = {type: 'variable', kind, source: '${KNOWLEDGE.ASK()}', info: '...', children: [{text: '$知识库问答'}]};
+      node = {type: 'variable', kind, field: '$Ask', source: '${KNOWLEDGE.ASK()}', info: '...', children: [{text: '$知识库问答'}]};
     } else if (kind === 'write') {
-      node = {type: 'variable', kind, source: '${AI.ASK()}', info: '...', children: [{text: '$AI写作'}]};
+      node = {type: 'variable', kind, field: '', source: '${AI.ASK()}', info: '...', children: [{text: '$AI写作'}]};
     } else if (kind === 'replace') {
-      node = {type: 'variable', kind, source: '${DOC.REPLACE()}', info: '...', children: [{text: '$内容替换'}]};
+      node = {type: 'variable', kind, field: '', source: '${DOC.REPLACE()}', info: '...', children: [{text: '$内容替换'}]};
     }
     if (node) {
       editor.insertNode(node);

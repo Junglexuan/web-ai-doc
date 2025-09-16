@@ -447,6 +447,17 @@ function autoInspect(
   return controller;
 }
 
+function featchTplTag(field: string, args: any, onMessage: (field: string, html: string) => void): {abort: () => void} {
+  request.get('/dream/pen/know/kb').then((res) => {
+    onMessage(field, 'xxx');
+  });
+  return {
+    abort: () => {
+      onMessage = () => undefined;
+    },
+  };
+}
+
 export const AiAPI = {
   continueWrite,
   createFullText,
@@ -459,6 +470,7 @@ export const AiAPI = {
   robot,
   web,
   tpl,
+  featchTplTag,
   getMyKnowledges(): Promise<{label: string; value: string}[]> {
     return request.get('/dream/pen/know/kb').then((res) => {
       return res.data.data.kbs.map((item: any) => ({label: item.name, value: item.id}));
