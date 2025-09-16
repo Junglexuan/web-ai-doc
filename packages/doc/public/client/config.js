@@ -7,7 +7,7 @@ window.SitesUrl = {
   user: '//user.binarysee.com.cn',
   nexus: '//nexus.binarysee.com.cn',
   helix: '//helix.binarysee.com.cn',
-  verse: '//verse.binarysee.com.cn',
+  verse: '//localhost:4004',
   pulse: '//pulse.binarysee.com.cn',
 };
 window.PathPrefix = '';
