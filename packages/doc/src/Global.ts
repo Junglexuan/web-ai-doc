@@ -81,7 +81,7 @@ export const {Modules, LoadComponent, GetActions, GetClientRouter, useStore, use
 export const PathPrefix: string = window['PathPrefix'] || '';
 export const ApiBaseUrl: string = window['ApiBaseUrl'] || '';
 export const ApiPrefix: {[key: string]: string} = window['ApiPrefix'] || {};
-export const SitesUrl: {user: string; nexus: string; pulse: string; helix: string; verse: string} = window['SitesUrl'] || {};
+export const SitesUrl: {user: string; nexus: string; pulse: string; helix: string; verse: string; preview: string} = window['SitesUrl'] || {};
 export const SiteInfo: {logo: string; name: string} = window['SiteInfo'] || {};
 
 export const InIframe = window.parent !== window;

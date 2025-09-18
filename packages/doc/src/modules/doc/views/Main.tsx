@@ -9,6 +9,7 @@ import Favs from './Favs';
 import Maintain from './Maintain';
 import Recs from './Recs';
 import Tpls from './Tpls';
+import WordEdit from './WordEdit';
 
 export interface StoreProps {
   curView?: CurView;
@@ -42,7 +43,8 @@ const Component: FC<StoreProps & {dispatch: Dispatch}> = ({curView, curRender, i
       {curView === 'list' &&
         curRender === 'conts' &&
         (listSummary ? <Conts dispatch={dispatch} listSearch={listSearch!} list={list!} listSummary={listSummary!} /> : <div></div>)}
-      {curView === 'item' && (itemDetail ? <Edit itemDetail={itemDetail} /> : <div></div>)}
+      {curView === 'item' &&
+        (itemDetail ? itemDetail.format === '2' ? <WordEdit itemDetail={itemDetail} /> : <Edit itemDetail={itemDetail} /> : <div></div>)}
     </Switch>
   );
 };

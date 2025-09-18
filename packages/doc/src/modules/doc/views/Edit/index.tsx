@@ -12,14 +12,14 @@ import {
 import {Link, setLoading as setGlobalLoading} from '@elux/react-web';
 import {IDomEditor} from '@wangeditor-next/editor';
 import {Editor, Toolbar} from '@wangeditor-next/editor-for-react';
-import {Breadcrumb, Button, Dropdown, Space, Spin} from 'antd';
+import {Breadcrumb, Dropdown, Space, Spin} from 'antd';
 import dayjs from 'dayjs';
 import {FC, memo, useEffect, useMemo, useState} from 'react';
 import BlurInput from '@/components/BlurInput';
 import DialogPage from '@/components/DialogPage';
 import {GetClientRouter} from '@/Global';
 import {downloadFile, replaceBaseUrl} from '@/utils/request';
-import {debounce, getUrlParam, openArticle, useEvent} from '@/utils/tools';
+import {debounce, openArticle, useEvent} from '@/utils/tools';
 import DocAPI from '../../api';
 import {ItemDetail} from '../../entity';
 import AIButton from './AIButton';

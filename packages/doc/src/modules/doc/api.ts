@@ -163,7 +163,7 @@ export const DocAPI = {
     return request.get('/dream/pen/article/get', {params: {id}}).then((docRes) => {
       const item: ItemDetail = docRes.data.data;
       const curUserId = getCurUserId();
-      return {tplId: item.id, snapshot: item.snapshot, isMine: !item.isSystem && !!curUserId && item.createUser === curUserId};
+      return {tplId: item.id, snapshot: item.snapshot, format: item.format, isMine: !item.isSystem && !!curUserId && item.createUser === curUserId};
     });
   },
   copyTplForMe(id: string): Promise<string> {

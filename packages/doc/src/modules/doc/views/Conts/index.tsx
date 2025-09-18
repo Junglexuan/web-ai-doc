@@ -288,7 +288,11 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
     setWizardData(undefined);
     const [id, ...arr] = tplId.split(',');
     DocAPI.getDoc(id).then((tpl) => {
-      onCreate(tpl.title, '', {id, fields, knowledges, stand: arr.join(',')});
+      if (tpl.format === '2') {
+        alert('生成word文档');
+      } else {
+        onCreate(tpl.title, '', {id, fields, knowledges, stand: arr.join(',')});
+      }
     });
   });
 

@@ -1,8 +1,9 @@
-import {EllipsisOutlined, EyeOutlined, PlusOutlined, StarFilled, StarOutlined} from '@ant-design/icons';
+import {EllipsisOutlined, EyeOutlined, PlusOutlined, StarFilled, StarOutlined, UploadOutlined} from '@ant-design/icons';
 import {Dispatch, DocumentHead, Link} from '@elux/react-web';
-import {Button, Input, Modal} from 'antd';
-import {FC, MouseEvent, memo, useCallback, useEffect, useState} from 'react';
+import {Button, Input, Modal, Space, Upload, UploadProps} from 'antd';
+import {FC, MouseEvent, memo, useCallback, useEffect, useMemo, useState} from 'react';
 import {GetActions, SiteInfo} from '@/Global';
+import {downloadFile, getUploadProps, replaceBaseUrl} from '@/utils/request';
 import {confirm, debounce, openArticle, useEvent} from '@/utils/tools';
 import {DocAPI} from '../../api';
 import {ListItem, ListSearch, ListSummary} from '../../entity';
@@ -22,6 +23,7 @@ interface Props {
 const {doc: docActions} = GetActions('doc');
 
 const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
+  const [loading, setLoading] = useState<'upload' | ''>('');
   const [scrollHeight, setScrollHeight] = useState(() => window.innerHeight - 205);
   const [curEdit, setCurEdit] = useState<ListItem>();
   const [wizardData, setWizardData] = useState<WizardFormData>();
@@ -58,12 +60,16 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
 
   const onCreateByTpl = useEvent((tplId: string, fields?: {[field: string]: string}, knowledges?: string[]) => {
     DocAPI.getDoc(tplId).then((tpl) => {
-      DocAPI.createDoc({folder: '0', title: tpl.title, contents: ''}, 'doc').then(async ({id}) => {
-        const data = {id: tplId, fields, knowledges};
-        console.log(data);
-        window.sessionStorage.setItem('__temp_tpl__', JSON.stringify(data));
-        openArticle(`/admin/doc/item/edit/${id}?&tpl=${tpl.id}&__c=_dialog`);
-      });
+      if (tpl.format === '2') {
+        alert('生成word文档');
+      } else {
+        DocAPI.createDoc({folder: '0', title: tpl.title, contents: ''}, 'doc').then(async ({id}) => {
+          const data = {id: tplId, fields, knowledges};
+          console.log(data);
+          window.sessionStorage.setItem('__temp_tpl__', JSON.stringify(data));
+          openArticle(`/admin/doc/item/edit/${id}?&tpl=${tpl.id}&__c=_dialog`);
+        });
+      }
     });
   });
 
@@ -85,6 +91,19 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
     setWizardData(undefined);
     onCreateByTpl(tplId, fields, knowledges);
   });
+
+  const uploadProps: UploadProps = useMemo(
+    () =>
+      getUploadProps('/dream/pen/template/upload', {
+        onProcess: () => setLoading('upload'),
+        onSuccess: () => {
+          setLoading('');
+          refreshList();
+        },
+        onError: () => setLoading(''),
+      }),
+    [refreshList]
+  );
 
   useEffect(() => {
     const onResize = debounce(() => setScrollHeight(window.innerHeight - 205), 300);
@@ -108,10 +127,17 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
         </div>
         <Input.Search allowClear className="search" placeholder="请输入搜索关键字..." onSearch={onSearch} />
       </div>
-      <div className="cd" style={{padding: '15px 0 20px'}}>
-        <Button color="primary" variant="outlined" icon={<PlusOutlined />} onClick={onCreate}>
-          创建模版
-        </Button>
+      <div className="cd">
+        <Space>
+          <Button color="primary" variant="outlined" icon={<PlusOutlined />} onClick={onCreate}>
+            创建模版
+          </Button>
+          <Upload showUploadList={false} accept=".docx" {...uploadProps}>
+            <Button loading={loading === 'upload'} icon={<UploadOutlined />}>
+              上传文档
+            </Button>
+          </Upload>
+        </Space>
       </div>
       <div className="md" style={{height: scrollHeight}}>
         {list.map((item) => {
@@ -122,7 +148,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
               ) : (
                 <StarOutlined className="collect anticon-star-outline" onClick={(e) => onCollect(e, item.id, !item.collect)} />
               )}
-              <div className="title">{item.title}</div>
+              <div className={'title icon' + item.format}>{item.title}</div>
               <div className="remark">{item.remark}</div>
               <div className="tags">
                 <span className={item.isSystem ? 'on' : ''}>{item.isSystem ? '系统模版' : item.isShare ? '共享模版' : '个人模版'}</span>

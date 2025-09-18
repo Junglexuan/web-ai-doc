@@ -25,6 +25,7 @@ export interface ListItem extends BaseListItem {
   createUserName: string;
   createDate: string;
   collect: number;
+  format?: string;
   remark?: string;
   isShare?: boolean;
   isSystem?: boolean;
@@ -56,10 +57,12 @@ export interface ItemDetail {
   size: '常规' | '全宽' | '超宽';
   levelPath: {id: string; folderName: string; parent: string}[];
   docType: DocType;
+  format?: string;
   isShare?: boolean;
   isSystem?: boolean;
   isMine?: boolean;
   readonly?: boolean;
+  wordPlugin?: {type: string; title: string; attribute: string; id: string}[];
 }
 export interface EditItem extends BaseListItem {}
 

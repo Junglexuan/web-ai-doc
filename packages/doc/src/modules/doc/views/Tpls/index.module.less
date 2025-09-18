@@ -31,6 +31,24 @@
       text-overflow: ellipsis;
       white-space: nowrap;
       background: linear-gradient(180deg, rgba(27, 104, 252, 0.15) 0%, rgba(27, 104, 252, 0) 100%);
+
+      &::before {
+        position: relative;
+        top: 3px;
+        display: inline-block;
+        width: 25px;
+        height: 20px;
+        content: '';
+        background: url('@/assets/images/doc.svg') no-repeat left top;
+      }
+
+      &.icon2 {
+        &::before {
+          background-image: url('@/assets/images/word.svg');
+        }
+
+        background: linear-gradient(180deg, rgba(128, 70, 243, 0.1) 0%, rgba(128, 70, 243, 0) 100%);
+      }
     }
 
     > .remark {
