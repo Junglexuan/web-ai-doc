@@ -196,6 +196,20 @@ export function getUploadProps(
   };
 }
 
+export function uploadFile(url: string, formData: FormData): Promise<{url: string}> {
+  return axios
+    .post(replaceBaseUrl(url), formData, {
+      headers: {
+        Authorization: getToken(),
+        Tenant: getTenant(),
+        'Content-Type': 'multipart/form-data',
+      },
+    })
+    .then((res) => {
+      return res.data.data;
+    });
+}
+
 export function toLoginPage(from?: string): void {
   window.location.href =
     replaceBaseUrl('/auth/login?client=global&redirecturl=') +

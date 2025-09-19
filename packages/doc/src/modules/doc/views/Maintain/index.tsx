@@ -120,7 +120,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
           <Space size="middle">
             <Popover
               trigger="click"
-              destroyTooltipOnHide
+              destroyOnHidden
               open={showRename === record.id}
               onOpenChange={(open) => {
                 setShowRename(open ? record.id : '');
@@ -151,7 +151,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
             </Popover>
             <Popover
               trigger="click"
-              destroyTooltipOnHide
+              destroyOnHidden
               open={showMove === record.id}
               onOpenChange={(open) => {
                 setShowMove(open ? record.id : '');

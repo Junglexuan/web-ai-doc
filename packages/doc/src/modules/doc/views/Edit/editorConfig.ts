@@ -1,7 +1,7 @@
 import {Boot, IEditorConfig, IToolbarConfig, i18nGetResources} from '@wangeditor-next/editor';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import {replaceBaseUrl} from '@/utils/request';
-import {getToken} from '@/utils/tools';
+import {getTenant, getToken} from '@/utils/tools';
 import {ItemDetail} from '../../entity';
 import Inspect from './elements/Inspect';
 import Line from './elements/Line';
@@ -164,6 +164,7 @@ export const editorConfig: Partial<IEditorConfig> = {
       metaWithUrl: false,
       headers: {
         Authorization: getToken(),
+        Tenant: getTenant(),
       } as any,
       onSuccess(file: any, res: any) {
         //console.log(`${file.name} 上传成功`, res);

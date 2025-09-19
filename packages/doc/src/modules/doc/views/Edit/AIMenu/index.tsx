@@ -211,6 +211,16 @@ const originItems: MenuItem[] = [
     ),
   },
   {
+    key: 'S',
+    icon: <MessageOutlined />,
+    title: '数据智能体',
+    label: (
+      <span>
+        <sub>(S)</sub>数据智能体
+      </span>
+    ),
+  },
+  {
     key: 'W',
     icon: <LinkOutlined />,
     title: '总结网页',

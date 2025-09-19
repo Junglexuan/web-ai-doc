@@ -2,6 +2,7 @@ import {IDomEditor} from '@wangeditor-next/editor';
 import {FC, memo, useEffect, useMemo, useRef, useState} from 'react';
 import {addClass, debounce, removeClass, useEvent} from '@/utils/tools';
 import AIAsk from '../AIAsk';
+import AIChart from '../AIChart';
 import AIContinue from '../AIContinue';
 import AICreate from '../AICreate';
 import AIDialog from '../AIDialog';
@@ -175,6 +176,13 @@ const Component: FC<Props> = ({onCreated, editor}) => {
         return (
           <AIDialog event={aiEvent}>
             <AIRobot aiRef={aiRef} onRunningStateChange={setRunningState} />
+          </AIDialog>
+        );
+      }
+      if (aiKey === 'S') {
+        return (
+          <AIDialog event={aiEvent}>
+            <AIChart aiRef={aiRef} onRunningStateChange={setRunningState} />
           </AIDialog>
         );
       }
