@@ -56,12 +56,16 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
 
   const onCreateByTpl = useEvent((tplId: string, fields?: {[field: string]: string}, knowledges?: string[]) => {
     DocAPI.getDoc(tplId).then((tpl) => {
-      DocAPI.createDoc({folder: '0', title: tpl.title, contents: ''}, 'doc').then(async ({id}) => {
-        const data = {id: tplId, fields, knowledges};
-        console.log(data);
-        window.sessionStorage.setItem('__temp_tpl__', JSON.stringify(data));
-        openArticle(`/admin/doc/item/edit/${id}?&tpl=${tpl.id}&__c=_dialog`);
-      });
+      if (tpl.format === '2') {
+        alert('生成word文档');
+      } else {
+        DocAPI.createDoc({folder: '0', title: tpl.title, contents: ''}, 'doc').then(async ({id}) => {
+          const data = {id: tplId, fields, knowledges};
+          console.log(data);
+          window.sessionStorage.setItem('__temp_tpl__', JSON.stringify(data));
+          openArticle(`/admin/doc/item/edit/${id}?&tpl=${tpl.id}&__c=_dialog`);
+        });
+      }
     });
   });
 

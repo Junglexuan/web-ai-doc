@@ -281,7 +281,11 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
   const onWizardSubmit = useEvent((tplId: string, fields: {[field: string]: string}, knowledges: string[]) => {
     setWizardData(undefined);
     DocAPI.getDoc(tplId).then((tpl) => {
-      onCreate(tpl.title, '', {id: tplId, fields, knowledges});
+      if (tpl.format === '2') {
+        alert('生成word文档');
+      } else {
+        onCreate(tpl.title, '', {id: tplId, fields, knowledges});
+      }
     });
   });
 

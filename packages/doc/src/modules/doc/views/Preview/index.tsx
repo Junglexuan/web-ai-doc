@@ -1,8 +1,9 @@
-import {Editor} from '@wangeditor-next/editor-for-react';
 import {Button, Modal, Spin} from 'antd';
 import {FC, memo, useCallback, useEffect, useState} from 'react';
 import {openArticle} from '@/utils/tools';
 import DocAPI from '../../api';
+import DocPreview from '../DocPreview';
+import WordPreview from '../WordPreview';
 import styles from './index.module.less';
 
 interface Props {
@@ -12,7 +13,7 @@ interface Props {
 }
 
 const Component: FC<Props> = ({tplId, onCancel, onApply}) => {
-  const [data, setData] = useState<{tplId: string; snapshot: string; isMine: boolean}>();
+  const [data, setData] = useState<{tplId: string; format?: string; snapshot: string; isMine: boolean}>();
 
   const copyForMe = useCallback(() => {
     DocAPI.copyTplForMe(tplId).then((id) => {
@@ -37,14 +38,7 @@ const Component: FC<Props> = ({tplId, onCancel, onApply}) => {
           </>
         ) : (
           <>
-            <div className="bd">
-              <Editor
-                defaultConfig={{readOnly: true}}
-                value={data.snapshot}
-                //style={{minHeight: '500px'}}
-                mode="simple"
-              />
-            </div>
+            <div className="bd">{data.format === '2' ? <WordPreview url={data.snapshot} /> : <DocPreview content={data.snapshot} />}</div>
             <div className="ft">
               {data.isMine ? (
                 <Button

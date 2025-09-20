@@ -9,6 +9,7 @@ window.SitesUrl = {
   helix: '//helix.binarysee.com.cn',
   verse: '//localhost:4004',
   pulse: '//pulse.binarysee.com.cn',
+  preview: 'http://113.44.121.105:8012/onlinePreview',
 };
 window.PathPrefix = '';
 window.SiteInfo = {

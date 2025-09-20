@@ -4,11 +4,10 @@ import {FC, memo, useState} from 'react';
 import Wizard, {WizardFormData} from '@/modules/doc/views/Wizard';
 import {openArticle, useEvent} from '@/utils/tools';
 import {DocAPI} from '../../../api';
-import styles from './index.module.less';
 //import './registerMenu';
 
 interface Props {
-  tpl: {id: string};
+  tpl: {id: string; format?: string};
   // onSubmit: (value: {type: string; stand: string}) => void;
 }
 
@@ -16,10 +15,14 @@ const Component: FC<Props> = ({tpl}) => {
   const [wizardData, setWizardData] = useState<WizardFormData>();
 
   const onCreateByTpl = useEvent((tplId: string, fields?: {[field: string]: string}) => {
-    DocAPI.createSnapshot({tplId}, 'doc').then(async ({id}) => {
-      window.sessionStorage.setItem('__temp_tpl__', JSON.stringify({id: tplId, fields}));
-      openArticle(`/admin/doc/item/edit/${id}?&tpl=${tplId}&preview=1&__c=_dialog`);
-    });
+    if (tpl.format === '2') {
+      alert('生成word文档');
+    } else {
+      DocAPI.createSnapshot({tplId}, 'doc').then(async ({id}) => {
+        window.sessionStorage.setItem('__temp_tpl__', JSON.stringify({id: tplId, fields}));
+        openArticle(`/admin/doc/item/edit/${id}?&tpl=${tplId}&preview=1&__c=_dialog`);
+      });
+    }
   });
 
   const onApplyTpl = useEvent((tplId: string) => {
