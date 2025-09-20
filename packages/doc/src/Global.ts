@@ -91,19 +91,11 @@ export const {Modules, LoadComponent, GetActions, GetClientRouter, useStore, use
 //脚手架编译时，会把elux.config.js中的`clientGlobalVar`值放入process.env.PROJ_ENV中，在此可以获取
 //相当于在编译时就固化某些全局变量，你可以用来传递不同环境要用到的不同变量，比如url请求的前缀
 
-<<<<<<< HEAD
 export const PathPrefix = window['PathPrefix'] || '';
 export const ApiBaseUrl = window['ApiBaseUrl'] || '';
 export const ApiPrefix = window['ApiPrefix'] || {};
 export const SitesUrl = window['SitesUrl'] || {};
 export const SiteInfo = window['SiteInfo'] || {};
-=======
-export const PathPrefix: string = window['PathPrefix'] || '';
-export const ApiBaseUrl: string = window['ApiBaseUrl'] || '';
-export const ApiPrefix: {[key: string]: string} = window['ApiPrefix'] || {};
-export const SitesUrl: {user: string; nexus: string; pulse: string; helix: string; verse: string; preview: string} = window['SitesUrl'] || {};
-export const SiteInfo: {logo: string; name: string} = window['SiteInfo'] || {};
->>>>>>> work/word-doc
 
 export const InIframe = window.parent !== window;
 
