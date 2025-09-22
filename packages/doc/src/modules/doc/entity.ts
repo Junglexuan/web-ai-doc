@@ -1,7 +1,7 @@
 import {BaseCurRender, BaseCurView, BaseListItem, BaseListSearch, BaseListSummary} from '@/utils/resource';
 
 export type CurView = BaseCurView;
-export type CurRender = BaseCurRender | 'favs' | 'recs' | 'tpls' | 'conts';
+export type CurRender = BaseCurRender | 'favs' | 'recs' | 'tpls' | 'tpls_' | 'conts';
 export type DocType = 'dir' | 'doc' | 'tpl' | 'con' | 'snap';
 
 export interface ListSearch extends BaseListSearch {

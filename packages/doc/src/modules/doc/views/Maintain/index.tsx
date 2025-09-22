@@ -12,6 +12,7 @@ import {
 import {Dispatch, DocumentHead, Link, setLoading as setGlobalLoading} from '@elux/react-web';
 import {Breadcrumb, Button, Dropdown, Input, Popover, Space, Table, TableProps, Tree, Upload, UploadProps} from 'antd';
 import {FC, MouseEvent, memo, useCallback, useEffect, useMemo, useState} from 'react';
+import TPL from '@/assets/images/tpl';
 import {GetActions, GetClientRouter, SiteInfo} from '@/Global';
 import {downloadFile, getUploadProps, replaceBaseUrl} from '@/utils/request';
 import {confirm, debounce, openArticle, useEvent} from '@/utils/tools';
@@ -269,13 +270,17 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
     });
   });
 
-  const onCreateByTpl = useEvent(async () => {
+  const onCreateByOfficial = useEvent(async () => {
     let options = tplsOptions;
     if (!options) {
       options = await DocAPI.getTplsOptions();
       setTplsOptions(options);
     }
     return setWizardData({type: options[0].value, tplId: options[0].children[0].value});
+  });
+
+  const onCreateByTpl = useEvent(async () => {
+    GetClientRouter().push({url: `/admin/doc/list/tpls_?__c=_dialog`}, 'window');
   });
 
   const onWizardSubmit = useEvent((tplId: string, fields: {[field: string]: string}, knowledges: string[]) => {
@@ -367,11 +372,14 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
       </div>
       <div className="cd">
         <Space>
-          <Button icon={<SignatureOutlined />} onClick={onCreateByTpl}>
-            起草公文
-          </Button>
           <Button id="_create-doc-btn" loading={loading === 'create'} icon={<PlusOutlined />} onClick={() => onCreate()}>
             快速创建
+          </Button>
+          <Button icon={<SignatureOutlined />} onClick={onCreateByOfficial}>
+            起草公文
+          </Button>
+          <Button icon={<TPL />} onClick={onCreateByTpl}>
+            使用模版
           </Button>
           {/* <Button icon={<ExceptionOutlined />}>创建模版</Button> */}
           <Button loading={loading === 'createDir'} icon={<FolderAddOutlined />} onClick={onCreateDir}>

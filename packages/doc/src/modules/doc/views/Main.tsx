@@ -9,6 +9,7 @@ import Favs from './Favs';
 import Maintain from './Maintain';
 import Recs from './Recs';
 import Tpls from './Tpls';
+import Tpls_ from './Tpls_';
 import WordEdit from './WordEdit';
 
 export interface StoreProps {
@@ -40,6 +41,9 @@ const Component: FC<StoreProps & {dispatch: Dispatch}> = ({curView, curRender, i
       {curView === 'list' &&
         curRender === 'tpls' &&
         (listSummary ? <Tpls dispatch={dispatch} listSearch={listSearch!} list={list!} listSummary={listSummary!} /> : <div></div>)}
+      {curView === 'list' &&
+        curRender === 'tpls_' &&
+        (listSummary ? <Tpls_ dispatch={dispatch} listSearch={listSearch!} list={list!} listSummary={listSummary!} /> : <div></div>)}
       {curView === 'list' &&
         curRender === 'conts' &&
         (listSummary ? <Conts dispatch={dispatch} listSearch={listSearch!} list={list!} listSummary={listSummary!} /> : <div></div>)}

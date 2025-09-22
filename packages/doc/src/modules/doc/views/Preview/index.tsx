@@ -28,7 +28,7 @@ const Component: FC<Props> = ({tplId, onCancel, onApply}) => {
   }, []);
 
   return (
-    <Modal open={true} footer={null} onCancel={onCancel} width={1200} maskClosable={false} title="预览模版">
+    <Modal open={true} footer={null} onCancel={onCancel} width={1200} mask={false} centered title="预览模版">
       <div className={styles.root}>
         {!data ? (
           <>

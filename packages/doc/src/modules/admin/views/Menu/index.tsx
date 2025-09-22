@@ -7,7 +7,6 @@ import BarChartOutlined from '@/assets/images/Chart';
 import Delete from '@/assets/images/Delete';
 import FileOutlined from '@/assets/images/Doc';
 import HomeOutlined from '@/assets/images/Home';
-import Logo from '@/assets/images/logo.svg';
 import StarOutlined from '@/assets/images/Star';
 import TPL from '@/assets/images/tpl';
 import {GetClientRouter, SiteInfo, SitesUrl} from '@/Global';

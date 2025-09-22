@@ -186,7 +186,7 @@ export const DocAPI = {
         ? request.get(`/dream/pen/recycle/list`, {
             params: {title: name, order: sorterOrder === 'ascend' ? 'asc' : undefined, page: 1, pageSize: 99999},
           })
-        : render === 'tpls'
+        : render === 'tpls' || render === 'tpls_'
         ? request.get(`/dream/pen/template/list`, {
             params: {name, type, key: owner, order: sorterOrder === 'ascend' ? 'asc' : undefined, page: 1, pageSize: 99999},
           })

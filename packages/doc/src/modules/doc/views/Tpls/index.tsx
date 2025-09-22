@@ -1,12 +1,12 @@
 import {EllipsisOutlined, EyeOutlined, PlusOutlined, StarFilled, StarOutlined, UploadOutlined} from '@ant-design/icons';
-import {Dispatch, DocumentHead, Link} from '@elux/react-web';
+import {Dispatch, DocumentHead} from '@elux/react-web';
 import {Button, Input, Modal, Space, Upload, UploadProps} from 'antd';
 import {FC, MouseEvent, memo, useCallback, useEffect, useMemo, useState} from 'react';
 import {GetActions, SiteInfo} from '@/Global';
-import {downloadFile, getUploadProps, replaceBaseUrl} from '@/utils/request';
+import {getUploadProps} from '@/utils/request';
 import {confirm, debounce, openArticle, useEvent} from '@/utils/tools';
 import {DocAPI} from '../../api';
-import {ListItem, ListSearch, ListSummary} from '../../entity';
+import {ListItem, ListSearch, ListSummary, defaultListSearch} from '../../entity';
 import styles from '../Maintain/index.module.less';
 import Preview from '../Preview';
 import Wizard, {WizardFormData} from '../Wizard';
@@ -18,13 +18,14 @@ interface Props {
   listSearch: ListSearch;
   list: ListItem[];
   listSummary: ListSummary;
+  inDialog?: boolean;
 }
 
 const {doc: docActions} = GetActions('doc');
 
-const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
+const Component: FC<Props> = ({list, listSearch, inDialog, dispatch}) => {
   const [loading, setLoading] = useState<'upload' | ''>('');
-  const [scrollHeight, setScrollHeight] = useState(() => window.innerHeight - 205);
+  const [scrollHeight, setScrollHeight] = useState(() => (inDialog ? 715 : window.innerHeight - 215));
   const [curEdit, setCurEdit] = useState<ListItem>();
   const [wizardData, setWizardData] = useState<WizardFormData>();
   const [previewTpl, setPreviewTpl] = useState<string>();
@@ -106,7 +107,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
   );
 
   useEffect(() => {
-    const onResize = debounce(() => setScrollHeight(window.innerHeight - 205), 300);
+    const onResize = debounce(() => !inDialog && setScrollHeight(window.innerHeight - 215), 300);
     window.addEventListener('resize', onResize);
     return () => {
       window.removeEventListener('resize', onResize);
@@ -118,27 +119,37 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
       <DocumentHead title={'模版管理-' + SiteInfo.name} />
       <div className="hd">
         <div className={styles2.tab}>
-          <Link className={listSearch.owner === 'mine' ? '' : 'on'} to="/admin/doc/list/tpls" action="relaunch" target="window">
+          <div
+            className={listSearch.owner === 'mine' ? '' : 'on'}
+            onClick={() => dispatch(docActions.fetchList({...listSearch, name: undefined, owner: undefined}))}
+          >
             全部模版
-          </Link>
-          <Link className={listSearch.owner === 'mine' ? 'on' : ''} to="/admin/doc/list/tpls?owner=mine" action="relaunch" target="window">
+          </div>
+          <div
+            className={listSearch.owner === 'mine' ? 'on' : ''}
+            onClick={() => dispatch(docActions.fetchList({...listSearch, name: undefined, owner: 'mine'}))}
+          >
             我的模版
-          </Link>
+          </div>
         </div>
         <Input.Search allowClear className="search" placeholder="请输入搜索关键字..." onSearch={onSearch} />
       </div>
-      <div className="cd">
-        <Space>
-          <Button color="primary" variant="outlined" icon={<PlusOutlined />} onClick={onCreate}>
-            创建模版
-          </Button>
-          <Upload showUploadList={false} accept=".docx" {...uploadProps}>
-            <Button loading={loading === 'upload'} icon={<UploadOutlined />}>
-              上传文档
+      {inDialog ? (
+        <div style={{height: '5px'}}></div>
+      ) : (
+        <div className="cd">
+          <Space>
+            <Button color="primary" variant="outlined" icon={<PlusOutlined />} onClick={onCreate}>
+              创建模版
             </Button>
-          </Upload>
-        </Space>
-      </div>
+            <Upload showUploadList={false} accept=".docx" {...uploadProps}>
+              <Button loading={loading === 'upload'} icon={<UploadOutlined />}>
+                上传文档
+              </Button>
+            </Upload>
+          </Space>
+        </div>
+      )}
       <div className="md" style={{height: scrollHeight}}>
         {list.map((item) => {
           return (
@@ -170,7 +181,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
                 ) : (
                   <StarOutlined className="collect anticon-star-outline" onClick={(e) => onCollect(e, item.id, !item.collect)} />
                 )}
-                {!item.isMine ? (
+                {!item.isMine || inDialog ? (
                   <div className="ant-btn preview" onClick={() => setPreviewTpl(item.id)}>
                     <EyeOutlined />
                   </div>
