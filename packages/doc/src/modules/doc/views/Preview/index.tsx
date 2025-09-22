@@ -14,6 +14,7 @@ interface Props {
 
 const Component: FC<Props> = ({tplId, onCancel, onApply}) => {
   const [data, setData] = useState<{tplId: string; format?: string; snapshot: string; isMine: boolean}>();
+  const inDialog = location.search.endsWith('__c=_dialog');
 
   const copyForMe = useCallback(() => {
     DocAPI.copyTplForMe(tplId).then((id) => {
@@ -28,7 +29,15 @@ const Component: FC<Props> = ({tplId, onCancel, onApply}) => {
   }, []);
 
   return (
-    <Modal open={true} footer={null} onCancel={onCancel} width={1200} mask={false} centered title="预览模版">
+    <Modal
+      open={true}
+      footer={null}
+      onCancel={onCancel}
+      width={1200}
+      centered
+      rootClassName={inDialog ? 'g-dialog-no-mask' : undefined}
+      title="预览模版"
+    >
       <div className={styles.root}>
         {!data ? (
           <>

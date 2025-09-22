@@ -2,11 +2,11 @@ import {EllipsisOutlined, EyeOutlined, PlusOutlined, StarFilled, StarOutlined, U
 import {Dispatch, DocumentHead} from '@elux/react-web';
 import {Button, Input, Modal, Space, Upload, UploadProps} from 'antd';
 import {FC, MouseEvent, memo, useCallback, useEffect, useMemo, useState} from 'react';
-import {GetActions, SiteInfo} from '@/Global';
+import {GetActions, GetClientRouter, SiteInfo} from '@/Global';
 import {getUploadProps} from '@/utils/request';
 import {confirm, debounce, openArticle, useEvent} from '@/utils/tools';
 import {DocAPI} from '../../api';
-import {ListItem, ListSearch, ListSummary, defaultListSearch} from '../../entity';
+import {ListItem, ListSearch, ListSummary} from '../../entity';
 import styles from '../Maintain/index.module.less';
 import Preview from '../Preview';
 import Wizard, {WizardFormData} from '../Wizard';
@@ -64,11 +64,16 @@ const Component: FC<Props> = ({list, listSearch, inDialog, dispatch}) => {
       if (tpl.format === '2') {
         alert('生成word文档');
       } else {
-        DocAPI.createDoc({folder: '0', title: tpl.title, contents: ''}, 'doc').then(async ({id}) => {
+        DocAPI.createDoc({folder: listSearch.id || '0', title: tpl.title, contents: ''}, 'doc').then(async ({id}) => {
           const data = {id: tplId, fields, knowledges};
           console.log(data);
           window.sessionStorage.setItem('__temp_tpl__', JSON.stringify(data));
           openArticle(`/admin/doc/item/edit/${id}?&tpl=${tpl.id}&__c=_dialog`);
+          if (inDialog) {
+            await GetClientRouter().back(1);
+            // eslint-disable-next-line no-self-assign
+            location.href = location.href;
+          }
         });
       }
     });

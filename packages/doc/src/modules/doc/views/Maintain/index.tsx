@@ -280,7 +280,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
   });
 
   const onCreateByTpl = useEvent(async () => {
-    GetClientRouter().push({url: `/admin/doc/list/tpls_?__c=_dialog`}, 'window');
+    GetClientRouter().push({url: `/admin/doc/list/tpls_?id=${listSearch.id || ''}&__c=_dialog`}, 'window');
   });
 
   const onWizardSubmit = useEvent((tplId: string, fields: {[field: string]: string}, knowledges: string[]) => {

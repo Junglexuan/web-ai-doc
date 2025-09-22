@@ -76,22 +76,7 @@ export class Model extends BaseModel<ModuleState, APPState> {
     if (error.code === ErrorCode.unauthorized) {
       toLoginPage(error.detail);
     } else if (error.code === ErrorCodes.ROUTE_BACK_OVERFLOW) {
-      if (InIframe) {
-        if (this.getRouter().location.url.includes('/admin/flow/list/maintain')) {
-          console.log('退出');
-          setTimeout(() => this.getRouter().back(''), 0);
-        } else {
-          //window.parent.postMessage({methodFunc: 'iframe:close'}, '*');
-          console.log('flow:utils:closeFlow');
-          //window.parent.postMessage({methodFunc: 'flow:tools', cmd: 'closeFlow', data: {changed: false}}, '*');
-          window.parent.postMessage(
-            {methodFunc: 'flow:utils', cmd: 'closeFlow', args: [{search: location.search, pathname: location.pathname}]},
-            '*'
-          );
-        }
-      } else {
-        setTimeout(() => this.getRouter().back(''), 0);
-      }
+      setTimeout(() => (location.href = '/admin/home'));
     } else if (error.message) {
       message.error(error.message);
     }

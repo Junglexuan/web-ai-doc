@@ -374,11 +374,11 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
       </div>
       <div className="cd">
         <Space>
-          <Button icon={<SignatureOutlined />} onClick={onCreateByTpl}>
-            起草合同
-          </Button>
           <Button id="_create-doc-btn" loading={loading === 'create'} icon={<PlusOutlined />} onClick={() => onCreate()}>
             快速创建
+          </Button>
+          <Button icon={<SignatureOutlined />} onClick={onCreateByTpl}>
+            起草合同
           </Button>
           <Button loading={loading === 'createDir'} icon={<FolderAddOutlined />} onClick={onCreateDir}>
             新建文件夹

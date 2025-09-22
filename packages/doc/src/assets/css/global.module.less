@@ -124,6 +124,12 @@
     border-radius: @borderRadius;
   }
 
+  :local(.dialog-no-mask) {
+    > .ant-modal-mask {
+      background-color: #0000;
+    }
+  }
+
   :local(.table-dir) {
     .ant-table-body {
       overflow-y: auto !important;
