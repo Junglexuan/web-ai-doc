@@ -210,9 +210,11 @@ const Component: FC<Props> = ({list, listSearch, inDialog, dispatch}) => {
                     </div>
                   </div>
                 )}
-                <div className="ant-btn use" onClick={() => onApplyTpl(item.id)}>
-                  立即使用
-                </div>
+                {item.format !== '2' && (
+                  <div className="ant-btn use" onClick={() => onApplyTpl(item.id)}>
+                    立即使用
+                  </div>
+                )}
               </div>
             </div>
           );
