@@ -84,8 +84,12 @@ const Component: FC<Props> = ({editor}) => {
 
   useEffect(() => {
     if (dialogRef.current) {
-      const dialogHeight = dialogRef.current!.offsetHeight;
-      const limit = window.innerHeight - dialogHeight;
+      const dialogRect = dialogRef.current!.getBoundingClientRect();
+      if (varEvent?.elem.kind === 'write') {
+        setPosStyle({left: (window.innerWidth - dialogRect.width) / 2, top: (window.innerHeight - dialogRect.height) / 2});
+        return;
+      }
+      const limit = window.innerHeight - dialogRect.height;
       if (posStyle.bottom) {
         if (posStyle.bottom > limit) {
           setPosStyle({...posStyle, bottom: limit});
