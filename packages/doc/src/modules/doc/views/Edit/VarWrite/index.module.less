@@ -1,38 +1,84 @@
 :global {
   :local(.root) {
+    width: 650px;
+
+    > .title {
+      padding: 8px 20px 5px;
+      margin: 0;
+      font-size: 18px;
+      text-align: left;
+      background-color: #f7f7f7;
+    }
+
+    > .allowInput {
+      position: absolute;
+      top: 13px;
+      right: 15px;
+      font-size: 12px;
+      color: #999;
+    }
+
     > .hd {
-      width: 400px;
-      padding: 30px 15px 0;
+      padding: 20px 20px 0;
 
-      > .allowInput {
-        position: absolute;
-        top: 13px;
-        right: 10px;
-        font-size: 12px;
-        color: #999;
-      }
-
-      > .formItem {
-        display: block;
-        padding-bottom: 15px;
-        text-align: left;
-
-        > .label {
-          padding-bottom: 5px;
-          font-size: 13px;
-        }
-
-        em {
-          margin-right: 3px;
-          color: #f00;
-        }
+      > .inlineLayout {
+        display: flex;
+        gap: 20px;
       }
     }
 
     > .bd {
-      width: 400px;
-      padding: 15px;
-      padding-top: 0;
+      padding: 15px 20px 0;
+      background-color: #fafbfb;
+      border-top: 1px dashed #ddd;
+    }
+
+    em {
+      margin-right: 3px;
+      font-size: 13px;
+      color: #f00;
+    }
+
+    .formItem {
+      display: flex;
+      align-items: center;
+      padding-bottom: 15px;
+
+      > .label {
+        flex: none;
+        width: 4em;
+        margin-right: 10px;
+        text-align: right;
+        white-space: nowrap;
+      }
+    }
+
+    .formPanel {
+      padding-bottom: 10px;
+      text-align: left;
+
+      > .label {
+        flex: none;
+        width: 5em;
+        padding: 6px 0;
+        text-align: right;
+      }
+    }
+
+    .editor-bar {
+      height: 40px;
+      border: 1px solid #ddd;
+      border-bottom: none;
+    }
+
+    .editor-text {
+      height: 300px;
+      overflow: auto;
+      border: 1px solid #ddd;
+    }
+
+    textarea {
+      resize: none;
     }
   }
 }

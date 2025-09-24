@@ -596,6 +596,12 @@ export const AiAPI = {
       return list.map((item) => ({label: item.name, value: item.id}));
     });
   },
+  getMyChartBI(): Promise<{label: string; value: string}[]> {
+    return request.get('/dream/pen/know/dialog').then((res) => {
+      const list: any[] = res.data.data || [];
+      return list.map((item) => ({label: item.name, value: item.id}));
+    });
+  },
 };
 
 export default AiAPI;

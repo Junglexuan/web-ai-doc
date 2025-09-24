@@ -47,7 +47,8 @@
   font-size: 14px;
   line-height: 1;
   vertical-align: middle;
-  border: 1px solid #70b0ff;
+  cursor: pointer;
+  border: 1px solid #1b68fc;
   border-radius: 3px;
 
   &.on {
@@ -62,10 +63,10 @@
     }
   }
 
-  > * {
+  > span {
     display: flex;
     align-items: center;
-    padding: 3px 5px;
+    padding: 3px 8px;
     white-space: nowrap;
     pointer-events: none;
   }
@@ -83,20 +84,19 @@
     display: flex;
     align-items: center;
     max-width: 15em;
-    padding: 0 5px;
-    font-size: 12px;
+    padding: 0 8px;
     font-style: normal;
     font-weight: normal;
     color: #fff;
     white-space: nowrap;
     content: attr(lang);
-    background-color: #70b0ff;
+    background-color: #1b68fc;
   }
 
   &::after {
     display: flex;
     align-items: center;
-    padding: 1px 5px;
+    padding: 1px 8px 1px 0;
     font-size: 12px;
     font-style: normal;
     font-weight: normal;

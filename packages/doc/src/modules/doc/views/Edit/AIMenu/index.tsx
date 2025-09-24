@@ -1,4 +1,5 @@
 import {
+  BarChartOutlined,
   DatabaseOutlined,
   EditOutlined,
   FileTextOutlined,
@@ -212,7 +213,7 @@ const originItems: MenuItem[] = [
   },
   {
     key: 'S',
-    icon: <MessageOutlined />,
+    icon: <BarChartOutlined />,
     title: '数据智能体',
     label: (
       <span>

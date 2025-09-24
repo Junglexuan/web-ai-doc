@@ -13,7 +13,7 @@ interface Props {
 const Component: FC<Props> = ({aiRef, onRunningStateChange}) => {
   const hooks = useAIDialog(AIAction.SJZNT, aiRef, onRunningStateChange, AiAPI.chart, {}, false, true);
   return (
-    <AIBase title="数据智能体" action={AIAction.SJZNT} hooks={hooks} modelIsRobot>
+    <AIBase title="数据智能体" action={AIAction.SJZNT} hooks={hooks}>
       <AntInput ref={hooks.inputRef} onSubmit={hooks.onPromptSubmit} placeholder="请输入问题..." />
     </AIBase>
   );

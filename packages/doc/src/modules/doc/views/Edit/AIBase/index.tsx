@@ -1,8 +1,9 @@
 import {CheckOutlined, DeleteOutlined, EditOutlined, PauseCircleOutlined, SyncOutlined} from '@ant-design/icons';
 import {Button, Space, Spin} from 'antd';
-import {FC, ReactElement, memo, useCallback, useEffect, useMemo, useRef} from 'react';
+import {FC, ReactElement, memo, useCallback, useEffect, useRef} from 'react';
 import AdjustIcon from '@/assets/images/Adjust';
 import {AIAction} from '../api';
+import ChartBISelect from '../ChartBISelect';
 import ColorAIcon from '../ColorAIcon';
 import EnterIcon from '../EnterIcon';
 import {AIDialogHooks} from '../hooks';
@@ -17,12 +18,10 @@ interface Props {
   children: ReactElement;
   hooks: AIDialogHooks;
   automatic?: boolean;
-  modelIsRobot?: boolean;
-  hideButton?: Array<'onKeep' | 'selectModel'>;
   className?: string;
 }
 
-const Component: FC<Props> = ({title, action, children, hooks, automatic, hideButton, modelIsRobot, className}) => {
+const Component: FC<Props> = ({title, action, children, hooks, automatic, className}) => {
   const {
     onPromptSubmit,
     inputRef,
@@ -38,16 +37,6 @@ const Component: FC<Props> = ({title, action, children, hooks, automatic, hideBu
     onModelChange,
     onKnowledgeChange,
   } = hooks;
-  const hideButtonMap: {[key: string]: boolean} = useMemo(() => {
-    if (hideButton) {
-      return hideButton.reduce((obj, cur) => {
-        obj[cur] = true;
-        return obj;
-      }, {} as {[key: string]: boolean});
-    } else {
-      return {};
-    }
-  }, [hideButton]);
 
   const submitRef = useRef<any>();
   const stopRef = useRef<any>();
@@ -103,7 +92,7 @@ const Component: FC<Props> = ({title, action, children, hooks, automatic, hideBu
           <Button type="text" icon={<SyncOutlined />} onClick={onRedo}>
             重新生成
           </Button>
-          {!hideButtonMap['onKeep'] && (
+          {action !== AIAction.SCTP && action !== AIAction.WYZJ && (
             <Button type="text" icon={<EditOutlined />} onClick={onKeep}>
               继续写
             </Button>
@@ -116,13 +105,18 @@ const Component: FC<Props> = ({title, action, children, hooks, automatic, hideBu
           </Button>
         </Space>
         <div className="prompt">
-          {!hideButtonMap['selectModel'] &&
-            (modelIsRobot ? (
-              <RobotSelect size="small" value={model} onChange={onModelChange} />
-            ) : (
-              <ModelSelect size="small" value={model} onChange={onModelChange} />
-            ))}
-          {action === AIAction.SCQW && <KnowledgeSelect size="small" onChange={onKnowledgeChange} />}
+          {action !== AIAction.SCTP && (
+            <>
+              {action === AIAction.ZSKWD ? (
+                <RobotSelect size="small" value={model} onChange={onModelChange} />
+              ) : action === AIAction.SJZNT ? (
+                <ChartBISelect size="small" value={model} onChange={onModelChange} />
+              ) : (
+                <ModelSelect size="small" value={model} onChange={onModelChange} />
+              )}
+              {action === AIAction.SCQW && <KnowledgeSelect size="small" onChange={onKnowledgeChange} />}
+            </>
+          )}
           <div style={{color: '#aaa', fontSize: '12px'}}>* 回车直接提交，shift+回车可换行，esc键可关闭</div>
         </div>
       </div>

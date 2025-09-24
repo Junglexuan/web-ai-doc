@@ -26,7 +26,7 @@ const Component: FC<Props> = ({onSubmit, onCancel, elem}) => {
   const [fieldName, setFieldValue] = useState(elem.field);
 
   const onInputChange = useEvent((e: any) => {
-    setValue(e.target.value.trim());
+    setValue(e.target.value);
   });
 
   const onOk = useEvent(() => {

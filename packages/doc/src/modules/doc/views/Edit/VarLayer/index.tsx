@@ -1,5 +1,5 @@
 import {DomEditor, IDomEditor, SlateTransforms} from '@wangeditor-next/editor';
-import {FC, memo, useEffect, useMemo, useState} from 'react';
+import {FC, memo, useEffect, useMemo, useRef, useState} from 'react';
 import {closestTarget, useEvent} from '@/utils/tools';
 import {VariableElement} from '../elements/Variable/custom-types';
 import VarAsk from '../VarAsk';
@@ -19,7 +19,9 @@ interface Props {
 }
 
 const Component: FC<Props> = ({editor}) => {
+  const dialogRef = useRef<HTMLDivElement>(null);
   const [varEvent, setVarEvent] = useState<VarEvent>();
+  const [posStyle, setPosStyle] = useState<{left?: number; top?: number; bottom?: number}>({});
 
   const closeMenu = useEvent(() => {
     setVarEvent(undefined);
@@ -37,7 +39,9 @@ const Component: FC<Props> = ({editor}) => {
     closeMenu();
     const path = DomEditor.findPath(editor, elem);
     SlateTransforms.setNodes(editor, update, {at: path});
-    selectText();
+    if (elem.kind !== 'write') {
+      selectText();
+    }
   });
 
   const varDialog = useMemo(() => {
@@ -62,9 +66,9 @@ const Component: FC<Props> = ({editor}) => {
     return null;
   }, [onSubmit, closeMenu, selectText, varEvent]);
 
-  const posStyle = useMemo(() => {
+  useMemo(() => {
     if (!varEvent) {
-      return {};
+      return setPosStyle({});
     }
     const selectionRect = varEvent.pos;
     const style: {left: number; top?: number; bottom?: number} = {left: selectionRect.left};
@@ -75,8 +79,24 @@ const Component: FC<Props> = ({editor}) => {
     } else {
       style.top = selectionRect.bottom + 5;
     }
-    //console.log(varEvent.pos);
-    return style;
+    setPosStyle(style);
+  }, [varEvent]);
+
+  useEffect(() => {
+    if (dialogRef.current) {
+      const dialogHeight = dialogRef.current!.offsetHeight;
+      const limit = window.innerHeight - dialogHeight;
+      if (posStyle.bottom) {
+        if (posStyle.bottom > limit) {
+          setPosStyle({...posStyle, bottom: limit});
+        }
+      } else if (posStyle.top) {
+        if (posStyle.top > limit) {
+          setPosStyle({...posStyle, top: limit});
+        }
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [varEvent]);
 
   useEffect(() => {
@@ -114,7 +134,7 @@ const Component: FC<Props> = ({editor}) => {
   }
   return (
     <>
-      <div className={styles.dialog} style={posStyle}>
+      <div className={styles.dialog} style={posStyle} ref={dialogRef}>
         <div className="wrap">{varDialog}</div>
       </div>
     </>
