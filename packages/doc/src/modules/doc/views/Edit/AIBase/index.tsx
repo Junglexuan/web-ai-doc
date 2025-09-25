@@ -1,8 +1,9 @@
 import {CheckOutlined, DeleteOutlined, EditOutlined, PauseCircleOutlined, SyncOutlined} from '@ant-design/icons';
 import {RenderChart} from '@binarysee/widgets';
 import {Button, Space, Spin} from 'antd';
-import {FC, ReactElement, memo, useCallback, useEffect, useMemo, useRef} from 'react';
+import {FC, ReactElement, memo, useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import AdjustIcon from '@/assets/images/Adjust';
+import {useEvent} from '@/utils/tools';
 import {AIAction} from '../api';
 import ChartBISelect from '../ChartBISelect';
 import ColorAIcon from '../ColorAIcon';
@@ -42,6 +43,7 @@ const Component: FC<Props> = ({title, action, children, hooks, automatic, classN
 
   const submitRef = useRef<any>();
   const stopRef = useRef<any>();
+  const [chartData, setChartData] = useState<any>();
 
   const onFragmentClick = useCallback((e: any) => {
     const target = e.target as HTMLElement;
@@ -51,9 +53,28 @@ const Component: FC<Props> = ({title, action, children, hooks, automatic, classN
     }
   }, []);
 
-  const chartData = useMemo(() => {
-    return action === AIAction.SJZNT && fragment ? JSON.parse(fragment) : null;
+  useMemo(() => {
+    const data = action === AIAction.SJZNT && fragment ? JSON.parse(fragment) : null;
+    setChartData(data);
   }, [action, fragment]);
+
+  const onPaginationChange = useEvent((page: number, pageSize: number) => {
+    const visual = chartData.visual;
+    const indicatorModelSql = chartData.indicatorModelSql;
+    if (!visual) {
+      return;
+    }
+    //  接口URL : `/brain/chatbi/0/widget/page`
+    // chatbiTablePagenationApi({
+    //   pageNum: page,
+    //   pageSize,
+    //   robotId,
+    //   ...visual,
+    //   indicatorModelSql,
+    // }).then((res) => {
+
+    // });
+  });
 
   useEffect(() => {
     if (automatic) {
@@ -90,13 +111,7 @@ const Component: FC<Props> = ({title, action, children, hooks, automatic, classN
         </Button>
         {chartData ? (
           <div className="article" ref={fragmentRef as any}>
-            <RenderChart
-              onPaginationChange={(page: number, pageSize: number) => {
-                // 表格组件分页change方法，请求分页接口
-                //onPaginationChange(page: number, pageSize: number)
-              }}
-              chartDsl={chartData.dsl}
-            />
+            <RenderChart onPaginationChange={onPaginationChange} chartDsl={chartData.dsl} />
           </div>
         ) : (
           <div className="article" ref={fragmentRef as any} dangerouslySetInnerHTML={{__html: fragment}} onClick={onFragmentClick}></div>
