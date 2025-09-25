@@ -312,8 +312,8 @@ const createImage: AIRequest = ({args, onMessage, onError, onDone}) => {
       setTimeout(onDone);
     },
     (e) => {
-      window['ChartBIView'].snapshot(ansewerData);
       setTimeout(() => onError(e));
+      throw e;
     }
   );
   return controller;
@@ -322,30 +322,20 @@ const createImage: AIRequest = ({args, onMessage, onError, onDone}) => {
 const chart: AIRequest = ({args, onMessage, onError, onDone}) => {
   const controller = new AbortController();
   const {signal} = controller;
-  const {sid, docId, prompt, model} = args;
-  request.post('/dream/pen/ai/writer/makeImg', {type: 'makeImg', articleId: docId, conversation_id: sid, prompt, model}, {signal}).then(
+  const {prompt, model} = args;
+  const [robot_id, robotBizId] = model.split(',');
+  request.post('/dream/pen/ChatBi/conversation', {appId: '0', robot_id, robotBizId, user_input: prompt}, {signal}).then(
     (res) => {
-      const list: any[] = res.data.data || [];
+      const chart = res.data.data; //ansewerData;
       onMessage({
-        html: `<figure>${list
-          .map((item, index) => '<div class="' + (!index ? 'on' : '') + '" data-img="' + item + '"><img src="' + item + '" width="170" /></div>')
-          .join('')}</figure>`,
+        html: JSON.stringify(chart),
         raw: '',
       });
       setTimeout(onDone);
     },
     (e) => {
-      window.ChartBIView.snapshot(ansewerData).then((url) => {
-        const list = [url];
-        onMessage({
-          html: `<figure>${list
-            .map((item, index) => '<div class="' + (!index ? 'on' : '') + '" data-img="' + item + '"><img src="' + item + '" width="170" /></div>')
-            .join('')}</figure>`,
-          raw: '',
-        });
-        setTimeout(onDone);
-      });
-      // setTimeout(() => onError(e));
+      setTimeout(() => onError(e));
+      throw e;
     }
   );
   return controller;
@@ -597,9 +587,9 @@ export const AiAPI = {
     });
   },
   getMyChartBI(): Promise<{label: string; value: string}[]> {
-    return request.get('/dream/pen/know/dialog').then((res) => {
+    return request.get('/dream/pen/ChatBi/list').then((res) => {
       const list: any[] = res.data.data || [];
-      return list.map((item) => ({label: item.name, value: item.id}));
+      return list.map((item) => ({label: item.robotName, value: [item.id, item.robotId].join(',')}));
     });
   },
 };

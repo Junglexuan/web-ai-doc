@@ -1,6 +1,7 @@
 import {CheckOutlined, DeleteOutlined, EditOutlined, PauseCircleOutlined, SyncOutlined} from '@ant-design/icons';
+import {RenderChart} from '@binarysee/widgets';
 import {Button, Space, Spin} from 'antd';
-import {FC, ReactElement, memo, useCallback, useEffect, useRef} from 'react';
+import {FC, ReactElement, memo, useCallback, useEffect, useMemo, useRef} from 'react';
 import AdjustIcon from '@/assets/images/Adjust';
 import {AIAction} from '../api';
 import ChartBISelect from '../ChartBISelect';
@@ -29,6 +30,7 @@ const Component: FC<Props> = ({title, action, children, hooks, automatic, classN
     fragment,
     fragmentRef,
     runningState,
+    insertLoading,
     onRedo,
     onKeep,
     onStop,
@@ -48,6 +50,10 @@ const Component: FC<Props> = ({title, action, children, hooks, automatic, classN
       target.className = target.className ? '' : 'on';
     }
   }, []);
+
+  const chartData = useMemo(() => {
+    return action === AIAction.SJZNT && fragment ? JSON.parse(fragment) : null;
+  }, [action, fragment]);
 
   useEffect(() => {
     if (automatic) {
@@ -82,17 +88,29 @@ const Component: FC<Props> = ({title, action, children, hooks, automatic, classN
         <Button size="small" className="pause-btn" type="text" icon={<PauseCircleOutlined />} ref={stopRef} onClick={onStop}>
           停止
         </Button>
-        <div className="article" ref={fragmentRef as any} dangerouslySetInnerHTML={{__html: fragment}} onClick={onFragmentClick}></div>
+        {chartData ? (
+          <div className="article" ref={fragmentRef as any}>
+            <RenderChart
+              onPaginationChange={(page: number, pageSize: number) => {
+                // 表格组件分页change方法，请求分页接口
+                //onPaginationChange(page: number, pageSize: number)
+              }}
+              chartDsl={chartData.dsl}
+            />
+          </div>
+        ) : (
+          <div className="article" ref={fragmentRef as any} dangerouslySetInnerHTML={{__html: fragment}} onClick={onFragmentClick}></div>
+        )}
       </div>
       <div className="footer">
         <Space size="small" className="actions">
-          <Button type="primary" icon={<CheckOutlined />} onClick={onInsert} ref={submitRef}>
+          <Button type="primary" icon={<CheckOutlined />} onClick={onInsert} loading={insertLoading} ref={submitRef}>
             插入
           </Button>
           <Button type="text" icon={<SyncOutlined />} onClick={onRedo}>
             重新生成
           </Button>
-          {action !== AIAction.SCTP && action !== AIAction.WYZJ && (
+          {action !== AIAction.SCTP && action !== AIAction.WYZJ && action !== AIAction.SJZNT && (
             <Button type="text" icon={<EditOutlined />} onClick={onKeep}>
               继续写
             </Button>

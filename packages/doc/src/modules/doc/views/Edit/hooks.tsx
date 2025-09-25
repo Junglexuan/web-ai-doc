@@ -1,10 +1,25 @@
+import {snapdom} from '@zumer/snapdom';
 import {MutableRefObject, useCallback, useEffect, useRef, useState} from 'react';
+import {uploadFile} from '@/utils/request';
 import {message, useEvent} from '@/utils/tools';
 import {AIAction, AIRequest, RunningState} from './api';
 import type {IAIRef} from './AILayer';
 
+const snapshot = async (root: HTMLElement) => {
+  return new Promise<string>((resolve) => {
+    setTimeout(async () => {
+      // const result = await snapdom();
+      const imgBlob = await snapdom.toBlob(root);
+      const formData = new FormData();
+      formData.append('file', imgBlob, 'snapshot.png');
+      const {url} = await uploadFile('/dream/pen/upload/img', formData);
+      resolve(url);
+    }, 1000);
+  });
+};
 export interface AIDialogHooks {
   runningState: RunningState;
+  insertLoading?: boolean;
   fragment: string;
   model: string;
   fragmentRef: MutableRefObject<HTMLDivElement | undefined>;
@@ -31,6 +46,7 @@ export function useAIDialog(
   required?: boolean
 ): AIDialogHooks {
   const [runningState, setRunningState] = useState<RunningState>('');
+  const [insertLoading, setInsertLoading] = useState<boolean>();
   const inputRef = useRef<{getValue: () => string; focus: () => void}>(null as any);
   const [fragment, setFragment] = useState('');
   const rawRef = useRef('');
@@ -39,8 +55,6 @@ export function useAIDialog(
   const requestRef = useRef<AbortController>();
   const [model, setModel] = useState('qwen-max');
   const [knowledge, setKnowledge] = useState<string[]>([]);
-
-  console.log(action);
 
   const onPromptSubmit = useEvent(({keep}: {keep?: boolean} = {}) => {
     const text = inputRef.current.getValue();
@@ -83,10 +97,9 @@ export function useAIDialog(
         ...args,
       },
       onMessage: ({html, raw}) => {
-        //console.log(html);
-        const scroller = fragmentRef.current!;
         setFragment(lastHtml + html);
         rawRef.current = lastRaw + raw;
+        const scroller = fragmentRef.current!;
         scroller.scrollTo({top: 999999999});
       },
       onError: (e) => {
@@ -98,17 +111,6 @@ export function useAIDialog(
         onRunningStateChange('Fulfilled');
       },
     });
-    // .then(
-    //   (html) => {
-    //     setFragment(lastResult.html + html);
-    //     setRunningState('Fulfilled');
-    //     onRunningStateChange('Fulfilled');
-    //   },
-    //   () => {
-    //     setRunningState('Rejected');
-    //     onRunningStateChange('Rejected');
-    //   }
-    // );
   });
   const onRedo = useCallback(() => {
     setFragment('');
@@ -135,9 +137,23 @@ export function useAIDialog(
   });
 
   const onInsert = useEvent(() => {
-    aiRef.closeMenu(true);
     const fragment = fragmentRef.current!;
-    const root = fragment.children[0];
+    const root = fragment.children[0] as HTMLElement;
+    if (action === AIAction.SJZNT) {
+      setInsertLoading(true);
+      snapshot(root)
+        .then((url) => {
+          aiRef.closeMenu(true);
+          if (url) {
+            aiRef.insertHtmlByAI(`<img src="${url}" />`, action);
+          }
+        })
+        .finally(() => {
+          setInsertLoading(false);
+        });
+      return;
+    }
+    aiRef.closeMenu(true);
     if (root?.nodeName === 'FIGURE') {
       const imgs = Array.from(root.children)
         .map((child) => (child.className === 'on' ? child.getAttribute('data-img') : ''))
@@ -165,6 +181,7 @@ export function useAIDialog(
     onModelChange: setModel,
     onKnowledgeChange: setKnowledge,
     runningState,
+    insertLoading,
     model,
     fragment,
     fragmentRef,

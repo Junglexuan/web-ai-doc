@@ -3,7 +3,7 @@ import {IDomEditor} from '@wangeditor-next/editor';
 import {marked} from 'marked';
 import {FC, memo, useEffect, useRef, useState} from 'react';
 import {SitesUrl} from '@/Global';
-import {debounce, useEvent} from '@/utils/tools';
+import {debounce, getToken, useEvent} from '@/utils/tools';
 import styles from './index.module.less';
 interface Props {
   editor: IDomEditor;
@@ -51,7 +51,7 @@ const Component: FC<Props> = ({editor}) => {
         <span className={styles.close} onClick={() => setShow(!show)}>
           <CloseOutlined />
         </span>
-        <div className="bd">{show && <iframe className={styles.iframe} src={`${SitesUrl.pulse}/chat/window`} />}</div>
+        <div className="bd">{show && <iframe className={styles.iframe} src={`${SitesUrl.pulse}/chat/window?token=${getToken()}`} />}</div>
       </div>
     </>
   );

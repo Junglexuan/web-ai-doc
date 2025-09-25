@@ -47,6 +47,7 @@
   },
   "bundledDependencies": [
     "moment",
+    "@binarysee/widgets",
     "@ant-design/icons"
   ],
   "dependencies": {

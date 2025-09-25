@@ -12,10 +12,11 @@ interface Props {
 let RobotOptions: Promise<{label: string; value: string}[]> | null = null;
 
 const Component: FC<Props> = ({size, value, onChange}) => {
+  value = value || undefined;
   const [options, setOptions] = useState<{label: string; value: string}[]>([]);
   useEffect(() => {
     if (!RobotOptions) {
-      RobotOptions = AiAPI.getMyRobots();
+      RobotOptions = AiAPI.getMyChartBI();
     }
     RobotOptions.then((list) => {
       setOptions(list);

@@ -16,7 +16,6 @@ import {Breadcrumb, Dropdown, Space, Spin} from 'antd';
 import dayjs from 'dayjs';
 import {FC, memo, useEffect, useMemo, useState} from 'react';
 import BlurInput from '@/components/BlurInput';
-import ChatBI from '@/components/ChatBI';
 import DialogPage from '@/components/DialogPage';
 import {GetClientRouter} from '@/Global';
 import {downloadFile, replaceBaseUrl} from '@/utils/request';
@@ -461,7 +460,6 @@ const Component: FC<Props> = ({itemDetail}) => {
               </>
             )}
           </div>
-          <ChatBI />
         </div>
       </div>
     </DialogPage>
