@@ -28,9 +28,11 @@ function getTextNode(parent: Element): Element {
 interface Props {
   title: string;
   tpl: string;
+  layout: number;
+  setLayout: (n: number) => void;
 }
 
-const Component: FC<Props> = ({title, tpl}) => {
+const Component: FC<Props> = ({title, tpl, layout, setLayout}) => {
   const rootRef = useRef<HTMLDivElement>(null);
   const [html, setHtml] = useState('');
   const fieldsDataRef = useRef<{[field: string]: FieldItem}>({});
@@ -101,8 +103,10 @@ const Component: FC<Props> = ({title, tpl}) => {
     };
   }, []);
   return (
-    <div className={styles.root} ref={rootRef}>
+    <div className={styles.root + ` n${layout}`} ref={rootRef}>
       <header>
+        <div className={'close' + ` n${layout}`} onClick={() => setLayout(layout === 1 ? 0 : 1)} />
+        <div className={'expand' + ` n${layout}`} onClick={() => setLayout(layout === 2 ? 0 : 2)} />
         <div className="subject">效果预览</div>
         <div className="title">{title}</div>
       </header>

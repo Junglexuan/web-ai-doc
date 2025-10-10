@@ -140,7 +140,7 @@ const Component: FC<Props> = ({list, listSearch, inDialog, dispatch}) => {
         <Input.Search allowClear className="search" placeholder="请输入搜索关键字..." onSearch={onSearch} />
       </div>
       {inDialog ? (
-        <div style={{height: '5px'}}></div>
+        <div style={{height: '10px'}}></div>
       ) : (
         <div className="cd">
           <Space>

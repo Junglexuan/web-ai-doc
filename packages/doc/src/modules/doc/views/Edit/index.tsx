@@ -14,7 +14,7 @@ import {IDomEditor} from '@wangeditor-next/editor';
 import {Editor, Toolbar} from '@wangeditor-next/editor-for-react';
 import {Breadcrumb, Dropdown, Space, Spin} from 'antd';
 import dayjs from 'dayjs';
-import {FC, memo, useEffect, useMemo, useState} from 'react';
+import {FC, memo, useCallback, useEffect, useMemo, useState} from 'react';
 import BlurInput from '@/components/BlurInput';
 import DialogPage from '@/components/DialogPage';
 import {GetClientRouter} from '@/Global';
@@ -76,6 +76,7 @@ const Component: FC<Props> = ({itemDetail}) => {
   const [size, setSize] = useState<'常规' | '全宽' | '超宽'>(itemDetail.size || '常规');
   const [reviewing, setReviewing] = useState<[AbortController, AbortController]>();
   const [inspecting, setInspecting] = useState<AbortController>();
+  const [layout, setLayout] = useState(0);
 
   const _onSave = useEvent((editor: IDomEditor) => {
     //JSON.stringify(editor.children, null, 2)
@@ -420,10 +421,13 @@ const Component: FC<Props> = ({itemDetail}) => {
         <div
           className="bd"
           id="_ai_editor_scroller"
-          style={{margin: itemDetail.docType === 'tpl' ? '0' : 'auto', width: itemDetail.docType === 'tpl' ? '50%' : SizeEnum[size]}}
+          style={{
+            margin: itemDetail.docType === 'tpl' ? '0' : 'auto',
+            width: itemDetail.docType === 'tpl' ? (layout === 1 ? '100%' : '50%') : SizeEnum[size],
+          }}
         >
           <header>
-            <div className="expand" />
+            <div className={'expand' + ` n${layout}`} onClick={() => setLayout(layout === 1 ? 0 : 1)} />
             <BlurInput
               id="_doc_title"
               data-doc={itemDetail.id}
@@ -444,7 +448,7 @@ const Component: FC<Props> = ({itemDetail}) => {
             mode="default"
           />
         </div>
-        {itemDetail.docType === 'tpl' && <TplPreview title={docTitle} tpl={source.html} />}
+        {itemDetail.docType === 'tpl' && <TplPreview title={docTitle} tpl={source.html} layout={layout} setLayout={setLayout} />}
         <div className="ft">
           <span className="count">{source.text ? source.text.replace(/\n|\r/gm, '').length : ''}个字</span>
           <div>

@@ -9,7 +9,51 @@
     background: #fafafc;
     border-left: 1px solid #eaeced;
 
+    &.n1 {
+      display: none;
+    }
+
+    &.n2 {
+      z-index: 2;
+      width: 100%;
+    }
+
     > header {
+      > .close {
+        position: absolute;
+        top: 18px;
+        right: 50px;
+        z-index: 1;
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+        background: #ebecee url('@/assets/images/close.svg') center center;
+
+        &:hover {
+          opacity: 0.7;
+        }
+      }
+
+      > .expand {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        z-index: 1;
+        width: 15px;
+        height: 15px;
+        cursor: pointer;
+        background: url('@/assets/images/full.svg') center center;
+        background-size: 100% 100%;
+
+        &:hover {
+          opacity: 0.7;
+        }
+
+        &.n2 {
+          background-image: url('@/assets/images/shrink.svg');
+        }
+      }
+
       > .subject {
         margin-top: 5px;
         margin-bottom: 30px;
