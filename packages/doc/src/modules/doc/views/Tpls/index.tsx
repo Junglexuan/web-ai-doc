@@ -50,7 +50,7 @@ const Component: FC<Props> = ({list, listSearch, inDialog, dispatch}) => {
 
   const onEditSubmit = useEvent((data: {title: string; remark: string; isShare: boolean}) => {
     const curId = curEdit?.id || '';
-    DocAPI.saveTpl({...data, id: curId}, 'tpl').then(async ({id}) => {
+    DocAPI.updataTplInfo({...data, id: curId}, 'tpl').then(async ({id}) => {
       setCurEdit(undefined);
       await refreshList();
       if (!curId) {

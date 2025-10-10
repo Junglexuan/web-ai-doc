@@ -36,7 +36,7 @@ import Outline from './Outline';
 import Review from './Review';
 import ReviewButton from './ReviewButton';
 import TplPreview from './TplPreview';
-import TplRun from './TplRun';
+// import TplRun from './TplRun';
 import {replaceInspectItem, replaceReviewItem} from './utils';
 import VarButton from './VarButton';
 import type {ISource} from './autoSave';
@@ -401,7 +401,7 @@ const Component: FC<Props> = ({itemDetail}) => {
             ) : (
               <CloudUploadOutlined />
             )}
-            {itemDetail.docType === 'tpl' && <TplRun tpl={itemDetail} />}
+            {/* {itemDetail.docType === 'tpl' && <TplRun tpl={itemDetail} />} */}
             {/* <Undo className="undo" onClick={() => editor?.undo!()} />
             <Redo className="undo" onClick={() => editor?.redo!()} /> */}
           </Space>
@@ -448,7 +448,9 @@ const Component: FC<Props> = ({itemDetail}) => {
             mode="default"
           />
         </div>
-        {itemDetail.docType === 'tpl' && <TplPreview title={docTitle} tpl={source.html} layout={layout} setLayout={setLayout} />}
+        {itemDetail.docType === 'tpl' && (
+          <TplPreview id={itemDetail.id} title={docTitle} tpl={source.html} snapshot={itemDetail.snapshot} layout={layout} setLayout={setLayout} />
+        )}
         <div className="ft">
           <span className="count">{source.text ? source.text.replace(/\n|\r/gm, '').length : ''}个字</span>
           <div>

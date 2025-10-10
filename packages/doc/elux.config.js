@@ -26,5 +26,8 @@ module.exports = {
   dev: {
     eslint: false,
     stylelint: false,
+    apiProxy: {
+      '/dream/': 'http://113.44.121.105/',
+    },
   },
 };

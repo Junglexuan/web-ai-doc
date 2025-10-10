@@ -21,6 +21,12 @@ const TypeSourceMap: {[key in DocType]: string} = {
 };
 
 export const DocAPI = {
+  saveSnapshot(tplId: string, snapshot: string): Promise<void> {
+    return request.post(`/dream/pen/template/snapshot/save`, {
+      id: tplId,
+      snapshot,
+    });
+  },
   createSnapshot(data: {tplId: string; contents?: string}, type: DocType): Promise<{id: string}> {
     const contents = data.contents || '<p style="line-height: 1.5;"><span style="font-family: 黑体;"></span></p>';
     return setGlobalLoading(
@@ -74,7 +80,7 @@ export const DocAPI = {
       .post(`/dream/pen/dFolder/save`, {folderName: `新建文件夹`, parent: folder, type: TypeSourceMap[docType]})
       .then((res) => res.data.data);
   },
-  saveTpl(data: {id: string; title: string; remark: string; isShare: boolean}, docType: DocType): Promise<{id: string}> {
+  updataTplInfo(data: {id: string; title: string; remark: string; isShare: boolean}, docType: DocType): Promise<{id: string}> {
     return request
       .post(`/dream/pen/template/save`, {
         id: data.id || undefined,
@@ -97,7 +103,7 @@ export const DocAPI = {
         : {
             id,
             contents: html,
-            articleDsl: dsl,
+            articleDsl: '',
             articleCount: text.length,
             type: TypeSourceMap[docType],
           }

@@ -548,15 +548,55 @@ function autoInspect(
   return controller;
 }
 
-function featchTplTag(field: string, args: any, onMessage: (field: string, html: string) => void): {abort: () => void} {
-  request.get('/dream/pen/know/kb').then((res) => {
-    onMessage(field, 'xxx');
-  });
-  return {
-    abort: () => {
-      onMessage = () => undefined;
-    },
-  };
+function featchTplTag(
+  field: string,
+  args: {kind: string; source: string},
+  title: string,
+  onMessage: (field: string, html: string) => void
+): {abort: () => void} {
+  if (args.kind === 'date' || args.kind === 'sign') {
+    request.post('/dream/pen/ai/template/static/plugin', {pluginType: args.source}).then((res) => {
+      onMessage(field, res.data?.data || '???');
+    });
+    return {
+      abort: () => {
+        onMessage = () => undefined;
+      },
+    };
+  } else if (args.kind === 'replace') {
+    const source = args.source.slice(15, -3);
+    setTimeout(() => onMessage(field, decodeURI(source)));
+    return {
+      abort: () => {
+        onMessage = () => undefined;
+      },
+    };
+  } else {
+    const controller = new AbortController();
+    const {signal} = controller;
+    const html = decodeHtml();
+    fetchEventSource(replaceBaseUrl('/dream/pen/ai/template/plugin'), {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify({pluginType: args.source, title, previousParagraph: ''}),
+      signal,
+      openWhenHidden: true,
+      onmessage: (ev) => onMessage(field, html(ev.data)),
+      onerror: (e) => {
+        throw e;
+      },
+    });
+    return {
+      abort: () => {
+        onMessage = () => undefined;
+        try {
+          controller.abort();
+        } catch (err) {
+          console.error(err);
+        }
+      },
+    };
+  }
 }
 
 export const AiAPI = {
