@@ -63,8 +63,8 @@ const Component: FC<Props> = ({id, title, tpl, snapshot, layout, setLayout}) => 
 
   const featchTplTag = useEvent((field: string, args: {html: string; kind: string; source: string}) => {
     const arr = tpl.split(args.html);
-    console.log(arr[0]);
-    return AiAPI.featchTplTag(field, args, title, onMessage);
+    const context = arr[0] || '';
+    return AiAPI.featchTplTag(field, args, title, context.slice(-300), onMessage);
   });
 
   useMemo(() => {

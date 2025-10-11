@@ -552,6 +552,7 @@ function featchTplTag(
   field: string,
   args: {kind: string; source: string},
   title: string,
+  context: string,
   onMessage: (field: string, html: string) => void
 ): {abort: () => void} {
   if (args.kind === 'date' || args.kind === 'sign') {
@@ -578,7 +579,7 @@ function featchTplTag(
     fetchEventSource(replaceBaseUrl('/dream/pen/ai/template/plugin'), {
       method: 'POST',
       headers: getHeaders(),
-      body: JSON.stringify({pluginType: args.source, title, previousParagraph: ''}),
+      body: JSON.stringify({pluginType: args.source, title, previousParagraph: context}),
       signal,
       openWhenHidden: true,
       onmessage: (ev) => onMessage(field, html(ev.data)),
