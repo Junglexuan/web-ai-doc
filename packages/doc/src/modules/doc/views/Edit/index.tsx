@@ -36,7 +36,6 @@ import Outline from './Outline';
 import Review from './Review';
 import ReviewButton from './ReviewButton';
 import TplPreview from './TplPreview';
-// import TplRun from './TplRun';
 import {replaceInspectItem, replaceReviewItem} from './utils';
 import VarButton from './VarButton';
 import type {ISource} from './autoSave';
@@ -343,47 +342,43 @@ const Component: FC<Props> = ({itemDetail}) => {
     <DialogPage size="max" maskClosable={false} showControls={false} showClose={false}>
       <div className={styles.root}>
         <div className="hd">
-          {itemDetail.docType === 'snap' ? (
-            <div>模版预览</div>
-          ) : (
-            <Space size="large">
-              <HomeOutlined className="icon-link" onClick={() => GetClientRouter().relaunch({url: `/admin/home`}, 'window')} />
-              {itemDetail.docType !== 'tpl' &&
-                (loading === 'create' ? <Spin size="small" /> : <PlusOutlined className="icon-link" onClick={onCreatDoc} title="新建文档" />)}
-              {itemDetail.docType !== 'tpl' && (
-                <Dropdown
-                  menu={{
-                    onClick: ({key}: {key: string}) => {
-                      if (key === '下载Word') {
-                        setGlobalLoading(
-                          downloadFile(replaceBaseUrl(`/dream/pen/article/down?id=${itemDetail.id}&type=word`), itemDetail.title),
-                          GetClientRouter().getActivePage().store
-                        );
-                      } else if (key === '下载PDF') {
-                        setGlobalLoading(
-                          downloadFile(replaceBaseUrl(`/dream/pen/article/down?id=${itemDetail.id}&type=pdf`), itemDetail.title),
-                          GetClientRouter().getActivePage().store
-                        );
-                      }
+          <Space size="large">
+            <HomeOutlined className="icon-link" onClick={() => GetClientRouter().relaunch({url: `/admin/home`}, 'window')} />
+            {itemDetail.docType !== 'tpl' &&
+              (loading === 'create' ? <Spin size="small" /> : <PlusOutlined className="icon-link" onClick={onCreatDoc} title="新建文档" />)}
+            {itemDetail.docType !== 'tpl' && (
+              <Dropdown
+                menu={{
+                  onClick: ({key}: {key: string}) => {
+                    if (key === '下载Word') {
+                      setGlobalLoading(
+                        downloadFile(replaceBaseUrl(`/dream/pen/article/down?id=${itemDetail.id}&type=word`), itemDetail.title),
+                        GetClientRouter().getActivePage().store
+                      );
+                    } else if (key === '下载PDF') {
+                      setGlobalLoading(
+                        downloadFile(replaceBaseUrl(`/dream/pen/article/down?id=${itemDetail.id}&type=pdf`), itemDetail.title),
+                        GetClientRouter().getActivePage().store
+                      );
+                    }
+                  },
+                  items: [
+                    {
+                      key: '下载Word',
+                      label: '下载Word',
                     },
-                    items: [
-                      {
-                        key: '下载Word',
-                        label: '下载Word',
-                      },
-                      {
-                        key: '下载PDF',
-                        label: '下载PDF',
-                      },
-                    ],
-                  }}
-                >
-                  <MenuOutlined className="icon-link" />
-                </Dropdown>
-              )}
-              {breadcrumb}
-            </Space>
-          )}
+                    {
+                      key: '下载PDF',
+                      label: '下载PDF',
+                    },
+                  ],
+                }}
+              >
+                <MenuOutlined className="icon-link" />
+              </Dropdown>
+            )}
+            {breadcrumb}
+          </Space>
           <Space align="center" className="info">
             {itemDetail.readonly && <span>只读模式</span>}
             <div>
@@ -401,7 +396,6 @@ const Component: FC<Props> = ({itemDetail}) => {
             ) : (
               <CloudUploadOutlined />
             )}
-            {/* {itemDetail.docType === 'tpl' && <TplRun tpl={itemDetail} />} */}
             {/* <Undo className="undo" onClick={() => editor?.undo!()} />
             <Redo className="undo" onClick={() => editor?.redo!()} /> */}
           </Space>
@@ -434,7 +428,7 @@ const Component: FC<Props> = ({itemDetail}) => {
               size="large"
               key={docTitle}
               value={docTitle}
-              readOnly={itemDetail.readonly || itemDetail.docType === 'snap'}
+              readOnly={itemDetail.readonly}
               className="doc-title"
               style={{background: '#fff'}}
               onChange={onDocTitleChange}

@@ -11,11 +11,11 @@ const style: React.CSSProperties = {
 };
 
 const options = [
-  {value: '${DATE.NOW()}', label: '此时此刻'},
-  {value: '${DATE.TODAY()}', label: '当前日'},
-  {value: '${DATE.MONTH()}', label: '当前月'},
-  {value: '${DATE.YEAR()}', label: '当前年'},
-  {value: '${DATE.CUSTOMIZE(***)}', label: '自定义格式'},
+  {value: '${DATE.NOW()}', label: '此时此刻', field: 'Now'},
+  {value: '${DATE.TODAY()}', label: '当前日', field: 'Today'},
+  {value: '${DATE.MONTH()}', label: '当前月', field: 'Month'},
+  {value: '${DATE.YEAR()}', label: '当前年', field: 'Year'},
+  {value: '${DATE.CUSTOMIZE(***)}', label: '自定义格式', field: ''},
 ];
 
 function matchValue(code: string): string[] {
@@ -47,7 +47,8 @@ const Component: FC<Props> = ({onSubmit, onCancel, elem}) => {
 
   const onOk = useEvent(() => {
     const [fun, args] = value;
-    onSubmit(elem, {source: args ? fun.replace('(***)', `('${args}')`) : fun, info: options.find((item) => item.value === fun)?.label});
+    const option = options.find((item) => item.value === fun);
+    onSubmit(elem, {field: `_${option!.field || args}`, source: args ? fun.replace('(***)', `('${args}')`) : fun, info: option!.label});
   });
 
   return (

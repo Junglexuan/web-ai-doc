@@ -10,14 +10,12 @@ const TypeMap: {[key: string]: DocType} = {
   '2': 'doc',
   '3': 'tpl',
   '4': 'con',
-  '0': 'snap',
 };
 const TypeSourceMap: {[key in DocType]: string} = {
   dir: '1',
   doc: '2',
   tpl: '3',
   con: '4',
-  snap: '0',
 };
 
 export const DocAPI = {
@@ -93,21 +91,13 @@ export const DocAPI = {
       .then((res) => res.data.data);
   },
   saveDSL(id: string, dsl: string, html: string, text: string, docType: DocType): Promise<void> {
-    return request.post(
-      docType === 'tpl' ? '/dream/pen/template/save' : docType === 'snap' ? '/dream/pen/template/snapshot/save' : `/dream/pen/article/save`,
-      docType === 'snap'
-        ? {
-            id,
-            snapshot: html,
-          }
-        : {
-            id,
-            contents: html,
-            articleDsl: '',
-            articleCount: text.length,
-            type: TypeSourceMap[docType],
-          }
-    );
+    return request.post(docType === 'tpl' ? '/dream/pen/template/save' : '/dream/pen/article/save', {
+      id,
+      contents: html,
+      articleDsl: '',
+      articleCount: text.length,
+      type: TypeSourceMap[docType],
+    });
   },
   updateDocName(id: string, title: string, docType: DocType): Promise<void> {
     return request.post(docType === 'tpl' ? '/dream/pen/template/save' : `/dream/pen/article/save`, {id, title, type: TypeSourceMap[docType]});
@@ -156,11 +146,9 @@ export const DocAPI = {
     });
   },
   getDoc(id: string): Promise<ItemDetail> {
-    const isPreview = getUrlParam('preview');
-    const isTpl = getUrlParam('tpl');
     return request.get('/dream/pen/article/get', {params: {id}}).then((docRes) => {
       const item: ItemDetail = docRes.data.data;
-      item.docType = isPreview && isTpl ? 'snap' : TypeMap[(item as any).type];
+      item.docType = TypeMap[(item as any).type];
       item.levelPath = item.levelPath || [];
       return item;
     });
@@ -265,8 +253,9 @@ export const DocAPI = {
             reiterated[item.field] = true;
             return {
               name: item.field,
-              value: item.argument.desc || item.argument,
+              value: item.argument.remark || item.argument,
               label: item.field,
+              holdplace: item.argument.remark || '',
             };
           })
           .filter(Boolean);

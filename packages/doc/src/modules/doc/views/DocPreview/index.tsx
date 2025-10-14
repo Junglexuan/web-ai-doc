@@ -8,7 +8,7 @@ const Component: FC<Props> = ({content}) => {
   return (
     <div
       className="w-editor-preview"
-      style={{width: '80%', height: '100%', overflow: 'auto', margin: 'auto'}}
+      style={{width: '80%', height: '100%', overflow: 'auto', margin: 'auto', paddingRight: '20px'}}
       dangerouslySetInnerHTML={{__html: content}}
     />
   );

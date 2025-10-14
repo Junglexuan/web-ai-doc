@@ -9,7 +9,7 @@ interface FieldItem {
   kind: string;
   field: string;
   source: string;
-  dom?: Element;
+  doms: Element[];
   abort?: () => void;
 }
 
@@ -28,6 +28,8 @@ function getTextNode(parent: Element): Element {
   }
   return parent;
 }
+
+const TempDiv = document.createElement('div');
 
 interface Props {
   id: string;
@@ -55,16 +57,20 @@ const Component: FC<Props> = ({id, title, tpl, snapshot, layout, setLayout}) => 
   );
 
   const onMessage = useEvent((field: string, html: string) => {
-    const dom = fieldsDataRef.current[field]?.dom;
-    if (dom) {
-      dom.innerHTML = html;
+    const doms = fieldsDataRef.current[field]?.doms;
+    if (doms) {
+      doms.forEach((dom) => {
+        dom.innerHTML = html;
+      });
     }
   });
 
   const featchTplTag = useEvent((field: string, args: {html: string; kind: string; source: string}) => {
     const arr = tpl.split(args.html);
-    const context = arr[0] || '';
-    return AiAPI.featchTplTag(field, args, title, context.slice(-300), onMessage);
+    const html = arr[0] || '';
+    TempDiv.innerHTML = html;
+    const context = TempDiv.textContent || '';
+    return AiAPI.featchTplTag(field, args, title, context.slice(-200), onMessage);
   });
 
   useMemo(() => {
@@ -76,7 +82,7 @@ const Component: FC<Props> = ({id, title, tpl, snapshot, layout, setLayout}) => 
       /<cite data-w-e-type="variable".*? data-kind="(.*?)".*? data-field="(.*?)".*? data-source="(.*?)".+?<\/cite>/g,
       (a, b, c, d) => {
         if (b) {
-          newFields[c] = {html: a, kind: b, field: c, source: d};
+          newFields[c] = {html: a, kind: b, field: c, source: d, doms: []};
         }
         if (b === 'write') {
           return '<div' + a.slice(5, -5) + 'div>';
@@ -95,20 +101,29 @@ const Component: FC<Props> = ({id, title, tpl, snapshot, layout, setLayout}) => 
     setHtml(preview);
     onSave();
     setTimeout(() => {
-      const doms: {[field: string]: Element} = {};
+      const doms: {[field: string]: Element[]} = {};
       const cites = rootRef.current!.querySelectorAll('[data-w-e-type="variable"]');
       cites.forEach((cite) => {
-        doms[cite.getAttribute('data-field') || ''] = getTextNode(cite)!;
+        const filed = cite.getAttribute('data-field');
+        if (filed) {
+          if (!doms[filed]) {
+            doms[filed] = [];
+          }
+          doms[filed].push(getTextNode(cite));
+        }
       });
       Object.keys(doms).forEach((field) => {
-        const oDom = oriFields[field]?.dom;
-        const nDom = doms[field];
-        if (nDom && oDom) {
-          nDom.innerHTML = oDom.innerHTML;
+        const oDoms = oriFields[field]?.doms || [];
+        const oHtml = oDoms[0]?.innerHTML;
+        const nDoms = doms[field];
+        if (nDoms && oHtml) {
+          nDoms.forEach((dom) => {
+            dom.innerHTML = oHtml;
+          });
         }
       });
       Object.keys(newFields).forEach((field) => {
-        newFields[field].dom = doms[field];
+        newFields[field].doms = doms[field];
         if (oriFields[field]) {
           newFields[field].abort = oriFields[field].abort;
         } else {
@@ -124,25 +139,31 @@ const Component: FC<Props> = ({id, title, tpl, snapshot, layout, setLayout}) => 
     const oriFields: {[field: string]: FieldItem} = {};
     snapshot.replace(/<cite data-w-e-type="variable".*? data-kind="(.*?)".*? data-field="(.*?)".*? data-source="(.*?)".+?<\/cite>/g, (a, b, c, d) => {
       if (b) {
-        oriFields[c] = {html: a, kind: b, field: c, source: d};
+        oriFields[c] = {html: a, kind: b, field: c, source: d, doms: []};
       }
       return a;
     });
     snapshot.replace(/<div data-w-e-type="variable".*? data-kind="(.*?)".*? data-field="(.*?)".*? data-source="(.*?)".+?<\/div>/g, (a, b, c, d) => {
       if (b) {
-        oriFields[c] = {html: a, kind: b, field: c, source: d};
+        oriFields[c] = {html: a, kind: b, field: c, source: d, doms: []};
       }
       return a;
     });
     setHtml(snapshot);
     setTimeout(() => {
-      const doms: {[field: string]: Element} = {};
+      const doms: {[field: string]: Element[]} = {};
       const cites = rootRef.current!.querySelectorAll('[data-w-e-type="variable"]');
       cites.forEach((cite) => {
-        doms[cite.getAttribute('data-field') || ''] = getTextNode(cite)!;
+        const filed = cite.getAttribute('data-field');
+        if (filed) {
+          if (!doms[filed]) {
+            doms[filed] = [];
+          }
+          doms[filed].push(getTextNode(cite));
+        }
       });
       Object.keys(oriFields).forEach((field) => {
-        oriFields[field].dom = doms[field];
+        oriFields[field].doms = doms[field];
         oriFields[field].abort = () => undefined;
       });
       fieldsDataRef.current = oriFields;

@@ -40,9 +40,9 @@ function insertVarByTpl(editor: IDomEditor, kind: string) {
     }
     let node: VariableElement | undefined;
     if (kind === 'date') {
-      node = {type: 'variable', kind, field: 'Date', source: '${DATE.NOW()}', info: '此时此刻', children: [{text: '$日期时间'}]};
+      node = {type: 'variable', kind, field: '_Now', source: '${DATE.NOW()}', info: '此时此刻', children: [{text: '$日期时间'}]};
     } else if (kind === 'sign') {
-      node = {type: 'variable', kind, field: 'User', source: '${USER.CURRENT()}', info: '当前用户', children: [{text: '$用户署名'}]};
+      node = {type: 'variable', kind, field: '_User', source: '${USER.CURRENT()}', info: '当前用户', children: [{text: '$用户署名'}]};
     } else if (kind === 'image') {
       node = {type: 'variable', kind, field: '$Image', source: '${AI.IMAGE()}', info: '...', children: [{text: '$智能生图'}]};
     } else if (kind === 'ask') {

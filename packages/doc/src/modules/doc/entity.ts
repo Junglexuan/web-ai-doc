@@ -2,7 +2,7 @@ import {BaseCurRender, BaseCurView, BaseListItem, BaseListSearch, BaseListSummar
 
 export type CurView = BaseCurView;
 export type CurRender = BaseCurRender | 'favs' | 'recs' | 'tpls' | 'tpls_' | 'conts';
-export type DocType = 'dir' | 'doc' | 'tpl' | 'con' | 'snap';
+export type DocType = 'dir' | 'doc' | 'tpl' | 'con';
 
 export interface ListSearch extends BaseListSearch {
   render?: CurRender;
@@ -79,4 +79,4 @@ export const defaultListSearch: ListSearch = {
 };
 export type TplsOptions = {value: string; label: string; children: {value: string; label: string}[]}[];
 
-export type TplFields = {name: string; label: string; value: string};
+export type TplFields = {name: string; label: string; holdplace: string; value: string};

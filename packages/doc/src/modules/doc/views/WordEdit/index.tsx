@@ -1,27 +1,12 @@
-import {
-  ArrowLeftOutlined,
-  ClockCircleOutlined,
-  CloudUploadOutlined,
-  HomeOutlined,
-  MenuOutlined,
-  PlusOutlined,
-  StarFilled,
-  StarOutlined,
-  UserOutlined,
-} from '@ant-design/icons';
-import {Link, setLoading as setGlobalLoading} from '@elux/react-web';
-import {IDomEditor} from '@wangeditor-next/editor';
-import {Editor, Toolbar} from '@wangeditor-next/editor-for-react';
-import {Breadcrumb, Dropdown, Modal, Space, Spin} from 'antd';
+import {ClockCircleOutlined, CloudUploadOutlined, HomeOutlined, StarFilled, StarOutlined, UserOutlined} from '@ant-design/icons';
+import {Link} from '@elux/react-web';
+import {Breadcrumb, Space} from 'antd';
 import dayjs from 'dayjs';
-import {FC, memo, useCallback, useEffect, useMemo, useState} from 'react';
-import BlurInput from '@/components/BlurInput';
+import {FC, memo, useCallback, useMemo, useState} from 'react';
 import DialogPage from '@/components/DialogPage';
 import {GetClientRouter} from '@/Global';
-import {debounce, openArticle, useEvent} from '@/utils/tools';
 import DocAPI from '../../api';
 import {ItemDetail} from '../../entity';
-import TplRun from '../Edit/TplRun';
 import WordPreview from '../WordPreview';
 import styles from './index.module.less';
 import VarReplace from './VarReplace';
@@ -97,7 +82,6 @@ const Component: FC<Props> = ({itemDetail}) => {
               <span> {itemDetail.createDate ? dayjs(itemDetail.createDate).format('YYYY-MM-DD HH:mm:ss') : ''} 创建</span>
             </div>
             <CloudUploadOutlined />
-            {itemDetail.docType === 'tpl' && <TplRun tpl={itemDetail} />}
           </Space>
         </div>
         <div className="bd">
