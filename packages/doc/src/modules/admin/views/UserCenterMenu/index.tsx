@@ -1,5 +1,6 @@
 import {useEffect, useRef} from 'react';
 import {SitesUrl} from '@/Global';
+import {replaceBaseUrl} from '@/utils/request';
 import {getTenant, getToken, info} from '@/utils/tools';
 
 const UserMenu: React.FC<{username: string; logout: () => void; switchTenant: () => void}> = ({username, logout, switchTenant}) => {
@@ -36,7 +37,7 @@ const UserMenu: React.FC<{username: string; logout: () => void; switchTenant: ()
       user-name={username}
       tenant-id={getTenant()}
       cloud-url={SitesUrl.user} //对应用户中心接口请求地址url
-      base-url={''} //对应用户中心接口请求地址url
+      base-url={replaceBaseUrl('/dream/pen')} //对应用户中心接口请求地址url
     />
   );
 };
