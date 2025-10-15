@@ -1,3 +1,4 @@
+import {InfoCircleOutlined} from '@ant-design/icons';
 import {Button, Form, FormInstance, Input, Modal, Select, Steps} from 'antd';
 import {FC, memo, useMemo, useRef, useState} from 'react';
 import RadioCard from '@/components/RadioCard';
@@ -9,7 +10,7 @@ import styles from './index.module.less';
 export interface WizardFormData {
   tplId: string;
   type?: string;
-  fields?: {name: string; label: string; value: string}[];
+  fields?: {name: string; label: string; value: string; holdplace: string}[];
   kind?: 'conts' | 'docs';
 }
 
@@ -27,7 +28,7 @@ interface Props {
 const Component: FC<Props> = ({tplsOptions = [], data, onCancel, onSubmit, onPriview, kind}) => {
   const [curType, setCurType] = useState(() => tplsOptions.find((item) => item.value === data.type));
   const [curTplId, setCurTplId] = useState(data.tplId);
-  const [curTplFields, setCurTplFields] = useState<{name: string; label: string; value: string}[] | undefined>(data.fields);
+  const [curTplFields, setCurTplFields] = useState<{name: string; label: string; value: string; holdplace: string}[] | undefined>(data.fields);
   const [fieldsValues, setFieldsValues] = useState<{[field: string]: string}>({});
   const [knowledges, setKnowledges] = useState<string[]>([]);
   const [curStep, setCurStep] = useState(!curTplFields ? 0 : curTplFields.length ? 1 : 2);
@@ -140,8 +141,8 @@ const Component: FC<Props> = ({tplsOptions = [], data, onCancel, onSubmit, onPri
           {curStep === 1 && curTplFields && (
             <Form className="field-form" {...FormLayout} ref={fieldsFormRef as any} colon={false} initialValues={fieldsValues} onFinish={onFinish}>
               {curTplFields.map((item) => (
-                <Form.Item key={item.name} name={item.name} label={item.label}>
-                  <Input.TextArea rows={1} placeholder={item.value} autoSize />
+                <Form.Item key={item.name} name={item.name} label={item.label} tooltip={{title: item.holdplace, icon: <InfoCircleOutlined />}}>
+                  <Input.TextArea rows={1} placeholder={item.holdplace} defaultValue={item.value} autoSize />
                 </Form.Item>
               ))}
             </Form>

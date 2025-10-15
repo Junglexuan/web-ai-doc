@@ -566,7 +566,8 @@ function featchTplTag(
     };
   } else if (args.kind === 'replace') {
     const source = args.source.slice(15, -3);
-    setTimeout(() => onMessage(field, decodeURI(source)));
+    const json = JSON.parse(decodeURI(source));
+    setTimeout(() => onMessage(field, json.default));
     return {
       abort: () => {
         onMessage = () => undefined;

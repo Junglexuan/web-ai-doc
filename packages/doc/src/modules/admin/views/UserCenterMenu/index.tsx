@@ -35,7 +35,8 @@ const UserMenu: React.FC<{username: string; logout: () => void; switchTenant: ()
       token={getToken()}
       user-name={username}
       tenant-id={getTenant()}
-      base-url={SitesUrl.user} //对应用户中心接口请求地址url
+      cloud-url={SitesUrl.user} //对应用户中心接口请求地址url
+      base-url={''} //对应用户中心接口请求地址url
     />
   );
 };

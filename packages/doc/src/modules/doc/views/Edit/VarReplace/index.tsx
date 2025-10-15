@@ -4,15 +4,38 @@ import {message, useEvent} from '@/utils/tools';
 import {VariableElement} from '../elements/Variable/custom-types';
 import styles from './index.module.less';
 
+export type DataSource = {
+  field: string;
+  default: string;
+  remark?: string;
+};
+
 const TPL = '${DOC.REPLACE(***)}';
 
-function matchValue(code: string): string {
+const defaultDataSource: DataSource = {field: '', default: ''};
+
+function matchValue(code: string): DataSource | undefined {
   const arr = code.match(/REPLACE\((.+)\)\}$/) || [];
-  const args = arr[1]?.slice(1, -1) || '';
-  return decodeURI(args);
+  let args = arr[1]?.slice(1, -1) || '';
+  if (args) {
+    args = decodeURI(args);
+    let value: any;
+    try {
+      value = JSON.parse(args);
+    } catch (error) {
+      value = undefined;
+    }
+    return value;
+  }
+  return undefined;
 }
-function formatValue(value: string): string {
-  return TPL.replace('(***)', `('${encodeURI(value)}')`);
+
+function formatValue(data: DataSource): string {
+  if (data) {
+    const value = JSON.stringify(data);
+    return TPL.replace('(***)', `('${encodeURI(value)}')`);
+  }
+  return '';
 }
 
 interface Props {
@@ -22,18 +45,13 @@ interface Props {
 }
 
 const Component: FC<Props> = ({onSubmit, onCancel, elem}) => {
-  const [value, setValue] = useState(() => matchValue(elem.source));
-  const [fieldName, setFieldValue] = useState(elem.field);
-
-  const onInputChange = useEvent((e: any) => {
-    setValue(e.target.value);
-  });
+  const [dataSource, setDataSource] = useState(() => matchValue(elem.source) || defaultDataSource);
 
   const onOk = useEvent(() => {
-    if (fieldName) {
-      onSubmit(elem, {source: formatValue(value), info: value || '...', field: fieldName});
+    if (dataSource.default && dataSource.field) {
+      onSubmit(elem, {source: formatValue(dataSource), info: dataSource.default, field: dataSource.field});
     } else {
-      message.error('请输入名称...');
+      message.error('请输入名称和默认值...');
     }
   });
 
@@ -47,12 +65,29 @@ const Component: FC<Props> = ({onSubmit, onCancel, elem}) => {
         <Input
           className="field"
           placeholder="请给本词条取一个标识名称..."
+          value={dataSource.field}
           maxLength={15}
-          value={fieldName}
-          onChange={(e) => setFieldValue(e.target.value.trim())}
+          onChange={(e) => setDataSource({...dataSource, field: e.target.value.trim()})}
         />
-        <div className="title">默认值：</div>
-        <Input.TextArea placeholder="请输入默认值..." value={value} onChange={onInputChange} />
+        <div className="title">
+          <span>描述：</span>
+        </div>
+        <Input
+          className="field"
+          placeholder="简要描述该词条的作用..."
+          value={dataSource.remark}
+          maxLength={15}
+          onChange={(e) => setDataSource({...dataSource, remark: e.target.value.trim()})}
+        />
+        <div className="title">
+          <em>*</em>
+          <span>默认值：</span>
+        </div>
+        <Input.TextArea
+          placeholder="请输入默认值..."
+          value={dataSource.default}
+          onChange={(e) => setDataSource({...dataSource, default: e.target.value})}
+        />
       </div>
       <div className="dialogFooter">
         <Button size="small" type="primary" onClick={onOk}>

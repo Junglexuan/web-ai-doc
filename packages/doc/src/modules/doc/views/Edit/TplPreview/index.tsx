@@ -81,7 +81,7 @@ const Component: FC<Props> = ({id, title, tpl, snapshot, layout, setLayout}) => 
     const preview = tpl.replace(
       /<cite data-w-e-type="variable".*? data-kind="(.*?)".*? data-field="(.*?)".*? data-source="(.*?)".+?<\/cite>/g,
       (a, b, c, d) => {
-        if (b) {
+        if (b && c) {
           newFields[c] = {html: a, kind: b, field: c, source: d, doms: []};
         }
         if (b === 'write') {
@@ -138,13 +138,13 @@ const Component: FC<Props> = ({id, title, tpl, snapshot, layout, setLayout}) => 
   useEffect(() => {
     const oriFields: {[field: string]: FieldItem} = {};
     snapshot.replace(/<cite data-w-e-type="variable".*? data-kind="(.*?)".*? data-field="(.*?)".*? data-source="(.*?)".+?<\/cite>/g, (a, b, c, d) => {
-      if (b) {
+      if (b && c) {
         oriFields[c] = {html: a, kind: b, field: c, source: d, doms: []};
       }
       return a;
     });
     snapshot.replace(/<div data-w-e-type="variable".*? data-kind="(.*?)".*? data-field="(.*?)".*? data-source="(.*?)".+?<\/div>/g, (a, b, c, d) => {
-      if (b) {
+      if (b && c) {
         oriFields[c] = {html: a, kind: b, field: c, source: d, doms: []};
       }
       return a;

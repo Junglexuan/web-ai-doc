@@ -142,9 +142,9 @@ const Component: FC<Props> = ({onSubmit, onCancel, elem}) => {
           <div className="label">描述:</div>
           <Input
             className="input"
-            placeholder="描述该词条的作用..."
+            placeholder="简要描述该词条的作用..."
             value={dataSource.remark}
-            maxLength={50}
+            maxLength={15}
             onChange={(e) => setDataSource({...dataSource, remark: e.target.value.trim()})}
           />
         </div>

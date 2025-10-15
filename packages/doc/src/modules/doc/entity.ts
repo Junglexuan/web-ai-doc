@@ -62,7 +62,7 @@ export interface ItemDetail {
   isSystem?: boolean;
   isMine?: boolean;
   readonly?: boolean;
-  wordPlugin?: {type: string; title: string; attribute: string; id: string}[];
+  wordPlugin?: {type: string; title: string; remark: string; attribute: string; id: string}[];
 }
 export interface EditItem extends BaseListItem {}
 

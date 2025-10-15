@@ -253,7 +253,7 @@ export const DocAPI = {
             reiterated[item.field] = true;
             return {
               name: item.field,
-              value: item.argument.remark || item.argument,
+              value: item.argument.default || item.argument.prompt || '',
               label: item.field,
               holdplace: item.argument.remark || '',
             };

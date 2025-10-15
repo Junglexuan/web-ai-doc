@@ -18,7 +18,7 @@ const Component: FC<Props> = ({itemDetail}) => {
   const [docTitle, setDocTitle] = useState(itemDetail.title);
   const [collect, setCollect] = useState(itemDetail.collect);
   const [wordPlugin, setWordPlugin] = useState(itemDetail.wordPlugin || []);
-  const [currentTag, setCurrentTag] = useState<{type: string; title: string; attribute: string; id: string}>();
+  const [currentTag, setCurrentTag] = useState<{type: string; title: string; remark: string; attribute: string; id: string}>();
 
   const breadcrumb = useMemo(() => {
     return (

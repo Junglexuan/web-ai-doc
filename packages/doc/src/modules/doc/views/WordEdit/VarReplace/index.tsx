@@ -4,25 +4,14 @@ import {message, useEvent} from '@/utils/tools';
 import styles from './index.module.less';
 
 interface Props {
-  item: {type: string; title: string; attribute: string; id: string};
+  item: {type: string; title: string; remark: string; attribute: string; id: string};
   onCancel: () => void;
   onSubmit: (item: {type: string; title: string; attribute: string; id: string}) => void;
 }
 
 const Component: FC<Props> = ({onSubmit, onCancel, item}) => {
   const [fieldName, setFieldValue] = useState(item.title);
-
-  // const onInputChange = useEvent((e: any) => {
-  //   setValue(e.target.value.trim());
-  // });
-
-  // const onOk = useEvent(() => {
-  //   if (fieldName) {
-  //     onSubmit(elem, {source: formatValue(value), info: value || '...', field: fieldName});
-  //   } else {
-  //     message.error('请输入名称...');
-  //   }
-  // });
+  const [remark, setRemark] = useState(item.remark);
 
   return (
     <div className={styles.root}>
@@ -39,8 +28,18 @@ const Component: FC<Props> = ({onSubmit, onCancel, item}) => {
           value={fieldName}
           onChange={(e) => setFieldValue(e.target.value.trim())}
         />
+        <div className="title">
+          <span>描述：</span>
+        </div>
+        <Input
+          className="field"
+          placeholder="简要描述本词条的作用..."
+          maxLength={15}
+          value={remark}
+          onChange={(e) => setRemark(e.target.value.trim())}
+        />
         <div className="title">默认值：</div>
-        <Input.TextArea placeholder="请输入默认值..." rows={4} />
+        <Input.TextArea placeholder="请输入默认值..." />
       </div>
       <div className="ft">
         <Button type="primary">确定</Button>
