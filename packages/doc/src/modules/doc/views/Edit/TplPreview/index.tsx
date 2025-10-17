@@ -2,6 +2,7 @@ import {FC, memo, useEffect, useMemo, useRef, useState} from 'react';
 import {debounce, useEvent} from '@/utils/tools';
 import {DocAPI} from '../../../api';
 import {AiAPI} from '../api';
+import {filterHtmlTag} from '../utils';
 import styles from './index.module.less';
 
 interface FieldItem {
@@ -28,8 +29,6 @@ function getTextNode(parent: Element): Element {
   }
   return parent;
 }
-
-const TempDiv = document.createElement('div');
 
 interface Props {
   id: string;
@@ -68,8 +67,7 @@ const Component: FC<Props> = ({id, title, tpl, snapshot, layout, setLayout}) => 
   const featchTplTag = useEvent((field: string, args: {html: string; kind: string; source: string}) => {
     const arr = tpl.split(args.html);
     const html = arr[0] || '';
-    TempDiv.innerHTML = html;
-    const context = TempDiv.textContent || '';
+    const context = filterHtmlTag(html);
     return AiAPI.featchTplTag(field, args, title, context.slice(-200), onMessage);
   });
 

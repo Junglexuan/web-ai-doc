@@ -37,7 +37,7 @@ const UserMenu: React.FC<{username: string; logout: () => void; switchTenant: ()
       user-name={username}
       tenant-id={getTenant()}
       cloud-url={SitesUrl.user} //对应用户中心接口请求地址url
-      base-url={replaceBaseUrl('/dream/pen')} //对应用户中心接口请求地址url
+      base-url={replaceBaseUrl('/dream/pen/sso')} //对应用户中心接口请求地址url
     />
   );
 };

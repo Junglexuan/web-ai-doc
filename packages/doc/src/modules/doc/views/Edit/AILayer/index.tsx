@@ -1,4 +1,4 @@
-import {IDomEditor} from '@wangeditor-next/editor';
+import {IDomEditor, SlateEditor} from '@wangeditor-next/editor';
 import {FC, memo, useEffect, useMemo, useRef, useState} from 'react';
 import {addClass, debounce, removeClass, useEvent} from '@/utils/tools';
 import AIAsk from '../AIAsk';
@@ -13,8 +13,23 @@ import AIRobot from '../AIRobot';
 import AIStylize from '../AIStylize';
 import AIWeb from '../AIWeb';
 import {AIAction, RunningState} from '../api';
+import {filterHtmlTag} from '../utils';
 import styles from './index.module.less';
 import type {AIEvent} from '../utils';
+
+function inTable(editor: IDomEditor) {
+  if (!editor.selection) return false;
+
+  const tdEntry = SlateEditor.above(editor, {
+    match: (n: any) => {
+      console.log(n.type);
+      return n.type === 'table';
+    },
+    at: editor.selection, // 默认就是当前 selection
+  });
+
+  return !!tdEntry;
+}
 
 export interface IAIRef {
   closeMenu: (force?: boolean) => void;
@@ -85,6 +100,9 @@ const Component: FC<Props> = ({onCreated, editor}) => {
       if (!menuEvent?.selectionRange?.collapsed) {
         editor.deleteFragment();
       }
+    }
+    if (inTable(editor)) {
+      html = filterHtmlTag(html);
     }
     editor.dangerouslyInsertHtml(html);
   });

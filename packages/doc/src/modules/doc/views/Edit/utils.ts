@@ -15,6 +15,14 @@ export interface AIInputRef {
   focus: () => void;
 }
 
+const TempDiv = document.createElement('div');
+
+export function filterHtmlTag(html: string): string {
+  TempDiv.innerHTML = html;
+  const context = TempDiv.textContent || '';
+  return context;
+}
+
 export function dslToHtml(dsl: any): string {
   const arr = Array.isArray(dsl) ? dsl : [dsl];
   if (arr[0]) {
