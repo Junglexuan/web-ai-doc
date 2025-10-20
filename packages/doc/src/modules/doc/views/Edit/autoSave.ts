@@ -1,10 +1,9 @@
-import {IDomEditor} from '@wangeditor-next/editor';
 import {createEditor} from '@wangeditor-next/editor';
 import {SimpleDispatcher} from '@/utils/tools';
 import DocAPI from '../../api';
 import {DocType} from '../../entity';
 
-const cloneEditor = createEditor();
+//const cloneEditor = createEditor();
 
 export interface ISource {
   id: string;
@@ -78,20 +77,20 @@ export class SaveMgr extends SimpleDispatcher<{loading: boolean}> {
   destroy(): void {
     this.checkNext = () => undefined;
   }
-  safeSetHtml2(editor: IDomEditor, html: string): void {
-    editor.disable();
-    cloneEditor.setHtml(html);
-    setTimeout(() => {
-      const safeHtml = cloneEditor.getHtml();
-      const curSelection = editor.selection;
-      const scroller = document.getElementById('_ai_editor_scroller')!;
-      const curScroll = scroller.scrollTop;
-      editor.setHtml(safeHtml);
-      setTimeout(() => {
-        editor.select(curSelection!);
-        scroller.scrollTop = curScroll;
-        editor.enable();
-      });
-    });
-  }
+  // safeSetHtml2(editor: IDomEditor, html: string): void {
+  //   editor.disable();
+  //   cloneEditor.setHtml(html);
+  //   setTimeout(() => {
+  //     const safeHtml = cloneEditor.getHtml();
+  //     const curSelection = editor.selection;
+  //     const scroller = document.getElementById('_ai_editor_scroller')!;
+  //     const curScroll = scroller.scrollTop;
+  //     editor.setHtml(safeHtml);
+  //     setTimeout(() => {
+  //       editor.select(curSelection!);
+  //       scroller.scrollTop = curScroll;
+  //       editor.enable();
+  //     });
+  //   });
+  // }
 }

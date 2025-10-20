@@ -10,7 +10,7 @@ interface Props {
   editor: IDomEditor;
 }
 
-type ReviewItem = {id: string; source: string; target: string; reason: string; level: Level; at: number[]};
+type ReviewItem = {id: string; uid: string; source: string; target: string; reason: string; level: Level; at: number[]};
 
 type Level = 'high' | 'mid' | 'low';
 
@@ -75,21 +75,28 @@ const Component: FC<Props> = ({onCancel, loading, editor}) => {
   });
 
   const onDocChange = useEvent(() => {
-    const elems: any[] = editor.getElemsByType('inspect') || [];
+    const elems: {id: string; raw?: string}[] = editor.getElemsByType('inspect') || [];
     setItemNum(elems.length);
     if (!show) {
       return;
     }
     const items: ReviewItem[] = [];
+    const itemsMap: {[uid: string]: ReviewItem} = {};
     const nodes = SlateEditor.nodes(editor, {
       at: [],
       match: (node: any, path) => node.type === 'inspect',
     });
     let i = 0;
     for (const entry of nodes) {
-      const item: ReviewItem = {...elems[i], at: entry[1]};
-      if (item.source) {
+      const id = elems[i].id;
+      const raw = elems[i].raw || '';
+      const attr = decodeURIComponent(raw);
+      const data = attr ? JSON.parse(attr) : {};
+      const uid = data.id;
+      const item: ReviewItem = {...data, id, uid, at: entry[1]};
+      if (item.source && !itemsMap[uid]) {
         items.push(item);
+        itemsMap[uid] = item;
       }
       i++;
     }
@@ -97,14 +104,6 @@ const Component: FC<Props> = ({onCancel, loading, editor}) => {
     if (loading) {
       setTimeout(() => {
         scrollerRef.current!.scrollTop = 999999999;
-        const ul = scrollerRef.current!.children[0];
-        const li = ul.children[ul.children.length - 1];
-        if (li) {
-          const span = li.getElementsByClassName('inspect-item');
-          if (span && span[0]) {
-            (span[0] as any).click();
-          }
-        }
       });
     }
   });

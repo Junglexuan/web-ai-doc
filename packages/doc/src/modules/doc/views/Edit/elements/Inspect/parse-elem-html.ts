@@ -2,8 +2,8 @@ import {IDomEditor, SlateDescendant, SlateElement, SlateText} from '@wangeditor-
 import {InspectElement} from './custom-types';
 
 function parseElemHtml(elem: Element, children: SlateDescendant[], editor: IDomEditor): SlateElement {
-  const inspect = decodeURIComponent(elem.getAttribute('data-inspect') || '');
-  const {source = '', target = '', reason = '', level = ''} = inspect ? JSON.parse(inspect) : {};
+  const tag = elem.tagName.toLowerCase();
+  const raw = elem.getAttribute('data-inspect') || '';
 
   children = children.filter((child) => {
     if (SlateText.isText(child)) return true;
@@ -13,20 +13,18 @@ function parseElemHtml(elem: Element, children: SlateDescendant[], editor: IDomE
 
   // 无 children ，则用纯文本
   if (children.length === 0) {
-    children = [{text: source}];
+    children = [{text: ''}];
   }
 
   return {
     type: 'inspect',
-    reason,
-    source,
-    target,
-    level,
+    tag,
+    raw,
     children,
   } as InspectElement;
 }
 
 export default {
-  selector: 'span[data-w-e-type="inspect"]',
+  selector: '*[data-w-e-type="inspect"]',
   parseElemHtml,
 };

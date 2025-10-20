@@ -1,7 +1,8 @@
 window.ApiBaseUrl = '';
 window.ApiPrefix = {
   '/auth/': 'http://user.binarysee.com.cn/auth/',
-  '/dream/': 'http://113.44.121.105/dream/',
+  '/dream/': 'http://192.168.99.166:85/verse/dream/',
+  // '/dream/': 'http://113.44.121.105/dream/',
 };
 window.SitesUrl = {
   user: '//user.binarysee.com.cn',
