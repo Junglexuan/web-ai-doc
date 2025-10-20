@@ -10,7 +10,18 @@ interface Props {
   editor: IDomEditor;
 }
 
-type ReviewItem = {id: string; uid: string; source: string; target: string; reason: string; level: Level; at: number[]};
+type ReviewItem = {
+  id: string;
+  uid: string;
+  source: string;
+  ignore: string;
+  target: string;
+  reason: string;
+  quote: string;
+  level: Level;
+  at: number[];
+  relates?: {[path: string]: boolean};
+};
 
 type Level = 'high' | 'mid' | 'low';
 
@@ -50,6 +61,7 @@ const Component: FC<Props> = ({onCancel, loading, editor}) => {
 
   const replaceItem = useEvent((item: ReviewItem) => {
     onSelect(item);
+    const relates = item.relates;
     setTimeout(() => {
       const textNode = DomEditor.getSelectedTextNode(editor);
       if (textNode) {
@@ -60,22 +72,59 @@ const Component: FC<Props> = ({onCancel, loading, editor}) => {
         SlateTransforms.unwrapNodes(editor, {
           at: item.at,
         });
+        if (relates) {
+          SlateTransforms.removeNodes(editor, {
+            at: [],
+            match: (node, path) => {
+              const key = path.join(',');
+              return relates[key];
+            },
+          });
+        }
       }
     }, 300);
+  });
 
-    // SlateTransforms.unwrapNodes(editor, {
-    //   at: item.at,
-    // });
+  const unlinkItem = useEvent((item: ReviewItem) => {
+    onSelect(item);
+    const relates = item.relates;
+    setTimeout(() => {
+      SlateTransforms.unwrapNodes(editor, {
+        at: item.at,
+      });
+      if (relates) {
+        SlateTransforms.unwrapNodes(editor, {
+          at: [],
+          match: (node, path) => {
+            const key = path.join(',');
+            return relates[key];
+          },
+        });
+      }
+    }, 300);
   });
 
   const ignoreItem = useEvent((item: ReviewItem) => {
-    SlateTransforms.unwrapNodes(editor, {
-      at: item.at,
-    });
+    onSelect(item);
+    const relates = item.relates;
+    setTimeout(() => {
+      SlateTransforms.setNodes(editor, {ignore: 'true'} as any, {
+        at: item.at,
+      });
+      if (relates) {
+        SlateTransforms.setNodes(editor, {ignore: 'true'} as any, {
+          at: [],
+          match: (node, path) => {
+            const key = path.join(',');
+            return relates[key];
+          },
+        });
+      }
+    }, 300);
   });
 
   const onDocChange = useEvent(() => {
-    const elems: {id: string; raw?: string}[] = editor.getElemsByType('inspect') || [];
+    const elems: {id: string; ignore?: string; raw?: string}[] = editor.getElemsByType('inspect') || [];
     setItemNum(elems.length);
     if (!show) {
       return;
@@ -90,13 +139,21 @@ const Component: FC<Props> = ({onCancel, loading, editor}) => {
     for (const entry of nodes) {
       const id = elems[i].id;
       const raw = elems[i].raw || '';
+      const ignore = elems[i].ignore || '';
       const attr = decodeURIComponent(raw);
       const data = attr ? JSON.parse(attr) : {};
       const uid = data.id;
-      const item: ReviewItem = {...data, id, uid, at: entry[1]};
-      if (item.source && !itemsMap[uid]) {
-        items.push(item);
-        itemsMap[uid] = item;
+      const item: ReviewItem = {...data, id, uid, ignore, at: entry[1]};
+      if (item.source) {
+        if (!itemsMap[uid]) {
+          items.push(item);
+          itemsMap[uid] = item;
+        } else {
+          if (!itemsMap[uid].relates) {
+            itemsMap[uid].relates = {};
+          }
+          itemsMap[uid].relates![item.at.join(',')] = true;
+        }
       }
       i++;
     }
@@ -129,17 +186,39 @@ const Component: FC<Props> = ({onCancel, loading, editor}) => {
               <dl>
                 <dt>风险说明：</dt>
                 <dd>{item.reason}</dd>
+                <dt>规则参考：</dt>
+                <dd>{item.quote}</dd>
                 <dt>原文引用：</dt>
                 <dd onClick={() => onSelect(item)} className="source">
                   {item.source}
                 </dd>
                 <dt>建议改为：</dt>
                 <dd>{item.target}</dd>
-                <dt>
-                  <Button size="small" variant="outlined" color="primary" onClick={() => replaceItem(item)}>
-                    修改
-                  </Button>
-                </dt>
+                {item.ignore ? (
+                  <dt className="actions">
+                    <Button size="small" variant="text" color="green">
+                      已忽略
+                    </Button>
+                    <Button size="small" variant="outlined" color="primary" onClick={() => replaceItem(item)}>
+                      修改
+                    </Button>
+                    <Button size="small" variant="outlined" color="default" onClick={() => unlinkItem(item)}>
+                      清除
+                    </Button>
+                  </dt>
+                ) : (
+                  <dt className="actions">
+                    <Button size="small" variant="outlined" color="primary" onClick={() => replaceItem(item)}>
+                      修改
+                    </Button>
+                    <Button size="small" variant="outlined" color="green" onClick={() => ignoreItem(item)}>
+                      忽略
+                    </Button>
+                    <Button size="small" variant="outlined" color="default" onClick={() => unlinkItem(item)}>
+                      清除
+                    </Button>
+                  </dt>
+                )}
               </dl>
             </div>
           ),
@@ -155,7 +234,6 @@ const Component: FC<Props> = ({onCancel, loading, editor}) => {
 
   useEffect(() => {
     const onItemScelect = (data: {elem: any}) => {
-      console.log(data);
       const btn = document.getElementById('_ai_inspectList_btn');
       if (btn) {
         setTimeout(() => btn.click());

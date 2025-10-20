@@ -4,13 +4,13 @@ import {VNode, datasetModule, h} from 'snabbdom';
 import {InspectElement} from './custom-types';
 
 function renderElem(elem: SlateElement, children: VNode[] | null, editor: IDomEditor): VNode {
-  const {tag} = elem as InspectElement;
+  const {tag, ignore} = elem as InspectElement;
   //const selected = DomEditor.isNodeSelected(editor, elem);
   const vnode = h(
     tag,
     {
       props: {
-        className: 'w-e-inspect',
+        className: 'w-e-inspect' + (ignore ? ' ignored' : ''),
         //contentEditable: false,
         // title: reason,
       },

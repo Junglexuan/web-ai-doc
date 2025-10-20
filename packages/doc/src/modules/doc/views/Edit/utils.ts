@@ -23,6 +23,12 @@ export function filterHtmlTag(html: string): string {
   return context;
 }
 
+export function toSafeHtml(html: string): string {
+  TempDiv.innerHTML = html;
+  const context = TempDiv.innerHTML || '';
+  return context;
+}
+
 export function dslToHtml(dsl: any): string {
   const arr = Array.isArray(dsl) ? dsl : [dsl];
   if (arr[0]) {

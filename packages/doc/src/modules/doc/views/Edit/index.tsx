@@ -36,7 +36,7 @@ import Outline from './Outline';
 import Review from './Review';
 import ReviewButton from './ReviewButton';
 import TplPreview from './TplPreview';
-import {replaceInspectItem, replaceReviewItem} from './utils';
+import {replaceReviewItem, toSafeHtml} from './utils';
 import VarButton from './VarButton';
 import type {ISource} from './autoSave';
 import type {MenuProps} from 'antd';
@@ -141,7 +141,7 @@ const Component: FC<Props> = ({itemDetail}) => {
       {articleId: itemDetail.id, content: editor!.getHtml(), contType: type, stand},
       (html) => {
         console.log(html);
-        editor!.setHtml(html);
+        editor!.setHtml(toSafeHtml(html));
         const scroller = document.getElementById('_ai_editor_scroller')!;
         setTimeout(() => scroller.scrollTo({top: 999999999, behavior: 'smooth'}));
       },

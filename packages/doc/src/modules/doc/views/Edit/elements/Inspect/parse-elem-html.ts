@@ -4,6 +4,7 @@ import {InspectElement} from './custom-types';
 function parseElemHtml(elem: Element, children: SlateDescendant[], editor: IDomEditor): SlateElement {
   const tag = elem.tagName.toLowerCase();
   const raw = elem.getAttribute('data-inspect') || '';
+  const ignore = elem.getAttribute('data-ignore') || '';
 
   children = children.filter((child) => {
     if (SlateText.isText(child)) return true;
@@ -20,6 +21,7 @@ function parseElemHtml(elem: Element, children: SlateDescendant[], editor: IDomE
     type: 'inspect',
     tag,
     raw,
+    ignore,
     children,
   } as InspectElement;
 }
