@@ -140,6 +140,7 @@ const Component: FC<Props> = ({itemDetail}) => {
     const reqs = AiAPI.autoInspect(
       {articleId: itemDetail.id, content: editor!.getHtml(), contType: type, stand},
       (html) => {
+        console.log(html);
         editor!.setHtml(html);
         const scroller = document.getElementById('_ai_editor_scroller')!;
         setTimeout(() => scroller.scrollTo({top: 999999999, behavior: 'smooth'}));
