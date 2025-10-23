@@ -1,7 +1,7 @@
 import {EditOutlined, SafetyCertificateOutlined} from '@ant-design/icons';
 import {Link} from '@elux/react-web';
 import {Button, Menu} from 'antd';
-import {FC, useCallback, useEffect, useMemo, useState} from 'react';
+import {FC, ReactNode, useCallback, useEffect, useMemo, useState} from 'react';
 import AskOutlined from '@/assets/images/ask';
 import BarChartOutlined from '@/assets/images/Chart';
 import Delete from '@/assets/images/Delete';
@@ -87,6 +87,21 @@ const items: any[] = [
   },
 ];
 
+const Sites: {[key: string]: ReactNode} = {
+  pulse: (
+    <a key="pulse" target="_blank" title="智能体平台" href={SitesUrl.pulse} rel="noreferrer">
+      <AskOutlined className="icon" />
+      <span>星启·脉擎</span>
+    </a>
+  ),
+  helix: (
+    <a key="helix" target="_blank" title="数据智能体" href={SitesUrl.helix} rel="noreferrer">
+      <BarChartOutlined className="icon" />
+      <span>星启·数璇</span>
+    </a>
+  ),
+};
+
 const Component: FC<{}> = () => {
   const pathname = GetClientRouter().location.pathname;
   const selectedKeys = useMemo(() => {
@@ -150,16 +165,7 @@ const Component: FC<{}> = () => {
       <div className="bd">
         <Menu mode="inline" items={items} selectedKeys={selectedKeys} />
       </div>
-      <div className="ft">
-        <a target="_blank" title="智能体平台" href={SitesUrl.pulse} rel="noreferrer">
-          <AskOutlined className="icon" />
-          <span>星启·脉擎</span>
-        </a>
-        <a target="_blank" title="数据智能体" href="//helix.binarysee.com" rel="noreferrer">
-          <BarChartOutlined className="icon" />
-          <span>星启·数璇</span>
-        </a>
-      </div>
+      {SiteInfo.sites && <div className="ft">{Object.keys(SiteInfo.sites).map((key) => Sites[key])}</div>}
     </div>
   );
 };
