@@ -33,7 +33,7 @@ export interface AIDialogHooks {
   onInsert: () => void;
   onAdjust: () => void;
   onModelChange: (model: string) => void;
-  onKnowledgeChange: (knowledge: string[]) => void;
+  onKnowledgeChange: (knowledge: string) => void;
 }
 
 export function useAIDialog(
@@ -54,7 +54,7 @@ export function useAIDialog(
   const fragmentRef = useRef<HTMLDivElement>();
   const requestRef = useRef<AbortController>();
   const [model, setModel] = useState('qwen-max');
-  const [knowledge, setKnowledge] = useState<string[]>([]);
+  const [knowledge, setKnowledge] = useState<string>('');
 
   const onPromptSubmit = useEvent(({keep}: {keep?: boolean} = {}) => {
     const text = inputRef.current.getValue();
@@ -92,7 +92,7 @@ export function useAIDialog(
         previous: lastText,
         raw: lastRaw,
         model,
-        knowledge: knowledge.join(','),
+        knowledge,
         action,
         ...args,
       },

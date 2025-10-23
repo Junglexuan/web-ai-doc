@@ -1,17 +1,18 @@
 import {Select} from 'antd';
-import {FC, memo, useEffect, useState} from 'react';
+import {ReactElement, useEffect, useState} from 'react';
 import {AiAPI} from '../api';
 import styles from './index.module.less';
 
 let knowledgeOptions: {label: string; value: string}[] | null = null;
 
-interface Props {
+interface Props<T> {
   size?: 'small';
-  value?: string[];
-  onChange?: (value: string[]) => void;
+  value?: T;
+  onChange?: (value: T) => void;
+  mode?: 'multiple';
 }
 
-const Component: FC<Props> = ({size, value, onChange}) => {
+export default function Component<T extends string | string[]>(props: Props<T>): ReactElement {
   const [options, setOptions] = useState<{label: string; value: string}[]>(knowledgeOptions || []);
   useEffect(() => {
     if (!knowledgeOptions) {
@@ -22,16 +23,5 @@ const Component: FC<Props> = ({size, value, onChange}) => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  return (
-    <Select
-      size={size}
-      className={styles.root}
-      placeholder="请选择知识库..."
-      options={options}
-      value={value?.[0]}
-      onChange={(val) => onChange?.(val ? [val] : [])}
-    />
-  );
-};
-
-export default memo(Component);
+  return <Select className={styles.root} placeholder="请选择知识库..." options={options} {...props} />;
+}

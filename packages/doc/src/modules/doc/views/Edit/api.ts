@@ -525,18 +525,18 @@ function autoReview(
   return [reviewController, sensitiveController];
 }
 function autoInspect(
-  args: {articleId: string; content: string; contType: string; stand: string},
+  args: {articleId: string; content: string; contType: string; stand: string; knowledge: string},
   onMessage: (html: string) => void,
   onError: (e: any) => void,
   onDone: () => void
 ): AbortController {
   const controller = new AbortController();
-  const {articleId, content, stand, contType} = args;
+  const {knowledge, content, stand, contType} = args;
   const html = decodeHtml();
   fetchEventSource(replaceBaseUrl('/dream/pen/ai/writer/verify'), {
     method: 'POST',
     headers: getHeaders(),
-    body: JSON.stringify({content, standpoint: stand, contractType: contType}),
+    body: JSON.stringify({content, standpoint: stand, knowledge, contractType: contType}),
     signal: controller.signal,
     openWhenHidden: true,
     onmessage: (ev) => onMessage(html(ev.data)),

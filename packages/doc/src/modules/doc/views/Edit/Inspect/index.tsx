@@ -177,7 +177,7 @@ const Component: FC<Props> = ({onCancel, loading, editor}) => {
             <>
               <span className={'tag ' + item.level}>{LevelLabels[item.level]}</span>
               <span className="title inspect-item" onClick={() => onSelect(item)}>
-                {item.reason}
+                {item.source.substring(0, 50)}
               </span>
             </>
           ),

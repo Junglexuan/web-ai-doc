@@ -147,7 +147,7 @@ const Component: FC<Props> = ({title, action, children, hooks, automatic, classN
               ) : (
                 <ModelSelect size="small" value={model} onChange={onModelChange} />
               )}
-              {action === AIAction.SCQW && <KnowledgeSelect size="small" onChange={onKnowledgeChange} />}
+              {action === AIAction.SCQW && <KnowledgeSelect<string> size="small" onChange={onKnowledgeChange} />}
             </>
           )}
           <div style={{color: '#aaa', fontSize: '12px'}}>* 回车直接提交，shift+回车可换行，esc键可关闭</div>

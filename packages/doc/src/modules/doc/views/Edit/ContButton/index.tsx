@@ -4,12 +4,13 @@ import {FC, memo, useEffect, useState} from 'react';
 import Inspect from '@/assets/images/Inspect';
 import {ContractReviewAPI} from '@/modules/contractReview/api';
 import {useEvent} from '@/utils/tools';
+import KnowledgeSelect from '../KnowledgeSelect';
 import styles from './index.module.less';
 //import './registerMenu';
 
 interface Props {
   editor: IDomEditor;
-  onSubmit: (value: {type: string; stand: string}) => void;
+  onSubmit: (value: {type: string; stand: string; knowledge: string}) => void;
 }
 
 const Component: FC<Props> = ({editor, onSubmit}) => {
@@ -21,8 +22,8 @@ const Component: FC<Props> = ({editor, onSubmit}) => {
   });
 
   const _onSubmit = useEvent((vals: any) => {
-    const {type, stand} = vals;
-    onSubmit({type, stand: stand[0]});
+    const {type, stand, knowledge} = vals;
+    onSubmit({type, stand: stand[0], knowledge});
     setShowModal(false);
   });
 
@@ -46,12 +47,15 @@ const Component: FC<Props> = ({editor, onSubmit}) => {
       {showModal && (
         <Modal title="合同审查" width={400} open={true} footer={null} onCancel={onCancel}>
           <div className={styles.dialog}>
-            <Form onFinish={_onSubmit}>
+            <Form onFinish={_onSubmit} labelCol={{span: 6}}>
               <Form.Item label="合同类型" name="type" rules={[{required: true}]}>
                 <Select options={typeOptions} placeholder="请选择合同类型" />
               </Form.Item>
               <Form.Item label="审查立场" name="stand" rules={[{required: true}]}>
                 <Select placeholder="请选择或输入合同立场" mode="tags" maxCount={1} options={[{value: '甲方'}, {value: '乙方'}]} />
+              </Form.Item>
+              <Form.Item label="知识库" name="knowledge">
+                <KnowledgeSelect />
               </Form.Item>
               <div className="footer">
                 <Button htmlType="submit" type="primary">

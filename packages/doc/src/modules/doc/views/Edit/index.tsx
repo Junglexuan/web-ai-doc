@@ -132,13 +132,13 @@ const Component: FC<Props> = ({itemDetail}) => {
     }
   });
 
-  const onInspect = useEvent(({type, stand}: {type: string; stand: string}) => {
+  const onInspect = useEvent(({type, stand, knowledge}: {type: string; stand: string; knowledge: string}) => {
     const btn = document.getElementById('_ai_inspectList_btn');
     if (btn) {
       btn.click();
     }
     const reqs = AiAPI.autoInspect(
-      {articleId: itemDetail.id, content: editor!.getHtml(), contType: type, stand},
+      {articleId: itemDetail.id, content: editor!.getHtml(), contType: type, stand, knowledge},
       (html) => {
         console.log(html);
         editor!.setHtml(toSafeHtml(html));

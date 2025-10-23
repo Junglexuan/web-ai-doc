@@ -30,7 +30,7 @@ const Component: FC<Props> = ({tplsOptions = [], data, onCancel, onSubmit, onPri
   const [curTplId, setCurTplId] = useState(data.tplId);
   const [curTplFields, setCurTplFields] = useState<{name: string; label: string; value: string; holdplace: string}[] | undefined>(data.fields);
   const [fieldsValues, setFieldsValues] = useState<{[field: string]: string}>({});
-  const [knowledges, setKnowledges] = useState<string[]>([]);
+  const [knowledges, setKnowledges] = useState<string>('');
   const [curStep, setCurStep] = useState(!curTplFields ? 0 : curTplFields.length ? 1 : 2);
   const fieldsFormRef = useRef<FormInstance>();
   const [step0Able] = useState(!data.fields);
@@ -54,7 +54,7 @@ const Component: FC<Props> = ({tplsOptions = [], data, onCancel, onSubmit, onPri
     if (curStep === 1) {
       fieldsFormRef.current?.submit();
     } else if (curStep === 2) {
-      onSubmit(curTplId, fieldsValues, knowledges);
+      onSubmit(curTplId, fieldsValues, [knowledges]);
     } else {
       if (!curTplId) {
         message.error('请选择合同立场');
@@ -151,7 +151,7 @@ const Component: FC<Props> = ({tplsOptions = [], data, onCancel, onSubmit, onPri
             <div className={styles.reference}>
               <div>
                 <label>知识库：</label>
-                <KnowledgeSelect onChange={setKnowledges} />
+                <KnowledgeSelect<string> onChange={setKnowledges} />
               </div>
               <div className="tips">* 若无参考资料，可直接跳过...</div>
             </div>
