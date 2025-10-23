@@ -91,13 +91,13 @@ const Sites: {[key: string]: ReactNode} = {
   pulse: (
     <a key="pulse" target="_blank" title="智能体平台" href={SitesUrl.pulse} rel="noreferrer">
       <AskOutlined className="icon" />
-      <span>星启·脉擎</span>
+      <span>{SiteInfo.sites?.pulse}</span>
     </a>
   ),
   helix: (
     <a key="helix" target="_blank" title="数据智能体" href={SitesUrl.helix} rel="noreferrer">
       <BarChartOutlined className="icon" />
-      <span>星启·数璇</span>
+      <span>{SiteInfo.sites?.helix}</span>
     </a>
   ),
 };
