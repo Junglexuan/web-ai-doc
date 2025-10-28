@@ -45,9 +45,10 @@ export interface IAIRef {
 interface Props {
   onCreated: (ref: IAIRef) => void;
   editor: IDomEditor;
+  isTpl: boolean;
 }
 
-const Component: FC<Props> = ({onCreated, editor}) => {
+const Component: FC<Props> = ({onCreated, editor, isTpl}) => {
   const [aiEvent, setAIEvent] = useState<AIEvent>();
   const [menuEvent, setMenuEvent] = useState<MenuEvent>();
   const selMockRef = useRef<HTMLDivElement>();
@@ -164,63 +165,63 @@ const Component: FC<Props> = ({onCreated, editor}) => {
       const aiKey = aiEvent.key;
       if (aiKey === 'A') {
         return (
-          <AIDialog event={aiEvent}>
+          <AIDialog isTpl={isTpl} event={aiEvent}>
             <AICreate aiRef={aiRef} onRunningStateChange={setRunningState} />
           </AIDialog>
         );
       }
       if (aiKey === 'C') {
         return (
-          <AIDialog event={aiEvent}>
+          <AIDialog isTpl={isTpl} event={aiEvent}>
             <AIContinue aiRef={aiRef} onRunningStateChange={setRunningState} />
           </AIDialog>
         );
       }
       if (aiKey === 'O') {
         return (
-          <AIDialog event={aiEvent}>
+          <AIDialog isTpl={isTpl} event={aiEvent}>
             <AIOutline aiRef={aiRef} onRunningStateChange={setRunningState} />
           </AIDialog>
         );
       }
       if (aiKey === 'T') {
         return (
-          <AIDialog event={aiEvent}>
+          <AIDialog isTpl={isTpl} event={aiEvent}>
             <AIAsk aiRef={aiRef} onRunningStateChange={setRunningState} />
           </AIDialog>
         );
       }
       if (aiKey === 'K') {
         return (
-          <AIDialog event={aiEvent}>
+          <AIDialog isTpl={isTpl} event={aiEvent}>
             <AIRobot aiRef={aiRef} onRunningStateChange={setRunningState} />
           </AIDialog>
         );
       }
       if (aiKey === 'S') {
         return (
-          <AIDialog event={aiEvent}>
+          <AIDialog isTpl={isTpl} event={aiEvent}>
             <AIChart aiRef={aiRef} onRunningStateChange={setRunningState} />
           </AIDialog>
         );
       }
       if (aiKey === 'W') {
         return (
-          <AIDialog event={aiEvent}>
+          <AIDialog isTpl={isTpl} event={aiEvent}>
             <AIWeb aiRef={aiRef} onRunningStateChange={setRunningState} />
           </AIDialog>
         );
       }
       if (aiKey === 'P') {
         return (
-          <AIDialog event={aiEvent}>
+          <AIDialog isTpl={isTpl} event={aiEvent}>
             <AIImage aiRef={aiRef} onRunningStateChange={setRunningState} />
           </AIDialog>
         );
       }
       if (aiKey === 'J' || aiKey === 'Z' || aiKey === 'F') {
         return (
-          <AIDialog event={aiEvent}>
+          <AIDialog isTpl={isTpl} event={aiEvent}>
             <AIStylize
               title={aiKey === 'J' ? '精简内容' : aiKey === 'Z' ? '生成摘要' : '丰富内容'}
               action={aiKey === 'J' ? AIAction.JJNR : aiKey === 'Z' ? AIAction.SCZY : AIAction.FFNR}
@@ -232,7 +233,7 @@ const Component: FC<Props> = ({onCreated, editor}) => {
       }
       if (menuKeysMap.styles[aiKey]) {
         return (
-          <AIDialog event={aiEvent}>
+          <AIDialog isTpl={isTpl} event={aiEvent}>
             <AIStylize title={menuKeysMap.styles[aiKey]} action={AIAction.BWRS} aiRef={aiRef} onRunningStateChange={setRunningState} />
           </AIDialog>
         );

@@ -5,6 +5,7 @@ import type {AIEvent} from '../utils';
 interface Props {
   event: AIEvent;
   children: ReactNode;
+  isTpl: boolean;
   //footer: ReactNode;
 }
 
@@ -19,7 +20,7 @@ const resizeObserver = new ResizeObserver((entries) => {
 
 const placeMaxHeight = 430;
 
-const Component: FC<Props> = ({event, children}) => {
+const Component: FC<Props> = ({event, isTpl, children}) => {
   const rootDivRef = useRef<HTMLElement>();
 
   useEffect(() => {
@@ -48,7 +49,7 @@ const Component: FC<Props> = ({event, children}) => {
   }, []);
 
   return (
-    <div className={styles.dialog} ref={rootDivRef as any}>
+    <div className={styles.dialog + (isTpl ? ' tpl' : '')} ref={rootDivRef as any}>
       <div className="wrap">{children}</div>
     </div>
   );

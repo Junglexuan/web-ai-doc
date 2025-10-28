@@ -165,7 +165,6 @@ const Component: FC<{}> = () => {
       <div className="bd">
         <Menu mode="inline" items={items} selectedKeys={selectedKeys} />
       </div>
-      {SiteInfo.sites && <div className="ft">{Object.keys(SiteInfo.sites).map((key) => Sites[key])}</div>}
     </div>
   );
 };

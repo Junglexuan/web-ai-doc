@@ -353,6 +353,13 @@ export function closestTarget(el: HTMLElement, find: (dom: HTMLElement) => boole
   return null;
 }
 
+export function setFavicon(url: string): void {
+  const link = document.querySelector("link[rel*='icon']") as any;
+  if (link) {
+    link.href = url;
+  }
+}
+
 /**
  * 节流函数 (throttle)
  * @param func 要执行的函数

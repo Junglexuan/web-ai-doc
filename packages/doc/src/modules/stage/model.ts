@@ -10,6 +10,7 @@ import type {CurUser} from '@/utils/base';
 
 export interface ModuleState {
   curUser: CurUser;
+  siteConfig: any;
   subModule?: SubModule;
   curView?: CurView;
   globalLoading?: LoadingState;
@@ -44,16 +45,17 @@ export class Model extends BaseModel<ModuleState, APPState> {
     this.routeParams = this.getRouteParams();
     const {subModule, curView, query, pathname} = this.routeParams;
     const {ticket = '', from = ''} = pathname.endsWith('/stage/login') ? query : {};
-    const {curUser: _curUser} = this.getPrevState() || {};
+    const {curUser: _curUser, siteConfig: _siteConfig} = this.getPrevState() || {};
     try {
       const curUser = _curUser || (await api.getCurUser(ticket, from));
-      const initState: ModuleState = {curUser, subModule, curView};
+      const siteConfig = _siteConfig || (await api.getSiteConfig());
+      const initState: ModuleState = {curUser, siteConfig, subModule, curView};
       this.dispatch(this.privateActions._initState(initState));
     } catch (err: any) {
-      if (err.code === '402') {
+      if (err.code === '402' || err.code === '502') {
         throw err;
       }
-      const initState: ModuleState = {curUser: {...guest}, subModule, curView, error: err.message || err.toString()};
+      const initState: ModuleState = {curUser: {...guest}, siteConfig: {}, subModule, curView, error: err.message || err.toString()};
       this.dispatch(this.privateActions._initState(initState));
     }
   }

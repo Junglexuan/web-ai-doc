@@ -1,6 +1,7 @@
+import {SiteInfo} from '@/Global';
 import {CurUser} from '@/utils/base';
 import request from '@/utils/request';
-import {clearToken} from '@/utils/tools';
+import {clearToken, setFavicon} from '@/utils/tools';
 
 export const guest: CurUser = {
   id: '',
@@ -46,6 +47,22 @@ class API {
         }
       );
     }
+  }
+  public getSiteConfig(): Promise<{}> {
+    return request.get('/dream/pen/sso/users/product-config').then(
+      (res) => {
+        const {currentLogo, currentName} = res.data.data || {};
+        if (currentLogo) {
+          SiteInfo.logo = currentLogo;
+          SiteInfo.name = currentName;
+          setFavicon(currentLogo);
+        }
+        return {};
+      },
+      () => {
+        throw {code: '502', message: '网站配置读取失败'};
+      }
+    );
   }
   public logout(): Promise<CurUser> {
     return request.post(`/dream/pen/sso/signout`).then(() => {

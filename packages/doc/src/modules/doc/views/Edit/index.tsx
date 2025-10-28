@@ -76,6 +76,7 @@ const Component: FC<Props> = ({itemDetail}) => {
   const [reviewing, setReviewing] = useState<[AbortController, AbortController]>();
   const [inspecting, setInspecting] = useState<AbortController>();
   const [layout, setLayout] = useState(0);
+  const [focused, setFocused] = useState(false);
 
   const _onSave = useEvent((editor: IDomEditor) => {
     //JSON.stringify(editor.children, null, 2)
@@ -93,6 +94,7 @@ const Component: FC<Props> = ({itemDetail}) => {
   const onSave = useMemo(() => debounce(_onSave, 1000), [_onSave]);
 
   const onChange = useEvent((editor: IDomEditor) => {
+    setFocused(editor.isFocused());
     onSave(editor);
   });
 
@@ -395,10 +397,10 @@ const Component: FC<Props> = ({itemDetail}) => {
             <Redo className="undo" onClick={() => editor?.redo!()} /> */}
           </Space>
         </div>
-        <div className="cd">
+        <div className={'cd' + (!focused ? ' blur' : '')}>
           {editor && (
             <>
-              <AIButton editor={editor} />
+              <AIButton editor={editor} isTpl={itemDetail.docType === 'tpl'} />
               <Toolbar editor={editor} defaultConfig={toolbarConfig} mode="default" className="tools" />
               <AITpl editor={editor} />
               {(itemDetail.docType === 'doc' || itemDetail.docType === 'con') && <ReviewButton editor={editor} onClick={onReview} />}

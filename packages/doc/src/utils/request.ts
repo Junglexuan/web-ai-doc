@@ -124,7 +124,7 @@ instance.interceptors.request.use((req) => {
 instance.interceptors.response.use(
   (response: AxiosResponse<any>) => {
     const data = response.data;
-    if (!data.success) {
+    if (!data.success && !data.successful) {
       const config = response.config!;
       const requestHeaders = config.headers;
       const requestUrl = config.url;

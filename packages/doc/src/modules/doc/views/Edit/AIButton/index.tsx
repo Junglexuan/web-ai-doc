@@ -32,17 +32,19 @@ Boot.registerPlugin(withAiModal);
 interface LayerProps {
   editor: IDomEditor;
   onCreated: (ref: IAIRef) => void;
+  isTpl: boolean;
 }
 
-const AIPortal: FC<LayerProps> = ({onCreated, editor}) => {
-  return createPortal(<AILayer editor={editor} onCreated={onCreated} />, document.body);
+const AIPortal: FC<LayerProps> = ({onCreated, editor, isTpl}) => {
+  return createPortal(<AILayer editor={editor} onCreated={onCreated} isTpl={isTpl} />, document.body);
 };
 
 interface Props {
   editor: IDomEditor;
+  isTpl: boolean;
 }
 
-const Component: FC<Props> = ({editor}) => {
+const Component: FC<Props> = ({editor, isTpl}) => {
   const [aiRef, setAiRef] = useState<IAIRef>();
   const onClick = useEvent(({target}: {target: HTMLElement}) => {
     const trigger = target.getAttribute('data-trigger');
@@ -74,7 +76,7 @@ const Component: FC<Props> = ({editor}) => {
         AI创作
       </Button>
       <div className="w-e-bar-divider"></div>
-      <AIPortal editor={editor} onCreated={setAiRef}></AIPortal>
+      <AIPortal editor={editor} onCreated={setAiRef} isTpl={isTpl}></AIPortal>
     </>
   );
 };
