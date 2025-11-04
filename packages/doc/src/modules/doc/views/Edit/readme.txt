@@ -38,3 +38,6 @@ const match = Editor.above(editor, {
     at: path,
     match: n => n.type === type,
   })
+
+== 根据dsl获取Dom:
+editor.toDOMNode(curNode)

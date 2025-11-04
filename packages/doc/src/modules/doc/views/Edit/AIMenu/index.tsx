@@ -13,7 +13,7 @@ import {
 import {IDomEditor, SlateEditor, SlateTransforms} from '@wangeditor-next/editor';
 import {Menu} from 'antd';
 import {FC, memo, useCallback, useEffect, useLayoutEffect, useRef, useState} from 'react';
-import {eachTree, insertAfter, removeClass, useEvent} from '@/utils/tools';
+import {insertAfter, removeClass, useEvent} from '@/utils/tools';
 import AiIcon from '../AIcon';
 import {AIEvent} from '../utils';
 import styles from './index.module.less';
@@ -331,13 +331,23 @@ const Component: FC<Props> = (props) => {
   const onSelect = useEvent((key: string) => {
     const editor = event.editor;
     editor.focus();
+    const selection = editor.selection;
     if (key === 'Z') {
       const text = editor.getSelectionText();
       if (!text) {
         editor.selectAll();
       }
+    } else if (key === 'C') {
+      // if (selection && JSON.stringify(selection.anchor) !== JSON.stringify(selection.focus)) {
+      //   console.log('取消选取');
+      //   setTimeout(() => {
+      //     window.getSelection()!.collapseToEnd();
+      //     onSelect(key);
+      //   }, 200);
+      //   return;
+      // }
     }
-    const selection = editor.selection;
+
     if (selection) {
       let result: AIEvent;
       let lastDom: HTMLElement;
@@ -345,22 +355,18 @@ const Component: FC<Props> = (props) => {
         if (event.triggerWithChar) {
           editor.deleteBackward('character');
         }
-        const [curNode] = SlateEditor.node(editor, selection);
+        let curNode = SlateEditor.node(editor, selection)[0];
         if ((curNode as any).text !== '') {
           editor.insertBreak();
         }
+        editor.insertText('ͼͼ');
+        const [context] = editor.getHtml().split('ͼͼ');
+        editor.deleteBackward('character');
+        editor.deleteBackward('character');
         SlateTransforms.setNodes(editor, {indent: ''} as any);
+        curNode = SlateEditor.node(editor, selection)[0];
         lastDom = editor.toDOMNode(curNode);
-        const dsl: any[] = editor.children;
-        const text: string[] = [];
-        eachTree(dsl, (node) => {
-          if (node.text) {
-            text.push(node.text);
-          }
-          return node === curNode;
-        });
-        //SlateEditor.above(editor, {at: editor.selection, match: (n) => SlateEditor.isBlock(editor, n) || SlateEditor.isEditor(n)});
-        result = {key, context: text.join(''), content: ''} as any;
+        result = {key, context, content: ''} as any;
       } else {
         // const nodeEntries = SlateEditor.nodes(editor, {mode: 'lowest'});
         // if (nodeEntries) {

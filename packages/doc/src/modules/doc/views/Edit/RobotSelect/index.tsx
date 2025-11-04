@@ -1,5 +1,6 @@
 import {Select} from 'antd';
 import {FC, memo, useEffect, useState} from 'react';
+import {DefaultModel} from '@/Global';
 import {AiAPI} from '../api';
 import styles from './index.module.less';
 
@@ -11,7 +12,7 @@ interface Props {
 
 let RobotOptions: Promise<{label: string; value: string}[]> | null = null;
 
-const Component: FC<Props> = ({size, value = 'qwen-turbo', onChange}) => {
+const Component: FC<Props> = ({size, value = DefaultModel, onChange}) => {
   const [options, setOptions] = useState<{label: string; value: string}[]>([]);
   useEffect(() => {
     if (!RobotOptions) {

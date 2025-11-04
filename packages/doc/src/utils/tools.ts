@@ -206,6 +206,27 @@ export function eachTree<T extends TreeItem>(
   _eachTree(tree, reduce, 1, undefined);
 }
 
+export function recurseTree<T extends AbsTreeItem>(tree: T, before: (item: T) => boolean | void, after: (item: T) => void): boolean | undefined {
+  const hasChildren = Boolean(tree.children && tree.children.length);
+  const result = before(tree);
+  if (result) {
+    after(tree);
+    return true;
+  }
+  if (hasChildren) {
+    const arr = tree.children!;
+    for (let i = 0, k = arr.length; i < k; i++) {
+      const item = arr[i] as T;
+      if (recurseTree(item, before, after)) {
+        after(tree);
+        return true;
+      }
+    }
+  }
+  after(tree);
+  return undefined;
+}
+
 export interface AbsTreeItem {
   children?: AbsTreeItem[];
 }
@@ -307,6 +328,16 @@ export function debounce<T extends Function>(callbak: T, delay = 0, every?: T): 
       timer = null;
     }, delay);
   }) as any;
+}
+const DslTagMap: {[key: string]: string} = {
+  header1: 'h1',
+  header2: 'h2',
+};
+export function dslNodeToHtml(dsl: {type: string}, end?: boolean): string {
+  if (end) {
+    return `</${DslTagMap[dsl.type] || 'span'}>`;
+  }
+  return `<${DslTagMap[dsl.type] || 'span'}>`;
 }
 
 // type ThrottledFunction<T extends (...args: any[]) => any> = (...args: Parameters<T>) => void;

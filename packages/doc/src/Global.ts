@@ -96,6 +96,7 @@ export const ApiBaseUrl = window['ApiBaseUrl'] || '';
 export const ApiPrefix = window['ApiPrefix'] || {};
 export const SitesUrl = window['SitesUrl'] || {};
 export const SiteInfo = window['SiteInfo'] || {};
+export const DefaultModel = 'qwen-turbo';
 
 export const InIframe = window.parent !== window;
 

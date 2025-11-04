@@ -1,5 +1,6 @@
 import {Select} from 'antd';
 import {FC, memo} from 'react';
+import {DefaultModel} from '@/Global';
 import styles from './index.module.less';
 
 const modelOptions = [
@@ -24,7 +25,7 @@ interface Props {
   onChange: (value: string) => void;
 }
 
-const Component: FC<Props> = ({size, value = 'qwen-turbo', onChange}) => {
+const Component: FC<Props> = ({size, value = DefaultModel, onChange}) => {
   return <Select size={size} className={styles.root} placeholder="请选择..." options={modelOptions} value={value} onChange={onChange} />;
 };
 

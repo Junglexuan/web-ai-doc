@@ -2,6 +2,7 @@ import {IEditorConfig, IToolbarConfig} from '@wangeditor-next/editor';
 import {Editor, Toolbar} from '@wangeditor-next/editor-for-react';
 import {Button, Checkbox, Input, InputNumber} from 'antd';
 import {FC, memo, useState} from 'react';
+import {DefaultModel} from '@/Global';
 import {message, useEvent} from '@/utils/tools';
 import {VariableElement} from '../elements/Variable/custom-types';
 import ModelSelect from '../ModelSelect';
@@ -63,7 +64,7 @@ export type DataSource = {
 
 const TPL = '${AI.ASK(***)}';
 
-const defaultDataSource: DataSource = {field: '', prompt: ''};
+const defaultDataSource: DataSource = {field: '', prompt: '', model: DefaultModel};
 
 function matchValue(code: string): DataSource | undefined {
   const arr = code.match(/ASK\((.+)\)\}$/) || [];

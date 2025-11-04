@@ -238,7 +238,7 @@ const continueWrite: AIRequest = ({args, onMessage, onError, onDone}) => {
       conversation_id: sid,
       prompt,
       model,
-      content: context.substring(context.length - 100),
+      content: context.substring(context.length - 1000),
       previous: previous || undefined,
     }),
     signal,
