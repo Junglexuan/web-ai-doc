@@ -205,7 +205,7 @@ const Component: FC<Props> = ({itemDetail}) => {
 
   const onCreated = useEvent((editor: IDomEditor) => {
     setEditor(editor);
-    editor.setHtml(source.html);
+    // editor.setHtml(source.html);
     window['editor'] = editor;
     //setTimeout(() => (window['tools'] = DomEditor.getToolbar(editor)));
     editor.on('modalOrPanelShow', (modalOrPanel) => {
@@ -437,6 +437,7 @@ const Component: FC<Props> = ({itemDetail}) => {
             onChange={onChange}
             //style={{minHeight: '500px'}}
             mode="default"
+            defaultHtml={source.html}
           />
         </div>
         {itemDetail.docType === 'tpl' && (
