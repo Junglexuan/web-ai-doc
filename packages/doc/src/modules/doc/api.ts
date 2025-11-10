@@ -18,6 +18,18 @@ const TypeSourceMap: {[key in DocType]: string} = {
   con: '4',
 };
 
+const CacheResponse: {[key: string]: any} = {};
+
+function cacheRequest(request: () => Promise<any>, key: string): Promise<any> {
+  if (CacheResponse[key]) {
+    return Promise.resolve(CacheResponse[key]);
+  }
+  return request().then((data) => {
+    CacheResponse[key] = data;
+    return data;
+  });
+}
+
 export const DocAPI = {
   saveSnapshot(tplId: string, snapshot: string): Promise<void> {
     return request.post(`/dream/pen/template/snapshot/save`, {
@@ -168,9 +180,10 @@ export const DocAPI = {
   },
   getList(search: ListSearch): Promise<ListResult> {
     const curUserId = getCurUserId();
-    const {render, name, type, owner, sorterOrder, sorterField} = search;
+    const {render, name, type, owner, cate = '', sorterOrder, sorterField} = search;
     const id = search.id || (render === 'conts' ? '1' : '0');
     const docOrCont = render === 'conts' ? '4' : '2';
+    const [cate1, cate2] = cate.split(',');
     return Promise.all([
       render === 'favs'
         ? request.get(`/dream/pen/article/collectList`, {
@@ -182,12 +195,41 @@ export const DocAPI = {
           })
         : render === 'tpls' || render === 'tpls_'
         ? request.get(`/dream/pen/template/list`, {
-            params: {name, type, key: owner, order: sorterOrder === 'ascend' ? 'asc' : undefined, page: 1, pageSize: 99999},
+            params: {
+              name,
+              type,
+              typeId: cate1 === '0' ? undefined : cate1 || undefined,
+              categoryId: cate2 === '0' ? undefined : cate2 || undefined,
+              key: owner,
+              order: sorterOrder === 'ascend' ? 'asc' : undefined,
+              page: 1,
+              pageSize: 99999,
+            },
           })
         : request.get(`/dream/pen/dFolder/list`, {params: {id, name, order: sorterOrder === 'ascend' ? 'asc' : undefined}}),
       render === 'maintain' || render === 'conts' ? request.get(`/dream/pen/dFolder/level`, {params: {id, type: docOrCont}}) : ({} as any),
       render === 'maintain' || render === 'conts' ? request.get(`/dream/pen/dFolder/tree`, {params: {type: docOrCont}}) : ({} as any),
-    ]).then(([listRes, levelRes, dirTreeRes]) => {
+      render === 'tpls' || render === 'tpls_'
+        ? cacheRequest(
+            () =>
+              request.get(`/dream/pen/template/typeTree`).then((res) => {
+                const arr: any[] = res.data?.data || [];
+                const allSubs: any[] = [{ID: '0,0', title: '全部'}];
+                arr.forEach((parent) => {
+                  parent.children.forEach((sub: any) => {
+                    sub.ID = parent.ID + ',' + sub.ID;
+                    allSubs.push(sub);
+                  });
+                  parent.children.unshift({ID: parent.ID + ',0', title: '全部'});
+                });
+                arr.unshift({ID: '0', title: '全部', children: allSubs});
+                return arr;
+              }),
+            '/dream/pen/template/typeTree'
+          )
+        : ({} as any),
+    ]).then(([listRes, levelRes, dirTreeRes, typesTree]) => {
+      console.log(typesTree);
       const list: ListItem[] = listRes.data.data || [];
       const dirTree = dirTreeRes.data?.data || [];
       return {
@@ -205,6 +247,7 @@ export const DocAPI = {
           pageSize: 999999,
           totalItems: list.length,
           levelPath: levelRes.data?.data || [],
+          typesTree,
           dirTree: [
             {
               title: render === 'conts' ? '我的合同' : '我的文档',

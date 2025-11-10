@@ -1,6 +1,7 @@
 import {EllipsisOutlined, EyeOutlined, PlusOutlined, StarFilled, StarOutlined, UploadOutlined} from '@ant-design/icons';
 import {Dispatch, DocumentHead} from '@elux/react-web';
 import {Button, Input, Modal, Space, Upload, UploadProps} from 'antd';
+import classnames from 'classnames';
 import {FC, MouseEvent, memo, useCallback, useEffect, useMemo, useState} from 'react';
 import {GetActions, GetClientRouter, SiteInfo} from '@/Global';
 import {getUploadProps} from '@/utils/request';
@@ -23,12 +24,33 @@ interface Props {
 
 const {doc: docActions} = GetActions('doc');
 
-const Component: FC<Props> = ({list, listSearch, inDialog, dispatch}) => {
+const Component: FC<Props> = ({list, listSearch, listSummary, inDialog, dispatch}) => {
   const [loading, setLoading] = useState<'upload' | ''>('');
-  const [scrollHeight, setScrollHeight] = useState(() => (inDialog ? 715 : window.innerHeight - 215));
+  const [scrollHeight, setScrollHeight] = useState(() => (inDialog ? 715 : window.innerHeight - 150));
   const [curEdit, setCurEdit] = useState<ListItem>();
   const [wizardData, setWizardData] = useState<WizardFormData>();
   const [previewTpl, setPreviewTpl] = useState<string>();
+  const [curType, setCurType] = useState<[string, string]>(['0', '0,0']);
+  const [subTypeExpand, setSubTypeExpand] = useState<boolean>(false);
+
+  const subTypes = useMemo(() => {
+    return listSummary.typesTree.find((item) => item.ID === curType[0])?.children || [];
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [curType[0], listSummary.typesTree]);
+
+  useMemo(() => {
+    const arr = (listSearch.cate || '').split(',');
+    const cate1 = arr[0] || '0';
+    const cate2 = cate1 + ',' + (arr[1] || '0');
+    setCurType([cate1, cate2]);
+  }, [listSearch.cate]);
+
+  const onTypeClick = useEvent((e: any) => {
+    const id = e.target.dataset.id;
+    if (id) {
+      dispatch(docActions.fetchList({...listSearch, name: undefined, cate: id}));
+    }
+  });
 
   const refreshList = useCallback(() => {
     return dispatch(docActions.fetchList());
@@ -112,7 +134,7 @@ const Component: FC<Props> = ({list, listSearch, inDialog, dispatch}) => {
   );
 
   useEffect(() => {
-    const onResize = debounce(() => !inDialog && setScrollHeight(window.innerHeight - 215), 300);
+    const onResize = debounce(() => !inDialog && setScrollHeight(window.innerHeight - 150), 300);
     window.addEventListener('resize', onResize);
     return () => {
       window.removeEventListener('resize', onResize);
@@ -137,88 +159,109 @@ const Component: FC<Props> = ({list, listSearch, inDialog, dispatch}) => {
             我的模版
           </div>
         </div>
-        <Input.Search allowClear className="search" placeholder="请输入搜索关键字..." onSearch={onSearch} />
-      </div>
-      {inDialog ? (
-        <div style={{height: '10px'}}></div>
-      ) : (
-        <div className="cd">
-          <Space>
-            <Button color="primary" variant="outlined" icon={<PlusOutlined />} onClick={onCreate}>
-              创建模版
-            </Button>
-            <Upload showUploadList={false} accept=".docx" {...uploadProps}>
-              <Button loading={loading === 'upload'} icon={<UploadOutlined />}>
-                上传文档
+        <div>
+          <Input.Search allowClear value={listSearch.name} className="search" placeholder="请输入搜索关键字..." onSearch={onSearch} />
+          {!inDialog && (
+            <>
+              <Button style={{margin: '0 15px'}} color="primary" variant="outlined" icon={<PlusOutlined />} onClick={onCreate}>
+                创建模版
               </Button>
-            </Upload>
-          </Space>
+              <Upload showUploadList={false} accept=".docx" {...uploadProps}>
+                <Button loading={loading === 'upload'} icon={<UploadOutlined />}>
+                  上传文档
+                </Button>
+              </Upload>
+            </>
+          )}
         </div>
-      )}
+      </div>
       <div className="md" style={{height: scrollHeight}}>
-        {list.map((item) => {
-          return (
-            <div className={styles2.card} key={item.id}>
-              {item.collect ? (
-                <StarFilled className="collect" onClick={(e) => onCollect(e, item.id, !item.collect)} />
-              ) : (
-                <StarOutlined className="collect anticon-star-outline" onClick={(e) => onCollect(e, item.id, !item.collect)} />
-              )}
-              <div className={'title icon' + item.format}>{item.title}</div>
-              <div className="remark">{item.remark}</div>
-              <div className="tags">
-                <span className={item.isSystem ? 'on' : ''}>{item.isSystem ? '系统模版' : item.isShare ? '共享模版' : '个人模版'}</span>
-              </div>
-              <div className="creater">
-                <span>{`${item.createUserName} 创建于 ${item.createDate}`}</span>
-              </div>
-              <div
-                title={item.remark}
-                className={'mask ' + styles2.mask}
-                onClick={(e) => {
-                  if (e.target === e.currentTarget) {
-                    onShowTpl(e as MouseEvent, item.id);
-                  }
-                }}
-              >
+        <div className={styles2.types} onClick={onTypeClick}>
+          <strong>场景</strong>
+          {listSummary.typesTree.map((item) => (
+            <a key={item.ID} data-id={item.ID} className={classnames({on: curType[0] === item.ID})}>
+              {item.title}
+            </a>
+          ))}
+        </div>
+        <div className={styles2.typesScroll + (subTypeExpand ? ' on' : '')} onClick={onTypeClick}>
+          <div className={styles2.types}>
+            <strong>类型</strong>
+            {subTypes.map((item) => (
+              <a key={item.ID} data-id={item.ID} className={classnames({on: curType[1] === item.ID})}>
+                {item.title}
+              </a>
+            ))}
+          </div>
+          <span className="expand" onClick={() => setSubTypeExpand(!subTypeExpand)}>
+            {!subTypeExpand ? '展开' : '收起'}
+          </span>
+        </div>
+        <div className={styles2.list}>
+          {list.map((item) => {
+            return (
+              <div className={styles2.card} key={item.id}>
                 {item.collect ? (
                   <StarFilled className="collect" onClick={(e) => onCollect(e, item.id, !item.collect)} />
                 ) : (
                   <StarOutlined className="collect anticon-star-outline" onClick={(e) => onCollect(e, item.id, !item.collect)} />
                 )}
-                {!item.isMine || inDialog ? (
-                  <div className="ant-btn preview" onClick={() => setPreviewTpl(item.id)}>
-                    <EyeOutlined />
-                  </div>
-                ) : (
-                  <div className="ant-btn more">
-                    <EllipsisOutlined />
-                    <div className="dropdown">
-                      <div onClick={() => setPreviewTpl(item.id)}>预览模版</div>
-                      <div onClick={() => setCurEdit(item)}>修改信息</div>
-                      <div
-                        onClick={() => {
-                          confirm(`您确定要删除《${item.title}》吗？`, (ok) => {
-                            if (ok) {
-                              DocAPI.deleteItem(item.id, 'tpl').then(refreshList);
-                            }
-                          });
-                        }}
-                      >
-                        删除模版
+                <div className={'title icon' + item.format}>{item.title}</div>
+                <div className="remark">{item.remark}</div>
+                <div className="tags">
+                  <span className={item.isSystem ? 'on' : ''}>{item.isSystem ? '系统模版' : item.isShare ? '共享模版' : '个人模版'}</span>
+                </div>
+                <div className="creater">
+                  <span>{`${item.createUserName} 创建于 ${item.createDate}`}</span>
+                </div>
+                <div
+                  title={item.remark}
+                  className={'mask ' + styles2.mask}
+                  onClick={(e) => {
+                    if (e.target === e.currentTarget) {
+                      onShowTpl(e as MouseEvent, item.id);
+                    }
+                  }}
+                >
+                  {item.collect ? (
+                    <StarFilled className="collect" onClick={(e) => onCollect(e, item.id, !item.collect)} />
+                  ) : (
+                    <StarOutlined className="collect anticon-star-outline" onClick={(e) => onCollect(e, item.id, !item.collect)} />
+                  )}
+                  {!item.isMine || inDialog ? (
+                    <div className="ant-btn preview" onClick={() => setPreviewTpl(item.id)}>
+                      <EyeOutlined />
+                    </div>
+                  ) : (
+                    <div className="ant-btn more">
+                      <EllipsisOutlined />
+                      <div className="dropdown">
+                        <div onClick={() => setPreviewTpl(item.id)}>预览模版</div>
+                        <div onClick={() => setCurEdit(item)}>修改信息</div>
+                        <div
+                          onClick={() => {
+                            confirm(`您确定要删除《${item.title}》吗？`, (ok) => {
+                              if (ok) {
+                                DocAPI.deleteItem(item.id, 'tpl').then(refreshList);
+                              }
+                            });
+                          }}
+                        >
+                          删除模版
+                        </div>
                       </div>
                     </div>
-                  </div>
-                )}
-                {item.format !== '2' && (
-                  <div className="ant-btn use" onClick={() => onApplyTpl(item.id)}>
-                    立即使用
-                  </div>
-                )}
+                  )}
+                  {item.format !== '2' && (
+                    <div className="ant-btn use" onClick={() => onApplyTpl(item.id)}>
+                      立即使用
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
       {curEdit && (
         <Modal title={curEdit.id ? '修改信息' : '创建模版'} open={true} footer={null} onCancel={onCloseEdit}>

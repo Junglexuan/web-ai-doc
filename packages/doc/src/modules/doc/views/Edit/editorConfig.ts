@@ -1,7 +1,7 @@
 import {Boot, IEditorConfig, IToolbarConfig, i18nGetResources} from '@wangeditor-next/editor';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import {replaceBaseUrl} from '@/utils/request';
-import {getTenant, getToken} from '@/utils/tools';
+import {getTenant, getToken, message} from '@/utils/tools';
 import {ItemDetail} from '../../entity';
 import Inspect from './elements/Inspect';
 import Line from './elements/Line';
@@ -170,9 +170,12 @@ export const editorConfig: Partial<IEditorConfig> = {
         //console.log(`${file.name} 上传成功`, res);
       },
       onFailed(file: any, res: any) {
+        message.error('上传失败');
         //console.log(`${file.name} 上传失败`, res);
       },
       onError(file: any, err: any, res: any) {
+        const request = err.request;
+        message.error(request.status === 402 ? '上传失败: 租户已切换' : '上传失败');
         //console.log(`${file.name} 上传出错`, err, res);
       },
     },

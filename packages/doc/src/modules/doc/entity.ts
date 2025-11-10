@@ -10,6 +10,7 @@ export interface ListSearch extends BaseListSearch {
   name?: string;
   type?: string;
   owner?: string;
+  cate?: string;
 }
 export interface ListItem extends BaseListItem {
   title: string;
@@ -35,6 +36,7 @@ export interface ListItem extends BaseListItem {
 export interface ListSummary extends BaseListSummary {
   levelPath: {id: string; folderName: string; parent: string}[];
   dirTree: any[];
+  typesTree: {ID: string; title: string; children: {ID: string; title: string}[]}[];
 }
 
 export interface ListResult {
