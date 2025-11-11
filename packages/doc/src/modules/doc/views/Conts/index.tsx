@@ -16,10 +16,8 @@ import {GetActions, GetClientRouter, SiteInfo} from '@/Global';
 import {downloadFile, getUploadProps, replaceBaseUrl} from '@/utils/request';
 import {confirm, debounce, openArticle, useEvent} from '@/utils/tools';
 import {DocAPI} from '../../api';
-import {DocType, ListItem, ListSearch, ListSummary, TplsOptions} from '../../entity';
+import {DocType, ListItem, ListSearch, ListSummary} from '../../entity';
 import styles from '../Maintain/index.module.less';
-import Preview from '../Preview';
-import Wizard, {WizardFormData} from '../Wizard';
 
 interface Props {
   dispatch: Dispatch;
@@ -36,10 +34,6 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
   const [scrollHeight, setScrollHeight] = useState(() => window.innerHeight - 285);
   const [showRename, setShowRename] = useState('');
   const [showMove, setShowMove] = useState('');
-  const [wizardData, setWizardData] = useState<WizardFormData>();
-  const [tplsOptions, setTplsOptions] = useState<TplsOptions>();
-  const [previewTpl, setPreviewTpl] = useState<string>();
-  const [articleAmount, setArticleAmount] = useState<number>(0);
 
   const refreshList = useCallback(() => {
     return dispatch(docActions.fetchList());
@@ -276,24 +270,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
   });
 
   const onCreateByTpl = useEvent(async () => {
-    let options = tplsOptions;
-    if (!options) {
-      options = await DocAPI.getTplsOptions('conts');
-      setTplsOptions(options);
-    }
-    return setWizardData({type: options[0].value, tplId: ''});
-  });
-
-  const onWizardSubmit = useEvent((tplId: string, fields: {[field: string]: string}, knowledges: string[]) => {
-    setWizardData(undefined);
-    const [id, ...arr] = tplId.split(',');
-    DocAPI.getDoc(id).then((tpl) => {
-      if (tpl.format === '2') {
-        alert('生成word文档');
-      } else {
-        onCreate(tpl.title, '', {id, fields, knowledges, stand: arr.join(',')});
-      }
-    });
+    GetClientRouter().push({url: `/admin/doc/list/tpls_?id=${listSearch.id || ''}&code=contract&__c=_dialog`}, 'window');
   });
 
   const uploadProps: UploadProps = useMemo(
@@ -406,17 +383,6 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
           onChange={onTableChange}
         />
       </div>
-      {wizardData && (
-        <Wizard
-          kind="conts"
-          tplsOptions={tplsOptions}
-          data={wizardData}
-          onCancel={() => setWizardData(undefined)}
-          onSubmit={onWizardSubmit}
-          onPriview={setPreviewTpl}
-        />
-      )}
-      {previewTpl && <Preview tplId={previewTpl} onCancel={() => setPreviewTpl(undefined)} />}
     </div>
   );
 };

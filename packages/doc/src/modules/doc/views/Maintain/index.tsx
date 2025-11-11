@@ -4,7 +4,6 @@ import {
   FolderAddOutlined,
   FolderOpenOutlined,
   PlusOutlined,
-  SignatureOutlined,
   StarFilled,
   StarOutlined,
   UploadOutlined,
@@ -17,9 +16,7 @@ import {GetActions, GetClientRouter, SiteInfo} from '@/Global';
 import {downloadFile, getUploadProps, replaceBaseUrl} from '@/utils/request';
 import {confirm, debounce, openArticle, useEvent} from '@/utils/tools';
 import {DocAPI} from '../../api';
-import {DocType, ListItem, ListSearch, ListSummary, TplsOptions} from '../../entity';
-import Preview from '../Preview';
-import Wizard, {WizardFormData} from '../Wizard';
+import {DocType, ListItem, ListSearch, ListSummary} from '../../entity';
 import styles from './index.module.less';
 interface Props {
   dispatch: Dispatch;
@@ -36,9 +33,6 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
   const [scrollHeight, setScrollHeight] = useState(() => window.innerHeight - 285);
   const [showRename, setShowRename] = useState('');
   const [showMove, setShowMove] = useState('');
-  const [wizardData, setWizardData] = useState<WizardFormData>();
-  const [tplsOptions, setTplsOptions] = useState<TplsOptions>();
-  const [previewTpl, setPreviewTpl] = useState<string>();
 
   const refreshList = useCallback(() => {
     return dispatch(docActions.fetchList());
@@ -270,28 +264,8 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
     });
   });
 
-  const onCreateByOfficial = useEvent(async () => {
-    let options = tplsOptions;
-    if (!options) {
-      options = await DocAPI.getTplsOptions();
-      setTplsOptions(options);
-    }
-    return setWizardData({type: options[0].value, tplId: options[0].children[0].value});
-  });
-
   const onCreateByTpl = useEvent(async () => {
-    GetClientRouter().push({url: `/admin/doc/list/tpls_?id=${listSearch.id || ''}&__c=_dialog`}, 'window');
-  });
-
-  const onWizardSubmit = useEvent((tplId: string, fields: {[field: string]: string}, knowledges: string[]) => {
-    setWizardData(undefined);
-    DocAPI.getDoc(tplId).then((tpl) => {
-      if (tpl.format === '2') {
-        alert('生成word文档');
-      } else {
-        onCreate(tpl.title, '', {id: tplId, fields, knowledges});
-      }
-    });
+    GetClientRouter().push({url: `/admin/doc/list/tpls_?id=${listSearch.id || ''}&code=doc&__c=_dialog`}, 'window');
   });
 
   const uploadProps: UploadProps = useMemo(
@@ -375,13 +349,9 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
           <Button id="_create-doc-btn" loading={loading === 'create'} icon={<PlusOutlined />} onClick={() => onCreate()}>
             快速创建
           </Button>
-          <Button icon={<SignatureOutlined />} onClick={onCreateByOfficial}>
-            起草公文
-          </Button>
           <Button icon={<TPL />} onClick={onCreateByTpl}>
             使用模版
           </Button>
-          {/* <Button icon={<ExceptionOutlined />}>创建模版</Button> */}
           <Button loading={loading === 'createDir'} icon={<FolderAddOutlined />} onClick={onCreateDir}>
             新建文件夹
           </Button>
@@ -408,16 +378,6 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
           onChange={onTableChange}
         />
       </div>
-      {previewTpl && <Preview tplId={previewTpl} onCancel={() => setPreviewTpl(undefined)} />}
-      {wizardData && (
-        <Wizard
-          tplsOptions={tplsOptions}
-          data={wizardData}
-          onCancel={() => setWizardData(undefined)}
-          onSubmit={onWizardSubmit}
-          onPriview={setPreviewTpl}
-        />
-      )}
     </div>
   );
 };

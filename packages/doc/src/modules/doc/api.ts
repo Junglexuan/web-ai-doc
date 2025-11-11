@@ -90,7 +90,7 @@ export const DocAPI = {
       .post(`/dream/pen/dFolder/save`, {folderName: `新建文件夹`, parent: folder, type: TypeSourceMap[docType]})
       .then((res) => res.data.data);
   },
-  updataTplInfo(data: {id: string; title: string; remark: string; isShare: boolean}, docType: DocType): Promise<{id: string}> {
+  updataTplInfo(data: {id: string; title: string; remark: string; isShare: number; categoryIds: string[]}, docType: DocType): Promise<{id: string}> {
     return request
       .post(`/dream/pen/template/save`, {
         id: data.id || undefined,
@@ -98,6 +98,7 @@ export const DocAPI = {
         contents: data.id ? undefined : '<p style="line-height: 1.5;"><span font-family: 黑体;"></span></p>',
         remark: data.remark,
         isShare: data.isShare,
+        categoryIds: data.categoryIds,
         type: TypeSourceMap[docType],
       })
       .then((res) => res.data.data);
@@ -180,7 +181,7 @@ export const DocAPI = {
   },
   getList(search: ListSearch): Promise<ListResult> {
     const curUserId = getCurUserId();
-    const {render, name, type, owner, cate = '', sorterOrder, sorterField} = search;
+    const {render, name, type, owner, code, cate = '', sorterOrder, sorterField} = search;
     const id = search.id || (render === 'conts' ? '1' : '0');
     const docOrCont = render === 'conts' ? '4' : '2';
     const [cate1, cate2] = cate.split(',');
@@ -198,8 +199,9 @@ export const DocAPI = {
             params: {
               name,
               type,
-              typeId: cate1 === '0' ? undefined : cate1 || undefined,
-              categoryId: cate2 === '0' ? undefined : cate2 || undefined,
+              isContract: code === 'contract' ? true : code === 'doc' ? false : undefined,
+              categoryId: cate1 === '0' ? undefined : cate1 || undefined,
+              typeId: cate2 === '0' ? undefined : cate2 || undefined,
               key: owner,
               order: sorterOrder === 'ascend' ? 'asc' : undefined,
               page: 1,
@@ -216,7 +218,9 @@ export const DocAPI = {
                 const arr: any[] = res.data?.data || [];
                 const allSubs: any[] = [{ID: '0,0', title: '全部'}];
                 arr.forEach((parent) => {
+                  parent.id = parent.ID;
                   parent.children.forEach((sub: any) => {
+                    sub.id = sub.ID;
                     sub.ID = parent.ID + ',' + sub.ID;
                     allSubs.push(sub);
                   });
@@ -229,7 +233,6 @@ export const DocAPI = {
           )
         : ({} as any),
     ]).then(([listRes, levelRes, dirTreeRes, typesTree]) => {
-      console.log(typesTree);
       const list: ListItem[] = listRes.data.data || [];
       const dirTree = dirTreeRes.data?.data || [];
       return {
@@ -247,7 +250,11 @@ export const DocAPI = {
           pageSize: 999999,
           totalItems: list.length,
           levelPath: levelRes.data?.data || [],
-          typesTree,
+          typesTree: !code
+            ? typesTree
+            : code === 'contract'
+            ? typesTree.filter((item: any) => item.code === 'HETONG')
+            : typesTree.filter((item: any) => item.code !== 'HETONG'),
           dirTree: [
             {
               title: render === 'conts' ? '我的合同' : '我的文档',

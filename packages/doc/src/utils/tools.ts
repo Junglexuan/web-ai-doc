@@ -124,7 +124,7 @@ export function toNativeUrl(url: string): string {
 
 export function openArticle(url: string): void {
   //GetClientRouter().push({url}, 'window');
-  window.open(toNativeUrl(url), 'docArticle');
+  window.open(toNativeUrl(url), url);
 }
 
 export const sleep = (ms: number): Promise<void> => new Promise((r) => setTimeout(r, ms));

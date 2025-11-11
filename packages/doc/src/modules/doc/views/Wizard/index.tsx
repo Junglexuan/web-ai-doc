@@ -101,7 +101,7 @@ const Component: FC<Props> = ({tplsOptions = [], data, onCancel, onSubmit, onPri
   });
 
   return (
-    <Modal open={true} footer={null} onCancel={onCancel} width={800} maskClosable={false} title={kind === 'conts' ? '起草合同' : '起草公文'}>
+    <Modal open={true} footer={null} onCancel={onCancel} width={800} maskClosable={false} title="使用模版">
       <div className={styles.root}>
         <div className="hd">
           {step0Able ? (
@@ -140,11 +140,15 @@ const Component: FC<Props> = ({tplsOptions = [], data, onCancel, onSubmit, onPri
           )}
           {curStep === 1 && curTplFields && (
             <Form className="field-form" {...FormLayout} ref={fieldsFormRef as any} colon={false} initialValues={fieldsValues} onFinish={onFinish}>
-              {curTplFields.map((item) => (
-                <Form.Item key={item.name} name={item.name} label={item.label} tooltip={{title: item.holdplace, icon: <InfoCircleOutlined />}}>
-                  <Input.TextArea rows={1} placeholder={item.holdplace} defaultValue={item.value} autoSize />
-                </Form.Item>
-              ))}
+              {curTplFields.length ? (
+                curTplFields.map((item) => (
+                  <Form.Item key={item.name} name={item.name} label={item.label} tooltip={{title: item.holdplace, icon: <InfoCircleOutlined />}}>
+                    <Input.TextArea rows={1} placeholder={item.holdplace} defaultValue={item.value} autoSize />
+                  </Form.Item>
+                ))
+              ) : (
+                <div style={{textAlign: 'center'}}>- 无需填写关键信息 -</div>
+              )}
             </Form>
           )}
           {curStep === 2 && (

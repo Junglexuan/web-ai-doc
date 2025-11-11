@@ -11,6 +11,7 @@ export interface ListSearch extends BaseListSearch {
   type?: string;
   owner?: string;
   cate?: string;
+  code?: string;
 }
 export interface ListItem extends BaseListItem {
   title: string;
@@ -26,9 +27,11 @@ export interface ListItem extends BaseListItem {
   createUserName: string;
   createDate: string;
   collect: number;
+  categoryIds?: string[];
+  typeInfo?: {title: string}[];
   format?: string;
   remark?: string;
-  isShare?: boolean;
+  isShare?: number;
   isSystem?: boolean;
   isMine?: boolean;
   snapshot?: string;
@@ -36,7 +39,7 @@ export interface ListItem extends BaseListItem {
 export interface ListSummary extends BaseListSummary {
   levelPath: {id: string; folderName: string; parent: string}[];
   dirTree: any[];
-  typesTree: {ID: string; title: string; children: {ID: string; title: string}[]}[];
+  typesTree: {ID: string; title: string; id?: string; children: {ID: string; title: string; id?: string}[]}[];
 }
 
 export interface ListResult {
@@ -74,6 +77,8 @@ export const defaultListSearch: ListSearch = {
   sorterOrder: undefined,
   sorterField: undefined,
   id: undefined,
+  code: undefined,
+  cate: undefined,
   name: undefined,
   type: undefined,
   render: undefined,

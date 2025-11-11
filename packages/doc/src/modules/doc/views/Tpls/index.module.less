@@ -24,7 +24,8 @@
     }
 
     > .title {
-      padding: 22px 20px 18px;
+      padding: 20px;
+      padding-bottom: 16px;
       overflow: hidden;
       font-size: 16px;
       font-weight: bold;
@@ -58,27 +59,34 @@
       margin: 0 20px;
       overflow: hidden;
       font-size: 14px;
-      line-height: 1.5;
+      line-height: 1.6;
       -webkit-line-clamp: 3;
       -webkit-box-orient: vertical;
     }
 
     > .tags {
       display: flex;
+      gap: 10px;
       padding: 14px 0;
       margin: 0 20px;
+      white-space: nowrap;
 
       > * {
         padding: 2px 5px;
         font-size: 12px;
-        color: #1b68fc;
-        background: rgba(27, 104, 252, 0.15);
+        color: #009e90;
+        background: rgba(0, 179, 163, 0.24);
         border-radius: 2px;
       }
 
-      > .on {
-        color: #828384;
-        background: rgba(130, 131, 132, 0.15);
+      > :first-child {
+        color: #1b68fc;
+        background: rgba(27, 104, 252, 0.15);
+      }
+
+      > :last-child {
+        color: #8046f3;
+        background: rgba(128, 70, 243, 0.18);
       }
     }
 

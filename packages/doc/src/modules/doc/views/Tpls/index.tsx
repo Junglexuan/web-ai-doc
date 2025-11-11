@@ -22,6 +22,11 @@ interface Props {
   inDialog?: boolean;
 }
 
+const ShareOptions: {[key: string]: string} = {
+  '0': '个人使用',
+  '1': '全员使用',
+  '2': '网络公开',
+};
 const {doc: docActions} = GetActions('doc');
 
 const Component: FC<Props> = ({list, listSearch, listSummary, inDialog, dispatch}) => {
@@ -38,17 +43,37 @@ const Component: FC<Props> = ({list, listSearch, listSummary, inDialog, dispatch
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [curType[0], listSummary.typesTree]);
 
+  const cateOptions = useMemo(() => {
+    const options: {value: string; label: string; children: {value: string; label: string}[]}[] = [];
+    listSummary.typesTree.forEach((parent) => {
+      if (parent.id) {
+        const item: {value: string; label: string; children: {value: string; label: string}[]} = {
+          value: parent.id,
+          label: parent.title,
+          children: [],
+        };
+        options.push(item);
+        parent.children.forEach((sub) => {
+          if (sub.id) {
+            item.children.push({value: sub.id, label: sub.title});
+          }
+        });
+      }
+    });
+    return options;
+  }, [listSummary.typesTree]);
+
   useMemo(() => {
     const arr = (listSearch.cate || '').split(',');
-    const cate1 = arr[0] || '0';
+    const cate1 = arr[0] || listSummary.typesTree[0].ID;
     const cate2 = cate1 + ',' + (arr[1] || '0');
     setCurType([cate1, cate2]);
-  }, [listSearch.cate]);
+  }, [listSearch.cate, listSummary.typesTree]);
 
   const onTypeClick = useEvent((e: any) => {
     const id = e.target.dataset.id;
     if (id) {
-      dispatch(docActions.fetchList({...listSearch, name: undefined, cate: id}));
+      dispatch(docActions.fetchList({...listSearch, name: undefined, code: undefined, cate: id}));
     }
   });
 
@@ -61,7 +86,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, inDialog, dispatch
   });
 
   const onCreate = useEvent(() => {
-    setCurEdit({isShare: true} as ListItem);
+    setCurEdit({isShare: 0} as ListItem);
   });
 
   const onCollect = useEvent((e: any, id: string, collect: boolean) => {
@@ -70,7 +95,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, inDialog, dispatch
     DocAPI.collectItem(id, 'tpl', collect).then(refreshList);
   });
 
-  const onEditSubmit = useEvent((data: {title: string; remark: string; isShare: boolean}) => {
+  const onEditSubmit = useEvent((data: {title: string; remark: string; isShare: number; categoryIds: string[]}) => {
     const curId = curEdit?.id || '';
     DocAPI.updataTplInfo({...data, id: curId}, 'tpl').then(async ({id}) => {
       setCurEdit(undefined);
@@ -209,7 +234,10 @@ const Component: FC<Props> = ({list, listSearch, listSummary, inDialog, dispatch
                 <div className={'title icon' + item.format}>{item.title}</div>
                 <div className="remark">{item.remark}</div>
                 <div className="tags">
-                  <span className={item.isSystem ? 'on' : ''}>{item.isSystem ? '系统模版' : item.isShare ? '共享模版' : '个人模版'}</span>
+                  <span>{ShareOptions[item.isShare!]}</span>
+                  {item.typeInfo?.map((cate) => (
+                    <span key={cate.title}>{cate.title}</span>
+                  ))}
                 </div>
                 <div className="creater">
                   <span>{`${item.createUserName} 创建于 ${item.createDate}`}</span>
@@ -265,7 +293,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, inDialog, dispatch
       </div>
       {curEdit && (
         <Modal title={curEdit.id ? '修改信息' : '创建模版'} open={true} footer={null} onCancel={onCloseEdit}>
-          <Edit data={curEdit} onCancel={onCloseEdit} onSubmit={onEditSubmit} />
+          <Edit data={curEdit} cateOptions={cateOptions} onCancel={onCloseEdit} onSubmit={onEditSubmit} />
         </Modal>
       )}
       {wizardData && <Wizard data={wizardData} onCancel={() => setWizardData(undefined)} onSubmit={onWizardSubmit} />}
