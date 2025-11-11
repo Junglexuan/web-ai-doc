@@ -17,5 +17,6 @@ export interface HotTemplate {
   isShare: boolean;
   isSystem: boolean;
   isHot: boolean;
+  isContract: boolean;
   isMine: boolean;
 }

@@ -24,7 +24,7 @@ const Component: FC = () => {
   const [wizardData, setWizardData] = useState<WizardFormData>();
   const [hotArticleList, setHotArticleList] = useState<HotArticle[]>([]);
   const [hotTemplateList, setHotTemplateList] = useState<HotTemplate[]>([]);
-  const [previewTpl, setPreviewTpl] = useState<string>();
+  const [previewTpl, setPreviewTpl] = useState<HotTemplate>();
 
   const getHotArticeList = useEvent(async () => {
     const _articleList = await HomeAPI.getHotArticleList(RECENT_CREATIONS_LIMIT);
@@ -35,25 +35,27 @@ const Component: FC = () => {
     setHotTemplateList(_templateList);
   });
 
-  const onCreateByTpl = useEvent((tplId: string, fields?: {[field: string]: string}, knowledges?: string[]) => {
+  const onCreateByTpl = useEvent((tplId: string, fields?: {[field: string]: string}, knowledges?: string[], stand?: string, isContract?: boolean) => {
     DocAPI.getDoc(tplId).then((tpl) => {
-      DocAPI.createDoc({folder: '0', title: tpl.title, contents: ''}, 'doc').then(async ({id}) => {
-        window.sessionStorage.setItem('__temp_tpl__', JSON.stringify({id: tplId, fields, knowledges}));
+      DocAPI.createDoc({folder: isContract ? '1' : '0', title: tpl.title, contents: ''}, 'doc').then(async ({id}) => {
+        window.sessionStorage.setItem('__temp_tpl__', JSON.stringify({id: tplId, fields, knowledges, stand}));
         openArticle(`/admin/doc/item/edit/${id}?&tpl=${tpl.id}&__c=_dialog`);
       });
     });
   });
 
-  const onApplyTpl = useEvent((tplId: string) => {
+  const onApplyTpl = useEvent((tplId: string, isContract?: boolean) => {
     DocAPI.getTplFields(tplId).then((fields) => {
-      setWizardData({tplId, fields});
+      setWizardData({tplId, fields, isContract});
     });
   });
 
-  const onWizardSubmit = useEvent((tplId: string, fields: {[field: string]: string}, knowledges: string[]) => {
-    setWizardData(undefined);
-    onCreateByTpl(tplId, fields, knowledges);
-  });
+  const onWizardSubmit = useEvent(
+    (tplId: string, fields: {[field: string]: string}, knowledges: string[], standpoint: string, isContract?: boolean) => {
+      setWizardData(undefined);
+      onCreateByTpl(tplId, fields, knowledges, standpoint, isContract);
+    }
+  );
 
   const onShowDetail = useEvent((evt: MouseEvent, id: string) => {
     openArticle(`/admin/doc/item/edit/${id}?__c=_dialog`);
@@ -93,13 +95,13 @@ const Component: FC = () => {
               {item.remark}
             </div>
             <div className={'mask ' + styles.mask} title={item.remark}>
-              <div className="ant-btn view" onClick={() => setPreviewTpl(item.id)}>
+              <div className="ant-btn view" onClick={() => setPreviewTpl(item)}>
                 <EyeOutlined />
               </div>
               <div
                 className="ant-btn use"
                 onClick={() => {
-                  onApplyTpl(item.id);
+                  onApplyTpl(item.id, item.isContract);
                 }}
               >
                 立即使用
@@ -142,7 +144,9 @@ const Component: FC = () => {
         {renderHotTemplate}
       </div>
       {wizardData && <Wizard data={wizardData} onCancel={() => setWizardData(undefined)} onSubmit={onWizardSubmit} />}
-      {previewTpl && <Preview tplId={previewTpl} onCancel={() => setPreviewTpl(undefined)} onApply={onApplyTpl} />}
+      {previewTpl && (
+        <Preview tplId={previewTpl.id} onCancel={() => setPreviewTpl(undefined)} onApply={() => onApplyTpl(previewTpl.id, previewTpl.isContract)} />
+      )}
     </div>
   );
 };

@@ -1,172 +1,124 @@
 import {InfoCircleOutlined} from '@ant-design/icons';
-import {Button, Form, FormInstance, Input, Modal, Select, Steps} from 'antd';
-import {FC, memo, useMemo, useRef, useState} from 'react';
-import RadioCard from '@/components/RadioCard';
-import {message, useEvent} from '@/utils/tools';
-import DocAPI from '../../api';
+import {Button, Form, Input, Modal, Select, Steps} from 'antd';
+import {FC, memo, useMemo, useState} from 'react';
+import {useEvent} from '@/utils/tools';
 import KnowledgeSelect from '../Edit/KnowledgeSelect';
 import styles from './index.module.less';
 
 export interface WizardFormData {
   tplId: string;
-  type?: string;
-  fields?: {name: string; label: string; value: string; holdplace: string}[];
-  kind?: 'conts' | 'docs';
+  //type: string;
+  fields: {name: string; label: string; value: string; holdplace: string}[];
+  isContract?: boolean;
 }
 
 const FormLayout = {labelCol: {span: 5}, wrapperCol: {span: 18}};
-
+const StepsItems = [{title: '关键信息'}, {title: '参考资料'}];
+const StandpointOptions = [{value: '甲方'}, {value: '乙方'}, {value: '丙方'}];
 interface Props {
-  tplsOptions?: {value: string; label: string; children: {value: string; label: string}[]}[];
   data: WizardFormData;
   onCancel: () => void;
-  onSubmit: (tplId: string, fields: {[field: string]: string}, knowledges: string[]) => void;
-  onPriview?: (tplId: string) => void;
-  kind?: 'conts' | 'docs';
+  onSubmit: (tplId: string, fields: {[field: string]: string}, knowledges: string[], standpoint: string, isContract?: boolean) => void;
 }
 
-const Component: FC<Props> = ({tplsOptions = [], data, onCancel, onSubmit, onPriview, kind}) => {
-  const [curType, setCurType] = useState(() => tplsOptions.find((item) => item.value === data.type));
-  const [curTplId, setCurTplId] = useState(data.tplId);
-  const [curTplFields, setCurTplFields] = useState<{name: string; label: string; value: string; holdplace: string}[] | undefined>(data.fields);
-  const [fieldsValues, setFieldsValues] = useState<{[field: string]: string}>({});
+const Component: FC<Props> = ({data, onCancel, onSubmit}) => {
+  const [curStep, setCurStep] = useState(data.fields.length ? 0 : 1);
+  const [fieldsValues, setFieldsValues] = useState<{[field: string]: string}>(() =>
+    data.fields.reduce((obj, cur) => {
+      obj[cur.name] = cur.value;
+      return obj;
+    }, {} as {[key: string]: string})
+  );
   const [knowledges, setKnowledges] = useState<string>('');
-  const [curStep, setCurStep] = useState(!curTplFields ? 0 : curTplFields.length ? 1 : 2);
-  const fieldsFormRef = useRef<FormInstance>();
-  const [step0Able] = useState(!data.fields);
-
-  const [StepsItems] = useState([{title: kind === 'conts' ? '合同场景' : '写作场景'}, {title: '关键信息'}, {title: '参考资料'}]);
-
-  const onTypeChange = useEvent((type: string) => {
-    const item = tplsOptions.find((item) => item.value === type);
-    if (item) {
-      setCurType(item);
-      if (kind !== 'conts') {
-        setCurTplId(item.children[0]?.value || '');
-      } else {
-        setCurTplId('');
-      }
-      setCurTplFields(undefined);
-    }
-  });
-
-  const onNext = useEvent(() => {
-    if (curStep === 1) {
-      fieldsFormRef.current?.submit();
-    } else if (curStep === 2) {
-      onSubmit(curTplId, fieldsValues, [knowledges]);
-    } else {
-      if (!curTplId) {
-        message.error('请选择合同立场');
-        return;
-      }
-      DocAPI.getTplFields(curTplId, kind).then((tplFields) => {
-        setCurStep(1);
-        setFieldsValues({});
-        setCurTplFields(tplFields);
-      });
-    }
-  });
+  const [standpoint, setStandpoint] = useState<string[]>([StandpointOptions[0].value]);
+  const [fieldsForm] = Form.useForm();
 
   const onFinish = useEvent((data: {[field: string]: string}) => {
     setFieldsValues(data);
-    setCurStep(2);
+    setCurStep(1);
   });
 
-  const onPrev = useEvent(() => {
-    if (curStep === 1) {
-      setCurStep(0);
-      setFieldsValues({});
-      setCurTplFields(undefined);
-    } else if (curStep === 2) {
-      setCurStep(1);
-    }
-  });
-
-  const showPrev = useMemo(() => {
-    if (curStep > 1) {
-      return <Button onClick={onPrev}>上一步</Button>;
-    }
-    if (curStep === 1 && step0Able) {
-      return <Button onClick={onPrev}>上一步</Button>;
+  const step0Form = useMemo(() => {
+    if (curStep === 0) {
+      return (
+        <Form className="field-form" {...FormLayout} form={fieldsForm} colon={false} initialValues={fieldsValues} onFinish={onFinish}>
+          {data.fields.length ? (
+            data.fields.map((item) => (
+              <Form.Item key={item.name} name={item.name} label={item.label} tooltip={{title: item.holdplace, icon: <InfoCircleOutlined />}}>
+                <Input.TextArea rows={1} placeholder={item.holdplace} autoSize />
+              </Form.Item>
+            ))
+          ) : (
+            <div style={{textAlign: 'center'}}>- 无需填写关键信息 -</div>
+          )}
+        </Form>
+      );
     }
     return null;
-  }, [curStep, onPrev, step0Able]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [curStep]);
 
-  const onBeforePreview = useEvent(() => {
-    const tplId = kind === 'conts' ? curType?.value : curTplId;
-    if (tplId && onPriview) {
-      onPriview(tplId);
+  const step1Form = useMemo(() => {
+    if (curStep === 1) {
+      return (
+        <div className={styles.reference}>
+          {data.isContract && (
+            <div style={{marginBottom: '20px'}}>
+              <label>　立场：</label>
+              <Select
+                placeholder="请选择或输入合同立场"
+                mode="tags"
+                maxCount={1}
+                style={{width: '200px'}}
+                options={StandpointOptions}
+                value={standpoint}
+                onChange={setStandpoint}
+              />
+            </div>
+          )}
+          <div>
+            <label>知识库：</label>
+            <KnowledgeSelect<string> onChange={setKnowledges} />
+          </div>
+          <div className="tips">* 若无参考资料，可直接跳过...</div>
+        </div>
+      );
     }
-  });
+    return null;
+  }, [curStep, data.isContract, standpoint]);
 
   return (
     <Modal open={true} footer={null} onCancel={onCancel} width={800} maskClosable={false} title="使用模版">
       <div className={styles.root}>
         <div className="hd">
-          {step0Able ? (
-            <Steps className="steps" size="small" current={curStep} items={StepsItems} />
-          ) : (
-            <Steps className="steps" size="small" current={curStep - 1} items={StepsItems.slice(1)} />
-          )}
+          <Steps className="steps" size="small" current={curStep} items={StepsItems} />
         </div>
         <div className="bd">
-          {curStep === 0 && curType && (
-            <div>
-              <div className="form-item">
-                <label>分类</label>
-                <RadioCard options={tplsOptions} value={curType.value} onChange={onTypeChange} />
-              </div>
-              {kind === 'conts' ? (
-                <div className="form-item">
-                  <label>立场</label>
-                  <Select
-                    placeholder="请选择或输入合同立场"
-                    mode="tags"
-                    maxCount={1}
-                    style={{width: '200px'}}
-                    options={[{value: '甲方'}, {value: '乙方'}]}
-                    value={curTplId ? [curTplId.split(',')[1]] : []}
-                    onChange={(val) => setCurTplId(val[0] ? `${curType.value},${val[0]}` : '')}
-                  />
-                </div>
-              ) : (
-                <div className="form-item">
-                  <label>类型</label>
-                  <RadioCard options={curType.children} value={curTplId} onChange={setCurTplId} />
-                </div>
-              )}
-            </div>
-          )}
-          {curStep === 1 && curTplFields && (
-            <Form className="field-form" {...FormLayout} ref={fieldsFormRef as any} colon={false} initialValues={fieldsValues} onFinish={onFinish}>
-              {curTplFields.length ? (
-                curTplFields.map((item) => (
-                  <Form.Item key={item.name} name={item.name} label={item.label} tooltip={{title: item.holdplace, icon: <InfoCircleOutlined />}}>
-                    <Input.TextArea rows={1} placeholder={item.holdplace} defaultValue={item.value} autoSize />
-                  </Form.Item>
-                ))
-              ) : (
-                <div style={{textAlign: 'center'}}>- 无需填写关键信息 -</div>
-              )}
-            </Form>
-          )}
-          {curStep === 2 && (
-            <div className={styles.reference}>
-              <div>
-                <label>知识库：</label>
-                <KnowledgeSelect<string> onChange={setKnowledges} />
-              </div>
-              <div className="tips">* 若无参考资料，可直接跳过...</div>
-            </div>
-          )}
+          {step0Form}
+          {step1Form}
         </div>
         <div className="ft">
-          {curStep === 0 && <Button onClick={onBeforePreview}>预览</Button>}
-          {showPrev}
-          <Button type="primary" onClick={onNext}>
-            下一步
-          </Button>
+          {curStep === 0 ? (
+            <Button type="primary" onClick={() => fieldsForm.submit()}>
+              下一步
+            </Button>
+          ) : (
+            <>
+              <Button
+                onClick={() => {
+                  setCurStep(0);
+                }}
+              >
+                上一步
+              </Button>
+              <Button
+                type="primary"
+                onClick={() => onSubmit(data.tplId, fieldsValues, knowledges ? [knowledges] : [], standpoint[0], data.isContract)}
+              >
+                生成文档
+              </Button>
+            </>
+          )}
         </div>
       </div>
     </Modal>

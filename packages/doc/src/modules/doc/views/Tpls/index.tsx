@@ -34,7 +34,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, inDialog, dispatch
   const [scrollHeight, setScrollHeight] = useState(() => (inDialog ? 715 : window.innerHeight - 150));
   const [curEdit, setCurEdit] = useState<ListItem>();
   const [wizardData, setWizardData] = useState<WizardFormData>();
-  const [previewTpl, setPreviewTpl] = useState<string>();
+  const [previewTpl, setPreviewTpl] = useState<ListItem>();
   const [curType, setCurType] = useState<[string, string]>(['0', '0,0']);
   const [subTypeExpand, setSubTypeExpand] = useState<boolean>(false);
 
@@ -106,13 +106,13 @@ const Component: FC<Props> = ({list, listSearch, listSummary, inDialog, dispatch
     });
   });
 
-  const onCreateByTpl = useEvent((tplId: string, fields?: {[field: string]: string}, knowledges?: string[]) => {
+  const onCreateByTpl = useEvent((tplId: string, fields?: {[field: string]: string}, knowledges?: string[], stand?: string, isContract?: boolean) => {
     DocAPI.getDoc(tplId).then((tpl) => {
       if (tpl.format === '2') {
         alert('生成word文档');
       } else {
-        DocAPI.createDoc({folder: listSearch.id || '0', title: tpl.title, contents: ''}, 'doc').then(async ({id}) => {
-          const data = {id: tplId, fields, knowledges};
+        DocAPI.createDoc({folder: listSearch.id || (isContract ? '1' : '0'), title: tpl.title, contents: ''}, 'doc').then(async ({id}) => {
+          const data = {id: tplId, fields, knowledges, stand};
           console.log(data);
           window.sessionStorage.setItem('__temp_tpl__', JSON.stringify(data));
           openArticle(`/admin/doc/item/edit/${id}?&tpl=${tpl.id}&__c=_dialog`);
@@ -126,9 +126,9 @@ const Component: FC<Props> = ({list, listSearch, listSummary, inDialog, dispatch
     });
   });
 
-  const onApplyTpl = useEvent((tplId: string) => {
+  const onApplyTpl = useEvent((tplId: string, isContract?: boolean) => {
     DocAPI.getTplFields(tplId).then((fields) => {
-      setWizardData({tplId, fields});
+      setWizardData({tplId, fields, isContract});
     });
   });
 
@@ -140,9 +140,9 @@ const Component: FC<Props> = ({list, listSearch, listSummary, inDialog, dispatch
     dispatch(docActions.fetchList({...listSearch, name}));
   });
 
-  const onWizardSubmit = useEvent((tplId: string, fields: {[field: string]: string}, knowledges: string[]) => {
+  const onWizardSubmit = useEvent((tplId: string, fields: {[field: string]: string}, knowledges: string[], stand: string, isContract?: boolean) => {
     setWizardData(undefined);
-    onCreateByTpl(tplId, fields, knowledges);
+    onCreateByTpl(tplId, fields, knowledges, stand, isContract);
   });
 
   const uploadProps: UploadProps = useMemo(
@@ -257,14 +257,14 @@ const Component: FC<Props> = ({list, listSearch, listSummary, inDialog, dispatch
                     <StarOutlined className="collect anticon-star-outline" onClick={(e) => onCollect(e, item.id, !item.collect)} />
                   )}
                   {!item.isMine || inDialog ? (
-                    <div className="ant-btn preview" onClick={() => setPreviewTpl(item.id)}>
+                    <div className="ant-btn preview" onClick={() => setPreviewTpl(item)}>
                       <EyeOutlined />
                     </div>
                   ) : (
                     <div className="ant-btn more">
                       <EllipsisOutlined />
                       <div className="dropdown">
-                        <div onClick={() => setPreviewTpl(item.id)}>预览模版</div>
+                        <div onClick={() => setPreviewTpl(item)}>预览模版</div>
                         <div onClick={() => setCurEdit(item)}>修改信息</div>
                         <div
                           onClick={() => {
@@ -281,7 +281,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, inDialog, dispatch
                     </div>
                   )}
                   {item.format !== '2' && (
-                    <div className="ant-btn use" onClick={() => onApplyTpl(item.id)}>
+                    <div className="ant-btn use" onClick={() => onApplyTpl(item.id, item.isContract)}>
                       立即使用
                     </div>
                   )}
@@ -297,7 +297,9 @@ const Component: FC<Props> = ({list, listSearch, listSummary, inDialog, dispatch
         </Modal>
       )}
       {wizardData && <Wizard data={wizardData} onCancel={() => setWizardData(undefined)} onSubmit={onWizardSubmit} />}
-      {previewTpl && <Preview tplId={previewTpl} onCancel={() => setPreviewTpl(undefined)} onApply={onApplyTpl} />}
+      {previewTpl && (
+        <Preview tplId={previewTpl.id} onCancel={() => setPreviewTpl(undefined)} onApply={() => onApplyTpl(previewTpl.id, previewTpl.isContract)} />
+      )}
     </div>
   );
 };

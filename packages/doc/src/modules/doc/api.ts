@@ -2,7 +2,7 @@ import {setLoading as setGlobalLoading} from '@elux/react-web';
 import dayjs from 'dayjs';
 import {GetClientRouter} from '@/Global';
 import request from '@/utils/request';
-import {getCurUserId, getUrlParam, mapTree, message} from '@/utils/tools';
+import {getCurUserId, mapTree, message} from '@/utils/tools';
 import {DocType, ItemDetail, ListItem, ListResult, ListSearch, TplFields, TplsOptions} from './entity';
 
 const TypeMap: {[key: string]: DocType} = {

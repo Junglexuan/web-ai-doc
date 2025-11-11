@@ -25,7 +25,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
   const [scrollHeight, setScrollHeight] = useState(() => window.innerHeight - 230);
   const [showRename, setShowRename] = useState('');
   const [wizardData, setWizardData] = useState<WizardFormData>();
-  const [previewTpl, setPreviewTpl] = useState<string>();
+  const [previewTpl, setPreviewTpl] = useState<ListItem>();
 
   const refreshList = useCallback(() => {
     return dispatch(docActions.fetchList());
@@ -54,13 +54,13 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
     dispatch(docActions.fetchList({...listSearch, name}));
   });
 
-  const onCreateByTpl = useEvent((tplId: string, fields?: {[field: string]: string}, knowledges?: string[]) => {
+  const onCreateByTpl = useEvent((tplId: string, fields?: {[field: string]: string}, knowledges?: string[], stand?: string, isContract?: boolean) => {
     DocAPI.getDoc(tplId).then((tpl) => {
       if (tpl.format === '2') {
         alert('生成word文档');
       } else {
-        DocAPI.createDoc({folder: '0', title: tpl.title, contents: ''}, 'doc').then(async ({id}) => {
-          const data = {id: tplId, fields, knowledges};
+        DocAPI.createDoc({folder: isContract ? '1' : '0', title: tpl.title, contents: ''}, 'doc').then(async ({id}) => {
+          const data = {id: tplId, fields, knowledges, stand};
           console.log(data);
           window.sessionStorage.setItem('__temp_tpl__', JSON.stringify(data));
           openArticle(`/admin/doc/item/edit/${id}?&tpl=${tpl.id}&__c=_dialog`);
@@ -69,9 +69,9 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
     });
   });
 
-  const onWizardSubmit = useEvent((tplId: string, fields: {[field: string]: string}, knowledges: string[]) => {
+  const onWizardSubmit = useEvent((tplId: string, fields: {[field: string]: string}, knowledges: string[], stand?: string, isContract?: boolean) => {
     setWizardData(undefined);
-    onCreateByTpl(tplId, fields, knowledges);
+    onCreateByTpl(tplId, fields, knowledges, stand, isContract);
   });
 
   const columns = useMemo<TableProps<ListItem>['columns']>(() => {
@@ -149,7 +149,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
             >
               <a>重命名</a>
             </Popover>
-            {record.type === 'tpl' && <a onClick={() => setPreviewTpl(record.id)}>预览</a>}
+            {record.type === 'tpl' && <a onClick={() => setPreviewTpl(record)}>预览</a>}
             {record.type === 'tpl' && <a onClick={() => onApplyTpl(record.id)}>使用模版</a>}
             {(record.type === 'doc' || record.type === 'con') && (
               <Dropdown
@@ -227,9 +227,9 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
     return dispatch(docActions.fetchList({...listSearch, sorterField, sorterOrder}));
   });
 
-  const onApplyTpl = useEvent((tplId: string) => {
+  const onApplyTpl = useEvent((tplId: string, isContract?: boolean) => {
     DocAPI.getTplFields(tplId).then((fields) => {
-      setWizardData({tplId, fields});
+      setWizardData({tplId, fields, isContract});
     });
   });
 
@@ -265,7 +265,9 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
         />
       </div>
       {wizardData && <Wizard data={wizardData} onCancel={() => setWizardData(undefined)} onSubmit={onWizardSubmit} />}
-      {previewTpl && <Preview tplId={previewTpl} onCancel={() => setPreviewTpl(undefined)} onApply={onApplyTpl} />}
+      {previewTpl && (
+        <Preview tplId={previewTpl.id} onCancel={() => setPreviewTpl(undefined)} onApply={() => onApplyTpl(previewTpl.id, previewTpl.isContract)} />
+      )}
     </div>
   );
 };

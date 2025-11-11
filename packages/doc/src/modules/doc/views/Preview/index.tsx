@@ -9,7 +9,7 @@ import styles from './index.module.less';
 interface Props {
   tplId: string;
   onCancel: () => void;
-  onApply?: (tplId: string) => void;
+  onApply?: () => void;
 }
 
 const Component: FC<Props> = ({tplId, onCancel, onApply}) => {
@@ -66,7 +66,7 @@ const Component: FC<Props> = ({tplId, onCancel, onApply}) => {
                   type="primary"
                   onClick={() => {
                     onCancel();
-                    onApply(data.tplId);
+                    onApply();
                   }}
                 >
                   立即使用

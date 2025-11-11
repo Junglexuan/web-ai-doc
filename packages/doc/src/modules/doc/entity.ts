@@ -31,6 +31,7 @@ export interface ListItem extends BaseListItem {
   typeInfo?: {title: string}[];
   format?: string;
   remark?: string;
+  isContract?: boolean;
   isShare?: number;
   isSystem?: boolean;
   isMine?: boolean;
