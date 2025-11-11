@@ -113,7 +113,6 @@ const Component: FC<Props> = ({list, listSearch, listSummary, inDialog, dispatch
       } else {
         DocAPI.createDoc({folder: listSearch.id || (isContract ? '1' : '0'), title: tpl.title, contents: ''}, 'doc').then(async ({id}) => {
           const data = {id: tplId, fields, knowledges, stand};
-          console.log(data);
           window.sessionStorage.setItem('__temp_tpl__', JSON.stringify(data));
           openArticle(`/admin/doc/item/edit/${id}?&tpl=${tpl.id}&__c=_dialog`);
           if (inDialog) {

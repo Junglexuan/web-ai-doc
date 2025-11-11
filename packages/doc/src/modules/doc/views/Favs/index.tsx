@@ -150,7 +150,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
               <a>重命名</a>
             </Popover>
             {record.type === 'tpl' && <a onClick={() => setPreviewTpl(record)}>预览</a>}
-            {record.type === 'tpl' && <a onClick={() => onApplyTpl(record.id)}>使用模版</a>}
+            {record.type === 'tpl' && <a onClick={() => onApplyTpl(record.id, record.isContract)}>使用模版</a>}
             {(record.type === 'doc' || record.type === 'con') && (
               <Dropdown
                 menu={{
