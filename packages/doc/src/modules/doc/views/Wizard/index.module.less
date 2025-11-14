@@ -1,12 +1,14 @@
 :global {
   :local(.root) {
+    height: 766px;
+
     > .hd {
       padding: 20px 150px;
       margin-bottom: 15px;
     }
 
     > .bd {
-      max-height: 400px;
+      height: 600px;
       overflow: auto;
     }
 
@@ -15,7 +17,8 @@
       gap: 15px;
       justify-content: flex-end;
       padding: 14px 20px;
-      margin-top: 35px;
+      margin-top: 20px;
+      overflow: hidden;
       border-top: 1px solid #eee;
     }
 
@@ -41,15 +44,20 @@
   }
 
   :local(.reference) {
-    padding: 0 30px;
+    padding: 10px 80px;
+
+    .form-label {
+      margin-right: 10px;
+    }
 
     > .tips {
-      margin-top: 20px;
+      padding-left: 5em;
+      margin-top: 10px;
       color: #999;
     }
 
     .ant-select {
-      width: 300px;
+      width: 500px;
     }
   }
 }

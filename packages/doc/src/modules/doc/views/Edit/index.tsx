@@ -444,7 +444,7 @@ const Component: FC<Props> = ({itemDetail}) => {
           <TplPreview id={itemDetail.id} title={docTitle} tpl={source.html} snapshot={itemDetail.snapshot} layout={layout} setLayout={setLayout} />
         )}
         <div className="ft">
-          <span className="count">{source.text ? source.text.replace(/\n|\r/gm, '').length : ''}个字</span>
+          <span className="count">{source.text ? source.text.replace(/\s/g, '').length : ''}个字</span>
           <div>
             <Dropdown menu={layoutSize}>
               <span className="btn size"></span>

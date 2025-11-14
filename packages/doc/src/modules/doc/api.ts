@@ -19,6 +19,7 @@ const TypeSourceMap: {[key in DocType]: string} = {
 };
 
 const CacheResponse: {[key: string]: any} = {};
+const CacheCateIdToCode: {[id: string]: string} = {};
 
 function cacheRequest(request: () => Promise<any>, key: string): Promise<any> {
   if (CacheResponse[key]) {
@@ -180,6 +181,7 @@ export const DocAPI = {
     });
   },
   getList(search: ListSearch): Promise<ListResult> {
+    console.log(CacheCateIdToCode);
     const curUserId = getCurUserId();
     const {render, name, type, owner, code, cate = '', sorterOrder, sorterField} = search;
     const id = search.id || (render === 'conts' ? '1' : '0');
@@ -200,8 +202,8 @@ export const DocAPI = {
               name,
               type,
               isContract: code === 'contract' ? true : code === 'doc' ? false : undefined,
-              categoryId: cate1 === '0' ? undefined : cate1 || undefined,
-              typeId: cate2 === '0' ? undefined : cate2 || undefined,
+              categoryId: cate1 === '0' ? undefined : CacheCateIdToCode[cate1] || undefined,
+              typeId: cate2 === '0' ? undefined : CacheCateIdToCode[cate2] || undefined,
               key: owner,
               order: sorterOrder === 'ascend' ? 'asc' : undefined,
               page: 1,
@@ -218,10 +220,13 @@ export const DocAPI = {
                 const arr: any[] = res.data?.data || [];
                 const allSubs: any[] = [{ID: '0,0', title: '全部'}];
                 arr.forEach((parent) => {
+                  CacheCateIdToCode[parent.ID] = parent.code;
                   parent.id = parent.ID;
                   parent.children.forEach((sub: any) => {
+                    CacheCateIdToCode[sub.ID] = sub.code;
                     sub.id = sub.ID;
                     sub.ID = parent.ID + ',' + sub.ID;
+                    sub.isContract = parent.code === 'HETONG';
                     allSubs.push(sub);
                   });
                   parent.children.unshift({ID: parent.ID + ',0', title: '全部'});
@@ -235,6 +240,12 @@ export const DocAPI = {
     ]).then(([listRes, levelRes, dirTreeRes, typesTree]) => {
       const list: ListItem[] = listRes.data.data || [];
       const dirTree = dirTreeRes.data?.data || [];
+      if (code === 'contract') {
+        typesTree = typesTree.filter((item: any) => item.code === 'HETONG');
+      } else if (code === 'doc') {
+        typesTree = typesTree.filter((item: any) => item.code !== 'HETONG');
+        typesTree[0] = {...typesTree[0], children: typesTree[0].children.filter((item: any) => !item.isContract)};
+      }
       return {
         list: list.map((item) => {
           item.type = TypeMap[item.type];
@@ -250,11 +261,7 @@ export const DocAPI = {
           pageSize: 999999,
           totalItems: list.length,
           levelPath: levelRes.data?.data || [],
-          typesTree: !code
-            ? typesTree
-            : code === 'contract'
-            ? typesTree.filter((item: any) => item.code === 'HETONG')
-            : typesTree.filter((item: any) => item.code !== 'HETONG'),
+          typesTree,
           dirTree: [
             {
               title: render === 'conts' ? '我的合同' : '我的文档',

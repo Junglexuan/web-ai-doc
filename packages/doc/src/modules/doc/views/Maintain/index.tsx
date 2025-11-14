@@ -159,7 +159,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
                   defaultExpandedKeys={[listSearch.id || '0']}
                   defaultSelectedKeys={[listSearch.id || '0']}
                   treeData={listSummary.dirTree}
-                  onSelect={(selected) => onMove(record.id, record.type, selected[0] as string)}
+                  onSelect={(selected) => onMove(record.id, record.type, (selected[0] || '0') as string)}
                 />
               }
             >

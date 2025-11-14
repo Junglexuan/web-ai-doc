@@ -1,8 +1,8 @@
 import {EllipsisOutlined, EyeOutlined, PlusOutlined, StarFilled, StarOutlined, UploadOutlined} from '@ant-design/icons';
 import {Dispatch, DocumentHead} from '@elux/react-web';
-import {Button, Input, Modal, Space, Upload, UploadProps} from 'antd';
+import {Button, Input, Modal, Upload, UploadProps} from 'antd';
 import classnames from 'classnames';
-import {FC, MouseEvent, memo, useCallback, useEffect, useMemo, useState} from 'react';
+import {FC, MouseEvent, memo, useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {GetActions, GetClientRouter, SiteInfo} from '@/Global';
 import {getUploadProps} from '@/utils/request';
 import {confirm, debounce, openArticle, useEvent} from '@/utils/tools';
@@ -31,12 +31,14 @@ const {doc: docActions} = GetActions('doc');
 
 const Component: FC<Props> = ({list, listSearch, listSummary, inDialog, dispatch}) => {
   const [loading, setLoading] = useState<'upload' | ''>('');
-  const [scrollHeight, setScrollHeight] = useState(() => (inDialog ? 715 : window.innerHeight - 150));
+  const cateDomRef = useRef<HTMLDivElement>(null);
+  const [scrollHeight, setScrollHeight] = useState(0);
   const [curEdit, setCurEdit] = useState<ListItem>();
   const [wizardData, setWizardData] = useState<WizardFormData>();
   const [previewTpl, setPreviewTpl] = useState<ListItem>();
   const [curType, setCurType] = useState<[string, string]>(['0', '0,0']);
   const [subTypeExpand, setSubTypeExpand] = useState<boolean>(false);
+  const [searchText, setSearchText] = useState<string | undefined>(listSearch.name);
 
   const subTypes = useMemo(() => {
     return listSummary.typesTree.find((item) => item.ID === curType[0])?.children || [];
@@ -64,6 +66,10 @@ const Component: FC<Props> = ({list, listSearch, listSummary, inDialog, dispatch
   }, [listSummary.typesTree]);
 
   useMemo(() => {
+    setSearchText(listSearch.name);
+  }, [listSearch.name]);
+
+  useMemo(() => {
     const arr = (listSearch.cate || '').split(',');
     const cate1 = arr[0] || listSummary.typesTree[0].ID;
     const cate2 = cate1 + ',' + (arr[1] || '0');
@@ -73,7 +79,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, inDialog, dispatch
   const onTypeClick = useEvent((e: any) => {
     const id = e.target.dataset.id;
     if (id) {
-      dispatch(docActions.fetchList({...listSearch, name: undefined, code: undefined, cate: id}));
+      dispatch(docActions.fetchList({...listSearch, name: undefined, cate: id}));
     }
   });
 
@@ -157,8 +163,16 @@ const Component: FC<Props> = ({list, listSearch, listSummary, inDialog, dispatch
     [refreshList]
   );
 
+  const onResize = useMemo(
+    () => debounce(() => setScrollHeight((inDialog ? 860 : window.innerHeight) - cateDomRef.current!.offsetHeight - 165), 200),
+    [inDialog]
+  );
+
   useEffect(() => {
-    const onResize = debounce(() => !inDialog && setScrollHeight(window.innerHeight - 150), 300);
+    onResize();
+  }, [subTypeExpand]);
+
+  useEffect(() => {
     window.addEventListener('resize', onResize);
     return () => {
       window.removeEventListener('resize', onResize);
@@ -184,7 +198,14 @@ const Component: FC<Props> = ({list, listSearch, listSummary, inDialog, dispatch
           </div>
         </div>
         <div>
-          <Input.Search allowClear value={listSearch.name} className="search" placeholder="请输入搜索关键字..." onSearch={onSearch} />
+          <Input.Search
+            allowClear
+            value={searchText}
+            className="search"
+            placeholder="请输入搜索关键字..."
+            onChange={(e) => setSearchText(e.target.value.trim())}
+            onSearch={onSearch}
+          />
           {!inDialog && (
             <>
               <Button style={{margin: '0 15px'}} color="primary" variant="outlined" icon={<PlusOutlined />} onClick={onCreate}>
@@ -199,15 +220,17 @@ const Component: FC<Props> = ({list, listSearch, listSummary, inDialog, dispatch
           )}
         </div>
       </div>
-      <div className="md" style={{height: scrollHeight}}>
-        <div className={styles2.types} onClick={onTypeClick}>
-          <strong>场景</strong>
-          {listSummary.typesTree.map((item) => (
-            <a key={item.ID} data-id={item.ID} className={classnames({on: curType[0] === item.ID})}>
-              {item.title}
-            </a>
-          ))}
-        </div>
+      <div style={{margin: '15px 0 15px'}} ref={cateDomRef}>
+        {listSummary.typesTree.length > 1 && (
+          <div className={styles2.types} onClick={onTypeClick}>
+            <strong>场景</strong>
+            {listSummary.typesTree.map((item) => (
+              <a key={item.ID} data-id={item.ID} className={classnames({on: curType[0] === item.ID})}>
+                {item.title}
+              </a>
+            ))}
+          </div>
+        )}
         <div className={styles2.typesScroll + (subTypeExpand ? ' on' : '')} onClick={onTypeClick}>
           <div className={styles2.types}>
             <strong>类型</strong>
@@ -221,6 +244,8 @@ const Component: FC<Props> = ({list, listSearch, listSummary, inDialog, dispatch
             {!subTypeExpand ? '展开' : '收起'}
           </span>
         </div>
+      </div>
+      <div className={styles2.listScroll} style={{height: scrollHeight}}>
         <div className={styles2.list}>
           {list.map((item) => {
             return (
@@ -295,7 +320,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, inDialog, dispatch
           <Edit data={curEdit} cateOptions={cateOptions} onCancel={onCloseEdit} onSubmit={onEditSubmit} />
         </Modal>
       )}
-      {wizardData && <Wizard data={wizardData} onCancel={() => setWizardData(undefined)} onSubmit={onWizardSubmit} />}
+      {wizardData && <Wizard inDialog={inDialog} data={wizardData} onCancel={() => setWizardData(undefined)} onSubmit={onWizardSubmit} />}
       {previewTpl && (
         <Preview tplId={previewTpl.id} onCancel={() => setPreviewTpl(undefined)} onApply={() => onApplyTpl(previewTpl.id, previewTpl.isContract)} />
       )}
