@@ -1,6 +1,6 @@
 import {Button, Input, Space} from 'antd';
 import {FC, memo, useState} from 'react';
-import {message, useEvent} from '@/utils/tools';
+import {message, readClipboardHTML, useEvent} from '@/utils/tools';
 import {VariableElement} from '../elements/Variable/custom-types';
 import styles from './index.module.less';
 
@@ -76,7 +76,7 @@ const Component: FC<Props> = ({onSubmit, onCancel, elem}) => {
           className="field"
           placeholder="简要描述该词条的作用..."
           value={dataSource.remark}
-          maxLength={15}
+          maxLength={256}
           onChange={(e) => setDataSource({...dataSource, remark: e.target.value.trim()})}
         />
         <div className="title">
@@ -90,14 +90,11 @@ const Component: FC<Props> = ({onSubmit, onCancel, elem}) => {
         />
       </div>
       <div className="dialogFooter">
-        <Button size="small" type="primary" onClick={onOk}>
-          确定
-        </Button>
-        {/* <Button size="small" onClick={onOk}>
-          格式
-        </Button> */}
         <Button size="small" onClick={onCancel}>
           取消
+        </Button>
+        <Button size="small" type="primary" onClick={onOk}>
+          确定
         </Button>
       </div>
     </div>

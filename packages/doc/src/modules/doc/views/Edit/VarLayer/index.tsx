@@ -39,9 +39,7 @@ const Component: FC<Props> = ({editor}) => {
     closeMenu();
     const path = DomEditor.findPath(editor, elem);
     SlateTransforms.setNodes(editor, update, {at: path});
-    if (elem.kind !== 'write') {
-      selectText();
-    }
+    selectText();
   });
 
   const varDialog = useMemo(() => {

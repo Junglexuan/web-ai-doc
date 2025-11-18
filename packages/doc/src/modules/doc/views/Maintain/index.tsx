@@ -14,7 +14,7 @@ import {FC, MouseEvent, memo, useCallback, useEffect, useMemo, useState} from 'r
 import TPL from '@/assets/images/tpl';
 import {GetActions, GetClientRouter, SiteInfo} from '@/Global';
 import {downloadFile, getUploadProps, replaceBaseUrl} from '@/utils/request';
-import {confirm, debounce, openArticle, useEvent} from '@/utils/tools';
+import {confirm, debounce, message, openArticle, useEvent} from '@/utils/tools';
 import {DocAPI} from '../../api';
 import {DocType, ListItem, ListSearch, ListSummary} from '../../entity';
 import styles from './index.module.less';
@@ -33,10 +33,15 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
   const [scrollHeight, setScrollHeight] = useState(() => window.innerHeight - 285);
   const [showRename, setShowRename] = useState('');
   const [showMove, setShowMove] = useState('');
+  const [searchText, setSearchText] = useState<string | undefined>(listSearch.name);
 
   const refreshList = useCallback(() => {
     return dispatch(docActions.fetchList());
   }, [dispatch]);
+
+  useMemo(() => {
+    setSearchText(listSearch.name);
+  }, [listSearch.name]);
 
   const onShowDetail = useEvent((evt: MouseEvent, id: string, type: DocType) => {
     if (type === 'doc') {
@@ -256,6 +261,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
         setLoading('batchDelete');
         DocAPI.batchDelete(selectedRows.rows.map((item) => ({id: item.id, type: item.type})))
           .then(() => {
+            message.success('操作成功！');
             setSelectedRows({ids: [], rows: []});
             refreshList();
           })
@@ -342,7 +348,14 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
       <DocumentHead title={'我的文档-' + SiteInfo.name} />
       <div className="hd">
         {breadcrumb}
-        <Input.Search allowClear className="search" placeholder="请输入搜索关键字..." onSearch={onSearch} />
+        <Input.Search
+          allowClear
+          className="search"
+          placeholder="请输入搜索关键字..."
+          value={searchText}
+          onChange={(e) => setSearchText(e.target.value.trim())}
+          onSearch={onSearch}
+        />
       </div>
       <div className="cd">
         <Space>

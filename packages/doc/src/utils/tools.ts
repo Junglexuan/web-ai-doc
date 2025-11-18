@@ -1,3 +1,4 @@
+/* eslint-disable no-useless-catch */
 import {RouteTarget} from '@elux/react-web';
 import {Modal, message} from 'antd';
 import {Rule} from 'antd/lib/form';
@@ -458,4 +459,32 @@ export function throttle<T extends (...args: any[]) => any>(
 
     return result;
   };
+}
+
+export async function readClipboardHTML(): Promise<string | null> {
+  try {
+    // 检查浏览器是否支持Clipboard API
+    if (!navigator.clipboard || !navigator.clipboard.read) {
+      throw new Error('您的浏览器不支持剪贴板读取功能。');
+    }
+
+    // 读取剪贴板内容
+    const clipboardItems = await navigator.clipboard.read();
+
+    // 遍历剪贴板项目，查找HTML内容
+    for (const clipboardItem of clipboardItems) {
+      // 检查是否包含HTML类型
+      if (clipboardItem.types.includes('text/html')) {
+        // 获取HTML内容
+        const htmlBlob = await clipboardItem.getType('text/html');
+        const htmlText = await htmlBlob.text();
+        return htmlText;
+      }
+    }
+
+    // 如果没有找到HTML内容
+    return null;
+  } catch (error) {
+    throw error;
+  }
 }

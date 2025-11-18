@@ -349,12 +349,12 @@ const Component: FC<Props> = ({itemDetail}) => {
                   onClick: ({key}: {key: string}) => {
                     if (key === '下载Word') {
                       setGlobalLoading(
-                        downloadFile(replaceBaseUrl(`/dream/pen/article/down?id=${itemDetail.id}&type=word`), itemDetail.title),
+                        downloadFile(replaceBaseUrl(`/dream/pen/article/down?id=${itemDetail.id}&type=word`), docTitle),
                         GetClientRouter().getActivePage().store
                       );
                     } else if (key === '下载PDF') {
                       setGlobalLoading(
-                        downloadFile(replaceBaseUrl(`/dream/pen/article/down?id=${itemDetail.id}&type=pdf`), itemDetail.title),
+                        downloadFile(replaceBaseUrl(`/dream/pen/article/down?id=${itemDetail.id}&type=pdf`), docTitle),
                         GetClientRouter().getActivePage().store
                       );
                     }
@@ -418,7 +418,7 @@ const Component: FC<Props> = ({itemDetail}) => {
           }}
         >
           <header>
-            <div className={'expand' + ` n${layout}`} onClick={() => setLayout(layout === 1 ? 0 : 1)} />
+            {itemDetail.docType === 'tpl' && <div className={'expand' + ` n${layout}`} onClick={() => setLayout(layout === 1 ? 0 : 1)} />}
             <BlurInput
               id="_doc_title"
               data-doc={itemDetail.id}
@@ -446,9 +446,11 @@ const Component: FC<Props> = ({itemDetail}) => {
         <div className="ft">
           <span className="count">{source.text ? source.text.replace(/\s/g, '').length : ''}个字</span>
           <div>
-            <Dropdown menu={layoutSize}>
-              <span className="btn size"></span>
-            </Dropdown>
+            {itemDetail.docType !== 'tpl' && (
+              <Dropdown menu={layoutSize}>
+                <span className="btn size"></span>
+              </Dropdown>
+            )}
             {editor && (
               <>
                 <Outline editor={editor} />
