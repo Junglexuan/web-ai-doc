@@ -72,7 +72,6 @@
     "@zumer/snapdom": "^1.9.11",
     "@elux/react-web": "^2.6.3",
     "@binarysee/widgets": "*",
-    "@onlyoffice/document-editor-react": "^2.1.1",
     "@wangeditor-next/editor": "^5.6.0",
     "@wangeditor-next/editor-for-react": "^1.0.9"
   }
