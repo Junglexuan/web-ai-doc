@@ -26,7 +26,7 @@ export const ContractReviewAPI = {
   getCateList(): Promise<{label: string; value: string}[]> {
     return request.get(`/dream/pen/rag/contract/typeList`).then((res) => {
       const list: any[] = res.data.data || [];
-      return list.map((item) => ({label: item.name, value: item.id}));
+      return list.map((item) => ({label: item.name, value: item.name}));
     });
   },
   deleteItem(id: string): Promise<void> {

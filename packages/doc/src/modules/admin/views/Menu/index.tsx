@@ -74,6 +74,15 @@ const items: any[] = [
     ),
   },
   {
+    key: '尽调管理',
+    icon: <SafetyCertificateOutlined />,
+    label: (
+      <Link to="/admin/dueDiligence/list/maintain" action="relaunch" target="window">
+        尽调管理
+      </Link>
+    ),
+  },
+  {
     type: 'divider',
   },
   {

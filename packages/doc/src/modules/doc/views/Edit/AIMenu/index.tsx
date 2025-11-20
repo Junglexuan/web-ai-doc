@@ -336,6 +336,8 @@ const Component: FC<Props> = (props) => {
       const text = editor.getSelectionText();
       if (!text) {
         editor.selectAll();
+        setTimeout(() => onSelect(key));
+        return;
       }
     } else if (key === 'C') {
       // if (selection && JSON.stringify(selection.anchor) !== JSON.stringify(selection.focus)) {

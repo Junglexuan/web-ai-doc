@@ -12,6 +12,7 @@ export const ModuleGetter = {
   home: () => import('@/modules/home'),
   doc: () => import('@/modules/doc'),
   contractReview: () => import('@/modules/contractReview'),
+  dueDiligence: () => import('@/modules/dueDiligence'),
 };
 
 export const appConfig: AppConfig = setConfig({
