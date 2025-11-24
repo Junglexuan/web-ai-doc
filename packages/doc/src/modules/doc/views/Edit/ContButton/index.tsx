@@ -23,7 +23,7 @@ const Component: FC<Props> = ({editor, onSubmit}) => {
 
   const _onSubmit = useEvent((vals: any) => {
     const {type, stand, knowledge} = vals;
-    onSubmit({type, stand: stand[0], knowledge});
+    onSubmit({type: typeOptions.find((item) => item.value === type)!.label, stand: stand[0], knowledge});
     setShowModal(false);
   });
 
