@@ -4,8 +4,6 @@ import ErrorPage from '@/components/ErrorPage';
 import {APPState, LoadComponent} from '@/Global';
 import {CurUser, InIframe} from '@/utils/base';
 import {SubModule} from '../../entity';
-import Header from '../Header';
-import Menu from '../Menu';
 import styles from './index.module.less';
 
 const SubModuleViews: {[moduleName: string]: () => JSX.Element} = Object.keys(SubModule).reduce((cache: any, moduleName) => {
@@ -50,18 +48,8 @@ const Component: FC<StoreProps & {dispatch: Dispatch}> = ({curUser, subModule, d
     return content;
   }
   return (
-    <div className={styles.root + (InIframe ? ' in-iframe' : '')}>
-      <div className="side">
-        <Menu />
-      </div>
-      <div className="content">
-        <div className={styles.doc}>
-          <div className="head">
-            <Header curUser={curUser} dispatch={dispatch} />
-          </div>
-          <div className="body">{content}</div>
-        </div>
-      </div>
+    <div className={styles.root}>
+      <div className="page">{content}</div>
     </div>
   );
 };
