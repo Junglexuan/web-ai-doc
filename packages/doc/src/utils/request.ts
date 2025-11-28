@@ -34,7 +34,7 @@ export enum ErrorCode {
 }
 
 export function replaceBaseUrl(url: string): string {
-  url = url.replace(/^\/(dream|auth)\//, (pre) => ApiPrefix[pre] || pre);
+  url = url.replace(/^\/(dream|auth|api)\//, (pre) => ApiPrefix[pre] || pre);
   if (ApiBaseUrl && url.startsWith('/')) {
     url = ApiBaseUrl + url;
   }
@@ -166,7 +166,7 @@ export default instance;
 
 export function getUploadProps(
   url: string,
-  callback: {onProcess: () => void; onSuccess: (file: any, res: any) => void; onError: (data: any, res: any) => void}
+  callback?: {onProcess: () => void; onSuccess: (file: any, res: any) => void; onError: (data: any, res: any) => void}
 ): {[key: string]: any} {
   return {
     name: 'file',
@@ -175,24 +175,26 @@ export function getUploadProps(
       authorization: getToken(),
       tenant: getTenant(),
     },
-    onChange(info: any) {
-      const file = info.file || {};
-      const res = file.response;
-      if (file.status === 'uploading') {
-        callback.onProcess();
-      }
-      if (file.status === 'done') {
-        if (res.success) {
-          callback.onSuccess(file, res.data);
-        } else {
-          message.error(`${res.message}.`);
-          callback.onError(file, res);
+    onChange: callback
+      ? (info: any) => {
+          const file = info.file || {};
+          const res = file.response;
+          if (file.status === 'uploading') {
+            callback.onProcess();
+          }
+          if (file.status === 'done') {
+            if (res.success) {
+              callback.onSuccess(file, res.data);
+            } else {
+              message.error(`${res.message}.`);
+              callback.onError(file, res);
+            }
+          } else if (file.status === 'error') {
+            message.error(`${file.name} file upload failed.`);
+            callback.onError(file, res);
+          }
         }
-      } else if (file.status === 'error') {
-        message.error(`${file.name} file upload failed.`);
-        callback.onError(file, res);
-      }
-    },
+      : undefined,
   };
 }
 

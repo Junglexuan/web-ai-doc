@@ -1,0 +1,37 @@
+:global {
+  :local(.root) {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+
+    > .hd {
+      display: flex;
+      flex: none;
+      align-items: center;
+      justify-content: space-between;
+
+      > h1 {
+        padding: 0;
+        margin: 0;
+        font-size: 18px;
+        font-weight: bold;
+        color: #242424;
+      }
+    }
+
+    > .cd {
+      height: 10px;
+    }
+
+    > .bd {
+      flex: 1;
+      width: 600px;
+      overflow: auto;
+
+      > .actions {
+        margin-top: 50px;
+        text-align: center;
+      }
+    }
+  }
+}

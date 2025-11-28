@@ -5,13 +5,22 @@ export type CurRender = BaseCurRender;
 
 export interface ListSearch extends BaseListSearch {
   keyWord?: string;
-  type?: number;
+  status?: 'start' | 'end';
 }
 export interface ListItem extends BaseListItem {
-  type: number;
-  typeName: string;
   name: string;
-  des: string;
+  logo: string;
+  desc?: string;
+  pathList: {uid: string; name: string; status: string; response: any}[];
+  autoCreateFinalSheets: boolean;
+  questions: {
+    tpl: string;
+    list: {id: string; questionName: string}[];
+  };
+  template: {
+    id: string;
+    name: string;
+  };
 }
 export interface ListSummary extends BaseListSummary {}
 
@@ -30,5 +39,49 @@ export const defaultListSearch: ListSearch = {
   sorterOrder: undefined,
   sorterField: undefined,
   keyWord: undefined,
-  type: undefined,
 };
+
+export type TPL = {
+  id: string;
+  title: string;
+  remark: string;
+  url: string;
+  isShare: string;
+  createUserName: string;
+  createDate: string;
+};
+
+export type DueConfigs = {
+  autoCreateFinalSheets: boolean;
+  roles: {
+    selected: string;
+    list: {value: string; name: string}[];
+  };
+  questions: {
+    selected: string;
+    tpls: {
+      value: string;
+      label: string;
+      list: {id: string; questionName: string}[];
+    }[];
+  };
+  template: {
+    selected: {
+      id: string;
+      name: string;
+    };
+    list: TPL[];
+  };
+};
+export interface DueSettings {
+  role: string;
+  autoCreateFinalSheets: boolean;
+  questions: {
+    tpl: string;
+    list: {id: string; questionName: string}[];
+  };
+  template: {
+    id: string;
+    name: string;
+  };
+}

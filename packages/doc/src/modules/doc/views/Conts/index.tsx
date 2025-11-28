@@ -31,7 +31,7 @@ const {doc: docActions} = GetActions('doc');
 const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
   const [loading, setLoading] = useState<'create' | 'createDir' | 'createByTpl' | 'upload' | 'batchDelete' | ''>('');
   const [selectedRows, setSelectedRows] = useState<{ids: string[]; rows: ListItem[]}>({ids: [], rows: []});
-  const [scrollHeight, setScrollHeight] = useState(() => window.innerHeight - 285);
+  const [scrollHeight, setScrollHeight] = useState(() => window.innerHeight - 190);
   const [showRename, setShowRename] = useState('');
   const [showMove, setShowMove] = useState('');
 
@@ -335,7 +335,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
   });
 
   useEffect(() => {
-    const onResize = debounce(() => setScrollHeight(window.innerHeight - 285), 300);
+    const onResize = debounce(() => setScrollHeight(window.innerHeight - 190), 300);
     window.addEventListener('resize', onResize);
     return () => {
       window.removeEventListener('resize', onResize);

@@ -22,7 +22,7 @@ const {doc: docActions} = GetActions('doc');
 const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
   const [loading, setLoading] = useState<'create' | 'createDir' | 'upload' | 'batchDelete' | ''>('');
   const [selectedRows, setSelectedRows] = useState<{ids: string[]; rows: ListItem[]}>({ids: [], rows: []});
-  const [scrollHeight, setScrollHeight] = useState(() => window.innerHeight - 230);
+  const [scrollHeight, setScrollHeight] = useState(() => window.innerHeight - 165);
   const [showRename, setShowRename] = useState('');
   const [wizardData, setWizardData] = useState<WizardFormData>();
   const [previewTpl, setPreviewTpl] = useState<ListItem>();
@@ -234,7 +234,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
   });
 
   useEffect(() => {
-    const onResize = debounce(() => setScrollHeight(window.innerHeight - 230), 300);
+    const onResize = debounce(() => setScrollHeight(window.innerHeight - 165), 300);
     window.addEventListener('resize', onResize);
     return () => {
       window.removeEventListener('resize', onResize);

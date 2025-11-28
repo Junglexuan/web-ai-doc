@@ -1,15 +1,54 @@
 import request from '@/utils/request';
-import {ListItem, ListResult, ListSearch} from './entity';
+import {DueConfigs, DueSettings, ItemDetail, ListItem, ListResult, ListSearch} from './entity';
 
-export const ContractReviewAPI = {
+export const DueDiligenceAPI = {
+  getConfigs(): Promise<DueConfigs> {
+    return request.post(`/api/user/queryUserProperties`).then((res) => {
+      const data = res.data.data || {};
+      console.log(data);
+      return {
+        autoCreateFinalSheets: data.autoCreateFinalSheets,
+        roles: {
+          selected: data.businessId,
+          list: data.businessVos.map((item: any) => ({value: item.id, label: item.businessName})),
+        },
+        questions: {
+          selected: data.questionId,
+          tpls: data.templateInfoVos.map((item: any) => ({
+            value: item.id,
+            label: item.templateName,
+            list: (item.questionList || []).map(({id, questionName}: any) => ({
+              id,
+              questionName,
+            })),
+          })),
+        },
+        template: {
+          selected: {
+            id: data.templateId,
+            name: data.reportTemplateVos.find((item: any) => item.id === data.templateId).reportTemplateName,
+          },
+          list: data.reportTemplateVos.map((item: any) => ({
+            id: item.id,
+            title: item.reportTemplateName,
+            remark: '说是大法师大方的风格的风格的风格大法师个撒上的说是大法师大方的风格的风格的风格大法师个撒上的',
+            isShare: '0',
+            url: item.outTemplateUrl,
+            createUserName: '是否收到',
+            createDate: '撒大法师',
+          })),
+        },
+      };
+    });
+  },
   getList(search: ListSearch): Promise<ListResult> {
-    const {keyWord = '', type} = search;
+    const {keyWord = '', status} = search;
     return request
-      .post(`/dream/pen/rag/contract/list`, {
-        keyWord,
+      .post(`/api/deal/queryDealInstListByPage`, {
+        dealInstTitle: keyWord,
         pageNo: 1,
         pageSize: 999999,
-        types: type && [type],
+        status: status === 'end' ? ['4'] : ['1', '2', '3'],
       })
       .then((res) => {
         const list: any[] = res.data.data || [];
@@ -23,21 +62,41 @@ export const ContractReviewAPI = {
         };
       });
   },
-  getCateList(): Promise<{label: string; value: string}[]> {
-    return request.get(`/dream/pen/rag/contract/typeList`).then((res) => {
-      const list: any[] = res.data.data || [];
-      return list.map((item) => ({label: item.name, value: item.name}));
+  getItem(id: string): Promise<ItemDetail> {
+    return request.post(`/api/deal/dealInstDetail`, {id}).then((res) => {
+      return res as any;
+      // const list: any[] = res.data.data || [];
+      // return list.map((item) => ({label: item.name, value: item.name} as any));
+    });
+  },
+  createItem(data: ListItem): Promise<void> {
+    const {name, logo, autoCreateFinalSheets, pathList, questions, template} = data;
+    return request.post('/api/deal/createDealInst', {
+      target: name,
+      logo,
+      autoCreateFinalSheets,
+      templateId: template.id,
+      questionId: questions.tpl,
+      pathList: pathList.map((item) => item.response.data.url),
+      questionInfoList: questions.list,
     });
   },
   deleteItem(id: string): Promise<void> {
     return request.post(`/dream/pen/rag/contract/delete`, {id});
   },
-  createItem(data: ListItem): Promise<void> {
-    return request.post('/dream/pen/rag/contract/create', data);
-  },
   updateItem(id: string, data: ListItem): Promise<void> {
     return request.post('/dream/pen/rag/contract/update', {...data, id});
   },
+  updateConfig(data: DueSettings): Promise<void> {
+    const {role, autoCreateFinalSheets, questions, template} = data;
+    return request.post('/api/user/updateUserProperties', {
+      businessId: role,
+      templateId: template.id,
+      questionId: questions.tpl,
+      questionInfoList: questions.list,
+      autoCreateFinalSheets,
+    });
+  },
 };
 
-export default ContractReviewAPI;
+export default DueDiligenceAPI;

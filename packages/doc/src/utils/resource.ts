@@ -20,8 +20,8 @@ export interface BaseListSummary {
   totalItems: number;
 }
 
-export type BaseCurView = 'list' | 'item';
-export type BaseCurRender = 'maintain' | 'index' | 'selector' | 'edit' | 'detail' | 'tpl';
+export type BaseCurView = 'list' | 'item' | 'config';
+export type BaseCurRender = 'maintain' | 'index' | 'selector' | 'edit' | 'detail' | 'tpl' | 'setting';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function useTableChange<T extends BaseListSearch>(listPathname: string, defaultListSearch: T, listSearch?: T) {

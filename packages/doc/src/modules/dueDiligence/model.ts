@@ -3,7 +3,7 @@ import {BaseModel, LoadingState, effect, reducer} from '@elux/react-web';
 import {pathToRegexp} from 'path-to-regexp';
 import {APPState, PathPrefix} from '@/Global';
 import {mergeDefaultParams} from '@/utils/request';
-import ContractReviewAPI from './api';
+import DueDiligenceAPI from './api';
 import {defaultListSearch} from './entity';
 import type {CurRender, CurView, ItemDetail, ListItem, ListSearch, ListSummary} from './entity';
 
@@ -71,7 +71,7 @@ export class Model extends BaseModel<ModuleState, APPState> {
     if (curView === 'list') {
       this.dispatch(this.actions.fetchList(listSearch));
     } else if (curView === 'item') {
-      //this.dispatch(this.actions.fetchItem(itemId || '', curRender));
+      this.dispatch(this.actions.fetchItem(itemId || '', curRender));
     }
   }
 
@@ -83,7 +83,7 @@ export class Model extends BaseModel<ModuleState, APPState> {
   @effect()
   public async fetchList(listSearchData?: ListSearch): Promise<void> {
     const listSearch = listSearchData || this.state.listSearch || defaultListSearch;
-    const {list, summary: listSummary} = await ContractReviewAPI.getList(listSearch);
+    const {list, summary: listSummary} = await DueDiligenceAPI.getList(listSearch);
     this.dispatch(this.actions.putList(listSearch, list, listSummary));
   }
 
@@ -92,9 +92,9 @@ export class Model extends BaseModel<ModuleState, APPState> {
     return {...this.state, itemId, itemDetail};
   }
 
-  //   @effect()
-  //   public async fetchItem(itemId: string, render?: CurRender): Promise<void> {
-  //     const item = await ContractReviewAPI.getDoc({id: itemId, render});
-  //     this.dispatch(this.actions.putCurrentItem(itemId, item));
-  //   }
+  @effect()
+  public async fetchItem(itemId: string, render?: CurRender): Promise<void> {
+    const item = await DueDiligenceAPI.getItem(itemId);
+    this.dispatch(this.actions.putCurrentItem(itemId, item));
+  }
 }

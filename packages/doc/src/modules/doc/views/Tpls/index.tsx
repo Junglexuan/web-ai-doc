@@ -166,7 +166,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, inDialog, dispatch
   );
 
   const onResize = useMemo(
-    () => debounce(() => setScrollHeight((inDialog ? 860 : window.innerHeight) - cateDomRef.current!.offsetHeight - 165), 200),
+    () => debounce(() => setScrollHeight((inDialog ? 860 : window.innerHeight) - cateDomRef.current!.offsetHeight - 115), 200),
     [inDialog]
   );
 

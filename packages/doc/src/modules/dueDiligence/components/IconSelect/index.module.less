@@ -1,0 +1,75 @@
+:global {
+  :local(.root) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 0;
+    justify-content: space-between;
+
+    > div {
+      position: relative;
+      box-sizing: border-box;
+      flex: none;
+      width: 64px;
+      height: 64px;
+      overflow: hidden;
+      cursor: pointer;
+      background: #ff0a;
+      border-radius: 10px;
+
+      &:hover {
+        box-shadow: 0 0 5px 0 #0002;
+      }
+
+      &.on {
+        &::before {
+          position: absolute;
+          top: 3px;
+          right: 3px;
+          width: 10px;
+          height: 10px;
+          overflow: hidden;
+          font-size: 10px;
+          line-height: 10px;
+          color: #fff;
+          content: '✓';
+          background: #1b68fc;
+          border: 2px solid #1b68fc;
+          border-radius: 10px;
+        }
+      }
+
+      &.upload {
+        background: #fff;
+        border: 1px dashed #d9d9d9;
+
+        &:hover {
+          border-color: #1b68fc;
+        }
+      }
+    }
+
+    .upload-btn {
+      font-size: 18px;
+      line-height: 62px;
+      color: #85888f;
+      text-align: center;
+    }
+
+    .ant-upload-select,
+    .ant-upload-list-item-container {
+      width: 62px !important;
+      height: 62px !important;
+      border: none !important;
+    }
+
+    .ant-upload-list-item {
+      border: none !important;
+    }
+
+    .ant-upload-list-item-actions {
+      > :first-child {
+        display: none;
+      }
+    }
+  }
+}

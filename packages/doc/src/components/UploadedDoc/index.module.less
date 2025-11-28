@@ -1,0 +1,54 @@
+:global {
+  :local(.root) {
+    position: relative;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+    justify-content: center;
+    width: 102px;
+    height: 102px;
+    padding: 5px;
+    overflow: hidden;
+    word-break: break-all;
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+
+    > .loading {
+      position: absolute;
+      top: 5px;
+      left: 5px;
+    }
+
+    > .del {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      color: #d8d8d8;
+      cursor: pointer;
+
+      &:hover {
+        color: #999;
+      }
+    }
+
+    > .replace {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      color: #1b68fc;
+      cursor: pointer;
+
+      &:hover {
+        opacity: 0.6;
+      }
+    }
+
+    > .name {
+      font-size: 11px;
+      line-height: 1.5;
+      color: #666;
+    }
+  }
+}

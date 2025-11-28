@@ -18,7 +18,7 @@ interface Props {
 const {contractReview: contractReviewActions} = GetActions('contractReview');
 
 const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
-  const [scrollHeight, setScrollHeight] = useState(() => window.innerHeight - 285);
+  const [scrollHeight, setScrollHeight] = useState(() => window.innerHeight - 200);
   const [curEdit, setCurEdit] = useState<ListItem>();
   const [cateOptions, setCateOptions] = useState<{label: string; value: string}[]>([]);
 
@@ -66,7 +66,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
         title: '合同分类',
         dataIndex: 'typeName',
         key: 'typeName',
-        width: 150,
+        width: 200,
         align: 'center',
       },
       {
@@ -99,7 +99,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
 
   useEffect(() => {
     ContractReviewAPI.getCateList().then(setCateOptions);
-    const onResize = debounce(() => setScrollHeight(window.innerHeight - 285), 300);
+    const onResize = debounce(() => setScrollHeight(window.innerHeight - 200), 300);
     window.addEventListener('resize', onResize);
     return () => {
       window.removeEventListener('resize', onResize);
