@@ -7,31 +7,11 @@ import LoadingPanel from '@/components/LoadingPanel';
 import {GetActions, GetClientRouter, SiteInfo} from '@/Global';
 import {confirm, useEvent} from '@/utils/tools';
 import {DueDiligenceAPI} from '../../api';
-import {DueConfigs, ListItem, ListSearch, ListSummary} from '../../entity';
+import {DueConfigs, ListItem, ListSearch, ListSummary, StatusMap} from '../../entity';
 import Edit from '../Edit';
 import styles from './index.module.less';
 import type {ProgressProps} from 'antd';
 
-// const fileLists = [
-//   {
-//     uid: '-1',
-//     name: '是大方大事发生大方阿瑟费的萨芬俄方是大方是大方大事发生大方阿瑟费的萨芬俄方是大方.png',
-//     status: 'done',
-//     url: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
-//   },
-//   {
-//     uid: '-2',
-//     name: 'image.png',
-//     status: 'done',
-//     url: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
-//   },
-//   {
-//     uid: '-3',
-//     name: 'image.png',
-//     status: 'done',
-//     url: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
-//   },
-// ];
 const twoColors: ProgressProps['strokeColor'] = {
   '0%': '#6C47EF',
   '100%': '#1B68FC',
@@ -47,7 +27,7 @@ const {dueDiligence: dueDiligenceActions} = GetActions('dueDiligence');
 
 const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
   const [searchText, setSearchText] = useState<string | undefined>(listSearch.keyWord);
-  const [curEdit, setCurEdit] = useState<ListItem>();
+  const [curEdit, setCurEdit] = useState<Partial<ListItem>>();
   const [configs, setConfigs] = useState<DueConfigs>();
 
   useMemo(() => {
@@ -151,15 +131,15 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
             return (
               <div className={styles.card} key={item.id} onClick={() => onShowDetail(item)}>
                 <div className="bd">
-                  <div className="status">完善中</div>
+                  <div className="status">{StatusMap[item.status]}</div>
                   <div className="icon"></div>
-                  <div className="title">B公司流贷尽调</div>
-                  <div className="desc">已记录与B公司CEO的访谈，建议您上传公司财务报表等资料进行补充。</div>
+                  <div className="title">{item.name}</div>
+                  <div className="desc">{item.desc}</div>
                 </div>
                 <div className="ft">
                   <div>完成进度</div>
-                  <Progress percent={60} strokeColor={twoColors} size={{height: 10}} showInfo={false} />
-                  <span>50%</span>
+                  <Progress percent={item.progress} strokeColor={twoColors} size={{height: 10}} showInfo={false} />
+                  <span>{`${item.progress}%`}</span>
                 </div>
               </div>
             );

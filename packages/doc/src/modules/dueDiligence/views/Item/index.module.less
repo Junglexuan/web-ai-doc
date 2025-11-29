@@ -4,5 +4,204 @@
     flex-direction: column;
     height: 100%;
     background: #fff;
+
+    > .hd {
+      display: flex;
+      gap: 5px;
+      color: rgba(36, 36, 36, 0.6);
+
+      > a {
+        cursor: pointer;
+
+        &:last-child {
+          color: #242424;
+        }
+
+        &:hover {
+          color: #1b68fc;
+        }
+      }
+    }
+
+    > .cd {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      padding-top: 25px;
+      padding-bottom: 25px;
+      font-size: 12px;
+      color: #1b68fc;
+
+      > .title {
+        font-size: 18px;
+        font-weight: 500;
+        color: #242424;
+      }
+
+      > .status {
+        padding: 2px 5px;
+        color: #00a8a8;
+        background: linear-gradient(110deg, rgba(44, 218, 168, 0.2) 0%, rgba(146, 184, 255, 0.2) 108%, rgba(255, 255, 255, 0) 110%);
+        border-radius: 4px;
+      }
+
+      > .ant-progress {
+        width: 250px;
+        margin-right: 20px;
+      }
+
+      > label {
+        margin: 0 8px 0 18px;
+      }
+    }
+
+    > .bd {
+      padding-bottom: 25px;
+
+      .g-doc-icon {
+        margin-right: 5px;
+      }
+
+      .actions {
+        display: flex;
+        gap: 10px;
+      }
+    }
+
+    > .ft {
+      padding: 20px;
+      background: #f5f7fb;
+      border-radius: 10px;
+
+      > .title {
+        font-size: 15px;
+        font-weight: 500;
+      }
+
+      > .step {
+        position: relative;
+        padding-top: 20px;
+        padding-bottom: 10px;
+        padding-left: 105px;
+
+        &::before {
+          position: absolute;
+          top: 52px;
+          bottom: -15px;
+          left: 81px;
+          width: 1px;
+          content: '';
+          background: #d5d6d8;
+        }
+
+        &.on {
+          &::before {
+            background: #1b68fc;
+          }
+
+          > .subject > .step-icon {
+            background: #1b68fc;
+          }
+        }
+
+        &:last-child {
+          &::before {
+            display: none;
+          }
+        }
+
+        > .subject {
+          position: absolute;
+          top: 17px;
+          left: 0;
+
+          > .step-icon {
+            position: relative;
+            top: 4px;
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            padding: 2px;
+            margin-left: 15px;
+            overflow: hidden;
+            font-size: 12px;
+            color: #fff;
+            text-align: center;
+            background: #d5d6d8;
+            border-radius: 50px;
+          }
+        }
+
+        > .list {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 14px;
+          padding: 20px 14px;
+          background: #fff;
+          border-radius: 10px;
+        }
+      }
+
+      .comp-UploadButton {
+        height: 91px;
+        color: #2a62fa;
+        cursor: pointer;
+        border: 1px dashed #d9d9d9;
+        border-radius: 10px;
+
+        &:hover {
+          background-color: #00000005;
+        }
+      }
+    }
+  }
+
+  :local(.file) {
+    position: relative;
+    box-sizing: border-box;
+    width: 320px;
+    height: 93px;
+    padding: 20px 14px;
+    padding-left: 80px;
+    background: #f5f7fb;
+    border-radius: 10px;
+
+    &:hover {
+      box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.1);
+
+      > .close {
+        display: block;
+      }
+    }
+
+    > .g-doc-icon {
+      position: absolute;
+      left: 14px;
+      width: 54px;
+      height: 54px;
+    }
+
+    > .name {
+      padding-top: 3px;
+      padding-bottom: 10px;
+      overflow: hidden;
+      font-size: 15px;
+      font-weight: 500;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    > .info {
+      font-size: 12px;
+      color: rgba(36, 36, 36, 0.6);
+    }
+
+    > .close {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      display: none;
+      cursor: pointer;
+    }
   }
 }

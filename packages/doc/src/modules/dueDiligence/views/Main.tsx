@@ -28,13 +28,7 @@ const Component: FC<StoreProps & {dispatch: Dispatch}> = ({curView, curRender, i
         curRender === 'maintain' &&
         (listSummary ? <Maintain dispatch={dispatch} listSearch={listSearch!} list={list!} listSummary={listSummary!} /> : <div></div>)}
       {curView === 'item' &&
-        (itemDetail ? (
-          <Item itemDetail={itemDetail} />
-        ) : (
-          <div style={{background: '#fff', width: '100%', height: '100%'}}>
-            <ErrorPage />
-          </div>
-        ))}
+        (itemDetail ? <Item itemDetail={itemDetail} dispatch={dispatch} /> : <div style={{background: '#fff', width: '100%', height: '100%'}}></div>)}
       {curView === 'config' && <Setting />}
     </Switch>
   );

@@ -51,9 +51,19 @@ export const DueDiligenceAPI = {
         status: status === 'end' ? ['4'] : ['1', '2', '3'],
       })
       .then((res) => {
-        const list: any[] = res.data.data || [];
+        const list: any[] = res.data.data.records || [];
         return {
-          list: list,
+          list: list.map(
+            (item) =>
+              ({
+                id: item.id,
+                name: item.interviewCust,
+                logo: item.logo,
+                status: item.status,
+                desc: item.interviewDealInstDesc || '',
+                progress: Number(item.progress),
+              } as any)
+          ),
           summary: {
             pageCurrent: 1,
             pageSize: 999999,
@@ -63,10 +73,22 @@ export const DueDiligenceAPI = {
       });
   },
   getItem(id: string): Promise<ItemDetail> {
-    return request.post(`/api/deal/dealInstDetail`, {id}).then((res) => {
-      return res as any;
-      // const list: any[] = res.data.data || [];
-      // return list.map((item) => ({label: item.name, value: item.name} as any));
+    return request.post(`/api/deal/dealInstDetail?id=${id}`, {}).then((res) => {
+      const item = res.data.data;
+      const {reportTemplate} = item;
+      return {
+        id: item.id,
+        name: item.interviewCust,
+        logo: item.logo,
+        status: item.status,
+        desc: item.interviewDealInstDesc || '',
+        progress: Number(item.progress),
+        report: null,
+        //报告模版
+        reportTemplate: {id: reportTemplate.id, fileName: reportTemplate.reportTemplateName},
+        // 准备资料
+        resources: item.resources || [],
+      } as any;
     });
   },
   createItem(data: ListItem): Promise<void> {
@@ -77,7 +99,7 @@ export const DueDiligenceAPI = {
       autoCreateFinalSheets,
       templateId: template.id,
       questionId: questions.tpl,
-      pathList: pathList.map((item) => item.response.data.url),
+      pathList: pathList.map((item) => item.url),
       questionInfoList: questions.list,
     });
   },
@@ -96,6 +118,9 @@ export const DueDiligenceAPI = {
       questionInfoList: questions.list,
       autoCreateFinalSheets,
     });
+  },
+  removeResourceFile(id: string): Promise<void> {
+    return request.post(`/api/deal/delete/${id}`);
   },
 };
 

@@ -15,8 +15,19 @@ const Component: FC<{
 }> = ({value = [], onChange}) => {
   const uploadProps: UploadProps = useMemo(() => getUploadProps('/api/upload/file'), []);
 
-  const handleChange = useEvent(({fileList}: {fileList: UploadFile[]}) => {
-    onChange?.(fileList);
+  const handleChange = useEvent(({fileList, file}: {fileList: UploadFile[]; file: UploadFile}) => {
+    let newFileList = fileList;
+    if (file.status === 'done') {
+      const res = file.response.data;
+      newFileList = fileList.map((item) => {
+        if (item.uid === file.uid) {
+          return {...item, url: res.url, thumbUrl: res.id};
+        } else {
+          return item;
+        }
+      });
+    }
+    onChange?.(newFileList);
   });
 
   return (

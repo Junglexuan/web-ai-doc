@@ -10,7 +10,7 @@ import styles from './index.module.less';
 
 const Component: FC<{
   configs: DueConfigs;
-  data: ListItem;
+  data: Partial<ListItem>;
   onCancel: () => void;
   onSubmit: (data: ListItem) => void;
 }> = ({configs, data, onCancel, onSubmit}) => {

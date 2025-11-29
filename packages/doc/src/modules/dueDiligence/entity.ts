@@ -10,8 +10,10 @@ export interface ListSearch extends BaseListSearch {
 export interface ListItem extends BaseListItem {
   name: string;
   logo: string;
-  desc?: string;
-  pathList: {uid: string; name: string; status: string; response: any}[];
+  desc: string;
+  status: string;
+  progress: number;
+  pathList: {uid: string; name: string; status: string; url: string; thumbUrl: string}[];
   autoCreateFinalSheets: boolean;
   questions: {
     tpl: string;
@@ -29,7 +31,60 @@ export interface ListResult {
   summary: ListSummary;
 }
 
-export type ItemDetail = ListItem;
+export interface ItemDetail {
+  id: string;
+  name: string;
+  logo: string;
+  desc: string;
+  status: string;
+  progress: number;
+  // 报告
+  report?: {
+    id: string;
+    fileName: string;
+    fileUrl: string;
+    wordCount: number;
+    updateTime: string;
+    type: string;
+  };
+  // 报告模版
+  reportTemplate: {
+    id: string;
+    fileName: string;
+    fileUrl: string;
+    wordCount: number;
+    updateTime: string;
+    type: string;
+  };
+  calculation: {
+    id: string;
+    fileName: string;
+    fileUrl: string;
+    type: string;
+  };
+  // 准备资料
+  resources: {
+    id: string;
+    fileName: string;
+    fileUrl: string;
+    type: string;
+    updateTime: string;
+  }[];
+  // 访谈资料
+  interviewInstList: {
+    id: string;
+    fileName: string;
+    fileUrl: string;
+    type: string;
+  }[];
+  // 补充资料
+  supplementary: {
+    id: string;
+    fileName: string;
+    fileUrl: string;
+    type: string;
+  }[];
+}
 
 export type EditItem = ListItem;
 
@@ -85,3 +140,10 @@ export interface DueSettings {
     name: string;
   };
 }
+
+export const StatusMap: {[key: string]: string} = {
+  '1': '准备中',
+  '2': '访谈中',
+  '3': '完善中',
+  '4': '已结束',
+};

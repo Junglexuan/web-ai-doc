@@ -35,7 +35,7 @@ const Component: FC<{
 
   return (
     <>
-      <UploadedDoc file={{uid: value.id, name: value.name}} onReplace={onReplace} />
+      <UploadedDoc file={{uid: value.id, name: value.name, thumbUrl: value.id}} onReplace={onReplace} />
       {showTpl && (
         <Modal width={915} title="添加所需成果模板" open={true} footer={null} onCancel={onCloseTpl}>
           <div className={styles.root}>

@@ -11,6 +11,7 @@ window.SitesUrl = {
   verse: '//localhost:4004',
   pulse: '//pulse.binarysee.com',
   preview: 'http://113.44.121.105:8012/onlinePreview',
+  editor: 'http://113.44.121.105:8901',
 };
 window.PathPrefix = '';
 window.SiteInfo = {
