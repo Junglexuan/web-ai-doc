@@ -14,10 +14,12 @@ const Component: FC<{file: UploadFile; onRemove?: () => void; onReplace?: () => 
     }
   });
   return (
-    <div className={styles.root} onClick={onPreview}>
+    <div className={styles.root}>
       {file.status === 'uploading' && <Spin size="small" className="loading" />}
-      <img src={DocIcon} />
-      <span className="name">{file.name.substring(0, 20)}</span>
+      <img src={DocIcon} onClick={onPreview} />
+      <span className="name" onClick={onPreview}>
+        {file.name.substring(0, 20)}
+      </span>
       {onReplace && <EditIcon className="replace" onClick={onReplace} />}
       {onRemove && <CloseCircleFilled className="del" onClick={onRemove} />}
     </div>

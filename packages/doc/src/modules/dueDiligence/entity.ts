@@ -11,7 +11,6 @@ export interface ListItem extends BaseListItem {
   name: string;
   logo: string;
   desc: string;
-  status: string;
   progress: number;
   pathList: {uid: string; name: string; status: string; url: string; thumbUrl: string}[];
   autoCreateFinalSheets: boolean;
@@ -39,16 +38,7 @@ export interface ItemDetail {
   status: string;
   progress: number;
   // 报告
-  report?: {
-    id: string;
-    fileName: string;
-    fileUrl: string;
-    wordCount: number;
-    updateTime: string;
-    type: string;
-  };
-  // 报告模版
-  reportTemplate: {
+  report: {
     id: string;
     fileName: string;
     fileUrl: string;
@@ -72,13 +62,6 @@ export interface ItemDetail {
   }[];
   // 访谈资料
   interviewInstList: {
-    id: string;
-    fileName: string;
-    fileUrl: string;
-    type: string;
-  }[];
-  // 补充资料
-  supplementary: {
     id: string;
     fileName: string;
     fileUrl: string;
@@ -140,10 +123,3 @@ export interface DueSettings {
     name: string;
   };
 }
-
-export const StatusMap: {[key: string]: string} = {
-  '1': '准备中',
-  '2': '访谈中',
-  '3': '完善中',
-  '4': '已结束',
-};

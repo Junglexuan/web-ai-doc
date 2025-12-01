@@ -214,7 +214,7 @@ export function uploadFile(url: string, formData: FormData): Promise<{url: strin
 
 export function openDoc(urlOrId: string): void {
   instance.get(`${SitesUrl.editor}/webInterface/url/view/${urlOrId}`).then((res) => {
-    console.log(res);
+    window.open(res.data.data);
   });
 }
 

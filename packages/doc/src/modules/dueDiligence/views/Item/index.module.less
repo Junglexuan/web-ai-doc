@@ -38,13 +38,6 @@
         color: #242424;
       }
 
-      > .status {
-        padding: 2px 5px;
-        color: #00a8a8;
-        background: linear-gradient(110deg, rgba(44, 218, 168, 0.2) 0%, rgba(146, 184, 255, 0.2) 108%, rgba(255, 255, 255, 0) 110%);
-        border-radius: 4px;
-      }
-
       > .ant-progress {
         width: 250px;
         margin-right: 20px;
@@ -57,6 +50,14 @@
 
     > .bd {
       padding-bottom: 25px;
+
+      .file-name {
+        cursor: pointer;
+
+        &:hover {
+          color: #2a62fa;
+        }
+      }
 
       .g-doc-icon {
         margin-right: 5px;
@@ -73,63 +74,36 @@
       background: #f5f7fb;
       border-radius: 10px;
 
-      > .title {
-        font-size: 15px;
-        font-weight: 500;
+      > .head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        > .title {
+          font-size: 15px;
+          font-weight: 500;
+        }
+
+        > .actions {
+          display: flex;
+          gap: 10px;
+        }
+
+        .ant-btn {
+          gap: 5px;
+        }
       }
 
       > .step {
         position: relative;
         padding-top: 20px;
         padding-bottom: 10px;
-        padding-left: 105px;
-
-        &::before {
-          position: absolute;
-          top: 52px;
-          bottom: -15px;
-          left: 81px;
-          width: 1px;
-          content: '';
-          background: #d5d6d8;
-        }
-
-        &.on {
-          &::before {
-            background: #1b68fc;
-          }
-
-          > .subject > .step-icon {
-            background: #1b68fc;
-          }
-        }
-
-        &:last-child {
-          &::before {
-            display: none;
-          }
-        }
+        padding-left: 80px;
 
         > .subject {
           position: absolute;
           top: 17px;
           left: 0;
-
-          > .step-icon {
-            position: relative;
-            top: 4px;
-            display: inline-block;
-            width: 16px;
-            height: 16px;
-            padding: 2px;
-            margin-left: 15px;
-            overflow: hidden;
-            font-size: 12px;
-            color: #fff;
-            text-align: center;
-            background: #d5d6d8;
-            border-radius: 50px;
-          }
         }
 
         > .list {
@@ -189,6 +163,11 @@
       font-weight: 500;
       text-overflow: ellipsis;
       white-space: nowrap;
+
+      &:hover {
+        color: #1b68fc;
+        cursor: pointer;
+      }
     }
 
     > .info {
@@ -202,6 +181,15 @@
       right: -5px;
       display: none;
       cursor: pointer;
+    }
+  }
+
+  :local(.info) {
+    padding: 20px;
+
+    > .actions {
+      padding-top: 15px;
+      text-align: center;
     }
   }
 }

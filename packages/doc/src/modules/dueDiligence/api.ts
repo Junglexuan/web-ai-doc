@@ -75,7 +75,7 @@ export const DueDiligenceAPI = {
   getItem(id: string): Promise<ItemDetail> {
     return request.post(`/api/deal/dealInstDetail?id=${id}`, {}).then((res) => {
       const item = res.data.data;
-      const {reportTemplate} = item;
+      const {report} = item;
       return {
         id: item.id,
         name: item.interviewCust,
@@ -83,9 +83,7 @@ export const DueDiligenceAPI = {
         status: item.status,
         desc: item.interviewDealInstDesc || '',
         progress: Number(item.progress),
-        report: null,
-        //报告模版
-        reportTemplate: {id: reportTemplate.id, fileName: reportTemplate.reportTemplateName},
+        report,
         // 准备资料
         resources: item.resources || [],
       } as any;
@@ -121,6 +119,12 @@ export const DueDiligenceAPI = {
   },
   removeResourceFile(id: string): Promise<void> {
     return request.post(`/api/deal/delete/${id}`);
+  },
+  appendResource(id: string, text: string): Promise<void> {
+    return request.post(`/api/interview/appendResource`, {interviewInstId: id, appendText: text});
+  },
+  rebuildReport(id: string): Promise<void> {
+    return request.post(`/api/interview/applyAppendInterviewReportSync`, {interviewInstId: id});
   },
 };
 

@@ -7,7 +7,7 @@ import LoadingPanel from '@/components/LoadingPanel';
 import {GetActions, GetClientRouter, SiteInfo} from '@/Global';
 import {confirm, useEvent} from '@/utils/tools';
 import {DueDiligenceAPI} from '../../api';
-import {DueConfigs, ListItem, ListSearch, ListSummary, StatusMap} from '../../entity';
+import {DueConfigs, ListItem, ListSearch, ListSummary} from '../../entity';
 import Edit from '../Edit';
 import styles from './index.module.less';
 import type {ProgressProps} from 'antd';
@@ -131,7 +131,6 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
             return (
               <div className={styles.card} key={item.id} onClick={() => onShowDetail(item)}>
                 <div className="bd">
-                  <div className="status">{StatusMap[item.status]}</div>
                   <div className="icon"></div>
                   <div className="title">{item.name}</div>
                   <div className="desc">{item.desc}</div>
