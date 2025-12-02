@@ -5,7 +5,6 @@ export const DueDiligenceAPI = {
   getConfigs(): Promise<DueConfigs> {
     return request.post(`/api/user/queryUserProperties`).then((res) => {
       const data = res.data.data || {};
-      console.log(data);
       return {
         autoCreateFinalSheets: data.autoCreateFinalSheets,
         roles: {

@@ -1,89 +1,12 @@
-import {Dispatch, Link, Switch, connectStore} from '@elux/react-web';
-import {Button, Dropdown, Space} from 'antd';
+import {Dispatch, Switch, connectStore} from '@elux/react-web';
 import {FC, useMemo} from 'react';
 import ErrorPage from '@/components/ErrorPage';
 import {APPState, LoadComponent} from '@/Global';
 import {CurUser, InIframe} from '@/utils/base';
 import {SubModule} from '../../entity';
+import Header from '../Header';
+import Menu from '../Menu';
 import styles from './index.module.less';
-
-const MenuItems = {
-  items: [
-    {
-      key: '首页',
-      label: (
-        <Link to="/admin/home" action="relaunch" target="window">
-          首页
-        </Link>
-      ),
-      url: '/',
-    },
-    {
-      key: '我的文档',
-      label: (
-        <Link to="/admin/doc/list/maintain" action="relaunch" target="window">
-          我的文档
-        </Link>
-      ),
-    },
-    {
-      key: '我的收藏',
-      label: (
-        <Link to="/admin/doc/list/favs" action="relaunch" target="window">
-          我的收藏
-        </Link>
-      ),
-    },
-    {
-      key: '模版管理',
-      label: (
-        <Link to="/admin/doc/list/tpls" action="relaunch" target="window">
-          模版管理
-        </Link>
-      ),
-    },
-    {
-      key: '我的合同',
-      label: (
-        <Link to="/admin/doc/list/conts" action="relaunch" target="window">
-          我的合同
-        </Link>
-      ),
-    },
-    {
-      key: '合同审查规则',
-      label: (
-        <Link to="/admin/contractReview/list/maintain" action="relaunch" target="window">
-          审查规则
-        </Link>
-      ),
-    },
-    {
-      key: '尽调管理',
-      label: (
-        <Link to="/admin/dueDiligence/list/maintain" action="relaunch" target="window">
-          尽调管理
-        </Link>
-      ),
-    },
-    {
-      key: '尽调设置',
-      label: (
-        <Link to="/admin/dueDiligence/config/setting" action="relaunch" target="window">
-          尽调设置
-        </Link>
-      ),
-    },
-    {
-      key: '回收站',
-      label: (
-        <Link to="/admin/doc/list/recs" action="relaunch" target="window">
-          回收站
-        </Link>
-      ),
-    },
-  ],
-};
 
 const SubModuleViews: {[moduleName: string]: () => JSX.Element} = Object.keys(SubModule).reduce((cache: any, moduleName) => {
   cache[moduleName] = LoadComponent(moduleName as any, 'main');
@@ -127,13 +50,18 @@ const Component: FC<StoreProps & {dispatch: Dispatch}> = ({curUser, subModule, d
     return content;
   }
   return (
-    <div className={styles.root}>
-      <div className="page">{content}</div>
-      {!InIframe && (
-        <Dropdown menu={MenuItems}>
-          <Button style={{position: 'fixed', bottom: '10px'}}>menu</Button>
-        </Dropdown>
-      )}
+    <div className={styles.root + (InIframe ? ' in-iframe' : '')}>
+      <div className="side">
+        <Menu />
+      </div>
+      <div className="content">
+        <div className={styles.doc}>
+          <div className="head">
+            <Header curUser={curUser} dispatch={dispatch} />
+          </div>
+          <div className="body">{content}</div>
+        </div>
+      </div>
     </div>
   );
 };
