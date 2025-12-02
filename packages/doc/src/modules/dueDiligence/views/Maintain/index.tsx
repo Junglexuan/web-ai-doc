@@ -5,7 +5,7 @@ import {Progress} from 'antd';
 import {FC, memo, useCallback, useEffect, useMemo, useState} from 'react';
 import LoadingPanel from '@/components/LoadingPanel';
 import {GetActions, GetClientRouter, SiteInfo} from '@/Global';
-import {confirm, useEvent} from '@/utils/tools';
+import {confirm, showMask, useEvent} from '@/utils/tools';
 import {DueDiligenceAPI} from '../../api';
 import {DueConfigs, ListItem, ListSearch, ListSummary} from '../../entity';
 import Edit from '../Edit';
@@ -145,7 +145,19 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
         </div>
       </div>
       {curEdit && (
-        <Modal width={590} title={curEdit.id ? '修改尽调' : '新建尽调'} open={true} footer={null} onCancel={onCloseEdit}>
+        <Modal
+          width={590}
+          title={curEdit.id ? '修改尽调' : '新建尽调'}
+          open={true}
+          footer={null}
+          onCancel={() => {
+            onCloseEdit();
+            showMask(false);
+          }}
+          afterOpenChange={(open: boolean) => {
+            showMask(open);
+          }}
+        >
           <Edit configs={configs} data={curEdit} onCancel={onCloseEdit} onSubmit={onEditSubmit} />
         </Modal>
       )}

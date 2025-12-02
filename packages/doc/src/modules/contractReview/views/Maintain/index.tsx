@@ -3,7 +3,7 @@ import {Dispatch, DocumentHead} from '@elux/react-web';
 import {Button, Input, Modal, Select, Space, Table, TableProps} from 'antd';
 import {FC, memo, useCallback, useEffect, useMemo, useState} from 'react';
 import {GetActions} from '@/Global';
-import {confirm, debounce, useEvent} from '@/utils/tools';
+import {confirm, debounce, showMask, useEvent} from '@/utils/tools';
 import {ContractReviewAPI} from '../../api';
 import {ListItem, ListSearch, ListSummary} from '../../entity';
 import Edit from '../Edit';
@@ -132,7 +132,18 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
         />
       </div>
       {curEdit && (
-        <Modal title={curEdit.id ? '修改规则' : '创建规则'} open={true} footer={null} onCancel={onCloseEdit}>
+        <Modal
+          title={curEdit.id ? '修改规则' : '创建规则'}
+          open={true}
+          footer={null}
+          onCancel={() => {
+            onCloseEdit();
+            showMask(false);
+          }}
+          afterOpenChange={(open: boolean) => {
+            showMask(open);
+          }}
+        >
           <Edit cateOptions={cateOptions} data={curEdit} onCancel={onCloseEdit} onSubmit={onEditSubmit} />
         </Modal>
       )}

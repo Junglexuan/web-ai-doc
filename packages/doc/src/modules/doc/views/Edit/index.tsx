@@ -19,7 +19,7 @@ import BlurInput from '@/components/BlurInput';
 import DialogPage from '@/components/DialogPage';
 import {GetClientRouter} from '@/Global';
 import {downloadFile, replaceBaseUrl} from '@/utils/request';
-import {debounce, openArticle, useEvent} from '@/utils/tools';
+import {debounce, openArticle, returnToWorkbench, useEvent} from '@/utils/tools';
 import DocAPI from '../../api';
 import {ItemDetail} from '../../entity';
 import AIButton from './AIButton';
@@ -279,9 +279,17 @@ const Component: FC<Props> = ({itemDetail}) => {
     }));
     arr.unshift({
       title: (
-        <Link to={itemDetail.docType === 'con' ? '/admin/doc/list/conts' : '/admin/doc/list/maintain'} action="relaunch" target="window">
+        // <Link to={itemDetail.docType === 'con' ? '/admin/doc/list/conts' : '/admin/doc/list/maintain'} action="relaunch" target="window">
+        //   {itemDetail.docType === 'con' ? '我的合同' : '我的文档'}
+        // </Link>
+        <div
+          style={{cursor: 'pointer'}}
+          onClick={() => {
+            returnToWorkbench('push', itemDetail.docType === 'con' ? '/app/contractManagement' : '/app/documentManagement');
+          }}
+        >
           {itemDetail.docType === 'con' ? '我的合同' : '我的文档'}
-        </Link>
+        </div>
       ),
     });
     arr.push({

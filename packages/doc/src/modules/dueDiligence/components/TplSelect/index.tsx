@@ -1,8 +1,8 @@
 import {Modal} from 'antd';
-import {FC, ReactElement, cloneElement, memo, useState} from 'react';
+import {FC, ReactElement, cloneElement, memo, useMemo, useState} from 'react';
 import UploadedDoc from '@/components/UploadedDoc';
 import {openDoc} from '@/utils/request';
-import {useEvent} from '@/utils/tools';
+import {showMask, useEvent} from '@/utils/tools';
 import {TPL} from '../../entity';
 import styles from './index.module.less';
 
@@ -43,7 +43,19 @@ const Component: FC<{
         <UploadedDoc file={{uid: value.id, name: value.name, thumbUrl: value.id}} onReplace={onReplace} />
       )}
       {showTpl && (
-        <Modal width={915} title="添加所需成果模板" open={true} footer={null} onCancel={onCloseTpl}>
+        <Modal
+          width={915}
+          title="添加所需成果模板"
+          open={true}
+          footer={null}
+          onCancel={() => {
+            showMask(false);
+            onCloseTpl();
+          }}
+          afterOpenChange={(open: boolean) => {
+            showMask(open);
+          }}
+        >
           <div className={styles.root}>
             {list.map((item) => {
               return (

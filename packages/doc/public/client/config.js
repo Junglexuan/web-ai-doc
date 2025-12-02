@@ -1,7 +1,7 @@
 window.ApiBaseUrl = '';
 window.ApiPrefix = {
-  '/auth/': 'http://user.binarysee.com/auth/',
-  '/dream/': 'http://verse.binarysee.com/dream/',
+  // '/auth/': 'http://user.binarysee.com/auth/',
+  '/dream/': 'http://verse.binarysee.com.cn/dream/',
   '/api/': 'http://106gx1895yn84.vicp.fun/',
 };
 window.SitesUrl = {

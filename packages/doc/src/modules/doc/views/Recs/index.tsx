@@ -3,7 +3,7 @@ import {Dispatch, DocumentHead} from '@elux/react-web';
 import {Button, Input, Space, Table, TableProps} from 'antd';
 import {FC, memo, useCallback, useEffect, useMemo, useState} from 'react';
 import {GetActions, SiteInfo} from '@/Global';
-import {confirm, debounce, useEvent} from '@/utils/tools';
+import {confirm, debounce, showMask, useEvent} from '@/utils/tools';
 import {DocAPI} from '../../api';
 import {DocType, ListItem, ListSearch, ListSummary} from '../../entity';
 import styles from '../Maintain/index.module.less';

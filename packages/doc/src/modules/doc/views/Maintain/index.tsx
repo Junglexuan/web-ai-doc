@@ -14,7 +14,7 @@ import {FC, MouseEvent, memo, useCallback, useEffect, useMemo, useState} from 'r
 import TPL from '@/assets/images/tpl';
 import {GetActions, GetClientRouter, SiteInfo} from '@/Global';
 import {downloadFile, getUploadProps, replaceBaseUrl} from '@/utils/request';
-import {confirm, debounce, message, openArticle, useEvent} from '@/utils/tools';
+import {confirm, debounce, message, openArticle, showMask, useEvent} from '@/utils/tools';
 import {DocAPI} from '../../api';
 import {DocType, ListItem, ListSearch, ListSummary} from '../../entity';
 import styles from './index.module.less';

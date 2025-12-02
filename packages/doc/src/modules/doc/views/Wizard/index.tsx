@@ -1,7 +1,7 @@
 import {InfoCircleOutlined} from '@ant-design/icons';
 import {Button, Form, Input, Modal, Select, Steps} from 'antd';
 import {FC, memo, useMemo, useState} from 'react';
-import {useEvent} from '@/utils/tools';
+import {showMask, useEvent} from '@/utils/tools';
 import KnowledgeSelect from '../Edit/KnowledgeSelect';
 import styles from './index.module.less';
 
@@ -92,11 +92,19 @@ const Component: FC<Props> = ({data, inDialog, onCancel, onSubmit}) => {
     <Modal
       open={true}
       footer={null}
-      onCancel={onCancel}
+      onCancel={() => {
+        console.log('!inDialog: ', !inDialog);
+        !inDialog && showMask(false);
+        onCancel();
+      }}
       width={1200}
       centered
       rootClassName={inDialog ? 'g-dialog-no-mask' : undefined}
       title="使用模版"
+      afterOpenChange={(open: boolean) => {
+        console.log('!inDialog: ', !inDialog);
+        !inDialog && showMask(open);
+      }}
     >
       <div className={styles.root}>
         <div className="hd">
@@ -122,7 +130,10 @@ const Component: FC<Props> = ({data, inDialog, onCancel, onSubmit}) => {
               </Button>
               <Button
                 type="primary"
-                onClick={() => onSubmit(data.tplId, fieldsValues, knowledges ? [knowledges] : [], standpoint[0], data.isContract)}
+                onClick={() => {
+                  showMask(false);
+                  onSubmit(data.tplId, fieldsValues, knowledges ? [knowledges] : [], standpoint[0], data.isContract);
+                }}
               >
                 生成文档
               </Button>

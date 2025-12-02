@@ -24,6 +24,9 @@ export function confirm(
     onCancel() {
       callback(false);
     },
+    afterOpenChange(open: boolean) {
+      showMask(open);
+    },
   });
 }
 export function warning(message: string, callback: () => void): void {
@@ -34,6 +37,9 @@ export function warning(message: string, callback: () => void): void {
     onOk() {
       callback();
     },
+    afterOpenChange(open: boolean) {
+      showMask(open);
+    },
   });
 }
 export function info(message: string, callback: () => void): void {
@@ -43,6 +49,9 @@ export function info(message: string, callback: () => void): void {
     okText: '确定',
     onOk() {
       callback();
+    },
+    afterOpenChange(open: boolean) {
+      showMask(open);
     },
   });
 }
@@ -125,7 +134,10 @@ export function toNativeUrl(url: string): string {
 
 export function openArticle(url: string): void {
   //GetClientRouter().push({url}, 'window');
-  window.open(toNativeUrl(url), url);
+  // window.open(toNativeUrl(url), url);
+  const portalUrl = localStorage.getItem('zov-msg-origin');
+  const realUrl = `${portalUrl ?? ''}/app?path=${encodeURIComponent(`${location.origin}${toNativeUrl(url)}`)}`;
+  window.open(realUrl, url);
 }
 
 export const sleep = (ms: number): Promise<void> => new Promise((r) => setTimeout(r, ms));
@@ -488,3 +500,57 @@ export async function readClipboardHTML(): Promise<string | null> {
     throw error;
   }
 }
+/**
+ * 通知父级打开或关闭遮罩层
+ * @param open 是否打开遮罩层
+ */
+export const showMask = (open: boolean = false): void => {
+  console.info(open, `向父级通知${open ? '打开' : '关闭'}遮罩层`);
+  window.parent &&
+    window.parent.postMessage(
+      {
+        method: 'zov:mask',
+        data: open,
+      },
+      getPortalUrl() || '*'
+    );
+};
+/**
+ * 获取与工作台消息共享的请求源地址
+ */
+export const getPortalUrl = (): string | null => {
+  const portalUrl = localStorage.getItem('zov-msg-origin');
+  if (portalUrl) return new URL(portalUrl).origin;
+  else return null;
+};
+/**
+ * token无效通知工作台重定向登录
+ */
+export const tokenExpiredRefresh = (): void => {
+  console.info('通知父级: token失效重新登陆');
+  window.parent &&
+    window.parent.postMessage(
+      {
+        method: 'zov:TOKEN_EXPIRED',
+        data: 'token无效重新登陆',
+      },
+      getPortalUrl() || '*'
+    );
+};
+/**
+ * 新页签页面通知工作台返回
+ */
+export const returnToWorkbench = (type: 'push' | 'replace', path: string): void => {
+  console.info('通知父级: 回退地址');
+  window.parent &&
+    window.parent.postMessage(
+      {
+        method: 'zov:NAVIGATE',
+        data: {
+          type,
+          path,
+        },
+      },
+      getPortalUrl() || '*'
+    );
+};

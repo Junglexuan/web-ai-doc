@@ -5,7 +5,7 @@ import {FC, memo, useCallback, useEffect, useMemo, useRef, useState} from 'react
 import LoadingPanel from '@/components/LoadingPanel';
 import {GetActions, GetClientRouter, SiteInfo} from '@/Global';
 import {getUploadProps, openDoc} from '@/utils/request';
-import {message, useEvent} from '@/utils/tools';
+import {message, showMask, useEvent} from '@/utils/tools';
 import {DueDiligenceAPI} from '../../api';
 import TplSelect from '../../components/TplSelect';
 import {DueConfigs, DueSettings, ItemDetail} from '../../entity';
@@ -262,7 +262,19 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
         </div>
       </div>
       {showSupplementary && (
-        <Modal title="补充信息" width={650} open={true} footer={null} onCancel={() => setShowSupplementary(false)}>
+        <Modal
+          title="补充信息"
+          width={650}
+          open={true}
+          footer={null}
+          onCancel={() => {
+            setShowSupplementary(false);
+            showMask(false);
+          }}
+          afterOpenChange={(open: boolean) => {
+            showMask(open);
+          }}
+        >
           <div className={styles.info}>
             <div className="form">
               <Input.TextArea placeholder="输入补充信息..." rows={15} ref={supplementaryRef} />

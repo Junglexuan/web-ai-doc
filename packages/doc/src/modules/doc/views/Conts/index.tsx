@@ -14,7 +14,7 @@ import {Breadcrumb, Button, Dropdown, Input, Popover, Space, Table, TableProps, 
 import {FC, MouseEvent, memo, useCallback, useEffect, useMemo, useState} from 'react';
 import {GetActions, GetClientRouter, SiteInfo} from '@/Global';
 import {downloadFile, getUploadProps, replaceBaseUrl} from '@/utils/request';
-import {confirm, debounce, openArticle, useEvent} from '@/utils/tools';
+import {confirm, debounce, openArticle, showMask, useEvent} from '@/utils/tools';
 import {DocAPI} from '../../api';
 import {DocType, ListItem, ListSearch, ListSummary} from '../../entity';
 import styles from '../Maintain/index.module.less';
@@ -172,6 +172,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
                 onClick: ({key}: {key: string}) => {
                   if (key === '删除') {
                     confirm(`您确定要删除《${record.title}》吗？`, (ok) => {
+                      console.log('ok: ', ok);
                       if (ok) {
                         DocAPI.deleteItem(record.id, record.type).then(refreshList);
                       }

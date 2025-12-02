@@ -4,7 +4,7 @@ import {Button, Dropdown, Input, Modal, Popover, Space, Table, TableProps} from 
 import {FC, MouseEvent, memo, useCallback, useEffect, useMemo, useState} from 'react';
 import {GetActions, GetClientRouter, SiteInfo} from '@/Global';
 import {downloadFile, replaceBaseUrl} from '@/utils/request';
-import {confirm, debounce, openArticle, useEvent} from '@/utils/tools';
+import {confirm, debounce, openArticle, showMask, useEvent} from '@/utils/tools';
 import {DocAPI} from '../../api';
 import {DocType, ListItem, ListSearch, ListSummary} from '../../entity';
 import styles from '../Maintain/index.module.less';

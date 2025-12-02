@@ -3,7 +3,7 @@ import {Button, Form, Modal, Select} from 'antd';
 import {FC, memo, useEffect, useState} from 'react';
 import Inspect from '@/assets/images/Inspect';
 import {ContractReviewAPI} from '@/modules/contractReview/api';
-import {useEvent} from '@/utils/tools';
+import {showMask, useEvent} from '@/utils/tools';
 import KnowledgeSelect from '../KnowledgeSelect';
 import styles from './index.module.less';
 //import './registerMenu';
@@ -45,7 +45,19 @@ const Component: FC<Props> = ({editor, onSubmit}) => {
         合同审查
       </Button>
       {showModal && (
-        <Modal title="合同审查" width={400} open={true} footer={null} onCancel={onCancel}>
+        <Modal
+          title="合同审查"
+          width={400}
+          open={true}
+          footer={null}
+          onCancel={() => {
+            onCancel();
+            showMask(false);
+          }}
+          afterOpenChange={(open: boolean) => {
+            showMask(open);
+          }}
+        >
           <div className={styles.dialog}>
             <Form onFinish={_onSubmit} labelCol={{span: 6}}>
               <Form.Item label="合同类型" name="type" rules={[{required: true}]}>

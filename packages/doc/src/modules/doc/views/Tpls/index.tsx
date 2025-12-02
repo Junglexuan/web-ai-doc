@@ -5,7 +5,7 @@ import classnames from 'classnames';
 import {FC, MouseEvent, memo, useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {GetActions, GetClientRouter, SiteInfo} from '@/Global';
 import {getUploadProps} from '@/utils/request';
-import {confirm, debounce, openArticle, useEvent} from '@/utils/tools';
+import {confirm, debounce, openArticle, showMask, useEvent} from '@/utils/tools';
 import {DocAPI} from '../../api';
 import {ListItem, ListSearch, ListSummary} from '../../entity';
 import styles from '../Maintain/index.module.less';
@@ -318,8 +318,27 @@ const Component: FC<Props> = ({list, listSearch, listSummary, inDialog, dispatch
         </div>
       </div>
       {curEdit && (
-        <Modal title={curEdit.id ? '修改信息' : '创建模版'} open={true} footer={null} onCancel={onCloseEdit}>
-          <Edit data={curEdit} cateOptions={cateOptions} onCancel={onCloseEdit} onSubmit={onEditSubmit} />
+        <Modal
+          title={curEdit.id ? '修改信息' : '创建模版'}
+          open={true}
+          footer={null}
+          onCancel={() => {
+            showMask(false);
+            onCloseEdit();
+          }}
+          afterOpenChange={(open: boolean) => {
+            showMask(open);
+          }}
+        >
+          <Edit
+            data={curEdit}
+            cateOptions={cateOptions}
+            onCancel={() => {
+              showMask(false);
+              onCloseEdit();
+            }}
+            onSubmit={onEditSubmit}
+          />
         </Modal>
       )}
       {wizardData && <Wizard inDialog={inDialog} data={wizardData} onCancel={() => setWizardData(undefined)} onSubmit={onWizardSubmit} />}
