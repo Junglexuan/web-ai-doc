@@ -11,29 +11,29 @@
       flex: none;
       width: 64px;
       height: 64px;
-      overflow: hidden;
       cursor: pointer;
       background: #ff0a;
       border-radius: 10px;
 
       &:hover {
-        box-shadow: 0 0 5px 0 #0002;
+        box-shadow: 0 0 5px 1px #0003;
       }
 
       &.on {
         &::before {
           position: absolute;
-          top: 3px;
-          right: 3px;
+          top: -5px;
+          right: -5px;
           width: 10px;
           height: 10px;
+          padding: 3px;
           overflow: hidden;
           font-size: 10px;
           line-height: 10px;
           color: #fff;
           content: '✓';
           background: #1b68fc;
-          border: 2px solid #1b68fc;
+          border: 2px solid #fff;
           border-radius: 10px;
         }
       }

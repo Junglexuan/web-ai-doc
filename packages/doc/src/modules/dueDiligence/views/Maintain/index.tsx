@@ -63,8 +63,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
   });
 
   const onEditSubmit = useEvent((data: ListItem) => {
-    console.log(data);
-    DueDiligenceAPI.createItem(data).then(() => {
+    DueDiligenceAPI.createItem({...curEdit, ...data}).then(() => {
       setCurEdit(undefined);
       refreshList();
     });
@@ -131,7 +130,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
             return (
               <div className={styles.card} key={item.id} onClick={() => onShowDetail(item)}>
                 <div className="bd">
-                  <div className="icon"></div>
+                  <img className="icon" src={item.logo} />
                   <div className="title">{item.name}</div>
                   <div className="desc">{item.desc}</div>
                 </div>

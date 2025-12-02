@@ -1,12 +1,13 @@
 import {CloseCircleFilled, CloudUploadOutlined, DownOutlined, EditOutlined, LeftOutlined} from '@ant-design/icons';
 import {Dispatch, DocumentHead} from '@elux/react-web';
-import {Button, Dropdown, Form, Input, Modal, Progress, Table, Upload, UploadProps} from 'antd';
+import {Button, Dropdown, Form, Input, Modal, Popover, Progress, Table, Upload, UploadProps} from 'antd';
 import {FC, memo, useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import LoadingPanel from '@/components/LoadingPanel';
 import {GetActions, GetClientRouter, SiteInfo} from '@/Global';
 import {getUploadProps, openDoc} from '@/utils/request';
 import {message, useEvent} from '@/utils/tools';
 import {DueDiligenceAPI} from '../../api';
+import TplSelect from '../../components/TplSelect';
 import {DueConfigs, DueSettings, ItemDetail} from '../../entity';
 import styles from './index.module.less';
 
@@ -24,10 +25,10 @@ const {dueDiligence: dueDiligenceActions} = GetActions('dueDiligence');
 
 const Component: FC<Props> = ({itemDetail, dispatch}) => {
   const [configs, setConfigs] = useState<DueConfigs>();
-  const [settings, setSettings] = useState<DueSettings>();
   const [uploading, setUploading] = useState<'upload' | 'info' | ''>('');
   const [showSupplementary, setShowSupplementary] = useState(false);
   const supplementaryRef = useRef<any>(null);
+  const [showRename, setShowRename] = useState('');
   const [form] = Form.useForm();
 
   const refreshPage = useCallback(() => {
@@ -58,11 +59,29 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
     }
   });
 
-  const onRebuildReport = useEvent((id: string) => {
-    DueDiligenceAPI.rebuildReport(id).then(() => {
+  const onRebuildReport = useEvent(() => {
+    DueDiligenceAPI.rebuildReport(itemDetail.id).then(() => {
       refreshPage();
       message.success('操作成功！');
     });
+  });
+
+  const onResetTemplate = useEvent((tpl: {id: string} | undefined) => {
+    if (tpl?.id) {
+      DueDiligenceAPI.resetTemplate(itemDetail.id, tpl.id).then(() => {
+        refreshPage();
+        message.success('操作成功！');
+      });
+    }
+  });
+
+  const onRemoveResource = useEvent((id: string) => {
+    DueDiligenceAPI.removeResourceFile(id).then(refreshPage);
+  });
+
+  const onRenameReport = useEvent((file: string, newName: string) => {
+    DueDiligenceAPI.renameReport(itemDetail.id, file, newName).then(refreshPage);
+    setShowRename('');
   });
 
   const TableColumns = useMemo(
@@ -100,9 +119,41 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
         key: 'id',
         render: (txt: string, item: any) => (
           <div className="actions">
-            <a onClick={() => onRebuildReport(item.id)}>重新生成</a>
-            <a>重命名</a>
-            <a>更换模版</a>
+            <a onClick={onRebuildReport}>重新生成</a>
+            <Popover
+              trigger="click"
+              destroyOnHidden
+              open={showRename === item.id}
+              onOpenChange={(open) => {
+                setShowRename(open ? item.id : '');
+              }}
+              content={
+                <Input
+                  allowClear
+                  style={{width: '200px'}}
+                  defaultValue={item.fileName}
+                  onBlur={(e: any) => {
+                    const value = e.target.value.trim();
+                    if (value && value !== item.fileName) {
+                      onRenameReport(item.id, e.target.value);
+                    }
+                  }}
+                  onKeyDown={(e: any) => {
+                    if (e.key === 'Enter') {
+                      const value = e.target.value.trim();
+                      if (value && value !== item.fileName) {
+                        onRenameReport(item.id, e.target.value);
+                      }
+                    }
+                  }}
+                />
+              }
+            >
+              <a>重命名</a>
+            </Popover>
+            <TplSelect list={configs!.template.list} value={{id: item.id, name: item.fileName}} onChange={onResetTemplate}>
+              <a>更换模版</a>
+            </TplSelect>
             <Dropdown
               menu={{
                 onClick: ({key}: {key: string}) => {
@@ -138,37 +189,19 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
         ),
       },
     ],
-    [onRebuildReport]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [configs, showRename]
   );
 
   const TableSource = useMemo(() => {
     return [itemDetail.report];
   }, [itemDetail.report]);
 
-  const onRemoveResource = useCallback(
-    (id: string) => {
-      DueDiligenceAPI.removeResourceFile(id).then(refreshPage);
-    },
-    [refreshPage]
-  );
-
   useEffect(() => {
-    DueDiligenceAPI.getConfigs().then((configs) => {
-      setConfigs(configs);
-      const {autoCreateFinalSheets, questions, template} = configs;
-      setSettings({
-        role: configs.roles.selected,
-        questions: {
-          tpl: questions.selected,
-          list: questions.tpls.find((item) => item.value === questions.selected)?.list || [],
-        },
-        template: template.selected,
-        autoCreateFinalSheets,
-      });
-    });
+    DueDiligenceAPI.getConfigs().then(setConfigs);
   }, []);
 
-  if (!configs || !settings) {
+  if (!configs) {
     return (
       <div className={styles.root}>
         <LoadingPanel />

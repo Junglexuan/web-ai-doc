@@ -31,11 +31,11 @@ export const DueDiligenceAPI = {
           list: data.reportTemplateVos.map((item: any) => ({
             id: item.id,
             title: item.reportTemplateName,
-            remark: '说是大法师大方的风格的风格的风格大法师个撒上的说是大法师大方的风格的风格的风格大法师个撒上的',
+            remark: item.remark,
             isShare: '0',
             url: item.outTemplateUrl,
-            createUserName: '是否收到',
-            createDate: '撒大法师',
+            createUserName: item.createUserName,
+            createDate: item.createDate,
           })),
         },
       };
@@ -91,7 +91,7 @@ export const DueDiligenceAPI = {
   },
   createItem(data: ListItem): Promise<void> {
     const {name, logo, autoCreateFinalSheets, pathList, questions, template} = data;
-    return request.post('/api/deal/createDealInst', {
+    return request.post('/api/deal/createOrUpdateDealInst', {
       target: name,
       logo,
       autoCreateFinalSheets,
@@ -124,7 +124,20 @@ export const DueDiligenceAPI = {
     return request.post(`/api/interview/appendResource`, {interviewInstId: id, appendText: text});
   },
   rebuildReport(id: string): Promise<void> {
-    return request.post(`/api/interview/applyAppendInterviewReportSync`, {interviewInstId: id});
+    return request.post(`/api/interview/applyAppendInterviewReportSync`, {interviewDealInstId: id});
+  },
+  resetTemplate(id: string, templateId: string): Promise<void> {
+    return request.post('/api/deal/createOrUpdateDealInst', {
+      id,
+      templateId,
+    });
+  },
+  renameReport(id: string, fileId: string, fileName: string): Promise<void> {
+    return request.post('/api/deal/rename', {
+      id,
+      fileId,
+      fileName,
+    });
   },
 };
 

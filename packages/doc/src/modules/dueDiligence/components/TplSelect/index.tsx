@@ -1,6 +1,7 @@
 import {Modal} from 'antd';
-import {FC, memo, useState} from 'react';
+import {FC, ReactElement, cloneElement, memo, useState} from 'react';
 import UploadedDoc from '@/components/UploadedDoc';
+import {openDoc} from '@/utils/request';
 import {useEvent} from '@/utils/tools';
 import {TPL} from '../../entity';
 import styles from './index.module.less';
@@ -15,7 +16,8 @@ const Component: FC<{
   value?: {id: string; name: string};
   onChange?: (value?: {id: string; name: string}) => void;
   list: TPL[];
-}> = ({value = {id: '', name: ''}, onChange, list}) => {
+  children?: ReactElement;
+}> = ({value = {id: '', name: ''}, onChange, list, children}) => {
   const [showTpl, setShowTpl] = useState(false);
 
   const onCloseTpl = useEvent(() => {
@@ -26,7 +28,7 @@ const Component: FC<{
   });
   const onPreview = useEvent((item: TPL) => {
     setShowTpl(false);
-    console.log(item.url);
+    openDoc(item.id);
   });
   const onSelected = useEvent((item: TPL) => {
     setShowTpl(false);
@@ -35,7 +37,11 @@ const Component: FC<{
 
   return (
     <>
-      <UploadedDoc file={{uid: value.id, name: value.name, thumbUrl: value.id}} onReplace={onReplace} />
+      {children ? (
+        cloneElement(children, {onClick: onReplace})
+      ) : (
+        <UploadedDoc file={{uid: value.id, name: value.name, thumbUrl: value.id}} onReplace={onReplace} />
+      )}
       {showTpl && (
         <Modal width={915} title="添加所需成果模板" open={true} footer={null} onCancel={onCloseTpl}>
           <div className={styles.root}>
@@ -44,9 +50,9 @@ const Component: FC<{
                 <div key={item.id} className={styles.card}>
                   <div className={'title icon'}>{item.title}</div>
                   <div className="remark">{item.remark}</div>
-                  <div className="tags">
+                  {/* <div className="tags">
                     <span>{ShareOptions[item.isShare]}</span>
-                  </div>
+                  </div> */}
                   <div className="creater">
                     <span>{`${item.createUserName} 创建于 ${item.createDate}`}</span>
                   </div>
