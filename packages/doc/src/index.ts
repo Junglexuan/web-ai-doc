@@ -67,18 +67,11 @@ const renderApp = () => {
   }
 };
 
-//检查是否已有用户信息（刷新页面的情况）
-// const existingToken = localStorage.getItem('zov-user-token');
-// const existingUserInfo = localStorage.getItem('zov-user-info');
-// if (existingToken && existingUserInfo) {
-//   console.log('检测到已有用户信息，直接渲染应用');
-//   isLoading = false;
-//   renderApp();
-// }
-
 if (isLoading) {
   console.info('子应用发送READY消息触发父窗口通知下发!!!');
   window.parent.postMessage({method: 'zov:PRODUCT_READY'}, '*');
+} else {
+  renderApp();
 }
 //无论是否已有本地用户信息，都监听跨域消息以便在父窗口推送新用户信息时更新本地存储
 console.log('监听跨域消息...');

@@ -4,7 +4,7 @@ import {Modal, message} from 'antd';
 import {Rule} from 'antd/lib/form';
 import {produce} from 'immer';
 import {useCallback, useMemo, useRef} from 'react';
-import {PathPrefix, useRouter} from '@/Global';
+import {GetClientRouter, PathPrefix, useRouter} from '@/Global';
 
 export {message} from 'antd';
 
@@ -134,11 +134,14 @@ export function toNativeUrl(url: string): string {
 }
 
 export function openArticle(url: string): void {
-  //GetClientRouter().push({url}, 'window');
-  // window.open(toNativeUrl(url), url);
-  const portalUrl = localStorage.getItem('zov-msg-origin');
-  const realUrl = `${portalUrl ?? ''}/app?path=${encodeURIComponent(`${location.origin}${toNativeUrl(url)}`)}`;
-  window.open(realUrl, url);
+  if (isIframe()) {
+    const portalUrl = localStorage.getItem('zov-msg-origin');
+    const realUrl = `${portalUrl ?? ''}/app?path=${encodeURIComponent(`${location.origin}${toNativeUrl(url)}`)}`;
+    window.open(realUrl, url);
+  } else {
+    GetClientRouter().push({url}, 'window');
+    window.open(toNativeUrl(url), url);
+  }
 }
 
 export const sleep = (ms: number): Promise<void> => new Promise((r) => setTimeout(r, ms));
