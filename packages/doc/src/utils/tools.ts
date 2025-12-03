@@ -48,6 +48,7 @@ export function info(message: string, callback: () => void): void {
     content: message,
     okText: '确定',
     onOk() {
+      showMask(false);
       callback();
     },
     afterOpenChange(open: boolean) {

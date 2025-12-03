@@ -65,7 +65,7 @@ const Component: FC<Props> = ({data, inDialog, onCancel, onSubmit}) => {
         <div className={styles.reference}>
           {data.isContract && (
             <div style={{marginBottom: '20px'}}>
-              <label className="form-label">　立场：</label>
+              <label className="form-label">立场：</label>
               <Select
                 placeholder="请选择或输入合同立场"
                 mode="tags"
