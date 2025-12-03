@@ -501,6 +501,17 @@ export async function readClipboardHTML(): Promise<string | null> {
     throw error;
   }
 }
+
+/**
+ * 判断当前项目是否被嵌套
+ */
+export const isIframe = (): boolean => {
+  try {
+    return window.self !== window.top;
+  } catch {
+    return true;
+  }
+};
 /**
  * 通知父级打开或关闭遮罩层
  * @param open 是否打开遮罩层

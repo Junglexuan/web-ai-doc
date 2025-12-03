@@ -4,11 +4,13 @@
 //import './default-passive-events.js';
 import {createApp} from '@elux/react-web';
 import {appConfig} from './Project';
+import {isIframe} from './utils/tools';
 
 (window as any)['ZovCloudUI'].register();
 
 // loading状态管理
-let isLoading = true;
+let isLoading = isIframe();
+console.log('isInIframe: 当前是否iframe嵌套', isLoading);
 let appStarted = false; //避免重复渲染
 
 const originWhiteList = ['http://113.44.121.105', 'http://192.168.1.126:5173']; //定义一套自定义消息共享源链白名单
@@ -29,9 +31,10 @@ const handleMessage = (event: MessageEvent) => {
     const {token, userInfo, portalUrl} = data;
     if (token && userInfo) {
       try {
+        console.log('token: ', token);
         localStorage.setItem('zov-user-token', token);
         localStorage.setItem('zov-user-info', JSON.stringify(userInfo));
-        localStorage.setItem('zov-user-tenant', userInfo.tenant);
+        localStorage.setItem('zov-user-tenant', userInfo.tenantId);
         localStorage.setItem('zov-msg-origin', portalUrl);
         isLoading = false;
         //移除loading并渲染应用

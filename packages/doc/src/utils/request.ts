@@ -146,10 +146,14 @@ instance.interceptors.response.use(
       toLoginPage();
       throw new CustomError(mapHttpErrorCode(httpErrorCode), '请登录！');
     } else if (httpErrorCode === 402) {
-      info(data.message || '检测到租户已发生变化，需要刷新数据...', () => {
-        window.location.href = SitesUrl.verse;
+      // info(data.message || '检测到租户已发生变化，需要刷新数据...', () => {
+      //   window.location.href = SitesUrl.verse;
+      // });
+      // throw new CustomError('402', '');
+      window.parent.postMessage({
+        method: 'zov:TENANT_CHANGED',
+        data: data.message || '检测到租户已发生变化，需要刷新数据...',
       });
-      throw new CustomError('402', '');
     }
     const config = error.config!;
     const requestHeaders = config.headers;
