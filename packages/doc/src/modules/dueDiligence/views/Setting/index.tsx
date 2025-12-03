@@ -60,13 +60,13 @@ const Component: FC<Props> = () => {
           <Form.Item name="role" label="常用角色">
             <Select options={configs.roles.list} />
           </Form.Item>
-          <Form.Item label="常用尽调模板" name="template">
+          <Form.Item label="常用尽调报告模板" name="template">
             <TplSelect list={configs.template.list} />
           </Form.Item>
           <Form.Item label="常用问题清单" name="questions">
             <Questions configs={configs.questions} />
           </Form.Item>
-          <Form.Item name="autoCreateFinalSheets" label={null} valuePropName="checked">
+          {/* <Form.Item name="autoCreateFinalSheets" label={null} valuePropName="checked">
             <Checkbox>
               <div className="auto-create">
                 <span>自动生成流动资金贷款测算表</span>
@@ -75,7 +75,7 @@ const Component: FC<Props> = () => {
                 </Tooltip>
               </div>
             </Checkbox>
-          </Form.Item>
+          </Form.Item> */}
         </Form>
         <div className="actions">
           <Button type="primary" onClick={() => form.submit()}>

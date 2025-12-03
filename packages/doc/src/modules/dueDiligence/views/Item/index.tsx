@@ -4,11 +4,11 @@ import {Button, Dropdown, Form, Input, Modal, Popover, Progress, Table, Upload, 
 import {FC, memo, useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import LoadingPanel from '@/components/LoadingPanel';
 import {GetActions, GetClientRouter, SiteInfo} from '@/Global';
-import {getUploadProps, openDoc} from '@/utils/request';
+import {downloadFile, getUploadProps, openDoc} from '@/utils/request';
 import {message, useEvent} from '@/utils/tools';
 import {DueDiligenceAPI} from '../../api';
 import TplSelect from '../../components/TplSelect';
-import {DueConfigs, DueSettings, ItemDetail} from '../../entity';
+import {DueConfigs, ItemDetail} from '../../entity';
 import styles from './index.module.less';
 
 const twoColors = {
@@ -82,6 +82,12 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
   const onRenameReport = useEvent((file: string, newName: string) => {
     DueDiligenceAPI.renameReport(itemDetail.id, file, newName).then(refreshPage);
     setShowRename('');
+  });
+
+  const onOpenInterviewFile = useEvent((file: {fileName: string; fileUrl: string; type: string}) => {
+    if (file.type === 'wav') {
+      window.open(file.fileUrl);
+    }
   });
 
   const TableColumns = useMemo(
@@ -258,7 +264,18 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
         </div>
         <div className="step">
           <div className="subject">访谈资料</div>
-          <div className="list"></div>
+          <div className="list">
+            {itemDetail.interviewInstList.map((item) => (
+              <div key={item.id} className={styles.file}>
+                <CloseCircleFilled className="close" onClick={() => onRemoveResource(item.id)} />
+                <div className={'g-doc-icon ' + item.type} />
+                <div className="name" title={item.fileName} onClick={() => onOpenInterviewFile(item)}>
+                  {item.fileName}
+                </div>
+                <div className="info">{item.updateTime}</div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
       {showSupplementary && (

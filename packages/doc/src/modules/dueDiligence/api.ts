@@ -74,7 +74,9 @@ export const DueDiligenceAPI = {
   getItem(id: string): Promise<ItemDetail> {
     return request.post(`/api/deal/dealInstDetail?id=${id}`, {}).then((res) => {
       const item = res.data.data;
-      const {report} = item;
+      const {interviewCust, report, interviewInstList} = item;
+      const questionInstList = interviewInstList[0].questionInstList;
+      const recordFile = interviewInstList[0].recordFileInstVo;
       return {
         id: item.id,
         name: item.interviewCust,
@@ -85,6 +87,20 @@ export const DueDiligenceAPI = {
         report,
         // 准备资料
         resources: item.resources || [],
+        interviewInstList: [
+          questionInstList && {
+            id: 'questionInstList',
+            fileName: '问题清单',
+            fileUrl: JSON.stringify(questionInstList),
+            type: 'list',
+          },
+          recordFile && {
+            id: recordFile.id,
+            fileName: recordFile.recordFileName,
+            fileUrl: recordFile.recordFileUrl,
+            type: 'wav',
+          },
+        ].filter(Boolean),
       } as any;
     });
   },
@@ -120,7 +136,7 @@ export const DueDiligenceAPI = {
     return request.post(`/api/deal/delete/${id}`);
   },
   appendResource(id: string, text: string): Promise<void> {
-    return request.post(`/api/interview/appendResource`, {interviewInstId: id, appendText: text});
+    return request.post(`/api/interview/appendResource`, {interviewDealInstId: id, appendText: text});
   },
   rebuildReport(id: string): Promise<void> {
     return request.post(`/api/interview/applyAppendInterviewReportSync`, {interviewDealInstId: id});

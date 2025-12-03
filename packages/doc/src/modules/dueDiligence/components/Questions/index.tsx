@@ -62,7 +62,7 @@ const Component: FC<{
               }
               return (
                 <div className="form-item" key={key}>
-                  <label>{`问题${index}:`}</label>
+                  <label>{`问题${index + 1}:`}</label>
                   <BlurInput value={item.questionName} onChange={(val) => onLabelChange(val || '', index)} />
                   <DeleteIcon className="btn-del" onClick={() => onDel(index)} />
                 </div>

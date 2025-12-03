@@ -1,5 +1,5 @@
-import {DownOutlined, QuestionCircleFilled, UpOutlined} from '@ant-design/icons';
-import {Button, Checkbox, Form, Input, Space, Tooltip} from 'antd';
+import {DownOutlined, UpOutlined} from '@ant-design/icons';
+import {Button, Form, Input, Space} from 'antd';
 import {FC, memo, useState} from 'react';
 import DocUploads from '../../components/DocUploads';
 import IconSelect from '../../components/IconSelect';
@@ -53,7 +53,7 @@ const Component: FC<{
               <Form.Item name="template" label="尽调模板">
                 <TplSelect list={configs.template.list} />
               </Form.Item>
-              <Form.Item name="autoCreateFinalSheets" label={null} valuePropName="checked">
+              {/* <Form.Item name="autoCreateFinalSheets" label={null} valuePropName="checked">
                 <Checkbox>
                   <div className="auto-create">
                     <span>自动生成流动资金贷款测算表</span>
@@ -62,7 +62,7 @@ const Component: FC<{
                     </Tooltip>
                   </div>
                 </Checkbox>
-              </Form.Item>
+              </Form.Item> */}
             </>
           )}
           {setting && (

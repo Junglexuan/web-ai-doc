@@ -66,6 +66,7 @@ export interface ItemDetail {
     fileName: string;
     fileUrl: string;
     type: string;
+    updateTime: string;
   }[];
 }
 

@@ -7,6 +7,7 @@ import LoadingPanel from '@/components/LoadingPanel';
 import {GetActions, GetClientRouter, SiteInfo} from '@/Global';
 import {confirm, useEvent} from '@/utils/tools';
 import {DueDiligenceAPI} from '../../api';
+import Icons from '../../components/IconSelect/icons';
 import {DueConfigs, ListItem, ListSearch, ListSummary} from '../../entity';
 import Edit from '../Edit';
 import styles from './index.module.less';
@@ -43,7 +44,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
     setCurEdit({
       id: '',
       name: '',
-      logo: 'aaa.png',
+      logo: Icons[0],
       pathList: [],
       questions: {
         tpl: questions.selected,

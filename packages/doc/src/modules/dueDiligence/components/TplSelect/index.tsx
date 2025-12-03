@@ -27,7 +27,6 @@ const Component: FC<{
     setShowTpl(true);
   });
   const onPreview = useEvent((item: TPL) => {
-    setShowTpl(false);
     openDoc(item.id);
   });
   const onSelected = useEvent((item: TPL) => {
@@ -53,9 +52,9 @@ const Component: FC<{
                   {/* <div className="tags">
                     <span>{ShareOptions[item.isShare]}</span>
                   </div> */}
-                  <div className="creater">
+                  {/* <div className="creater">
                     <span>{`${item.createUserName} 创建于 ${item.createDate}`}</span>
-                  </div>
+                  </div> */}
                   <div title={item.remark} className="mask">
                     <div onClick={() => onPreview(item)}>预览模板</div>
                     <div onClick={() => onSelected(item)}>确认添加</div>
