@@ -348,7 +348,13 @@ const Component: FC<Props> = ({itemDetail}) => {
       <div className={styles.root}>
         <div className="hd">
           <Space size="large">
-            <HomeOutlined className="icon-link" onClick={() => GetClientRouter().relaunch({url: `/admin/home`}, 'window')} />
+            <HomeOutlined
+              className="icon-link"
+              onClick={() => {
+                //GetClientRouter().relaunch({url: `/admin/home`}, 'window')
+                returnToWorkbench('push', itemDetail.docType === 'con' ? '/app/contractManagement' : '/app/documentManagement');
+              }}
+            />
             {itemDetail.docType !== 'tpl' &&
               (loading === 'create' ? <Spin size="small" /> : <PlusOutlined className="icon-link" onClick={onCreatDoc} title="新建文档" />)}
             {itemDetail.docType !== 'tpl' && (

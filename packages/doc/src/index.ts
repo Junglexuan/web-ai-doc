@@ -11,7 +11,7 @@ import {isIframe} from './utils/tools';
 // loading状态管理
 let isLoading = isIframe();
 console.log('isInIframe: 当前是否iframe嵌套', isLoading);
-let appStarted = false; //避免重复渲染
+// let appStarted = false; //避免重复渲染
 
 const originWhiteList = ['http://113.44.121.105', 'http://192.168.1.126:5173']; //定义一套自定义消息共享源链白名单
 const handleMessage = (event: MessageEvent) => {
@@ -53,9 +53,9 @@ const handleMessage = (event: MessageEvent) => {
 
 //渲染应用的函数
 const renderApp = () => {
-  if (appStarted) return; //<-- 防止重复初始化
+  // if (appStarted) return; //<-- 防止重复初始化
   if (!isLoading) {
-    appStarted = true; //监听工作台token及用户信息设置本地后标记已启动，避免重复
+    // appStarted = true; //监听工作台token及用户信息设置本地后标记已启动，避免重复
     createApp(appConfig)
       .render()
       .then(() => {
