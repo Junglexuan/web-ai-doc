@@ -75,7 +75,7 @@ export const DueDiligenceAPI = {
     return request.post(`/api/deal/dealInstDetail?id=${id}`, {}).then((res) => {
       const item = res.data.data;
       const {interviewCust, report, interviewInstList} = item;
-      const questionInstList = interviewInstList[0].questionInstList;
+      const questionInstList = interviewInstList[0].questionInstList || [];
       const recordFile = interviewInstList[0].recordFileInstVo;
       return {
         id: item.id,
@@ -91,7 +91,9 @@ export const DueDiligenceAPI = {
           questionInstList && {
             id: 'questionInstList',
             fileName: '问题清单',
-            fileUrl: JSON.stringify(questionInstList),
+            fileUrl: JSON.stringify(
+              questionInstList.map((item: any) => ({id: item.id, question: item.questionInstName, answer: item.questionInstAnswer}))
+            ),
             type: 'list',
           },
           recordFile && {
@@ -104,17 +106,19 @@ export const DueDiligenceAPI = {
       } as any;
     });
   },
-  createItem(data: ListItem): Promise<void> {
+  createItem(data: ListItem): Promise<ListItem> {
     const {name, logo, autoCreateFinalSheets, pathList, questions, template} = data;
-    return request.post('/api/deal/createOrUpdateDealInst', {
-      target: name,
-      logo,
-      autoCreateFinalSheets,
-      templateId: template.id,
-      questionId: questions.tpl,
-      pathList: pathList.map((item) => item.url),
-      questionInfoList: questions.list,
-    });
+    return request
+      .post('/api/deal/createOrUpdateDealInst', {
+        target: name,
+        logo,
+        autoCreateFinalSheets,
+        templateId: template.id,
+        questionId: questions.tpl,
+        pathList: pathList.map((item) => item.url),
+        questionInfoList: questions.list,
+      })
+      .then((res) => res.data.data);
   },
   deleteItem(id: string): Promise<void> {
     return request.post(`/dream/pen/rag/contract/delete`, {id});

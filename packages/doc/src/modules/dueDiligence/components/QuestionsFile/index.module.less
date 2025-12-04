@@ -1,0 +1,60 @@
+:global {
+  :local(.root) {
+    overflow: hidden;
+
+    > .list {
+      position: relative;
+      height: 600px;
+      padding: 10px;
+      padding-bottom: 0;
+      margin: 10px;
+      overflow: auto;
+      color: #242424;
+    }
+
+    .form-item {
+      padding: 15px;
+      padding-left: 5em;
+      margin-top: 10px;
+      border-radius: 5px;
+
+      &:nth-child(odd) {
+        background: #f7f7f7;
+      }
+
+      // &:nth-child(even) {
+      //   background: blue;
+      // }
+    }
+
+    .title {
+      position: absolute;
+      width: 4em;
+      margin-left: -5em;
+      line-height: 33px;
+      text-align: right;
+    }
+
+    .answer {
+      padding: 7px 0;
+      color: #666;
+    }
+
+    .btn-del {
+      position: absolute;
+      display: none;
+      line-height: 0;
+      cursor: pointer;
+
+      &:hover {
+        opacity: 0.6;
+      }
+    }
+
+    .btn-create {
+      display: none;
+      width: 100%;
+      margin-right: 25px;
+    }
+  }
+}

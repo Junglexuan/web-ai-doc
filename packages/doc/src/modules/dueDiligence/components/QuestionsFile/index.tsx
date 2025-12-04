@@ -4,57 +4,63 @@ import {FC, memo, useRef} from 'react';
 import DeleteIcon from '@/assets/images/Delete';
 import BlurInput from '@/components/BlurInput';
 import {useEvent} from '@/utils/tools';
-import {DueConfigs} from '../../entity';
 import styles from './index.module.less';
 
 const Component: FC<{
-  configs: DueConfigs['questions'];
-  value?: {tpl: string; list: {id: string; questionName: string}[]};
-  onChange?: (value: {tpl: string; list: {id: string; questionName: string}[]}) => void;
-}> = ({configs, value = {tpl: '', list: []}, onChange}) => {
+  value: {id: string; question: string; answer: string}[];
+  onChange: (value: {id: string; question: string; answer: string}[]) => void;
+}> = ({value, onChange}) => {
   const uid = useRef(0);
   const uidMap = useRef(new Map<any, number>());
 
   const onCreate = useEvent(() => {
-    onChange?.({...value, list: [...value.list, {id: '', questionName: ''}]});
+    onChange([...value, {id: '', question: '', answer: ''}]);
   });
 
   const onDel = useEvent((index: number) => {
-    onChange?.({
-      ...value,
-      list: value.list.filter((item, i) => {
+    onChange(
+      value.filter((item, i) => {
         if (i === index) {
           uidMap.current.delete(item);
           return false;
         } else {
           return true;
         }
-      }),
-    });
+      })
+    );
   });
 
-  const onLabelChange = useEvent((text: string, index: number) => {
-    const list = value.list.map((item, i) => {
-      if (i === index) {
-        uidMap.current.delete(item);
-        return {...item, questionName: text};
-      } else {
-        return item;
-      }
-    });
-    onChange?.({...value, list});
+  const onQuestionChange = useEvent((question: string, index: number) => {
+    onChange(
+      value.map((item, i) => {
+        if (i === index) {
+          uidMap.current.delete(item);
+          return {...item, question};
+        } else {
+          return item;
+        }
+      })
+    );
   });
 
-  const onTplChange = useEvent((tpl: string) => {
-    onChange?.({tpl, list: configs.tpls.find((item) => item.value === tpl)?.list || []});
+  const onAnswerChange = useEvent((answer: string, index: number) => {
+    onChange(
+      value.map((item, i) => {
+        if (i === index) {
+          uidMap.current.delete(item);
+          return {...item, answer};
+        } else {
+          return item;
+        }
+      })
+    );
   });
 
   return (
     <div className={styles.root}>
-      <Select options={configs.tpls} value={value!.tpl} onChange={onTplChange} />
       <div className="list">
-        {value.list.length
-          ? value.list.map((item, index) => {
+        {value.length
+          ? value.map((item, index) => {
               let key = uidMap.current.get(item);
               if (!key) {
                 key = ++uid.current;
@@ -62,15 +68,16 @@ const Component: FC<{
               }
               return (
                 <div className="form-item" key={key}>
-                  <label>{`问题${index + 1}:`}</label>
-                  <BlurInput value={item.questionName} maxLength={100} onChange={(val) => onLabelChange(val || '', index)} />
+                  <div className="title">{`问题${index + 1}:`}</div>
+                  <BlurInput value={item.question} maxLength={100} onChange={(val) => onQuestionChange(val || '', index)} />
+                  <div className="title">{`回答:`}</div>
+                  <div>{item.answer || '　'}</div>
                   <DeleteIcon className="btn-del" onClick={() => onDel(index)} />
                 </div>
               );
             })
           : null}
         <div className="form-item">
-          <label></label>
           <Button className="btn-create" type="dashed" icon={<PlusOutlined />} onClick={onCreate}>
             添加问题
           </Button>

@@ -42,7 +42,7 @@ const Component: FC<{
         <UploadedDoc file={{uid: value.id, name: value.name, thumbUrl: value.id}} onReplace={onReplace} />
       )}
       {showTpl && (
-        <Modal width={915} title="添加所需成果模板" open={true} footer={null} onCancel={onCloseTpl}>
+        <Modal width={915} title="尽调报告模板" open={true} footer={null} onCancel={onCloseTpl}>
           <div className={styles.root}>
             {list.map((item) => {
               return (
@@ -56,8 +56,8 @@ const Component: FC<{
                     <span>{`${item.createUserName} 创建于 ${item.createDate}`}</span>
                   </div> */}
                   <div title={item.remark} className="mask">
-                    <div onClick={() => onPreview(item)}>预览模板</div>
-                    <div onClick={() => onSelected(item)}>确认添加</div>
+                    <div onClick={() => onPreview(item)}>预览</div>
+                    <div onClick={() => onSelected(item)}>使用</div>
                   </div>
                 </div>
               );

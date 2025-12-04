@@ -1,12 +1,13 @@
 import {CloseCircleFilled, CloudUploadOutlined, DownOutlined, EditOutlined, LeftOutlined} from '@ant-design/icons';
 import {Dispatch, DocumentHead} from '@elux/react-web';
-import {Button, Dropdown, Form, Input, Modal, Popover, Progress, Table, Upload, UploadProps} from 'antd';
+import {Button, Dropdown, Input, Modal, Popover, Progress, Table, Upload, UploadProps} from 'antd';
 import {FC, memo, useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import LoadingPanel from '@/components/LoadingPanel';
 import {GetActions, GetClientRouter, SiteInfo} from '@/Global';
-import {downloadFile, getUploadProps, openDoc} from '@/utils/request';
+import {downloadFile, getUploadProps, openDoc, replaceBaseUrl} from '@/utils/request';
 import {message, useEvent} from '@/utils/tools';
 import {DueDiligenceAPI} from '../../api';
+import QuestionsFile from '../../components/QuestionsFile';
 import TplSelect from '../../components/TplSelect';
 import {DueConfigs, ItemDetail} from '../../entity';
 import styles from './index.module.less';
@@ -29,7 +30,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
   const [showSupplementary, setShowSupplementary] = useState(false);
   const supplementaryRef = useRef<any>(null);
   const [showRename, setShowRename] = useState('');
-  const [form] = Form.useForm();
+  const [showQuestionsFile, setShowQuestionsFile] = useState<{id: string; question: string; answer: string}[]>();
 
   const refreshPage = useCallback(() => {
     dispatch(dueDiligenceActions.fetchItem(itemDetail.id));
@@ -87,8 +88,12 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
   const onOpenInterviewFile = useEvent((file: {fileName: string; fileUrl: string; type: string}) => {
     if (file.type === 'wav') {
       window.open(file.fileUrl);
+    } else if (file.type === 'list') {
+      setShowQuestionsFile(file.fileUrl ? JSON.parse(file.fileUrl) : []);
     }
   });
+
+  const onQuestionsFileChange = useEvent(() => {});
 
   const TableColumns = useMemo(
     () => [
@@ -164,10 +169,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
               menu={{
                 onClick: ({key}: {key: string}) => {
                   if (key === '下载Word') {
-                    // setGlobalLoading(
-                    //   downloadFile(replaceBaseUrl(`/dream/pen/article/down?id=${record.id}&type=word`), record.title),
-                    //   GetClientRouter().getActivePage().store
-                    // );
+                    downloadFile(replaceBaseUrl(`/api/deal/down?id=${item.id}&type=word`), item.fileName);
                   } else if (key === '下载PDF') {
                     // setGlobalLoading(
                     //   downloadFile(replaceBaseUrl(`/dream/pen/article/down?id=${record.id}&type=pdf`), record.title),
@@ -278,6 +280,11 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
           </div>
         </div>
       </div>
+      {showQuestionsFile && (
+        <Modal title="问题清单" width={750} open={true} footer={null} onCancel={() => setShowQuestionsFile(undefined)}>
+          <QuestionsFile value={showQuestionsFile} onChange={onQuestionsFileChange} />
+        </Modal>
+      )}
       {showSupplementary && (
         <Modal title="补充信息" width={650} open={true} footer={null} onCancel={() => setShowSupplementary(false)}>
           <div className={styles.info}>

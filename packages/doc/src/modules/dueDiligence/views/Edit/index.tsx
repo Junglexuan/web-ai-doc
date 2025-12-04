@@ -22,7 +22,7 @@ const Component: FC<{
     <div className={styles.root}>
       <div className="bd">
         <Form labelCol={{span: 5}} wrapperCol={{span: 18}} initialValues={data} preserve={false} form={form} onFinish={onSubmit}>
-          <Form.Item name="name" label="尽调对象" rules={[{required: true}]}>
+          <Form.Item name="name" label="尽调名称" rules={[{required: true}]}>
             <Input maxLength={64} placeholder="必填，最大长度64个字符" />
           </Form.Item>
           <Form.Item name="logo" label="项目图标">
@@ -50,7 +50,7 @@ const Component: FC<{
               <Form.Item label="问题清单" name="questions">
                 <Questions configs={configs.questions} />
               </Form.Item>
-              <Form.Item name="template" label="尽调模板">
+              <Form.Item name="template" label="尽调报告模板">
                 <TplSelect list={configs.template.list} />
               </Form.Item>
               {/* <Form.Item name="autoCreateFinalSheets" label={null} valuePropName="checked">

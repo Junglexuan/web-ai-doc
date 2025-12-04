@@ -44,7 +44,7 @@ const Component: FC<{
         className={value === uploadFileUrl.current ? 'upload on' : 'upload'}
         onClick={() => uploadFileUrl.current && onChange?.(uploadFileUrl.current)}
       >
-        <Upload {...uploadProps} listType="picture-card" fileList={uploadFiles} onChange={handleChange}>
+        <Upload {...uploadProps} listType="picture-card" fileList={uploadFiles} accept=".png,.svg,.jpg,.jpeg,.gif" onChange={handleChange}>
           {uploadFiles.length > 0 ? null : (
             <div className="upload-btn">
               <PlusOutlined />

@@ -64,9 +64,10 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
   });
 
   const onEditSubmit = useEvent((data: ListItem) => {
-    DueDiligenceAPI.createItem({...curEdit, ...data}).then(() => {
+    DueDiligenceAPI.createItem({...curEdit, ...data}).then((item) => {
       setCurEdit(undefined);
       refreshList();
+      onShowDetail(item);
     });
   });
 
