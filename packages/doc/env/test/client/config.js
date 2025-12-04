@@ -8,7 +8,7 @@ window.SitesUrl = {
   nexus: '//nexus.binarysee.com.cn',
   helix: '//helix.binarysee.com.cn',
   verse: '//verse.binarysee.com.cn',
-  pulse: '//pulse.binarysee.com.cn',
+  pulse: 'http://113.44.121.105:8066', //pulse.binarysee.com.cn
   preview: 'http://113.44.121.105:8012/onlinePreview',
 };
 window.PathPrefix = '';

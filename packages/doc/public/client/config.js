@@ -9,7 +9,7 @@ window.SitesUrl = {
   nexus: '//nexus.binarysee.com',
   helix: '//helix.binarysee.com',
   verse: '//localhost:4004',
-  pulse: '//pulse.binarysee.com',
+  pulse: 'http://113.44.121.105:8066', ////pulse.binarysee.com
   preview: 'http://113.44.121.105:8012/onlinePreview',
   editor: 'http://113.44.121.105:8901',
 };

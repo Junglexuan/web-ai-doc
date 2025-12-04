@@ -1,7 +1,7 @@
 import {ActionError} from '@elux/react-web';
 import axios, {AxiosError, AxiosResponse} from 'axios';
 import {ApiBaseUrl, ApiPrefix, PathPrefix, SitesUrl} from '@/Global';
-import {clearToken, getTenant, getToken, info, message, tokenExpiredRefresh} from './tools';
+import {clearToken, getPortalUrl, getTenant, getToken, info, message, tokenExpiredRefresh} from './tools';
 
 function toErrorMessage(status: number) {
   switch (status) {
@@ -149,11 +149,15 @@ instance.interceptors.response.use(
       // info(data.message || '检测到租户已发生变化，需要刷新数据...', () => {
       //   window.location.href = SitesUrl.verse;
       // });
-      // throw new CustomError('402', '');
-      window.parent.postMessage({
-        method: 'zov:TENANT_CHANGED',
-        data: data.message || '检测到租户已发生变化，需要刷新数据...',
-      });
+      console.log('向主应用发送消息通知: zov:TENANT_CHANGED租户切换！');
+      window.parent.postMessage(
+        {
+          method: 'zov:TENANT_CHANGED',
+          data: data.message || '检测到租户已发生变化，需要刷新数据...',
+        },
+        getPortalUrl() || '*'
+      );
+      throw new CustomError('402', '');
     }
     const config = error.config!;
     const requestHeaders = config.headers;
