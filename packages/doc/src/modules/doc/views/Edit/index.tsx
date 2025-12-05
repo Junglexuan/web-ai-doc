@@ -241,7 +241,16 @@ const Component: FC<Props> = ({itemDetail}) => {
         <Breadcrumb
           items={[
             {
-              title: (
+              title: isIframe() ? (
+                <div
+                  style={{cursor: 'pointer'}}
+                  onClick={() => {
+                    returnToWorkbench('push', '/app/templateManagement');
+                  }}
+                >
+                  模版管理
+                </div>
+              ) : (
                 <Link to="/admin/doc/list/tpls" action="relaunch" target="window">
                   模版管理
                 </Link>
@@ -267,7 +276,16 @@ const Component: FC<Props> = ({itemDetail}) => {
       );
     }
     const arr = itemDetail.levelPath.map((item) => ({
-      title: (
+      title: isIframe() ? (
+        <div
+          style={{cursor: 'pointer'}}
+          onClick={() => {
+            returnToWorkbench('push', itemDetail.docType === 'con' ? '/app/contractManagement' : `/app/documentManagement?id=${item.id}`);
+          }}
+        >
+          {item.folderName}
+        </div>
+      ) : (
         <Link
           to={`${itemDetail.docType === 'con' ? '/admin/doc/list/conts' : '/admin/doc/list/maintain'}?id=${item.id}`}
           action="relaunch"
