@@ -132,7 +132,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
             return (
               <div className={styles.card} key={item.id} onClick={() => onShowDetail(item)}>
                 <div className="bd">
-                  <img className="icon" src={item.logo} />
+                  <img className="icon" src={item.logo || Icons[0]} />
                   <div className="title">{item.name}</div>
                   <div className="desc">{item.desc}</div>
                 </div>

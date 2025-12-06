@@ -103,7 +103,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
         key: 'fileName',
         width: 700,
         render: (txt: string, item: any) => (
-          <div className="file-name" onClick={() => openDoc(item.id)}>
+          <div className="file-name" onClick={() => openDoc(item.id, true)}>
             <span className={'g-doc-icon t-' + item.type} />
             {txt}
           </div>
@@ -121,8 +121,8 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
       // },
       {
         title: '最后修改时间',
-        dataIndex: 'updateTime',
-        key: 'updateTime',
+        dataIndex: 'lastModifiedTime',
+        key: 'lastModifiedTime',
       },
       {
         title: '操作',
@@ -163,19 +163,12 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
               <a>重命名</a>
             </Popover>
             <TplSelect list={configs!.template.list} value={{id: item.id, name: item.fileName}} onChange={onResetTemplate}>
-              <a>更换模版</a>
+              <a>更换模板</a>
             </TplSelect>
             <Dropdown
               menu={{
                 onClick: ({key}: {key: string}) => {
-                  if (key === '下载Word') {
-                    downloadFile(replaceBaseUrl(`/api/deal/down?id=${item.id}&type=word`), item.fileName);
-                  } else if (key === '下载PDF') {
-                    // setGlobalLoading(
-                    //   downloadFile(replaceBaseUrl(`/dream/pen/article/down?id=${record.id}&type=pdf`), record.title),
-                    //   GetClientRouter().getActivePage().store
-                    // );
-                  }
+                  downloadFile(replaceBaseUrl(`/api/deal/down?id=${item.id}&type=${key === '下载Word' ? 'word' : 'pdf'}`), item.fileName);
                 },
                 items: [
                   {
@@ -221,7 +214,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
     <div className={styles.root}>
       <DocumentHead title={'尽调管理-' + SiteInfo.name} />
       <div className="hd">
-        <LeftOutlined />
+        <LeftOutlined onClick={() => GetClientRouter().back(1)} />
         <a onClick={() => GetClientRouter().back(1)}>尽调管理</a>
         <span>/</span>
         <a>尽调详情</a>
@@ -259,7 +252,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
                 <div className="name" title={item.fileName} onClick={() => openDoc(item.id)}>
                   {item.fileName}
                 </div>
-                <div className="info">{item.updateTime}</div>
+                <div className="info">{item.lastModifiedTime}</div>
               </div>
             ))}
           </div>
@@ -274,7 +267,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
                 <div className="name" title={item.fileName} onClick={() => onOpenInterviewFile(item)}>
                   {item.fileName}
                 </div>
-                <div className="info">{item.updateTime}</div>
+                <div className="info">{item.lastModifiedTime}</div>
               </div>
             ))}
           </div>

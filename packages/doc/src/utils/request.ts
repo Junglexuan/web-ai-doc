@@ -212,10 +212,16 @@ export function uploadFile(url: string, formData: FormData): Promise<{url: strin
     });
 }
 
-export function openDoc(urlOrId: string): void {
-  instance.get(`${SitesUrl.editor}/webInterface/url/view/${urlOrId}`).then((res) => {
-    window.open(res.data.data);
-  });
+export function openDoc(urlOrId: string, edit?: boolean): void {
+  if (edit) {
+    instance.get(`${SitesUrl.editor}/webInterface/url/edit/${urlOrId}`).then((res) => {
+      window.open(res.data.data);
+    });
+  } else {
+    instance.get(`${SitesUrl.editor}/webInterface/url/view/${urlOrId}`).then((res) => {
+      window.open(res.data.data);
+    });
+  }
 }
 
 export function toLoginPage(from?: string): void {

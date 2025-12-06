@@ -58,7 +58,7 @@ export interface ItemDetail {
     fileName: string;
     fileUrl: string;
     type: string;
-    updateTime: string;
+    lastModifiedTime: string;
   }[];
   // 访谈资料
   interviewInstList: {
@@ -66,7 +66,7 @@ export interface ItemDetail {
     fileName: string;
     fileUrl: string;
     type: string;
-    updateTime: string;
+    lastModifiedTime: string;
   }[];
 }
 

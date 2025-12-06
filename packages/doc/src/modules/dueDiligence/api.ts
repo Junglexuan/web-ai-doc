@@ -100,6 +100,7 @@ export const DueDiligenceAPI = {
             id: recordFile.id,
             fileName: recordFile.recordFileName,
             fileUrl: recordFile.recordFileUrl,
+            lastModifiedTime: recordFile.lastModifiedDate,
             type: 'wav',
           },
         ].filter(Boolean),
