@@ -158,7 +158,15 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
             showMask(open);
           }}
         >
-          <Edit configs={configs} data={curEdit} onCancel={onCloseEdit} onSubmit={onEditSubmit} />
+          <Edit
+            configs={configs}
+            data={curEdit}
+            onCancel={() => {
+              onCloseEdit();
+              showMask(false);
+            }}
+            onSubmit={onEditSubmit}
+          />
         </Modal>
       )}
     </div>
