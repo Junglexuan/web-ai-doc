@@ -301,7 +301,7 @@ export const clearToken = (): void => {
 export const getCurUserId = (): string => {
   const info = localStorage.getItem('zov-user-info');
   const user = info ? JSON.parse(info) : {};
-  return user.id || '';
+  return user.id || user.userId || '';
 };
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function countPagination(pageCurrent: number, totalItems: number, pageSize: number) {

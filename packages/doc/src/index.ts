@@ -6,7 +6,7 @@ import {createApp} from '@elux/react-web';
 import {appConfig} from './Project';
 import {isIframe} from './utils/tools';
 
-(window as any)['ZovCloudUI'].register();
+(window as any)['ZovCloudUI'] && (window as any)['ZovCloudUI'].register();
 
 // loading状态管理
 let isLoading = isIframe();
