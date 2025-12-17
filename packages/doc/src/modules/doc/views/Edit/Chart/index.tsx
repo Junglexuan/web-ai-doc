@@ -54,10 +54,14 @@ const Component: FC<Props> = ({editor}) => {
         {/* url = `${authorizationUtil.getZovMsgOrigin() ?? ''}/app?path=${
         encodeURIComponent(`${location.origin}${UMI_APP_ROUTE_BASE}knowledge/${KnowledgeRouteKey.Dataset}?id=${item.id}&from=list`)}` */}
         {/* {isIframe() ? ( */}
-        <iframe
-          className={styles.iframe}
-          src={`${localStorage.getItem('zov-msg-origin') ?? ''}/app?path=${encodeURIComponent(`${SitesUrl.pulse}/chat/window?token=${getToken()}`)}`}
-        />
+        {show && (
+          <iframe
+            className={styles.iframe}
+            src={`${localStorage.getItem('zov-msg-origin') ?? ''}/app?path=${encodeURIComponent(
+              `${SitesUrl.pulse}/chat/window?token=${getToken()}`
+            )}`}
+          />
+        )}
         {/* ) : (
           <div className="bd">{show && <iframe className={styles.iframe} src={`${SitesUrl.pulse}/chat/window?token=${getToken()}`} />}</div>
         )} */}
