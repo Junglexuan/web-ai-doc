@@ -74,7 +74,7 @@ export const DueDiligenceAPI = {
   getItem(id: string): Promise<ItemDetail> {
     return request.post(`/api/deal/dealInstDetail?id=${id}`, {}).then((res) => {
       const item = res.data.data;
-      const {interviewCust, report, interviewInstList} = item;
+      const {interviewCust, report, interviewInstList, supplementary} = item;
       const questionInstList = interviewInstList[0].questionInstList || [];
       const recordFile = interviewInstList[0].recordFileInstVo;
       return {
@@ -87,6 +87,7 @@ export const DueDiligenceAPI = {
         report,
         // 准备资料
         resources: item.resources || [],
+        supplementary,
         interviewInstList: [
           questionInstList && {
             id: 'questionInstList',

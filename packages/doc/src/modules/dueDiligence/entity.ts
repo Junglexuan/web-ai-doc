@@ -22,6 +22,7 @@ export interface ListItem extends BaseListItem {
     id: string;
     name: string;
   };
+  status: string;
 }
 export interface ListSummary extends BaseListSummary {}
 
@@ -37,6 +38,7 @@ export interface ItemDetail {
   desc: string;
   status: string;
   progress: number;
+  updateDate?: string;
   // 报告
   report: {
     id: string;
@@ -45,6 +47,11 @@ export interface ItemDetail {
     wordCount: number;
     updateTime: string;
     type: string;
+    lastModifiedTime: string;
+    matchNum: number;
+    relationId: string;
+    total: number;
+    owner: string;
   };
   calculation: {
     id: string;
@@ -54,6 +61,14 @@ export interface ItemDetail {
   };
   // 准备资料
   resources: {
+    id: string;
+    fileName: string;
+    fileUrl: string;
+    type: string;
+    lastModifiedTime: string;
+  }[];
+  // 补充资料
+  supplementary: {
     id: string;
     fileName: string;
     fileUrl: string;
@@ -124,3 +139,10 @@ export interface DueSettings {
     name: string;
   };
 }
+
+export const StatusMap: {[key: string]: string} = {
+  '1': '准备中',
+  '2': '访谈中',
+  '3': '完善中',
+  '4': '已结束',
+};

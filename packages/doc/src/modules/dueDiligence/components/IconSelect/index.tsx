@@ -14,6 +14,9 @@ const Component: FC<{
   const [uploadFiles, setUploadFiles] = useState<UploadFile[]>([]);
   const uploadProps: UploadProps = useMemo(() => getUploadProps('/api/upload/file'), []);
 
+  const [selectedIcon, setSelectedIcon] = useState<string | null>(null);
+  const [uploadedImage, setUploadedImage] = useState<string | null>(null);
+
   const handleChange = useEvent(({fileList, file}: {fileList: UploadFile[]; file: UploadFile}) => {
     setUploadFiles(fileList);
     if (file.status === 'done') {
@@ -25,6 +28,24 @@ const Component: FC<{
 
   return (
     <div className={styles.root}>
+      <div
+        className={value === uploadFileUrl.current ? 'upload on' : 'upload'}
+        onClick={() => uploadFileUrl.current && onChange?.(uploadFileUrl.current)}
+      >
+        <Upload {...uploadProps} listType="picture-card" fileList={uploadFiles} accept=".png,.svg,.jpg,.jpeg,.gif" onChange={handleChange}>
+          {uploadFiles.length > 0 ? null : (
+            <div className="upload-btn">
+              <PlusOutlined />
+            </div>
+          )}
+        </Upload>
+      </div>
+      {uploadedImage && (
+        <div className="uploaded-image-box" onClick={() => setSelectedIcon(uploadedImage)}>
+          <img src={uploadedImage} alt="上传的图标" className="uploaded-image" />
+          {/* {selectedIcon === uploadedImage && <img src={agentCheckedIcon} alt="agent-checked" className="agent-checked" />} */}
+        </div>
+      )}
       <div className={value === Icons[0] ? 'on' : ''} onClick={() => onChange?.(Icons[0])}>
         <img src={Icons[0]} />
       </div>
@@ -40,19 +61,7 @@ const Component: FC<{
       <div className={value === Icons[4] ? 'on' : ''} onClick={() => onChange?.(Icons[4])}>
         <img src={Icons[4]} />
       </div>
-      <div
-        className={value === uploadFileUrl.current ? 'upload on' : 'upload'}
-        onClick={() => uploadFileUrl.current && onChange?.(uploadFileUrl.current)}
-      >
-        <Upload {...uploadProps} listType="picture-card" fileList={uploadFiles} accept=".png,.svg,.jpg,.jpeg,.gif" onChange={handleChange}>
-          {uploadFiles.length > 0 ? null : (
-            <div className="upload-btn">
-              <PlusOutlined />
-            </div>
-          )}
-        </Upload>
-      </div>
-      <div className={value === Icons[5] ? 'on' : ''} onClick={() => onChange?.(Icons[5])}>
+      {/* <div className={value === Icons[5] ? 'on' : ''} onClick={() => onChange?.(Icons[5])}>
         <img src={Icons[5]} />
       </div>
       <div className={value === Icons[6] ? 'on' : ''} onClick={() => onChange?.(Icons[6])}>
@@ -67,7 +76,7 @@ const Component: FC<{
       <div className={value === Icons[9] ? 'on' : ''} onClick={() => onChange?.(Icons[9])}>
         <img src={Icons[9]} />
       </div>
-      <div style={{visibility: 'hidden'}}></div>
+      <div style={{visibility: 'hidden'}}></div> */}
     </div>
   );
 };

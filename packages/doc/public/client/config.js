@@ -1,8 +1,8 @@
 window.ApiBaseUrl = '';
 window.ApiPrefix = {
-  '/auth/': 'http://user.binarysee.com/auth/',
-  '/dream/': 'http://verse.binarysee.com/dream/',
-  '/api/': 'http://106gx1895yn84.vicp.fun/',
+  '/auth/': 'http://user.binarysee.com/auth/', //http://user.binarysee.com.cn/auth/
+  '/dream/': 'http://verse.binarysee.com/dream/', //http://verse.binarysee.com.cn/dream/
+  '/api/': 'http://113.44.121.105:8901/', //http://106gx1895yn84.vicp.fun/
 };
 window.SitesUrl = {
   user: '//user.binarysee.com',
@@ -10,8 +10,8 @@ window.SitesUrl = {
   helix: '//helix.binarysee.com',
   verse: '//localhost:4004',
   pulse: '//pulse.binarysee.com',
-  preview: 'http://113.44.121.105:8012/onlinePreview',
-  editor: 'http://113.44.121.105:8901',
+  preview: 'http://113.44.121.105:8012/onlinePreview', //预览
+  editor: 'http://113.44.121.105:8901', //word编辑器
 };
 window.PathPrefix = '';
 window.SiteInfo = {

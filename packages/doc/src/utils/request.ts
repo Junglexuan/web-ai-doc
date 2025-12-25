@@ -151,6 +151,7 @@ instance.interceptors.response.use(
       });
       throw new CustomError('402', '');
     }
+    console.log('error: ', error);
     const config = error.config!;
     const requestHeaders = config.headers;
     //const requestUrl = config.url;

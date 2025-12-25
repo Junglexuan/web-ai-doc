@@ -12,6 +12,7 @@ module.exports = {
     clientPublicPath: '/client/',
     urlLoaderLimitSize: 100,
     webpackConfigTransform: (config) => {
+      console.log('config: webpackConfigTransform=', config);
       // config.plugins.push(
       //   new MonacoWebpackPlugin({
       //     // available options are documented at https://github.com/microsoft/monaco-editor/blob/main/webpack-plugin/README.md#options

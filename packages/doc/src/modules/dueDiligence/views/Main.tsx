@@ -22,6 +22,7 @@ function mapStateToProps(appState: APPState): StoreProps {
 }
 
 const Component: FC<StoreProps & {dispatch: Dispatch}> = ({curView, curRender, itemDetail, listSearch, list, listSummary, dispatch}) => {
+  console.log('itemDetail: ', itemDetail);
   return (
     <Switch elseView={<ErrorPage />}>
       {curView === 'list' &&

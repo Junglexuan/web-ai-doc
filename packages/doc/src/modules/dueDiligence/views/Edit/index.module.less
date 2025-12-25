@@ -17,3 +17,104 @@
     }
   }
 }
+
+// 顶层样式，可直接在React中使用
+.createAgentIcons {
+  display: flex;
+  gap: 16px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.createAgentAvatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 10px;
+  background: #F1F1F3;
+  border: 2px solid #fff;
+  cursor: pointer;
+  position: relative;
+
+  &:hover {
+    border: 2px solid #1890ff;
+  }
+
+  &.active {
+    border: 2px solid #1890ff;
+
+    .agentChecked {
+      display: block;
+    }
+  }
+
+  .agentAvatar {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+  }
+
+  .agentChecked {
+    position: absolute;
+    width: 15px;
+    height: 15px;
+    bottom: -3px;
+    right: -5px;
+    display: none;
+  }
+}
+
+.uploadIconBox {
+  width: 64px;
+  height: 64px;
+  border: 1px dashed #d9d9d9;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+
+  svg path {
+    fill: #85888F;
+  }
+
+  &:hover {
+    border-color: #1890ff;
+  }
+}
+
+.uploadedImageBox {
+  width: 64px;
+  height: 64px;
+  border: 2px dashed #d9d9d9; // 使用透明边框，使样式与其他图标一致
+  border-radius: 10px;
+  cursor: pointer;
+  position: relative;
+
+  .uploadedImage {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .agentChecked {
+    position: absolute;
+    width: 15px;
+    height: 15px;
+    bottom: -3px;
+    right: -5px;
+    display: none; // 默认隐藏，只有选中时显示
+  }
+
+  &:hover {
+    border: 2px dashed #1890ff;
+  }
+
+  &.active {
+    border: 2px dashed #1890ff;
+
+    .agentChecked {
+      display: block;
+    }
+  }
+}
