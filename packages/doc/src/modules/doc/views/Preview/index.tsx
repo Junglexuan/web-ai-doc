@@ -13,13 +13,13 @@ interface Props {
 }
 
 const Component: FC<Props> = ({tplId, onCancel, onApply}) => {
-  const [data, setData] = useState<{tplId: string; format?: string; snapshot: string; isMine: boolean}>();
+  const [data, setData] = useState<{tplId: string; format?: string; snapshot: string; isMine: boolean; title: string}>();
   const inDialog = location.search.endsWith('__c=_dialog');
 
   const copyForMe = useCallback(() => {
-    DocAPI.copyTplForMe(tplId).then((id) => {
+    DocAPI.copyTplForMe(tplId).then(({id, title}) => {
       onCancel();
-      openArticle(`/admin/doc/item/tpl/${id}?__c=_dialog`);
+      openArticle(`/admin/doc/item/tpl/${id}?__c=_dialog`, title);
     });
   }, [onCancel, tplId]);
 
@@ -59,7 +59,7 @@ const Component: FC<Props> = ({tplId, onCancel, onApply}) => {
                 <Button
                   onClick={() => {
                     onCancel();
-                    openArticle(`/admin/doc/item/tpl/${tplId}?__c=_dialog`);
+                    openArticle(`/admin/doc/item/tpl/${tplId}?__c=_dialog`, data.title || '编辑模版');
                   }}
                 >
                   编辑模版

@@ -197,8 +197,8 @@ const Component: FC<Props> = ({itemDetail}) => {
   const onCreatDoc = useEvent(() => {
     setLoading('create');
     DocAPI.createDoc({folder: itemDetail.folder, title: '', contents: ''}, itemDetail.docType)
-      .then(({id}) => {
-        openArticle(`/admin/doc/item/edit/${id}?__c=_dialog`);
+      .then(({id, title}) => {
+        openArticle(`/admin/doc/item/edit/${id}?__c=_dialog`, title);
       })
       .finally(() => setLoading(''));
   });

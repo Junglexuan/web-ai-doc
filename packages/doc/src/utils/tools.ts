@@ -133,10 +133,10 @@ export function toNativeUrl(url: string): string {
   return PathPrefix + url;
 }
 
-export function openArticle(url: string): void {
+export function openArticle(url: string, title: string): void {
   if (isIframe()) {
     const portalUrl = localStorage.getItem('zov-msg-origin');
-    const realUrl = `${portalUrl ?? ''}/app?path=${encodeURIComponent(`${location.origin}${toNativeUrl(url)}`)}`;
+    const realUrl = `${portalUrl ?? ''}/app?path=${encodeURIComponent(`${location.origin}${toNativeUrl(url)}`)}&title=${encodeURIComponent(title)}`;
     window.open(realUrl, url);
   } else {
     GetClientRouter().push({url}, 'window');

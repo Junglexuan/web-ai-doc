@@ -1,5 +1,6 @@
 import {EyeOutlined} from '@ant-design/icons';
 import {DocumentHead, connectStore} from '@elux/react-web';
+import {t} from '@wangeditor-next/editor';
 import {Carousel, Empty} from 'antd';
 import {FC, MouseEvent, useEffect, useMemo, useState} from 'react';
 import {PathPrefix, SiteInfo} from '@/Global';
@@ -39,7 +40,7 @@ const Component: FC = () => {
     DocAPI.getDoc(tplId).then((tpl) => {
       DocAPI.createDoc({folder: isContract ? '1' : '0', title: tpl.title, contents: ''}, 'doc').then(async ({id}) => {
         window.sessionStorage.setItem('__temp_tpl__', JSON.stringify({id: tplId, fields, knowledges, stand}));
-        openArticle(`/admin/doc/item/edit/${id}?&tpl=${tpl.id}&__c=_dialog`);
+        openArticle(`/admin/doc/item/edit/${id}?&tpl=${tpl.id}&__c=_dialog`, tpl.title);
       });
     });
   });
@@ -57,8 +58,8 @@ const Component: FC = () => {
     }
   );
 
-  const onShowDetail = useEvent((evt: MouseEvent, id: string) => {
-    openArticle(`/admin/doc/item/edit/${id}?__c=_dialog`);
+  const onShowDetail = useEvent((evt: MouseEvent, id: string, title: string) => {
+    openArticle(`/admin/doc/item/edit/${id}?__c=_dialog`, title);
   });
 
   const renderHotArticle = useMemo(() => {
@@ -69,7 +70,7 @@ const Component: FC = () => {
     return (
       <div className="recent-creations">
         {hotArticleList.map((item, index) => (
-          <a key={index} className="creation-item" title={item.title} onClick={(e) => onShowDetail(e, item.id)}>
+          <a key={index} className="creation-item" title={item.title} onClick={(e) => onShowDetail(e, item.id, item.title)}>
             <div className="title" title={item.title}>
               {item.title}
             </div>

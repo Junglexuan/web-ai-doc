@@ -107,7 +107,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, inDialog, dispatch
       setCurEdit(undefined);
       await refreshList();
       if (!curId) {
-        openArticle(`/admin/doc/item/tpl/${id}?__c=_dialog`);
+        openArticle(`/admin/doc/item/tpl/${id}?__c=_dialog`, data.title);
       }
     });
   });
@@ -121,7 +121,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, inDialog, dispatch
           async ({id}) => {
             const data = {id: tplId, fields, knowledges, stand};
             window.sessionStorage.setItem('__temp_tpl__', JSON.stringify(data));
-            openArticle(`/admin/doc/item/edit/${id}?&tpl=${tpl.id}&__c=_dialog`);
+            openArticle(`/admin/doc/item/edit/${id}?&tpl=${tpl.id}&__c=_dialog`, tpl.title);
             if (inDialog) {
               await GetClientRouter().back(1);
               // eslint-disable-next-line no-self-assign
@@ -139,8 +139,8 @@ const Component: FC<Props> = ({list, listSearch, listSummary, inDialog, dispatch
     });
   });
 
-  const onShowTpl = useEvent((evt: MouseEvent, tplId: string) => {
-    openArticle(`/admin/doc/item/tpl/${tplId}?__c=_dialog`);
+  const onShowTpl = useEvent((evt: MouseEvent, tplId: string, title: string) => {
+    openArticle(`/admin/doc/item/tpl/${tplId}?__c=_dialog`, title);
   });
 
   const onSearch = useEvent((name: string) => {
@@ -273,7 +273,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, inDialog, dispatch
                   className={'mask ' + styles2.mask}
                   onClick={(e) => {
                     if (e.target === e.currentTarget) {
-                      onShowTpl(e as MouseEvent, item.id);
+                      onShowTpl(e as MouseEvent, item.id, item.title);
                     }
                   }}
                 >

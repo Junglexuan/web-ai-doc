@@ -50,7 +50,7 @@ export const DocAPI = {
       GetClientRouter().getActivePage().store
     );
   },
-  createDoc(data: {title: string; contents: string; folder: string}, type: DocType, size?: number): Promise<{id: string}> {
+  createDoc(data: {title: string; contents: string; folder: string}, type: DocType, size?: number): Promise<{id: string; title: string}> {
     const {title, folder} = data;
     const contents = data.contents || '<p style="line-height: 1.5;"><span style="font-family: 黑体;"></span></p>';
     return setGlobalLoading(
@@ -167,17 +167,23 @@ export const DocAPI = {
       return item;
     });
   },
-  getTplPreview(id: string): Promise<{tplId: string; snapshot: string; isMine: boolean}> {
+  getTplPreview(id: string): Promise<{tplId: string; snapshot: string; isMine: boolean; title: string}> {
     return request.get('/dream/pen/article/get', {params: {id}}).then((docRes) => {
       const item: ItemDetail = docRes.data.data;
       const curUserId = getCurUserId();
-      return {tplId: item.id, snapshot: item.snapshot, format: item.format, isMine: !item.isSystem && !!curUserId && item.createUser === curUserId};
+      return {
+        tplId: item.id,
+        snapshot: item.snapshot,
+        format: item.format,
+        isMine: !item.isSystem && !!curUserId && item.createUser === curUserId,
+        title: item.title,
+      };
     });
   },
-  copyTplForMe(id: string): Promise<string> {
+  copyTplForMe(id: string): Promise<{id: string; title: string}> {
     return request.post('/dream/pen/template/copy', {id}).then((docRes) => {
       const item: ItemDetail = docRes.data.data;
-      return item.id;
+      return {id: item.id, title: item.title || '复制模板'};
     });
   },
   getList(search: ListSearch): Promise<ListResult> {

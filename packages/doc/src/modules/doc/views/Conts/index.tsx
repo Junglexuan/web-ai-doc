@@ -39,9 +39,9 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
     return dispatch(docActions.fetchList());
   }, [dispatch]);
 
-  const onShowDetail = useEvent((evt: MouseEvent, id: string, type: DocType) => {
+  const onShowDetail = useEvent((evt: MouseEvent, id: string, type: DocType, title: string) => {
     if (type === 'doc' || type === 'con') {
-      openArticle(`/admin/doc/item/edit/${id}?__c=_dialog`);
+      openArticle(`/admin/doc/item/edit/${id}?__c=_dialog`, title);
       //GetClientRouter().push({url: `/admin/doc/item/edit/${id}?__c=_dialog`}, singleWindow);
     } else {
       GetClientRouter().push({url: `/admin/doc/list/conts?id=${id}`}, 'page');
@@ -74,7 +74,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
         key: 'title',
         render: (text, row) => (
           <div className="file-name">
-            <a className={'ico-' + row.type} title={text} onClick={(e) => onShowDetail(e, row.id, row.type)}>
+            <a className={'ico-' + row.type} title={text} onClick={(e) => onShowDetail(e, row.id, row.type, row.title)}>
               {text}
             </a>
             {row.type === 'dir' ? null : !row.collect ? (
@@ -232,14 +232,14 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
         count = data[1];
       }
       DocAPI.createDoc({folder: listSearch.id || '1', title, contents}, 'con', count)
-        .then(async ({id}) => {
+        .then(async ({id, title}) => {
           setSelectedRows({ids: [], rows: []});
           await refreshList();
           if (tpl) {
             window.sessionStorage.setItem('__temp_tpl__', JSON.stringify(tpl));
-            openArticle(`/admin/doc/item/edit/${id}?&tpl=${tpl.id}&__c=_dialog`);
+            openArticle(`/admin/doc/item/edit/${id}?&tpl=${tpl.id}&__c=_dialog`, title);
           } else if (!title) {
-            openArticle(`/admin/doc/item/edit/${id}?__c=_dialog`);
+            openArticle(`/admin/doc/item/edit/${id}?__c=_dialog}`, title || '新建文档');
           }
         })
         .finally(() => setLoading(''));
