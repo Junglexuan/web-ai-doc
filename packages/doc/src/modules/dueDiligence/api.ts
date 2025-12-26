@@ -160,6 +160,9 @@ export const DueDiligenceAPI = {
       fileName,
     });
   },
+  archiveItem(id: string): Promise<void> {
+    return request.post('/api/deal/archive', {id});
+  },
 };
 
 export default DueDiligenceAPI;

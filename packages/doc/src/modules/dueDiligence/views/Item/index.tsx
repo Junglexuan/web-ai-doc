@@ -16,6 +16,11 @@ import {
 import {Dispatch, DocumentHead} from '@elux/react-web';
 import {Button, Dropdown, Input, Modal, Popover, Progress, Table, Upload, UploadProps} from 'antd';
 import {FC, memo, useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import CollectIcon from '@/assets/images/collect.png';
+import InterviewIcon from '@/assets/images/interview.png';
+import ReportIcon from '@/assets/images/report.png';
+import ReviewIcon from '@/assets/images/review.png';
+import SiteIcon from '@/assets/images/site.png';
 import SupIcon from '@/assets/images/sup.png';
 import UploadIcon from '@/assets/images/upload.png';
 import LoadingPanel from '@/components/LoadingPanel';
@@ -48,8 +53,8 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
   const supplementaryRef = useRef<any>(null);
   const [showRename, setShowRename] = useState('');
   const [showQuestionsFile, setShowQuestionsFile] = useState<{id: string; question: string; answer: string}[]>();
-  const [isResourcesCollapsed, setIsResourcesCollapsed] = useState(false);
-  const [isSupplementaryCollapsed, setIsSupplementaryCollapsed] = useState(false);
+  const [isResourcesCollapsed, setIsResourcesCollapsed] = useState(false); //上传企业资料
+  const [isSupplementaryCollapsed, setIsSupplementaryCollapsed] = useState(false); //补充企业信息
   const [isInterviewCollapsed, setIsInterviewCollapsed] = useState(false);
 
   const refreshPage = useCallback(() => {
@@ -96,7 +101,32 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
     }
   });
 
-  const onArchive = useEvent(() => {});
+  const onArchive = useEvent(() => {
+    Modal.confirm({
+      title: '记录归档',
+      content: '是否确认对此次尽调记录进行归档？归档后本条尽调记录将被移动到"已归档"文件夹。',
+      okText: '确认',
+      cancelText: '取消',
+      onOk: () => {
+        // 调用实际的归档API
+        DueDiligenceAPI.archiveItem(itemDetail.id)
+          .then(() => {
+            message.success('归档成功！');
+            // 返回列表页并切换到已归档标签
+            const router = GetClientRouter();
+            router.back(1);
+            // 等待页面加载后再切换标签
+            setTimeout(() => {
+              // 触发切换到已归档状态
+              dispatch(dueDiligenceActions.fetchList({status: 'end'}));
+            }, 100);
+          })
+          .catch(() => {
+            message.error('归档失败，请重试');
+          });
+      },
+    });
+  });
 
   const onRemoveResource = useEvent((id: string) => {
     DueDiligenceAPI.removeResourceFile(id).then(refreshPage);
@@ -246,6 +276,37 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
           归档
         </Button>
       </div>
+      <div className="process">
+        <div className="title">尽调流程</div>
+        <div className="box">
+          <img src={CollectIcon} alt="CollectIcon" />
+          <div className="row">
+            <span className="title">收集企业资料</span>
+            <span className="desc">快速上传或填基本信息</span>
+          </div>
+        </div>
+        <div className="box">
+          <img src={ReviewIcon} alt="CollectIcon" />
+          <div className="row">
+            <span className="title">AI智能审查</span>
+            <span className="desc">自动分析资料识别访谈中重点</span>
+          </div>
+        </div>
+        <div className="box">
+          <img src={SiteIcon} alt="CollectIcon" />
+          <div className="row">
+            <span className="title">进行现场访谈</span>
+            <span className="desc">高效访谈实时记录完整信息</span>
+          </div>
+        </div>
+        <div className="box">
+          <img src={ReportIcon} alt="CollectIcon" />
+          <div className="row">
+            <span className="title">生成专业报告</span>
+            <span className="desc">自动整合内容生成报告</span>
+          </div>
+        </div>
+      </div>
       <div className="cd">
         {/* <div className="title">{itemDetail.name}</div>
         <label>完成进度</label>
@@ -390,6 +451,26 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
         <div className="step">
           <div className="subject" onClick={() => setIsInterviewCollapsed(!isInterviewCollapsed)}>
             <div className="collapse-icon">{isInterviewCollapsed ? <CaretDownOutlined /> : <CaretUpOutlined />}</div>
+            现场访谈尽调
+          </div>
+          <div className={`interview ${isInterviewCollapsed ? 'collapsed' : ''}`}>
+            <img src={InterviewIcon} alt="InterviewIcon" width={134} />
+            <span className="text">请前往移动端(小狸AI)访谈录音并生成纪要！</span>
+            {/* {itemDetail.interviewInstList.map((item) => (
+              <div key={item.id} className={styles.file}>
+                <CloseCircleFilled className="close" onClick={() => onRemoveResource(item.id)} />
+                <div className={'g-doc-icon ' + item.type} />
+                <div className="name" title={item.fileName} onClick={() => onOpenInterviewFile(item)}>
+                  {item.fileName}
+                </div>
+                <div className="info">{item.lastModifiedTime}</div>
+              </div>
+            ))} */}
+          </div>
+        </div>
+        {/* <div className="step">
+          <div className="subject" onClick={() => setIsInterviewCollapsed(!isInterviewCollapsed)}>
+            <div className="collapse-icon">{isInterviewCollapsed ? <CaretDownOutlined /> : <CaretUpOutlined />}</div>
             访谈资料
           </div>
           <div className={`list ${isInterviewCollapsed ? 'collapsed' : ''}`}>
@@ -404,7 +485,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
               </div>
             ))}
           </div>
-        </div>
+        </div> */}
       </div>
       {showQuestionsFile && (
         <Modal title="问题清单" width={750} open={true} footer={null} onCancel={() => setShowQuestionsFile(undefined)}>
