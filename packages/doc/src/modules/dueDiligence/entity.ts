@@ -146,3 +146,27 @@ export const StatusMap: {[key: string]: string} = {
   '3': '完善中',
   '4': '已结束',
 };
+
+export type DocType = 'dir' | 'doc' | 'tpl' | 'con';
+export interface ItemDetail {
+  id: string;
+  title: string;
+  contents: string;
+  articleDsl: string;
+  snapshot: string;
+  collect: number;
+  folder: string;
+  createUser: string;
+  createUserName: string;
+  createDate: string;
+  articleCount: number;
+  size: '常规' | '全宽' | '超宽';
+  levelPath: {id: string; folderName: string; parent: string}[];
+  docType: DocType;
+  format?: string;
+  isShare?: boolean;
+  isSystem?: boolean;
+  isMine?: boolean;
+  readonly?: boolean;
+  wordPlugin?: {type: string; title: string; remark: string; attribute: string; id: string}[];
+}

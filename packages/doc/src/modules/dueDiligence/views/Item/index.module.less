@@ -45,7 +45,6 @@
     }
     .process {
       display: flex;
-      justify-content: space-between;
       align-items: center;
       height: 98px;
       margin-top: 12px;
@@ -55,6 +54,8 @@
       box-sizing: border-box;
       border: 1px solid #E7E8EC;
       box-shadow: 0px 4px 20px 0px rgba(0, 0, 0, 0.06);
+      overflow-x: auto; // 允许水平滚动，适应小屏幕
+      overflow-y: hidden;
       .title {
         font-family: Alibaba PuHuiTi 2.0;
         font-size: 15px;
@@ -62,16 +63,21 @@
         line-height: normal;
         letter-spacing: 0em;
         color: #242424;
+        white-space: nowrap;
+        margin-right: 20px;
       }
       .box {
         display: flex;
         align-items: center;
-        width: 280px;
+        width: 240px;
+        min-width: 240px; // 防止box被压缩
+        flex-shrink: 0; // 防止box在flex布局中被压缩
         border-radius: 10px;
         background: #F5F6F8;
         padding: 12px 20px;
         gap: 8px;
         position: relative;
+        margin-right: 80px; // 固定右边距，为连接线和箭头留空间
         >img{
           margin-top: 8px;
         }
@@ -98,18 +104,38 @@
           }
         }
 
-        // 为每个box添加连接线
+        // 为每个box添加连接线和箭头
         &:not(:last-child) {
           &::after {
             content: '';
             position: absolute;
-            right: -100px;
+            left: 100%;
             top: 50%;
             transform: translateY(-50%);
-            width: 100px;
+            width: 80px;
             height: 2px;
             background: linear-gradient(90deg, #E7E8EC 0%, #E7E8EC 100%);
           }
+
+          &::before {
+            content: '';
+            position: absolute;
+            left: calc(100% + 40px); // 位于连接线中间
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 20px;
+            height: 20px;
+            background-image: url('@/assets/images/arrow.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            z-index: 1;
+          }
+        }
+
+        // 最后一个box不需要右边距
+        &:last-child {
+          margin-right: 0;
         }
       }
     }

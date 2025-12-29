@@ -1,0 +1,34 @@
+:global {
+  :local(.root) {
+    > .ant-spin {
+      margin-top: 5px;
+      margin-left: 20px;
+    }
+
+    > .bd {
+      width: 100%;
+      height: 705px;
+      overflow: auto;
+    }
+
+    > .ft {
+      display: flex;
+      gap: 15px;
+      justify-content: flex-end;
+      padding: 14px 20px;
+      border-top: 1px solid #eee;
+
+      > button {
+        color: #1b68fc;
+        background: linear-gradient(110deg, rgba(108, 71, 239, 0.3) 0%, rgba(27, 104, 252, 0.3) 100%, rgba(255, 255, 255, 0) 100%);
+        border-radius: 4px;
+
+        &:hover {
+          color: #1b68fc !important;
+          background: linear-gradient(110deg, rgba(108, 71, 239, 0.3) 0%, rgba(27, 104, 252, 0.3) 100%, rgba(255, 255, 255, 0) 100%) !important;
+          transform: scale(1.1);
+        }
+      }
+    }
+  }
+}

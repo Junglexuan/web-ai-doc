@@ -1,4 +1,5 @@
 import request from '@/utils/request';
+import {getCurUserId} from '@/utils/tools';
 import {DueConfigs, DueSettings, ItemDetail, ListItem, ListResult, ListSearch} from './entity';
 
 export const DueDiligenceAPI = {
@@ -109,25 +110,26 @@ export const DueDiligenceAPI = {
     });
   },
   createItem(data: ListItem): Promise<ListItem> {
-    const {name, logo, autoCreateFinalSheets, pathList, questions, template} = data;
+    const {id, name, logo, autoCreateFinalSheets, pathList, questions, template} = data;
     return request
       .post('/api/deal/createOrUpdateDealInst', {
+        id: id ? id : undefined,
         target: name,
         logo,
-        autoCreateFinalSheets,
-        templateId: template.id,
-        questionId: questions.tpl,
-        pathList: pathList.map((item) => item.url),
-        questionInfoList: questions.list,
+        // autoCreateFinalSheets,
+        // templateId: template.id,
+        // questionId: questions.tpl,
+        // pathList: pathList?.map((item) => item.url) || [],
+        // questionInfoList: questions.list,
       })
       .then((res) => res.data.data);
   },
   deleteItem(id: string): Promise<void> {
-    return request.post(`/dream/pen/rag/contract/delete`, {id});
+    return request.post(`/api/deal/delete?id=${id}`);
   },
-  updateItem(id: string, data: ListItem): Promise<void> {
-    return request.post('/dream/pen/rag/contract/update', {...data, id});
-  },
+  // updateItem(id: string, data: ListItem): Promise<void> {
+  //   return request.post('/dream/pen/rag/contract/update', {...data, id});
+  // },
   updateConfig(data: DueSettings): Promise<void> {
     const {role, autoCreateFinalSheets, questions, template} = data;
     return request.post('/api/user/updateUserProperties', {
@@ -139,10 +141,14 @@ export const DueDiligenceAPI = {
     });
   },
   removeResourceFile(id: string): Promise<void> {
-    return request.post(`/api/deal/delete/${id}`);
+    return request.post(`/api/deal/delete-file?fileId=${id}`);
   },
   appendResource(id: string, text: string): Promise<void> {
     return request.post(`/api/interview/appendResource`, {interviewDealInstId: id, appendText: text});
+  },
+
+  getResourceContent(id: string): Promise<string> {
+    return request.post(`/api/interview/getResourceContent`).then((res) => res.data.content);
   },
   rebuildReport(id: string): Promise<void> {
     return request.post(`/api/interview/applyAppendInterviewReportSync`, {interviewDealInstId: id});
@@ -161,7 +167,14 @@ export const DueDiligenceAPI = {
     });
   },
   archiveItem(id: string): Promise<void> {
-    return request.post('/api/deal/archive', {id});
+    return request.post(`/api/deal/archive?id=${id}`, {id});
+  },
+  getTplPreview(id: string): Promise<{tplId: string; snapshot: string; isMine: boolean}> {
+    return request.get('/dream/pen/article/get', {params: {id}}).then((docRes) => {
+      const item: ItemDetail = docRes.data.data;
+      const curUserId = getCurUserId();
+      return {tplId: item.id, snapshot: item.snapshot, format: item.format, isMine: !item.isSystem && !!curUserId && item.createUser === curUserId};
+    });
   },
 };
 

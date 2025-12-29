@@ -100,30 +100,24 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
   const onEditSubmit = useEvent((data: ListItem) => {
     console.log('data: onEditSubmit=', data);
     const formData = {...curEdit, ...data};
-
-    // 根据是否有id来区分是编辑还是新建
-    if (curEdit?.id) {
-      // 编辑操作
-      DueDiligenceAPI.updateItem(curEdit.id, formData).then(() => {
-        setCurEdit(undefined);
-        refreshList();
-      });
-    } else {
-      // 新建操作
-      DueDiligenceAPI.createItem(formData).then((item) => {
-        setCurEdit(undefined);
-        refreshList();
-        onShowDetail(item);
-      });
-    }
+    console.log('formData: ', formData);
+    DueDiligenceAPI.createItem(formData).then((item) => {
+      setCurEdit(undefined);
+      refreshList();
+      !formData.id && onShowDetail(item);
+    });
   });
 
   const onDelete = useEvent((id: string) => {
-    confirm(`您确定要删除吗？删除后不可恢复！`, (ok) => {
-      if (ok) {
-        DueDiligenceAPI.deleteItem(id).then(refreshList);
-      }
-    });
+    confirm(
+      `是否确认删除尽调记录？删除后对应的尽调报告与尽调材料将无法恢复！`,
+      (ok) => {
+        if (ok) {
+          DueDiligenceAPI.deleteItem(id).then(refreshList);
+        }
+      },
+      {title: '删除提示'}
+    );
   });
 
   const onSearch = useEvent((keyWord: string) => {

@@ -1,9 +1,11 @@
-import {Modal} from 'antd';
-import {FC, ReactElement, cloneElement, memo, useState} from 'react';
+import {Button, Modal, Spin, message} from 'antd';
+import {FC, ReactElement, cloneElement, memo, useEffect, useState} from 'react';
 import UploadedDoc from '@/components/UploadedDoc';
-import {openDoc} from '@/utils/request';
+import {SitesUrl} from '@/Global';
+import instance, {openDoc} from '@/utils/request';
 import {useEvent} from '@/utils/tools';
 import {TPL} from '../../entity';
+import Preview from './../../views/Preview';
 import styles from './index.module.less';
 
 const ShareOptions: {[key: string]: string} = {
@@ -19,6 +21,7 @@ const Component: FC<{
   children?: ReactElement;
 }> = ({value = {id: '', name: ''}, onChange, list, children}) => {
   const [showTpl, setShowTpl] = useState(false);
+  const [previewTpl, setPreviewTpl] = useState<TPL>();
 
   const onCloseTpl = useEvent(() => {
     setShowTpl(false);
@@ -27,11 +30,19 @@ const Component: FC<{
     setShowTpl(true);
   });
   const onPreview = useEvent((item: TPL) => {
-    openDoc(item.id);
+    // openDoc(item.id);
+    console.log('item: ', item);
+    setPreviewTpl(item);
   });
   const onSelected = useEvent((item: TPL) => {
     setShowTpl(false);
     onChange?.({id: item.id, name: item.title});
+  });
+
+  const onApplyTpl = useEvent(() => {
+    setShowTpl(false);
+    console.log('previewTpl: ', previewTpl);
+    previewTpl && onChange?.({id: previewTpl.id, name: previewTpl.title});
   });
 
   return (
@@ -65,6 +76,7 @@ const Component: FC<{
           </div>
         </Modal>
       )}
+      {previewTpl && <Preview tplData={previewTpl} onCancel={() => setPreviewTpl(undefined)} onApply={onApplyTpl} />}
     </>
   );
 };

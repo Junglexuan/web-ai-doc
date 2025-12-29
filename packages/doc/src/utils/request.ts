@@ -214,6 +214,7 @@ export function uploadFile(url: string, formData: FormData): Promise<{url: strin
 }
 
 export function openDoc(urlOrId: string, edit?: boolean): void {
+  console.log('edit: ', edit);
   if (edit) {
     instance.get(`${SitesUrl.editor}/webInterface/url/edit/${urlOrId}`).then((res) => {
       window.open(res.data.data);

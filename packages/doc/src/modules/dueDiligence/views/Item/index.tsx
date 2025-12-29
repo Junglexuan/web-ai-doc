@@ -50,6 +50,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
   const [configs, setConfigs] = useState<DueConfigs>();
   const [uploading, setUploading] = useState<'upload' | 'info' | ''>('');
   const [showSupplementary, setShowSupplementary] = useState(false);
+  const [editSupplementaryItem, setEditSupplementaryItem] = useState<{id: string; fileName: string} | null>(null);
   const supplementaryRef = useRef<any>(null);
   const [showRename, setShowRename] = useState('');
   const [showQuestionsFile, setShowQuestionsFile] = useState<{id: string; question: string; answer: string}[]>();
@@ -78,11 +79,44 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
   const onSupplementarySubmit = useEvent(() => {
     const text = supplementaryRef.current.resizableTextArea.textArea.value.trim();
     if (text) {
+      // 无论是新建还是编辑，都使用appendResource方法
       DueDiligenceAPI.appendResource(itemDetail.id, text).then(() => {
         setShowSupplementary(false);
+        setEditSupplementaryItem(null);
         refreshPage();
       });
     }
+  });
+
+  // 打开编辑补充信息模态框
+  const onEditSupplementary = useEvent((item: {id: string; fileName: string}) => {
+    setEditSupplementaryItem(item);
+    //TODO 获取文件内容
+    DueDiligenceAPI.getResourceContent(item.id)
+      .then((content: string) => {
+        setShowSupplementary(true);
+        // 延迟设置内容，确保DOM已渲染
+        setTimeout(() => {
+          if (supplementaryRef.current) {
+            supplementaryRef.current.resizableTextArea.textArea.value = content;
+          }
+        }, 100);
+      })
+      .catch(() => {
+        // 如果获取内容失败，使用文件名作为内容
+        setShowSupplementary(true);
+        setTimeout(() => {
+          if (supplementaryRef.current) {
+            supplementaryRef.current.resizableTextArea.textArea.value = item.fileName;
+          }
+        }, 100);
+      });
+  });
+
+  // 关闭模态框时重置编辑状态
+  const onCloseSupplementaryModal = useEvent(() => {
+    setShowSupplementary(false);
+    setEditSupplementaryItem(null);
   });
 
   const onRebuildReport = useEvent(() => {
@@ -129,7 +163,10 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
   });
 
   const onRemoveResource = useEvent((id: string) => {
-    DueDiligenceAPI.removeResourceFile(id).then(refreshPage);
+    DueDiligenceAPI.removeResourceFile(id).then(() => {
+      message.success('删除成功！');
+      refreshPage();
+    });
   });
 
   const onRenameReport = useEvent((file: string, newName: string) => {
@@ -436,7 +473,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
               <div key={item.id} className={styles.file}>
                 <CloseCircleFilled className="close" onClick={() => onRemoveResource(item.id)} />
                 <div className="g-doc-icon" />
-                <div className="name" title={item.fileName} onClick={() => openDoc(item.id)}>
+                <div className="name" title={item.fileName} onClick={() => onEditSupplementary(item)}>
                   {item.fileName}
                 </div>
                 <div className="info">{item.lastModifiedTime}</div>
@@ -493,14 +530,19 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
         </Modal>
       )}
       {showSupplementary && (
-        <Modal title="补充信息" width={650} open={true} footer={null} onCancel={() => setShowSupplementary(false)}>
+        <Modal title={editSupplementaryItem ? '编辑补充信息' : '补充信息'} width={650} open={true} footer={null} onCancel={onCloseSupplementaryModal}>
           <div className={styles.info}>
             <div className="form">
-              <Input.TextArea placeholder="输入补充信息..." rows={15} ref={supplementaryRef} />
+              <Input.TextArea
+                placeholder={editSupplementaryItem ? '请修改补充的文本信息' : '请输入您需要补充的文本信息,AI将自动为您分析'}
+                rows={15}
+                ref={supplementaryRef}
+                defaultValue={editSupplementaryItem ? editSupplementaryItem.fileName : ''}
+              />
             </div>
             <div className="actions">
               <Button type="primary" onClick={onSupplementarySubmit}>
-                确认补充
+                {editSupplementaryItem ? '确认修改' : '确认补充'}
               </Button>
             </div>
           </div>
