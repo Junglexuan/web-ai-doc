@@ -26,7 +26,7 @@ import UploadIcon from '@/assets/images/upload.png';
 import LoadingPanel from '@/components/LoadingPanel';
 import {GetActions, GetClientRouter, SiteInfo} from '@/Global';
 import {downloadFile, getUploadProps, openDoc, replaceBaseUrl} from '@/utils/request';
-import {message, useEvent} from '@/utils/tools';
+import {message, showMask, useEvent} from '@/utils/tools';
 import {DueDiligenceAPI} from '../../api';
 import QuestionsFile from '../../components/QuestionsFile';
 import TplSelect from '../../components/TplSelect';
@@ -530,7 +530,20 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
         </Modal>
       )}
       {showSupplementary && (
-        <Modal title={editSupplementaryItem ? '编辑补充信息' : '补充信息'} width={650} open={true} footer={null} onCancel={onCloseSupplementaryModal}>
+        // <Modal title={editSupplementaryItem ? '编辑补充信息' : '补充信息'} width={650} open={true} footer={null} onCancel={onCloseSupplementaryModal}>
+        <Modal
+          title="补充信息"
+          width={650}
+          open={true}
+          footer={null}
+          onCancel={() => {
+            setShowSupplementary(false);
+            showMask(false);
+          }}
+          afterOpenChange={(open: boolean) => {
+            showMask(open);
+          }}
+        >
           <div className={styles.info}>
             <div className="form">
               <Input.TextArea

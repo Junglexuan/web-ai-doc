@@ -4,7 +4,7 @@ import {Button, Dropdown, Input, Modal, Popover, Space, Table, TableProps} from 
 import {FC, MouseEvent, memo, useCallback, useEffect, useMemo, useState} from 'react';
 import {GetActions, GetClientRouter, SiteInfo} from '@/Global';
 import {downloadFile, replaceBaseUrl} from '@/utils/request';
-import {confirm, debounce, openArticle, useEvent} from '@/utils/tools';
+import {confirm, debounce, openArticle, showMask, useEvent} from '@/utils/tools';
 import {DocAPI} from '../../api';
 import {DocType, ListItem, ListSearch, ListSummary} from '../../entity';
 import styles from '../Maintain/index.module.less';
@@ -31,11 +31,11 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
     return dispatch(docActions.fetchList());
   }, [dispatch]);
 
-  const onShowDetail = useEvent((evt: MouseEvent, id: string, type: DocType) => {
+  const onShowDetail = useEvent((evt: MouseEvent, id: string, type: DocType, title: string) => {
     if (type === 'doc' || type === 'con') {
-      openArticle(`/admin/doc/item/edit/${id}?__c=_dialog`);
+      openArticle(`/admin/doc/item/edit/${id}?__c=_dialog`, title);
     } else if (type === 'tpl') {
-      openArticle(`/admin/doc/item/tpl/${id}?__c=_dialog`);
+      openArticle(`/admin/doc/item/tpl/${id}?__c=_dialog`, title);
     } else {
       GetClientRouter().push({url: `/admin/doc/list/maintain?id=${id}`}, 'page');
     }
@@ -59,11 +59,11 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
       if (tpl.format === '2') {
         alert('生成word文档');
       } else {
-        DocAPI.createDoc({folder: isContract ? '1' : '0', title: tpl.title, contents: ''}, 'doc').then(async ({id}) => {
+        DocAPI.createDoc({folder: isContract ? '1' : '0', title: tpl.title, contents: ''}, 'doc').then(async ({id, title}) => {
           const data = {id: tplId, fields, knowledges, stand};
           console.log(data);
           window.sessionStorage.setItem('__temp_tpl__', JSON.stringify(data));
-          openArticle(`/admin/doc/item/edit/${id}?&tpl=${tpl.id}&__c=_dialog`);
+          openArticle(`/admin/doc/item/edit/${id}?&tpl=${tpl.id}&__c=_dialog`, title);
         });
       }
     });
@@ -82,7 +82,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
         key: 'title',
         render: (text, row) => (
           <div className="file-name">
-            <a className={'ico-' + row.type} title={text} onClick={(e) => onShowDetail(e, row.id, row.type)}>
+            <a className={'ico-' + row.type} title={text} onClick={(e) => onShowDetail(e, row.id, row.type, row.title)}>
               {text}
             </a>
             <StarFilled onClick={() => DocAPI.collectItem(row.id, row.type, !row.collect).then(refreshList)} />

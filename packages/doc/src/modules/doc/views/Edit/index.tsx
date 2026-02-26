@@ -19,7 +19,7 @@ import BlurInput from '@/components/BlurInput';
 import DialogPage from '@/components/DialogPage';
 import {GetClientRouter} from '@/Global';
 import {downloadFile, replaceBaseUrl} from '@/utils/request';
-import {debounce, openArticle, useEvent} from '@/utils/tools';
+import {debounce, isIframe, openArticle, returnToWorkbench, useEvent} from '@/utils/tools';
 import DocAPI from '../../api';
 import {ItemDetail} from '../../entity';
 import AIButton from './AIButton';
@@ -197,8 +197,8 @@ const Component: FC<Props> = ({itemDetail}) => {
   const onCreatDoc = useEvent(() => {
     setLoading('create');
     DocAPI.createDoc({folder: itemDetail.folder, title: '', contents: ''}, itemDetail.docType)
-      .then(({id}) => {
-        openArticle(`/admin/doc/item/edit/${id}?__c=_dialog`);
+      .then(({id, title}) => {
+        openArticle(`/admin/doc/item/edit/${id}?__c=_dialog`, title);
       })
       .finally(() => setLoading(''));
   });
@@ -241,7 +241,16 @@ const Component: FC<Props> = ({itemDetail}) => {
         <Breadcrumb
           items={[
             {
-              title: (
+              title: isIframe() ? (
+                <div
+                  style={{cursor: 'pointer'}}
+                  onClick={() => {
+                    returnToWorkbench('push', '/app/templateManagement');
+                  }}
+                >
+                  模版管理
+                </div>
+              ) : (
                 <Link to="/admin/doc/list/tpls" action="relaunch" target="window">
                   模版管理
                 </Link>
@@ -267,7 +276,16 @@ const Component: FC<Props> = ({itemDetail}) => {
       );
     }
     const arr = itemDetail.levelPath.map((item) => ({
-      title: (
+      title: isIframe() ? (
+        <div
+          style={{cursor: 'pointer'}}
+          onClick={() => {
+            returnToWorkbench('push', itemDetail.docType === 'con' ? '/app/contractManagement' : `/app/documentManagement?id=${item.id}`);
+          }}
+        >
+          {item.folderName}
+        </div>
+      ) : (
         <Link
           to={`${itemDetail.docType === 'con' ? '/admin/doc/list/conts' : '/admin/doc/list/maintain'}?id=${item.id}`}
           action="relaunch"
@@ -279,9 +297,22 @@ const Component: FC<Props> = ({itemDetail}) => {
     }));
     arr.unshift({
       title: (
-        <Link to={itemDetail.docType === 'con' ? '/admin/doc/list/conts' : '/admin/doc/list/maintain'} action="relaunch" target="window">
-          {itemDetail.docType === 'con' ? '我的合同' : '我的文档'}
-        </Link>
+        <>
+          {isIframe() ? (
+            <div
+              style={{cursor: 'pointer'}}
+              onClick={() => {
+                returnToWorkbench('push', itemDetail.docType === 'con' ? '/app/contractManagement' : '/app/documentManagement');
+              }}
+            >
+              {itemDetail.docType === 'con' ? '我的合同' : '我的文档'}
+            </div>
+          ) : (
+            <Link to={itemDetail.docType === 'con' ? '/admin/doc/list/conts' : '/admin/doc/list/maintain'} action="relaunch" target="window">
+              {itemDetail.docType === 'con' ? '我的合同' : '我的文档'}
+            </Link>
+          )}
+        </>
       ),
     });
     arr.push({
@@ -340,7 +371,16 @@ const Component: FC<Props> = ({itemDetail}) => {
       <div className={styles.root}>
         <div className="hd">
           <Space size="large">
-            <HomeOutlined className="icon-link" onClick={() => GetClientRouter().relaunch({url: `/admin/home`}, 'window')} />
+            <HomeOutlined
+              className="icon-link"
+              onClick={() => {
+                if (isIframe()) {
+                  returnToWorkbench('push', itemDetail.docType === 'con' ? '/app/contractManagement' : '/app/documentManagement');
+                } else {
+                  GetClientRouter().relaunch({url: `/admin/home`}, 'window');
+                }
+              }}
+            />
             {itemDetail.docType !== 'tpl' &&
               (loading === 'create' ? <Spin size="small" /> : <PlusOutlined className="icon-link" onClick={onCreatDoc} title="新建文档" />)}
             {itemDetail.docType !== 'tpl' && (

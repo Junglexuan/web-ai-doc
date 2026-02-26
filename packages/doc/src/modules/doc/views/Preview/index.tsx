@@ -1,6 +1,6 @@
 import {Button, Modal, Spin} from 'antd';
 import {FC, memo, useCallback, useEffect, useState} from 'react';
-import {openArticle} from '@/utils/tools';
+import {openArticle, showMask} from '@/utils/tools';
 import DocAPI from '../../api';
 import DocPreview from '../DocPreview';
 import WordPreview from '../WordPreview';
@@ -13,13 +13,13 @@ interface Props {
 }
 
 const Component: FC<Props> = ({tplId, onCancel, onApply}) => {
-  const [data, setData] = useState<{tplId: string; format?: string; snapshot: string; isMine: boolean}>();
+  const [data, setData] = useState<{tplId: string; format?: string; snapshot: string; isMine: boolean; title: string}>();
   const inDialog = location.search.endsWith('__c=_dialog');
 
   const copyForMe = useCallback(() => {
-    DocAPI.copyTplForMe(tplId).then((id) => {
+    DocAPI.copyTplForMe(tplId).then(({id, title}) => {
       onCancel();
-      openArticle(`/admin/doc/item/tpl/${id}?__c=_dialog`);
+      openArticle(`/admin/doc/item/tpl/${id}?__c=_dialog`, title);
     });
   }, [onCancel, tplId]);
 
@@ -32,11 +32,17 @@ const Component: FC<Props> = ({tplId, onCancel, onApply}) => {
     <Modal
       open={true}
       footer={null}
-      onCancel={onCancel}
+      onCancel={() => {
+        onCancel();
+        showMask(false);
+      }}
       width={1200}
       centered
       rootClassName={inDialog ? 'g-dialog-no-mask' : undefined}
       title="预览模版"
+      afterOpenChange={(open: boolean) => {
+        showMask(open);
+      }}
     >
       <div className={styles.root}>
         {!data ? (
@@ -53,7 +59,7 @@ const Component: FC<Props> = ({tplId, onCancel, onApply}) => {
                 <Button
                   onClick={() => {
                     onCancel();
-                    openArticle(`/admin/doc/item/tpl/${tplId}?__c=_dialog`);
+                    openArticle(`/admin/doc/item/tpl/${tplId}?__c=_dialog`, data.title || '编辑模版');
                   }}
                 >
                   编辑模版

@@ -1,7 +1,7 @@
 import {ActionError} from '@elux/react-web';
 import axios, {AxiosError, AxiosResponse} from 'axios';
 import {ApiBaseUrl, ApiPrefix, PathPrefix, SitesUrl} from '@/Global';
-import {clearToken, getTenant, getToken, info, message} from './tools';
+import {clearToken, getPortalUrl, getTenant, getToken, info, message, tokenExpiredRefresh} from './tools';
 
 function toErrorMessage(status: number) {
   switch (status) {
@@ -146,9 +146,17 @@ instance.interceptors.response.use(
       toLoginPage();
       throw new CustomError(mapHttpErrorCode(httpErrorCode), '请登录！');
     } else if (httpErrorCode === 402) {
-      info(data.message || '检测到租户已发生变化，需要刷新数据...', () => {
-        window.location.href = SitesUrl.verse;
-      });
+      // info(data.message || '检测到租户已发生变化，需要刷新数据...', () => {
+      //   window.location.href = SitesUrl.verse;
+      // });
+      console.log('向主应用发送消息通知: zov:TENANT_CHANGED租户切换！');
+      window.parent.postMessage(
+        {
+          method: 'zov:TENANT_CHANGED',
+          data: data.message || '检测到租户已发生变化，需要刷新数据...',
+        },
+        getPortalUrl() || '*'
+      );
       throw new CustomError('402', '');
     }
     console.log('error: ', error);
@@ -227,11 +235,11 @@ export function openDoc(urlOrId: string, edit?: boolean): void {
 }
 
 export function toLoginPage(from?: string): void {
-  window.location.href =
-    replaceBaseUrl('/auth/login?client=global&redirecturl=') +
-    window.location.origin +
-    `/${PathPrefix || ''}/stage/login`.replace(/\/\//g, '/') +
-    encodeURIComponent(`?__c=_dialog&from=${encodeURIComponent(from || window.location.href)}`);
+  // window.location.href =
+  //   replaceBaseUrl('/auth/login?client=global&redirecturl=') +
+  //   window.location.origin +
+  //   `/${PathPrefix || ''}/stage/login`.replace(/\/\//g, '/') +
+  //   encodeURIComponent(`?__c=_dialog&from=${encodeURIComponent(from || window.location.href)}`);
   // if (!InIframe) {
   //   // const router = GetClientRouter();
   //   // const url = LoginUrl(from || router.location.url);
@@ -242,6 +250,7 @@ export function toLoginPage(from?: string): void {
   // } else {
   //   window.parent.parent.location.href = `/zov-lowcode/login?callbackUrl=${encodeURIComponent(from || window.parent.parent.location.href)}`;
   // }
+  tokenExpiredRefresh();
 }
 
 // a标签下载专用，
