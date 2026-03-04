@@ -107,8 +107,14 @@ const instance = axios.create({
 //instance.defaults.withCredentials = true;
 
 instance.interceptors.request.use((req) => {
-  req.headers['Authorization'] = getToken();
-  req.headers['Tenant'] = getTenant();
+  const token = getToken();
+  if (token) {
+    req.headers['Authorization'] = token.startsWith('Bearer ') ? token : `Bearer ${token}`;
+  } else {
+    req.headers['Authorization'] = '';
+  }
+  const tenant = getTenant();
+  req.headers['Tenant'] = tenant || '';
   req.url = replaceBaseUrl(req.url!);
   if (req.method === 'post') {
     if (!req.data) {
@@ -175,11 +181,12 @@ export default instance;
 
 export function getUploadProps(
   url: string,
-  callback?: {onProcess: () => void; onSuccess: (file: any, res: any) => void; onError: (data: any, res: any) => void}
+  callback?: {onProcess?: () => void; onSuccess?: (file: any, res: any) => void; onError?: (data: any, res: any) => void; data?: Record<string, any>}
 ): {[key: string]: any} {
   return {
     name: 'file',
     action: replaceBaseUrl(url),
+    ...(callback?.data && {data: callback.data}),
     headers: {
       authorization: getToken(),
       tenant: getTenant(),
@@ -188,19 +195,19 @@ export function getUploadProps(
       ? (info: any) => {
           const file = info.file || {};
           const res = file.response;
-          if (file.status === 'uploading') {
+          if (file.status === 'uploading' && callback.onProcess) {
             callback.onProcess();
           }
           if (file.status === 'done') {
-            if (res.success) {
-              callback.onSuccess(file, res.data);
+            if (res?.success) {
+              callback.onSuccess?.(file, res.data);
             } else {
-              message.error(`${res.message}.`);
-              callback.onError(file, res);
+              message.error(`${res?.message || '上传失败'}.`);
+              callback.onError?.(file, res);
             }
           } else if (file.status === 'error') {
             message.error(`${file.name} file upload failed.`);
-            callback.onError(file, res);
+            callback.onError?.(file, res);
           }
         }
       : undefined,

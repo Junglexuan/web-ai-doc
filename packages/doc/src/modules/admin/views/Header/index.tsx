@@ -24,7 +24,7 @@ const Component: FC<{curUser: CurUser; dispatch: Dispatch}> = ({curUser, dispatc
               username={curUser.nickName || curUser.username}
               logout={() => dispatch(stageActions.logout())}
               switchTenant={() => {
-                request.get('/dream/pen/currentUser', {headers: {quiet: 1}}).finally(() => (location.href = SitesUrl.verse));
+                request.get('/api/user/currentUser', {headers: {quiet: 1}}).finally(() => (location.href = SitesUrl.verse));
               }}
             />
           )}

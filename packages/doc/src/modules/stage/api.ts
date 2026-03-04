@@ -1,7 +1,6 @@
-import {SiteInfo} from '@/Global';
 import {CurUser} from '@/utils/base';
 import request from '@/utils/request';
-import {clearToken, setFavicon} from '@/utils/tools';
+import {clearToken} from '@/utils/tools';
 
 export const guest: CurUser = {
   id: '',
@@ -33,10 +32,17 @@ class API {
         () => guest
       );
     } else {
-      return request.get('/dream/pen/currentUser', {headers: {quiet: 1}}).then(
+      return request.get('/api/user/currentUser', {headers: {quiet: 1}}).then(
         (res) => {
-          localStorage.setItem('zov-user-tenant', res.data.data.tenantId);
-          return {...res.data.data, hasLogin: true};
+          const data = res.data?.data || res.data || {};
+          if (data.tenantId) localStorage.setItem('zov-user-tenant', data.tenantId);
+          return {
+            id: data.id ?? data.userId ?? '',
+            nickName: data.nickName ?? '',
+            username: data.username ?? '',
+            ...data,
+            hasLogin: true,
+          };
         },
         (e) => {
           if (e.code === '402') {
@@ -49,20 +55,8 @@ class API {
     }
   }
   public getSiteConfig(): Promise<{}> {
-    return request.get('/dream/pen/sso/users/product-config').then(
-      (res) => {
-        const {currentLogo, currentName} = res.data.data || {};
-        if (currentLogo) {
-          SiteInfo.logo = currentLogo;
-          SiteInfo.name = currentName;
-          setFavicon(currentLogo);
-        }
-        return {};
-      },
-      () => {
-        throw {code: '502', message: '网站配置读取失败'};
-      }
-    );
+    // 不再调用 product-config，站点信息依赖 config.js 或前端默认
+    return Promise.resolve({});
   }
   public logout(): Promise<CurUser> {
     return request.post(`/dream/pen/sso/signout`).then(() => {

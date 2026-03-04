@@ -3,7 +3,7 @@ import {pathToRegexp} from 'path-to-regexp';
 import {APPState, PathPrefix} from '@/Global';
 import {InIframe} from '@/utils/base';
 import {CustomError, ErrorCode, toLoginPage} from '@/utils/request';
-import {confirm, message} from '@/utils/tools';
+import {message} from '@/utils/tools';
 import api, {guest} from './api';
 import {CurView, SubModule} from './entity';
 import type {CurUser} from '@/utils/base';
@@ -93,26 +93,6 @@ export class Model extends BaseModel<ModuleState, APPState> {
   protected async ['this._testRouteChange']({url, pathname}: {url: string; pathname: string}): Promise<void> {
     if (!this.state.curUser.hasLogin && this.checkNeedsLogin(pathname)) {
       throw new CustomError(ErrorCode.unauthorized, '', (PathPrefix || '') + url);
-    }
-    const curPathname = this.getRouter().location.pathname;
-    if (curPathname.startsWith('/admin/doc/item/edit/') || curPathname.startsWith('/admin/doc/item/tpl/')) {
-      const saving = document.getElementById('_ai_saving');
-      if (saving) {
-        return new Promise((resolve, reject) => {
-          confirm(
-            '当前页面未保存，确定离开吗？',
-            (ok) => {
-              if (ok) {
-                resolve();
-              } else {
-                saving.click();
-                reject(new CustomError(ErrorCode.unkown, ''));
-              }
-            },
-            {okText: '离开', cancelText: '保存'}
-          );
-        });
-      }
     }
   }
   @effect(null)

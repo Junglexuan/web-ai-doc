@@ -41,7 +41,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
   }, [dispatch]);
 
   const agentIcons = useMemo((): IconItem[] => {
-    return Array.from({length: 5}, (_, index) => ({
+    return Array.from({length: 4}, (_, index) => ({
       id: index + 1,
       path: require(`@/assets/agent/${index + 1}.png`),
       relativePath: `agent/${index + 1}.png`,
@@ -250,6 +250,8 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
           <Edit
             configs={configs}
             data={curEdit}
+            lastSelectedIconIndex={lastSelectedIconIndex}
+            onIconSelect={setLastSelectedIconIndex}
             onCancel={() => {
               onCloseEdit();
               showMask(false);

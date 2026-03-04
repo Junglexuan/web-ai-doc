@@ -65,13 +65,14 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
 
   const uploadProps: UploadProps = useMemo(
     () =>
-      getUploadProps(`/api/deal/upload/${itemDetail.id}`, {
+      getUploadProps('/api/deal/upload', {
         onProcess: () => setUploading('upload'),
-        onSuccess: (file, res) => {
+        onSuccess: () => {
           setUploading('');
           refreshPage();
         },
         onError: () => setUploading(''),
+        data: {id: itemDetail.id},
       }),
     [itemDetail.id, refreshPage]
   );
@@ -163,7 +164,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
   });
 
   const onRemoveResource = useEvent((id: string) => {
-    DueDiligenceAPI.removeResourceFile(id).then(() => {
+    DueDiligenceAPI.removeResourceFile(itemDetail.id, id).then(() => {
       message.success('删除成功！');
       refreshPage();
     });
