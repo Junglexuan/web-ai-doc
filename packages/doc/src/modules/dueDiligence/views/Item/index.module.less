@@ -491,6 +491,45 @@
       left: 14px;
       width: 54px;
       height: 54px;
+      background-repeat: no-repeat;
+      background-size: 100% 100%;
+
+      &.t-xls,
+      &.t-xlsx {
+        background-image: url('@/assets/imgs/excel.png');
+      }
+
+      &.t-pdf {
+        background-image: url('@/assets/imgs/pdf.png');
+      }
+
+      &.t-txt {
+        background-image: url('@/assets/imgs/txt.png');
+      }
+
+      &.t-ppt,
+      &.t-pptx {
+        background-image: url('@/assets/imgs/ppt.png');
+      }
+
+      &.t-jpg,
+      &.t-jpeg,
+      &.t-png,
+      &.t-gif {
+        background-image: url('@/assets/imgs/image.png');
+      }
+
+      &.wav,
+      &.t-wav,
+      &.t-amr,
+      &.t-mp3 {
+        background-image: url('@/assets/imgs/wav.png');
+      }
+
+      // Default icon
+      &:not([class*='t-']):not(.wav) {
+        background-image: url('@/assets/imgs/doc.svg');
+      }
     }
 
     > .name {

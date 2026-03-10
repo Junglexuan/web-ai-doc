@@ -593,7 +593,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
               return (
                 <div key={item.id} className={styles.file}>
                   <CloseCircleFilled className="close" onClick={() => onRemoveResource(item.id)} />
-                  <div className={`g-doc-icon t-${item.fileName.split('.').pop()?.toLowerCase()}`} />
+                  <div className={`g-doc-icon t-${item.fileName?.split('.').pop()?.toLowerCase() || 'doc'}`} />
                   <div className="name" title={item.fileName} onClick={() => onPreviewResource(item)}>
                     {item.fileName}
                   </div>
@@ -631,7 +631,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
             {itemDetail.supplementary.map((item) => (
               <div key={item.id} className={styles.file}>
                 <CloseCircleFilled className="close" onClick={() => onRemoveResource(item.id)} />
-                <div className={`g-doc-icon t-${item.fileName.split('.').pop()?.toLowerCase()}`} />
+                <div className={`g-doc-icon t-${item.fileName?.split('.').pop()?.toLowerCase() || 'doc'}`} />
                 <div className="name" title={item.fileName} onClick={() => onEditSupplementary(item)}>
                   {item.fileName}
                 </div>
@@ -654,7 +654,12 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
               interviewList.map((item) => (
                 <div key={item.interviewInstId} className={styles.file}>
                   <CloseCircleFilled className="close" onClick={() => onRemoveResource(item.interviewInstId)} />
-                  <div className={'g-doc-icon wav'} />
+                  {(() => {
+                    const fileName = item.interviewInstTitle || item.interviewCust || '';
+                    const fileUrl = item.recordFileInstVo?.recordFileUrl || item.interviewArticleUrl || '';
+                    const ext = (fileUrl || fileName).split('.').pop()?.toLowerCase() || 'wav';
+                    return <div className={`g-doc-icon t-${ext} ${ext === 'wav' || ext === 'amr' ? 'wav' : ''}`} />;
+                  })()}
                   <div
                     className="name"
                     title={item.interviewInstTitle || item.interviewCust || '访谈录音'}
