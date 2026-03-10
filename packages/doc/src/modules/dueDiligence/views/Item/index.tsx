@@ -31,7 +31,7 @@ import {getToken, message, showMask, useEvent} from '@/utils/tools';
 import {DueDiligenceAPI} from '../../api';
 import QuestionsFile from '../../components/QuestionsFile';
 import TplSelect from '../../components/TplSelect';
-import {DueConfigs, ItemDetail, StatusMap} from '../../entity';
+import {DueConfigs, InterviewRecord, ItemDetail, StatusMap} from '../../entity';
 import styles from './index.module.less';
 
 const twoColors = {
@@ -59,6 +59,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
   const [isInterviewCollapsed, setIsInterviewCollapsed] = useState(false);
 
   const [fileProgressMap, setFileProgressMap] = useState<Record<string, {progress: number; status: string}>>({});
+  const [interviewList, setInterviewList] = useState<InterviewRecord[]>([]);
 
   useEffect(() => {
     if (!itemDetail.id) return;
@@ -147,8 +148,11 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
 
   const refreshPage = useCallback(() => {
     dispatch(dueDiligenceActions.fetchItem(itemDetail.id));
+    if (itemDetail.id) {
+      DueDiligenceAPI.queryInterviewInstListByPage(itemDetail.id).then(setInterviewList);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [itemDetail.id]);
 
   const uploadProps: UploadProps = useMemo(
     () =>
@@ -289,7 +293,11 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
     }
   });
 
-  const onPreviewResource = useEvent((item: {id: string; fileUrl: string}) => {
+  const onPreviewResource = useEvent((item: {id: string; fileName: string; fileUrl: string}) => {
+    if (item.fileName && isAudioFile(item.fileName)) {
+      setAudioPlayer({visible: true, url: replaceBaseUrl(item.fileUrl), fileName: item.fileName});
+      return;
+    }
     DueDiligenceAPI.viewReportUrl(item.id, item.fileUrl).then((res) => {
       if (res.success && res.data) {
         window.open(res.data);
@@ -416,7 +424,10 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
 
   useEffect(() => {
     DueDiligenceAPI.getConfigs().then(setConfigs);
-  }, []);
+    if (itemDetail.id) {
+      DueDiligenceAPI.queryInterviewInstListByPage(itemDetail.id).then(setInterviewList);
+    }
+  }, [itemDetail.id]);
 
   if (!configs) {
     return (
@@ -582,7 +593,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
               return (
                 <div key={item.id} className={styles.file}>
                   <CloseCircleFilled className="close" onClick={() => onRemoveResource(item.id)} />
-                  <div className="g-doc-icon" />
+                  <div className={`g-doc-icon t-${item.fileName.split('.').pop()?.toLowerCase()}`} />
                   <div className="name" title={item.fileName} onClick={() => onPreviewResource(item)}>
                     {item.fileName}
                   </div>
@@ -620,7 +631,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
             {itemDetail.supplementary.map((item) => (
               <div key={item.id} className={styles.file}>
                 <CloseCircleFilled className="close" onClick={() => onRemoveResource(item.id)} />
-                <div className="g-doc-icon" />
+                <div className={`g-doc-icon t-${item.fileName.split('.').pop()?.toLowerCase()}`} />
                 <div className="name" title={item.fileName} onClick={() => onEditSupplementary(item)}>
                   {item.fileName}
                 </div>
@@ -638,19 +649,37 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
             <div className="collapse-icon">{isInterviewCollapsed ? <CaretDownOutlined /> : <CaretUpOutlined />}</div>
             现场访谈尽调
           </div>
-          <div className={`interview ${isInterviewCollapsed ? 'collapsed' : ''}`}>
-            <img src={InterviewIcon} alt="InterviewIcon" width={134} />
-            <span className="text">请前往移动端(小狸AI)访谈录音并生成纪要！</span>
-            {/* {itemDetail.interviewInstList.map((item) => (
-              <div key={item.id} className={styles.file}>
-                <CloseCircleFilled className="close" onClick={() => onRemoveResource(item.id)} />
-                <div className={'g-doc-icon ' + item.type} />
-                <div className="name" title={item.fileName} onClick={() => onOpenInterviewFile(item)}>
-                  {item.fileName}
+          <div className={`list ${isInterviewCollapsed ? 'collapsed' : ''}`}>
+            {interviewList.length > 0 ? (
+              interviewList.map((item) => (
+                <div key={item.interviewInstId} className={styles.file}>
+                  <CloseCircleFilled className="close" onClick={() => onRemoveResource(item.interviewInstId)} />
+                  <div className={'g-doc-icon wav'} />
+                  <div
+                    className="name"
+                    title={item.interviewInstTitle || item.interviewCust || '访谈录音'}
+                    onClick={() => {
+                      const fileUrl = item.recordFileInstVo?.recordFileUrl || item.interviewArticleUrl || '';
+                      if (fileUrl) {
+                        onOpenInterviewFile({
+                          fileName: item.interviewInstTitle || item.interviewCust || '访谈录音',
+                          fileUrl: fileUrl,
+                          type: 'wav',
+                        });
+                      }
+                    }}
+                  >
+                    {item.interviewInstTitle || item.interviewCust || '访谈录音'}
+                  </div>
+                  <div className="info">{item.lastModifiedTime}</div>
                 </div>
-                <div className="info">{item.lastModifiedTime}</div>
+              ))
+            ) : (
+              <div className={styles.interviewPlaceholder}>
+                <img src={InterviewIcon} alt="InterviewIcon" width={134} />
+                <span className="text">请前往移动端(小狸AI)访谈录音并生成纪要！</span>
               </div>
-            ))} */}
+            )}
           </div>
         </div>
         {/* <div className="step">

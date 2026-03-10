@@ -1,16 +1,17 @@
 :global {
   :local(.root) {
+    position: relative;
     display: flex;
     flex-direction: column;
     // height: 100%;
     background: #fff;
-    position: relative;
 
     > .hd {
       display: flex;
-      justify-content: space-between;
       gap: 5px;
+      justify-content: space-between;
       color: rgba(36, 36, 36, 0.6);
+
       > .back {
         > a {
           cursor: pointer;
@@ -24,112 +25,120 @@
           }
         }
       }
-      > .archiveBtn{
-        background: linear-gradient(114deg, #E1DAFF 0%, #D9E5FF 100%, rgba(255, 255, 255, 0) 100%);
-        color: #2267FC;
-        border: none;
-        box-shadow: 0 4px 12px rgba(108, 71, 239, 0.3);
-        border-radius: 8px;
+
+      > .archiveBtn {
         padding: 8px 16px;
         font-weight: 500;
+        color: #2267fc;
+        background: linear-gradient(114deg, #e1daff 0%, #d9e5ff 100%, rgba(255, 255, 255, 0) 100%);
+        border: none;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(108, 71, 239, 0.3);
         transition: all 0.3s ease;
 
         &:hover {
-          background: linear-gradient(114deg, #E1DAFF 0%, #D9E5FF 100%, rgba(255, 255, 255, 0) 100%) !important;
-          color: #2267FC !important;
+          color: #2267fc !important;
+          background: linear-gradient(114deg, #e1daff 0%, #d9e5ff 100%, rgba(255, 255, 255, 0) 100%) !important;
           border-color: transparent !important;
-          transform: translateY(-2px);
           box-shadow: 0 6px 16px rgba(108, 71, 239, 0.4);
+          transform: translateY(-2px);
         }
       }
     }
+
     .process {
+      box-sizing: border-box;
       display: flex;
       align-items: center;
       height: 98px;
-      margin-top: 12px;
       padding: 16px 30px;
-      border-radius: 10px;
-      background: #FFFFFF;
-      box-sizing: border-box;
-      border: 1px solid #E7E8EC;
-      box-shadow: 0px 4px 20px 0px rgba(0, 0, 0, 0.06);
+      margin-top: 12px;
       overflow-x: auto; // 允许水平滚动，适应小屏幕
       overflow-y: hidden;
+      background: #fff;
+      border: 1px solid #e7e8ec;
+      border-radius: 10px;
+      box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.06);
+
       .title {
-        font-family: Alibaba PuHuiTi 2.0;
+        margin-right: 20px;
+        font-family: 'Alibaba PuHuiTi 2.0', sans-serif;
         font-size: 15px;
         font-weight: 500;
         line-height: normal;
-        letter-spacing: 0em;
         color: #242424;
+        letter-spacing: 0;
         white-space: nowrap;
-        margin-right: 20px;
       }
+
       .box {
+        position: relative;
         display: flex;
+        flex-shrink: 0;
+        gap: 8px;
         align-items: center;
         width: 240px;
-        min-width: 240px; // 防止box被压缩
-        flex-shrink: 0; // 防止box在flex布局中被压缩
-        border-radius: 10px;
-        background: #F5F6F8;
+        min-width: 240px;
         padding: 12px 20px;
-        gap: 8px;
-        position: relative;
-        margin-right: 80px; // 固定右边距，为连接线和箭头留空间
-        >img{
+        margin-right: 80px;
+        background: #f5f6f8;
+        border-radius: 10px;
+
+        > img {
           margin-top: 8px;
         }
+
         .row {
           display: flex;
           flex-direction: column;
-          align-items: flex-start;
           gap: 4px;
+          align-items: flex-start;
+
           .title {
-            font-family: Alibaba PuHuiTi 2.0;
+            font-family: 'Alibaba PuHuiTi 2.0', sans-serif;
             font-size: 15px;
             font-weight: 500;
             line-height: normal;
-            letter-spacing: 0em;
             color: #242424;
+            letter-spacing: 0;
           }
+
           .desc {
-            font-family: Alibaba PuHuiTi 2.0;
+            font-family: 'Alibaba PuHuiTi 2.0', sans-serif;
             font-size: 12px;
             font-weight: normal;
             line-height: normal;
-            letter-spacing: 0em;
-            color: #999999;
+            color: #999;
+            letter-spacing: 0;
           }
         }
 
         // 为每个box添加连接线和箭头
         &:not(:last-child) {
           &::after {
-            content: '';
             position: absolute;
-            left: 100%;
             top: 50%;
-            transform: translateY(-50%);
+            left: 100%;
             width: 80px;
             height: 2px;
-            background: linear-gradient(90deg, #E7E8EC 0%, #E7E8EC 100%);
+            content: '';
+            background: linear-gradient(90deg, #e7e8ec 0%, #e7e8ec 100%);
+            transform: translateY(-50%);
           }
 
           &::before {
-            content: '';
             position: absolute;
-            left: calc(100% + 40px); // 位于连接线中间
             top: 50%;
-            transform: translate(-50%, -50%);
+            left: calc(100% + 40px); // 位于连接线中间
+            z-index: 1;
             width: 20px;
             height: 20px;
+            content: '';
             background-image: url('@/assets/images/arrow.png');
-            background-size: contain;
             background-repeat: no-repeat;
             background-position: center;
-            z-index: 1;
+            background-size: contain;
+            transform: translate(-50%, -50%);
           }
         }
 
@@ -145,23 +154,25 @@
       gap: 6px;
       align-items: center;
       padding: 16px;
-      font-size: 12px;
       margin: 12px 0;
+      font-size: 12px;
       color: #1b68fc;
+      border: 1px solid #e7e8ec;
       border-radius: 10px;
-      border: 1px solid #E7E8EC;
-      box-shadow: 0px 4px 20px 0px rgba(0, 0, 0, 0.06);
+      box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.06);
+
       > .top {
-        width: 100%;
-        display: flex;
         position: relative;
+        display: flex;
+        width: 100%;
+
         > .left {
-          width: 300px;
-          display: flex;
-          gap: 12px;
-          margin-right: 14px;
-          flex-shrink: 0;
           position: relative;
+          display: flex;
+          flex-shrink: 0;
+          gap: 12px;
+          width: 300px;
+          margin-right: 14px;
           border-radius: 12px;
           transition: all 0.3s ease;
 
@@ -174,123 +185,133 @@
           > .mask {
             position: absolute;
             top: 0;
-            left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0, 0, 0, 0.4);
-            border-radius: 12px;
+            left: 0;
             display: flex;
             align-items: center;
             justify-content: center;
+            cursor: pointer;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 12px;
             opacity: 0;
             transition: opacity 0.3s ease;
-            cursor: pointer;
 
             > .mask_btn {
-              border-radius: 4px;
               background: linear-gradient(110deg, rgba(108, 71, 239, 0.8) 0%, rgba(27, 104, 252, 0.8) 100%, rgba(255, 255, 255, 0) 100%);
+              border-radius: 4px;
             }
           }
 
           &::after {
-            content: '';
             position: absolute;
             top: 4px;
             right: -14px;
-            height: 80%;
             width: 1px;
+            height: 80%;
+            content: '';
             background-color: #e7e8ec;
           }
+
           > .icon {
             width: 76px;
             height: 76px;
-            border-radius: 12px;
-            background: #F1F1F3;
+            background: #f1f1f3;
             border: 1.22px solid #fff;
+            border-radius: 12px;
           }
+
           > .cont {
             flex: 1;
             margin: 4px 0;
+
             > .title {
               height: 28px;
-              line-height: 28px;
               font-size: 16px;
               font-weight: 500;
               line-height: normal;
-              letter-spacing: 0em;
               color: #232323;
+              letter-spacing: 0;
             }
+
             > .progress {
               > .label {
-                font-variation-settings: "opsz" auto;
-                font-feature-settings: "kern" on;
-                background: linear-gradient(100deg, #6C47EF 0%, #1B68FC 100%, rgba(255, 255, 255, 0) 100%);
-                -webkit-background-clip: text;
+                font-variation-settings: 'opsz' auto;
+                font-feature-settings: 'kern' on;
+                background: linear-gradient(100deg, #6c47ef 0%, #1b68fc 100%, rgba(255, 255, 255, 0) 100%);
                 -webkit-text-fill-color: transparent;
                 background-clip: text;
               }
+
               > .hor {
                 display: flex;
-                align-items: center;
                 gap: 8px;
+                align-items: center;
               }
             }
           }
         }
+
         > .center {
-          flex: 1;
           display: flex;
+          flex: 1;
           flex-direction: column;
           gap: 14px;
           margin-left: 14px;
-          >.top {
+
+          > .top {
             display: flex;
-            align-items: center;
             gap: 25px;
-            > .title{
-              font-family: Alibaba PuHuiTi 2.0;
+            align-items: center;
+
+            > .title {
+              font-family: 'Alibaba PuHuiTi 2.0', sans-serif;
               font-size: 15px;
               font-weight: 500;
               line-height: normal;
-              letter-spacing: 0em;
               color: #242424;
+              letter-spacing: 0;
               white-space: nowrap;
             }
+
             > .template {
               display: flex;
-              align-items: center;
               gap: 4px;
-              white-space: nowrap;
+              align-items: center;
               font-size: 12px;
               color: #242424;
-              >span:last-child {
-                font-family: Alibaba PuHuiTi 2.0;
+              white-space: nowrap;
+
+              > span:last-child {
+                font-family: 'Alibaba PuHuiTi 2.0', sans-serif;
                 font-size: 12px;
                 font-weight: normal;
                 line-height: normal;
-                letter-spacing: 0em;
                 color: rgba(36, 36, 36, 0.6);
+                letter-spacing: 0;
               }
+
               svg path {
                 fill: #242424;
               }
             }
           }
+
           > .btns {
             display: flex;
             gap: 12px;
           }
         }
+
         > .right {
-          width: 100px;
-          display: flex;
-          align-items: center;
           position: absolute;
           top: calc(50% - 16px);
           right: 0;
+          display: flex;
+          align-items: center;
+          width: 100px;
         }
       }
-
 
       > .title {
         font-size: 18px;
@@ -330,13 +351,13 @@
     }
 
     > .ft {
-      padding: 20px;
-      background: #f5f7fb;
-      border-radius: 10px;
-      height: 100%;
       display: flex;
       flex-direction: column;
       gap: 20px;
+      height: 100%;
+      padding: 20px;
+      background: #f5f7fb;
+      border-radius: 10px;
 
       > .head {
         display: flex;
@@ -360,17 +381,17 @@
 
       > .step {
         display: flex;
-        align-items: flex-start;
         gap: 14px;
+        align-items: flex-start;
 
         > .subject {
+          display: flex;
+          gap: 8px;
+          align-items: center;
           // position: absolute;
           // top: 17px;
           // left: 0;
           cursor: pointer;
-          display: flex;
-          align-items: center;
-          gap: 8px;
 
           > .collapse-icon {
             font-size: 12px;
@@ -380,27 +401,27 @@
 
         > .list {
           display: flex;
+          flex: 1;
           flex-wrap: wrap;
           gap: 14px;
           padding: 20px 14px;
+          overflow: hidden;
           background: #fff;
           border-radius: 10px;
           transition: all 0.3s ease;
-          overflow: hidden;
-          flex: 1;
 
           &.collapsed {
+            gap: 0;
             height: 0;
             padding: 0;
-            gap: 0;
             opacity: 0;
           }
+
           > .upload {
-            width: 100px;
-            height: 93px;
-            background: #FFFFFF;
             box-sizing: border-box;
-            border: 1px dashed #D9D9D9;
+            height: 93px;
+            background: #fff;
+            border: 1px dashed #d9d9d9;
             border-radius: 10px;
 
             .file {
@@ -416,33 +437,20 @@
               }
             }
           }
-        }
 
-        > .interview{
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
-          flex-wrap: wrap;
-          padding: 20px 14px;
-          background: #fff;
-          border-radius: 10px;
-          transition: all 0.3s ease;
-          overflow: hidden;
-          flex: 1;
-          &.collapsed {
-            height: 0;
-            padding: 0;
-            gap: 0;
-            opacity: 0;
-          }
-          .text{
-            font-family: Alibaba PuHuiTi 2.0;
-            font-size: 14px;
-            font-weight: normal;
-            line-height: normal;
-            letter-spacing: 0em;
-            color: #FF8D00;
+          .interviewPlaceholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+
+            .text {
+              margin-top: 10px;
+              font-family: 'Alibaba PuHuiTi 2.0', sans-serif;
+              font-size: 14px;
+              color: #ff8d00;
+            }
           }
         }
       }
@@ -466,8 +474,7 @@
     box-sizing: border-box;
     width: 320px;
     height: 93px;
-    padding: 20px 14px;
-    padding-left: 80px;
+    padding: 20px 14px 20px 80px;
     background: #f5f7fb;
     border-radius: 10px;
 
@@ -488,10 +495,11 @@
 
     > .name {
       padding-top: 3px;
-      padding-bottom: 10px;
+      padding-bottom: 4px;
       overflow: hidden;
       font-size: 15px;
       font-weight: 500;
+      color: #232323;
       text-overflow: ellipsis;
       white-space: nowrap;
 
@@ -503,7 +511,7 @@
 
     > .info {
       font-size: 12px;
-      color: rgba(36, 36, 36, 0.6);
+      color: rgba(36, 36, 36, 0.45);
     }
 
     > .close {
@@ -528,15 +536,15 @@
     justify-content: center;
     width: 100px;
     height: 93px;
+    overflow: hidden;
     cursor: pointer;
+    background: #fff;
     border: 1px dashed #d9d9d9;
     border-radius: 10px;
-    background: #fff;
     transition: all 0.3s ease;
-    overflow: hidden;
 
     &:hover {
-      border-color: #6C47EF;
+      border-color: #6c47ef;
     }
 
     > img {
@@ -544,8 +552,8 @@
     }
 
     > span {
-      color: #666;
       font-size: 12px;
+      color: #666;
     }
   }
 

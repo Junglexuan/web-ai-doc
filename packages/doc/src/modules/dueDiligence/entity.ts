@@ -144,6 +144,25 @@ export type TPL = {
   createDate: string;
 };
 
+export interface InterviewRecord {
+  interviewInstId: string;
+  interviewInstTitle: string;
+  interviewCust: string;
+  interviewDealInstId: number;
+  lastModifiedTime: string;
+  interviewInstStatus: string;
+  interviewArticleUrl?: string | null;
+  interviewArticleUrlBase64?: string | null;
+  recordStatus: string;
+  knowledgeStatus: string;
+  recordFileInstVo?: {
+    id: string;
+    recordFileName: string;
+    recordFileUrl: string;
+    lastModifiedDate: string;
+  } | null;
+}
+
 export type DueConfigs = {
   autoCreateFinalSheets: boolean;
   roles: {

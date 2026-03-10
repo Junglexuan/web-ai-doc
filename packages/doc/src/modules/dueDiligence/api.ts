@@ -1,6 +1,6 @@
 import request from '@/utils/request';
 import {getCurUserId} from '@/utils/tools';
-import {DueConfigs, DueSettings, ItemDetail, ListItem, ListResult, ListSearch, ReportTemplate, TemplateRecord} from './entity';
+import {DueConfigs, DueSettings, InterviewRecord, ItemDetail, ListItem, ListResult, ListSearch, ReportTemplate, TemplateRecord} from './entity';
 
 /** 与移动端对齐：尽调管理、创建尽调、上传资料、生成/重新生成报告、报告详情、资料管理 */
 
@@ -231,6 +231,11 @@ export const DueDiligenceAPI = {
 
   deleteTemplate(id: string): Promise<void> {
     return request.post('/api/template/delete', {id}).then((res) => res.data.data);
+  },
+  queryInterviewInstListByPage(id: string): Promise<InterviewRecord[]> {
+    return request
+      .post('/api/interview/queryInterviewInstListByPage', {interviewDealInstId: id, pageNo: 1, pageSize: 999})
+      .then((res) => res.data.data.records || []);
   },
 };
 
