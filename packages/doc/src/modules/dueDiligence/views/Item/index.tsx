@@ -24,9 +24,9 @@ import SiteIcon from '@/assets/images/site.png';
 import SupIcon from '@/assets/images/sup.png';
 import UploadIcon from '@/assets/images/upload.png';
 import LoadingPanel from '@/components/LoadingPanel';
-import {GetActions, GetClientRouter, SiteInfo} from '@/Global';
-import {downloadFile, getUploadProps, openDoc, replaceBaseUrl} from '@/utils/request';
-import {message, showMask, useEvent} from '@/utils/tools';
+import {GetActions, GetClientRouter, SiteInfo, ApiBaseUrl} from '@/Global';
+import {downloadFile, getUploadProps, replaceBaseUrl} from '@/utils/request';
+import {message, showMask, useEvent, getToken} from '@/utils/tools';
 import {DueDiligenceAPI} from '../../api';
 import QuestionsFile from '../../components/QuestionsFile';
 import TplSelect from '../../components/TplSelect';
@@ -57,6 +57,77 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
   const [isResourcesCollapsed, setIsResourcesCollapsed] = useState(false); //上传企业资料
   const [isSupplementaryCollapsed, setIsSupplementaryCollapsed] = useState(false); //补充企业信息
   const [isInterviewCollapsed, setIsInterviewCollapsed] = useState(false);
+  
+  const [fileProgressMap, setFileProgressMap] = useState<Record<string, {progress: number; status: string}>>({});
+
+  useEffect(() => {
+    if (!itemDetail.id) return;
+    const token = getToken();
+    
+    // 使用 replaceBaseUrl 获取包含正确环境配置的 websocket 路径，如 ws://113.44.121.105/report/ws/connect
+    let wsUrl = replaceBaseUrl(`/ws/connect?dealInstId=${itemDetail.id}&token=${token}`);
+    
+    // 如果没有被替换（比如本地没有配置 /ws/ 前缀），则根据当前协议补全为绝对路径
+    if (wsUrl.startsWith('/')) {
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const host = window.location.host;
+      wsUrl = `${protocol}//${host}${wsUrl}`;
+    }
+
+    let ws: WebSocket;
+    let pingInterval: any;
+
+    try {
+      ws = new WebSocket(wsUrl);
+      
+      ws.onopen = () => {
+        pingInterval = setInterval(() => {
+          if (ws.readyState === WebSocket.OPEN) {
+            ws.send('ping');
+          }
+        }, 15000);
+      };
+
+      ws.onmessage = (event) => {
+        if (event.data === 'pong') return;
+        try {
+          const data = JSON.parse(event.data);
+          if (data.event === 'DEAL_FILE_PROGRESS' && data.files) {
+            setFileProgressMap((prev) => {
+              const newMap = { ...prev };
+              let changed = false;
+              data.files.forEach((f: any) => {
+                if (
+                  !newMap[f.id] ||
+                  newMap[f.id].progress !== f.progress ||
+                  newMap[f.id].status !== String(f.status)
+                ) {
+                  newMap[f.id] = {
+                    progress: f.progress || 0,
+                    status: String(f.status),
+                  };
+                  changed = true;
+                }
+              });
+              return changed ? newMap : prev;
+            });
+          }
+        } catch (e) {
+          // ignore parse error
+        }
+      };
+
+      ws.onclose = () => clearInterval(pingInterval);
+      ws.onerror = () => clearInterval(pingInterval);
+    } catch (e) {
+      console.error('Failed to connect parsing WS:', e);
+    }
+
+    return () => {
+      if (pingInterval) clearInterval(pingInterval);
+      if (ws) ws.close();
+    };
+  }, [itemDetail.id]);
 
   const refreshPage = useCallback(() => {
     dispatch(dueDiligenceActions.fetchItem(itemDetail.id));
@@ -175,6 +246,40 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
     setShowRename('');
   });
 
+  const onPreviewReport = useEvent(() => {
+    if (itemDetail.report?.id) {
+      DueDiligenceAPI.viewReportUrl(itemDetail.report.id, itemDetail.report.fileUrl).then((res) => {
+        if (res.success && res.data) {
+          window.open(res.data);
+        } else {
+          message.error(res.message || '获取预览地址失败');
+        }
+      });
+    }
+  });
+
+  const onEditReport = useEvent(() => {
+    if (itemDetail.report?.id) {
+      DueDiligenceAPI.editReportUrl(itemDetail.report.id).then((res) => {
+        if (res.success && res.data) {
+          window.open(res.data);
+        } else {
+          message.error(res.message || '获取编辑地址失败');
+        }
+      });
+    }
+  });
+
+  const onPreviewResource = useEvent((item: {id: string; fileUrl: string}) => {
+    DueDiligenceAPI.viewReportUrl(item.id, item.fileUrl).then((res) => {
+      if (res.success && res.data) {
+        window.open(res.data);
+      } else {
+        message.error(res.message || '获取预览地址失败');
+      }
+    });
+  });
+
   const onOpenInterviewFile = useEvent((file: {fileName: string; fileUrl: string; type: string}) => {
     if (file.type === 'wav') {
       window.open(file.fileUrl);
@@ -193,7 +298,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
         key: 'fileName',
         width: 700,
         render: (txt: string, item: any) => (
-          <div className="file-name" onClick={() => openDoc(item?.id, true)}>
+          <div className="file-name" onClick={() => onEditReport()}>
             <span className={'g-doc-icon t-' + item?.type} />
             {txt}
           </div>
@@ -394,6 +499,12 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
               </div>
             </div>
             <div className="btns">
+              <Button color="primary" variant="outlined" onClick={onPreviewReport} disabled={!itemDetail.report?.id}>
+                在线预览
+              </Button>
+              <Button color="primary" variant="outlined" onClick={onEditReport} disabled={!itemDetail.report?.id}>
+                在线编辑
+              </Button>
               <Button color="primary" variant="outlined" onClick={onRebuildReport} disabled={!itemDetail.report?.id}>
                 重新生成
               </Button>
@@ -446,16 +557,29 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
             上传企业资料
           </div>
           <div className={`list ${isResourcesCollapsed ? 'collapsed' : ''}`}>
-            {itemDetail.resources.map((item) => (
-              <div key={item.id} className={styles.file}>
-                <CloseCircleFilled className="close" onClick={() => onRemoveResource(item.id)} />
-                <div className="g-doc-icon" />
-                <div className="name" title={item.fileName} onClick={() => openDoc(item.id)}>
-                  {item.fileName}
+            {itemDetail.resources.map((item) => {
+              const fileProgress = fileProgressMap[item.id];
+              return (
+                <div key={item.id} className={styles.file}>
+                  <CloseCircleFilled className="close" onClick={() => onRemoveResource(item.id)} />
+                  <div className="g-doc-icon" />
+                  <div className="name" title={item.fileName} onClick={() => onPreviewResource(item)}>
+                    {item.fileName}
+                  </div>
+                  <div className="info">{item.lastModifiedTime}</div>
+                  {fileProgress && fileProgress.status !== '1' && (
+                    <div className="progress-wrap" title={`解析状态: ${fileProgress.status === '3' ? '成功' : fileProgress.status === '4' ? '失败' : '解析中'}`}>
+                      <Progress
+                        type="circle"
+                        percent={fileProgress.status === '3' ? 100 : Math.round(fileProgress.progress * 100)}
+                        size={30}
+                        status={fileProgress.status === '4' ? 'exception' : fileProgress.status === '3' ? 'success' : 'active'}
+                      />
+                    </div>
+                  )}
                 </div>
-                <div className="info">{item.lastModifiedTime}</div>
-              </div>
-            ))}
+              );
+            })}
             <Upload showUploadList={false} {...uploadProps}>
               <div className={styles.fileUpload}>
                 <img src={UploadIcon} alt="上传文件" />

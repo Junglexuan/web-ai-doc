@@ -165,11 +165,16 @@ export const DueDiligenceAPI = {
   },
   /** 报告预览：获取可访问的预览地址，与移动端 viewReportUrl 一致 */
   viewReportUrl(fileId: string | undefined | null, fileUrl: string): Promise<{success: boolean; data?: string; message?: string}> {
-    let url = `/api/webInterface/url/view?url=${encodeURIComponent(fileUrl)}`;
     if (fileId) {
-      url += `&fileId=${encodeURIComponent(fileId)}`;
+      return request.get(`/api/online/files/${fileId}/view-url`).then((res) => res.data);
     }
+    let url = `/api/webInterface/url/view?url=${encodeURIComponent(fileUrl)}`;
     return request.get(url).then((res) => res.data);
+  },
+  
+  /** 报告在线编辑：获取编辑地址 */
+  editReportUrl(fileId: string): Promise<{success: boolean; data?: string; message?: string}> {
+    return request.get(`/api/online/files/${fileId}/edit-info`).then((res) => res.data);
   },
   getTplPreview(id: string): Promise<{tplId: string; snapshot: string; isMine: boolean}> {
     return request.get('/dream/pen/article/get', {params: {id}}).then((docRes) => {
