@@ -1,7 +1,6 @@
 import {DeleteOutlined, EditOutlined, EllipsisOutlined, PlusOutlined} from '@ant-design/icons';
 import {Dispatch, DocumentHead} from '@elux/react-web';
-import {Button, Dropdown, Input, Modal} from 'antd';
-import {Progress} from 'antd';
+import {Button, Dropdown, Input, Modal, Tooltip} from 'antd';
 import {FC, memo, useCallback, useEffect, useMemo, useState} from 'react';
 import LoadingPanel from '@/components/LoadingPanel';
 import {GetActions, GetClientRouter, SiteInfo} from '@/Global';
@@ -11,12 +10,7 @@ import Icons from '../../components/IconSelect/icons';
 import {DueConfigs, ListItem, ListSearch, ListSummary, StatusMap} from '../../entity';
 import Edit, {IconItem} from '../Edit';
 import styles from './index.module.less';
-import type {ProgressProps} from 'antd';
 
-const twoColors: ProgressProps['strokeColor'] = {
-  '0%': '#6C47EF',
-  '100%': '#1B68FC',
-};
 interface Props {
   dispatch: Dispatch;
   listSearch: ListSearch;
@@ -214,12 +208,9 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
                       <EllipsisOutlined className={styles.moreActions} onClick={(e) => e.stopPropagation()} />
                     </Dropdown>
                   </div>
-                  {/* <div className="desc">{item.desc}</div> */}
-                  <div className="ft">
-                    <div>完成进度</div>
-                    <Progress percent={item.progress} strokeColor={twoColors} size={{height: 10}} showInfo={false} />
-                    <span>{`${item.progress}%`}</span>
-                  </div>
+                  <Tooltip title={item.dealSummary} placement="bottomLeft">
+                    <div className="ft">{item.dealSummary || '-'}</div>
+                  </Tooltip>
                 </div>
               </div>
             );

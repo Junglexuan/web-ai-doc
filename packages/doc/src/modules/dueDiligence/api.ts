@@ -28,7 +28,7 @@ export const DueDiligenceAPI = {
         template: {
           selected: {
             id: data.templateId,
-            name: data.reportTemplateVos.find((item: any) => item.id === data.templateId).reportTemplateName,
+            name: data.reportTemplateVos.find((item: any) => item.id === data.templateId)?.reportTemplateName,
           },
           list: data.reportTemplateVos.map((item: any) => ({
             id: item.id,
@@ -50,7 +50,7 @@ export const DueDiligenceAPI = {
         dealInstTitle: keyWord,
         pageNo: 1,
         pageSize: 999999,
-        status: status === 'end' ? ['4'] : ['1', '2', '3'],
+        status: status === 'end' ? ['5'] : ['1', '2', '3'],
       })
       .then((res) => {
         const list: any[] = res.data.data.records || [];
@@ -64,6 +64,7 @@ export const DueDiligenceAPI = {
                 status: item.status,
                 desc: item.interviewDealInstDesc || '',
                 progress: Number(item.progress),
+                dealSummary: item.dealSummary || '',
               } as any)
           ),
           summary: {
@@ -87,6 +88,7 @@ export const DueDiligenceAPI = {
         status: item.status,
         desc: item.interviewDealInstDesc || '',
         progress: Number(item.progress),
+        dealSummary: item.dealSummary || '',
         report,
         // 准备资料
         resources: item.resources || [],
@@ -187,12 +189,10 @@ export const DueDiligenceAPI = {
     const formData = new FormData();
     formData.append('reportName', params.reportName);
     formData.append('file', params.file);
-    return request
-      .post('/api/deal/addApproveReport', formData)
-      .then((res) => ({
-        success: res?.data?.success !== false,
-        message: res?.data?.message,
-      }));
+    return request.post('/api/deal/addApproveReport', formData).then((res) => ({
+      success: res?.data?.success !== false,
+      message: res?.data?.message,
+    }));
   },
 };
 

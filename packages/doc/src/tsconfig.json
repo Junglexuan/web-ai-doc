@@ -9,7 +9,9 @@
     "baseUrl": "./",
     "paths": {
       "@/*": ["./*"]
-    }
+    },
+    "noImplicitAny": false,
+    "noImplicitThis": false
   },
   "include": ["./"]
 }

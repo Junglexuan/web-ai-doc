@@ -23,10 +23,11 @@ import ReviewIcon from '@/assets/images/review.png';
 import SiteIcon from '@/assets/images/site.png';
 import SupIcon from '@/assets/images/sup.png';
 import UploadIcon from '@/assets/images/upload.png';
+import AudioPlayerModal from '@/components/AudioPlayerModal';
 import LoadingPanel from '@/components/LoadingPanel';
-import {GetActions, GetClientRouter, SiteInfo, ApiBaseUrl} from '@/Global';
-import {downloadFile, getUploadProps, replaceBaseUrl} from '@/utils/request';
-import {message, showMask, useEvent, getToken} from '@/utils/tools';
+import {GetActions, GetClientRouter, SiteInfo} from '@/Global';
+import request, {downloadFile, getUploadProps, openDoc, replaceBaseUrl} from '@/utils/request';
+import {getToken, message, showMask, useEvent} from '@/utils/tools';
 import {DueDiligenceAPI} from '../../api';
 import QuestionsFile from '../../components/QuestionsFile';
 import TplSelect from '../../components/TplSelect';
@@ -50,23 +51,22 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
   const [configs, setConfigs] = useState<DueConfigs>();
   const [uploading, setUploading] = useState<'upload' | 'info' | ''>('');
   const [showSupplementary, setShowSupplementary] = useState(false);
-  const [editSupplementaryItem, setEditSupplementaryItem] = useState<{id: string; fileName: string} | null>(null);
-  const supplementaryRef = useRef<any>(null);
+  const [editSupplementaryItem, setEditSupplementaryItem] = useState<{id: string; fileName: string; fileUrl?: string} | null>(null);
   const [showRename, setShowRename] = useState('');
   const [showQuestionsFile, setShowQuestionsFile] = useState<{id: string; question: string; answer: string}[]>();
   const [isResourcesCollapsed, setIsResourcesCollapsed] = useState(false); //上传企业资料
   const [isSupplementaryCollapsed, setIsSupplementaryCollapsed] = useState(false); //补充企业信息
   const [isInterviewCollapsed, setIsInterviewCollapsed] = useState(false);
-  
+
   const [fileProgressMap, setFileProgressMap] = useState<Record<string, {progress: number; status: string}>>({});
 
   useEffect(() => {
     if (!itemDetail.id) return;
     const token = getToken();
-    
+
     // 使用 replaceBaseUrl 获取包含正确环境配置的 websocket 路径，如 ws://113.44.121.105/report/ws/connect
     let wsUrl = replaceBaseUrl(`/ws/connect?dealInstId=${itemDetail.id}&token=${token}`);
-    
+
     // 如果没有被替换（比如本地没有配置 /ws/ 前缀），则根据当前协议补全为绝对路径
     if (wsUrl.startsWith('/')) {
       const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
@@ -79,7 +79,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
 
     try {
       ws = new WebSocket(wsUrl);
-      
+
       ws.onopen = () => {
         pingInterval = setInterval(() => {
           if (ws.readyState === WebSocket.OPEN) {
@@ -94,14 +94,10 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
           const data = JSON.parse(event.data);
           if (data.event === 'DEAL_FILE_PROGRESS' && data.files) {
             setFileProgressMap((prev) => {
-              const newMap = { ...prev };
+              const newMap = {...prev};
               let changed = false;
               data.files.forEach((f: any) => {
-                if (
-                  !newMap[f.id] ||
-                  newMap[f.id].progress !== f.progress ||
-                  newMap[f.id].status !== String(f.status)
-                ) {
+                if (!newMap[f.id] || newMap[f.id].progress !== f.progress || newMap[f.id].status !== String(f.status)) {
                   newMap[f.id] = {
                     progress: f.progress || 0,
                     status: String(f.status),
@@ -129,6 +125,26 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
     };
   }, [itemDetail.id]);
 
+  const [supplementaryContent, setSupplementaryContent] = useState('');
+
+  const [audioPlayer, setAudioPlayer] = useState<{visible: boolean; url: string; fileName: string}>({
+    visible: false,
+    url: '',
+    fileName: '',
+  });
+
+  const isAudioFile = (name: string) => {
+    return /\.(wav|mp3|m4a|aac|flac|amr|3gp|ogg)$/i.test(name);
+  };
+
+  const onFileClick = useEvent((item: {id: string; fileName: string; fileUrl: string; type?: string}) => {
+    if (item.fileName && isAudioFile(item.fileName)) {
+      setAudioPlayer({visible: true, url: replaceBaseUrl(item.fileUrl), fileName: item.fileName});
+    } else {
+      openDoc(item.id);
+    }
+  });
+
   const refreshPage = useCallback(() => {
     dispatch(dueDiligenceActions.fetchItem(itemDetail.id));
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -149,46 +165,49 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
   );
 
   const onSupplementarySubmit = useEvent(() => {
-    const text = supplementaryRef.current.resizableTextArea.textArea.value.trim();
+    const text = supplementaryContent.trim();
     if (text) {
       // 无论是新建还是编辑，都使用appendResource方法
       DueDiligenceAPI.appendResource(itemDetail.id, text).then(() => {
         setShowSupplementary(false);
         setEditSupplementaryItem(null);
+        setSupplementaryContent('');
         refreshPage();
       });
     }
   });
 
   // 打开编辑补充信息模态框
-  const onEditSupplementary = useEvent((item: {id: string; fileName: string}) => {
+  const onEditSupplementary = useEvent((item: {id: string; fileName: string; fileUrl?: string}) => {
+    if (item.fileName && isAudioFile(item.fileName) && item.fileUrl) {
+      setAudioPlayer({visible: true, url: replaceBaseUrl(item.fileUrl), fileName: item.fileName});
+      return;
+    }
+
     setEditSupplementaryItem(item);
-    //TODO 获取文件内容
-    DueDiligenceAPI.getResourceContent(item.id)
-      .then((content: string) => {
-        setShowSupplementary(true);
-        // 延迟设置内容，确保DOM已渲染
-        setTimeout(() => {
-          if (supplementaryRef.current) {
-            supplementaryRef.current.resizableTextArea.textArea.value = content;
-          }
-        }, 100);
-      })
-      .catch(() => {
-        // 如果获取内容失败，使用文件名作为内容
-        setShowSupplementary(true);
-        setTimeout(() => {
-          if (supplementaryRef.current) {
-            supplementaryRef.current.resizableTextArea.textArea.value = item.fileName;
-          }
-        }, 100);
-      });
+    setShowSupplementary(true);
+    setSupplementaryContent(''); // 开启时先清空上次内容，等待加载
+
+    if (item.fileUrl) {
+      // 请求 fileUrl 并在返回结果后填充弹窗
+      fetch(item.fileUrl)
+        .then((res) => res.text())
+        .then((content) => {
+          setSupplementaryContent(content);
+        })
+        .catch(() => {
+          message.error('获取补充信息内容失败');
+        });
+    } else {
+      setSupplementaryContent('');
+    }
   });
 
   // 关闭模态框时重置编辑状态
   const onCloseSupplementaryModal = useEvent(() => {
     setShowSupplementary(false);
     setEditSupplementaryItem(null);
+    setSupplementaryContent('');
   });
 
   const onRebuildReport = useEvent(() => {
@@ -281,14 +300,16 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
   });
 
   const onOpenInterviewFile = useEvent((file: {fileName: string; fileUrl: string; type: string}) => {
-    if (file.type === 'wav') {
-      window.open(file.fileUrl);
+    if (isAudioFile(file.fileName) || file.type === 'wav') {
+      setAudioPlayer({visible: true, url: replaceBaseUrl(file.fileUrl), fileName: file.fileName});
     } else if (file.type === 'list') {
       setShowQuestionsFile(file.fileUrl ? JSON.parse(file.fileUrl) : []);
     }
   });
 
-  const onQuestionsFileChange = useEvent(() => {});
+  const onQuestionsFileChange = useEvent(() => {
+    // 预留更改回调
+  });
 
   const TableColumns = useMemo(
     () => [
@@ -461,10 +482,22 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
             <div className="cont">
               <div className="title">{itemDetail.name}</div>
               <div className="progress">
-                <label className="label">完成进度</label>
                 <div className="hor">
-                  <Progress percent={itemDetail.progress} strokeColor={twoColors} size={{height: 10}} showInfo={false} />
-                  <span>{`${itemDetail.progress}%`}</span>
+                  <span
+                    className="summary-text"
+                    style={{
+                      fontSize: '12px',
+                      color: '#666',
+                      lineHeight: '1.5',
+                      display: '-webkit-box',
+                      WebkitLineClamp: '2',
+                      WebkitBoxOrient: 'vertical',
+                      overflow: 'hidden',
+                    }}
+                    title={itemDetail.dealSummary || ''}
+                  >
+                    {itemDetail.dealSummary || '-'}
+                  </span>
                 </div>
               </div>
             </div>
@@ -486,16 +519,6 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
                 <ProjectOutlined />
                 <span>生成模板：</span>
                 <span>{itemDetail.report?.fileName || ''}</span>
-              </div>
-              <div className="template">
-                <ProfileOutlined />
-                <span>报告字数：</span>
-                <span>{`${itemDetail.report?.total || 0}字`}</span>
-              </div>
-              <div className="template">
-                <UserOutlined />
-                <span>报告所有人：</span>
-                <span>{itemDetail.report?.owner || ''}</span>
               </div>
             </div>
             <div className="btns">
@@ -525,9 +548,6 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
                 disabled={!itemDetail.report?.id}
               >
                 下载PDF
-              </Button>
-              <Button color="primary" variant="outlined" disabled={!itemDetail.report?.id}>
-                历史记录
               </Button>
             </div>
           </div>
@@ -568,7 +588,10 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
                   </div>
                   <div className="info">{item.lastModifiedTime}</div>
                   {fileProgress && fileProgress.status !== '1' && (
-                    <div className="progress-wrap" title={`解析状态: ${fileProgress.status === '3' ? '成功' : fileProgress.status === '4' ? '失败' : '解析中'}`}>
+                    <div
+                      className="progress-wrap"
+                      title={`解析状态: ${fileProgress.status === '3' ? '成功' : fileProgress.status === '4' ? '失败' : '解析中'}`}
+                    >
                       <Progress
                         type="circle"
                         percent={fileProgress.status === '3' ? 100 : Math.round(fileProgress.progress * 100)}
@@ -674,8 +697,8 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
               <Input.TextArea
                 placeholder={editSupplementaryItem ? '请修改补充的文本信息' : '请输入您需要补充的文本信息,AI将自动为您分析'}
                 rows={15}
-                ref={supplementaryRef}
-                defaultValue={editSupplementaryItem ? editSupplementaryItem.fileName : ''}
+                value={supplementaryContent}
+                onChange={(e) => setSupplementaryContent(e.target.value)}
               />
             </div>
             <div className="actions">
@@ -686,6 +709,14 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
           </div>
         </Modal>
       )}
+
+      {/* 音频播放浮层 */}
+      <AudioPlayerModal
+        visible={audioPlayer.visible}
+        audioUrl={audioPlayer.url}
+        fileName={audioPlayer.fileName}
+        onClose={() => setAudioPlayer({...audioPlayer, visible: false})}
+      />
     </div>
   );
 };

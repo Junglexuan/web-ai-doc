@@ -23,6 +23,7 @@ export interface ListItem extends BaseListItem {
     name: string;
   };
   status: string;
+  dealSummary?: string;
 }
 export interface ListSummary extends BaseListSummary {}
 
@@ -38,6 +39,7 @@ export interface ItemDetail {
   desc: string;
   status: string;
   progress: number;
+  dealSummary?: string;
   updateDate?: string;
   // 报告
   report: {

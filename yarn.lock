@@ -4410,6 +4410,18 @@ batch@0.6.1:
   resolved "https://registry.npmmirror.com/batch/-/batch-0.6.1.tgz#dc34314f4e679318093fc760272525f94bf25c16"
   integrity sha512-x+VAiMRL6UPkx+kudNvxTl6hB2XNNCG2r+7wixVfIYwu/2HKRXimwQyaumLjMveWvT2Hkd/cAJw+QBMfJ/EKVw==
 
+benz-amr-recorder@^1.1.5:
+  version "1.1.5"
+  resolved "https://registry.npmmirror.com/benz-amr-recorder/-/benz-amr-recorder-1.1.5.tgz#79fbb1f6e58a51619e5ac3ed1c7029247e93d8d4"
+  integrity sha512-NepctcNTsZHK8NxBb5uKO5p8S+xkbm+vD6GLSkCYdJeEsriexvgumLHpDkanX4QJBcLRMVtg16buWMs+gUPB3g==
+  dependencies:
+    benz-recorderjs "^1.0.5"
+
+benz-recorderjs@^1.0.5:
+  version "1.0.5"
+  resolved "https://registry.npmmirror.com/benz-recorderjs/-/benz-recorderjs-1.0.5.tgz#5cb2683413d3d5fcda8c44773ffaca161186619f"
+  integrity sha512-EwedOQo9KLti7HxDi/eZY51PSRbAXnOdEZmLvJ6ro3QQSoF9Y3AXBt57MIllGvVz5vtFYMeikG+GD7qTm3+p9w==
+
 big.js@^5.2.2:
   version "5.2.2"
   resolved "https://registry.npmmirror.com/big.js/-/big.js-5.2.2.tgz#65f0af382f578bcdc742bd9c281e9cb2d7768328"
@@ -12810,6 +12822,11 @@ watchpack@^2.4.0:
   dependencies:
     glob-to-regexp "^0.4.1"
     graceful-fs "^4.1.2"
+
+wavesurfer.js@^7.12.1:
+  version "7.12.1"
+  resolved "https://registry.npmmirror.com/wavesurfer.js/-/wavesurfer.js-7.12.1.tgz#4b46dc5ee1a0429c7c33ca78397105c4a087f1fb"
+  integrity sha512-NswPjVHxk0Q1F/VMRemCPUzSojjuHHisQrBqQiRXg7MVbe3f5vQ6r0rTTXA/a/neC/4hnOEC4YpXca4LpH0SUg==
 
 wbuf@^1.1.0, wbuf@^1.7.3:
   version "1.7.3"
