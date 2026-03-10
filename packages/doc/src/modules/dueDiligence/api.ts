@@ -1,6 +1,19 @@
 import request from '@/utils/request';
 import {getCurUserId} from '@/utils/tools';
-import {DueConfigs, DueSettings, InterviewRecord, ItemDetail, ListItem, ListResult, ListSearch, ReportTemplate, TemplateRecord} from './entity';
+import {
+  DealReportStatusEnum,
+  DueConfigs,
+  DueSettings,
+  InterviewInstDetail,
+  InterviewRecord,
+  ItemDetail,
+  ListItem,
+  ListResult,
+  ListSearch,
+  ReportTemplate,
+  TemplateRecord,
+  TranscriptItem,
+} from './entity';
 
 /** 与移动端对齐：尽调管理、创建尽调、上传资料、生成/重新生成报告、报告详情、资料管理 */
 
@@ -88,8 +101,16 @@ export const DueDiligenceAPI = {
         status: item.status,
         desc: item.interviewDealInstDesc || '',
         progress: Number(item.progress),
+        reportStatus: item.reportStatus,
         dealSummary: item.dealSummary || '',
         report,
+        questionInfoList: (item.questionInfoList || []).map((q: any) => ({
+          id: q.id || q.questionId || '',
+          questionName: q.questionName || '',
+          questionAnswer: q.questionAnswer || q.answer || '',
+          hitTime: q.questionAnswerTime || q.hitTime || '',
+          CHECKED: q.CHECKED !== undefined ? q.CHECKED : !!(q.questionAnswer || q.answer),
+        })),
         // 准备资料
         resources: item.resources || [],
         supplementary,
@@ -236,6 +257,55 @@ export const DueDiligenceAPI = {
     return request
       .post('/api/interview/queryInterviewInstListByPage', {interviewDealInstId: id, pageNo: 1, pageSize: 999})
       .then((res) => res.data.data.records || []);
+  },
+
+  /** 获取访谈实例详情：含录音、转写、问题清单 */
+  getInterviewInstDetail(interviewInstId: string): Promise<InterviewInstDetail> {
+    return request.post('/api/interview/queryInterviewRecordFileInstByInterviewInstId', {interviewInstId}).then((res) => {
+      const data = res.data.data || {};
+
+      const recordFileInstVo = data.recordFileUrl
+        ? {
+            id: data.id,
+            recordFileName: data.recordFileName,
+            recordFileUrl: data.recordFileUrl,
+            lastModifiedDate: data.lastModifiedDate,
+          }
+        : null;
+
+      return {
+        interviewInstId: data.interviewInstId || interviewInstId,
+        interviewInstTitle: data.interviewInstTitle || '',
+        interviewCust: data.interviewCust || '',
+        lastModifiedTime: data.lastModifiedDate || '',
+        recordFileInstVo,
+        // The new interface seems to lack these fields, providing fallbacks for now
+        interviewArticleUrl: data.interviewArticleUrl || null,
+        interviewArticleUrlBase64: data.interviewArticleUrlBase64 || null,
+        questionInstList: (data.questionInstList || []).map((q: any) => ({
+          id: q.id || q.questionInstId || '',
+          questionName: q.questionInstName || q.questionName || '',
+          questionAnswer: q.questionAnswer || q.questionInstAnswer || q.answer || '',
+          hitTime: q.questionAnswerTime || q.hitTime || '',
+          CHECKED: q.CHECKED !== undefined ? q.CHECKED : !!(q.questionAnswer || q.questionInstAnswer || q.answer),
+        })),
+      };
+    });
+  },
+  getInterviewTranscript(params: {interviewInstId: string; pageNum: number; pageSize: number}): Promise<{records: TranscriptItem[]; total: number}> {
+    return request.post('/api/interview/queryInterviewInstContentListByPage', params).then((res) => {
+      const data = res.data.data || {};
+      const records = (data.records || []).map((item: any) => ({
+        id: item.id,
+        role: item.contentType,
+        content: item.content || '',
+        time: item.startTime || '',
+      }));
+      return {
+        records,
+        total: data.total || 0,
+      };
+    });
   },
 };
 

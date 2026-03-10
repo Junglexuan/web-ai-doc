@@ -177,12 +177,12 @@
           transition: all 0.3s ease;
 
           &:hover {
-            > .mask {
+            > :local(.mask) {
               opacity: 1;
             }
           }
 
-          > .mask {
+          > :local(.mask) {
             position: absolute;
             top: 0;
             right: 0;
@@ -197,7 +197,7 @@
             opacity: 0;
             transition: opacity 0.3s ease;
 
-            > .mask_btn {
+            > :local(.mask_btn) {
               background: linear-gradient(110deg, rgba(108, 71, 239, 0.8) 0%, rgba(27, 104, 252, 0.8) 100%, rgba(255, 255, 255, 0) 100%);
               border-radius: 4px;
             }
@@ -438,15 +438,16 @@
             }
           }
 
-          .interviewPlaceholder {
+          :local(.interviewPlaceholder) {
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
             align-items: center;
             justify-content: center;
             width: 100%;
+            padding: 20px 0;
 
-            .text {
-              margin-top: 10px;
+            :local(.text) {
+              margin-left: 14px;
               font-family: 'Alibaba PuHuiTi 2.0', sans-serif;
               font-size: 14px;
               color: #ff8d00;

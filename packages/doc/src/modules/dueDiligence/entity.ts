@@ -3,6 +3,14 @@ import {BaseCurRender, BaseCurView, BaseListItem, BaseListSearch, BaseListSummar
 export type CurView = BaseCurView;
 export type CurRender = BaseCurRender;
 
+// 报告生成状态枚举
+export enum DealReportStatusEnum {
+  REPORT_NOT_GENERATED = '1', // 报告未生成
+  REPORT_GENERATING = '2', // 报告生成中
+  REPORT_GENERATED = '3', // 报告已生成
+  REPORT_FAILED = '4', // 报告生成失败
+}
+
 export interface ListSearch extends BaseListSearch {
   keyWord?: string;
   status?: 'start' | 'end';
@@ -39,6 +47,7 @@ export interface ItemDetail {
   desc: string;
   status: string;
   progress: number;
+  reportStatus?: string;
   dealSummary?: string;
   updateDate?: string;
   // 报告
@@ -84,6 +93,13 @@ export interface ItemDetail {
     fileUrl: string;
     type: string;
     lastModifiedTime: string;
+  }[];
+  questionInfoList?: {
+    id: string;
+    questionName: string;
+    questionAnswer: string;
+    hitTime: string;
+    CHECKED: boolean;
   }[];
 }
 
@@ -161,6 +177,35 @@ export interface InterviewRecord {
     recordFileUrl: string;
     lastModifiedDate: string;
   } | null;
+}
+
+export interface InterviewInstDetail {
+  interviewInstId: string;
+  interviewInstTitle: string;
+  interviewCust: string;
+  lastModifiedTime: string;
+  recordFileInstVo?: {
+    id: string;
+    recordFileName: string;
+    recordFileUrl: string;
+    lastModifiedDate: string;
+  } | null;
+  interviewArticleUrl?: string | null;
+  interviewArticleUrlBase64?: string | null;
+  questionInstList: {
+    id: string;
+    questionName: string;
+    questionAnswer: string;
+    hitTime: string;
+    CHECKED: boolean;
+  }[];
+}
+
+export interface TranscriptItem {
+  id: string;
+  role: string;
+  content: string;
+  time: string;
 }
 
 export type DueConfigs = {

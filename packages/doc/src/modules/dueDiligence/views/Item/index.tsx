@@ -24,6 +24,7 @@ import SiteIcon from '@/assets/images/site.png';
 import SupIcon from '@/assets/images/sup.png';
 import UploadIcon from '@/assets/images/upload.png';
 import AudioPlayerModal from '@/components/AudioPlayerModal';
+import InterviewDetailModal from '@/components/InterviewDetailModal';
 import LoadingPanel from '@/components/LoadingPanel';
 import {GetActions, GetClientRouter, SiteInfo} from '@/Global';
 import request, {downloadFile, getUploadProps, openDoc, replaceBaseUrl} from '@/utils/request';
@@ -31,7 +32,7 @@ import {getToken, message, showMask, useEvent} from '@/utils/tools';
 import {DueDiligenceAPI} from '../../api';
 import QuestionsFile from '../../components/QuestionsFile';
 import TplSelect from '../../components/TplSelect';
-import {DueConfigs, InterviewRecord, ItemDetail, StatusMap} from '../../entity';
+import {DealReportStatusEnum, DueConfigs, InterviewInstDetail, InterviewRecord, ItemDetail, StatusMap} from '../../entity';
 import styles from './index.module.less';
 
 const twoColors = {
@@ -57,9 +58,14 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
   const [isResourcesCollapsed, setIsResourcesCollapsed] = useState(false); //上传企业资料
   const [isSupplementaryCollapsed, setIsSupplementaryCollapsed] = useState(false); //补充企业信息
   const [isInterviewCollapsed, setIsInterviewCollapsed] = useState(false);
+  const [reportPolling, setReportPolling] = useState(false);
 
   const [fileProgressMap, setFileProgressMap] = useState<Record<string, {progress: number; status: string}>>({});
   const [interviewList, setInterviewList] = useState<InterviewRecord[]>([]);
+  const [interviewDetailModal, setInterviewDetailModal] = useState<{visible: boolean; record: InterviewInstDetail | null}>({
+    visible: false,
+    record: null,
+  });
 
   useEffect(() => {
     if (!itemDetail.id) return;
@@ -215,11 +221,43 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
   });
 
   const onRebuildReport = useEvent(() => {
-    DueDiligenceAPI.rebuildReport(itemDetail.id).then(() => {
-      refreshPage();
-      message.success('操作成功！');
-    });
+    setReportPolling(true);
+    DueDiligenceAPI.rebuildReport(itemDetail.id)
+      .then(() => {
+        refreshPage();
+        message.success('报告生成任务已启动，请稍候...');
+      })
+      .catch(() => {
+        setReportPolling(false);
+      });
   });
+
+  // 轮询报告状态
+  useEffect(() => {
+    let timer: any;
+    // 当状态是生成中，或者用户点击了立即生成且此时reportPolling为true，则开启轮询
+    if (reportPolling || itemDetail.reportStatus === DealReportStatusEnum.REPORT_GENERATING) {
+      if (!reportPolling) setReportPolling(true);
+      timer = setInterval(() => {
+        DueDiligenceAPI.getItem(itemDetail.id).then((newDetail) => {
+          dispatch(dueDiligenceActions.putCurrentItem(itemDetail.id, newDetail));
+          // 如果后端返回的状态已生成或失败，则结束轮询
+          if (newDetail.reportStatus === DealReportStatusEnum.REPORT_GENERATED || newDetail.reportStatus === DealReportStatusEnum.REPORT_FAILED) {
+            setReportPolling(false);
+            clearInterval(timer);
+            if (newDetail.reportStatus === DealReportStatusEnum.REPORT_GENERATED) {
+              message.success('报告已顺利生成！');
+            } else {
+              message.error('报告生成失败，请重试');
+            }
+          }
+        });
+      }, 3000);
+    } else {
+      setReportPolling(false);
+    }
+    return () => timer && clearInterval(timer);
+  }, [itemDetail.id, itemDetail.reportStatus, dispatch, reportPolling]);
 
   const onResetTemplate = useEvent((tpl: {id: string} | undefined) => {
     if (tpl?.id) {
@@ -512,9 +550,9 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
                 </div>
               </div>
             </div>
-            <div className="mask">
-              <Button type="primary" className="mask_btn" onClick={onRebuildReport}>
-                立即生成
+            <div className={styles.mask} style={{opacity: reportPolling ? 1 : undefined, pointerEvents: reportPolling ? 'auto' : undefined}}>
+              <Button type="primary" className={styles.mask_btn} onClick={onRebuildReport} loading={reportPolling}>
+                {reportPolling ? '报告生成中...' : '立即生成'}
               </Button>
             </div>
           </div>
@@ -614,7 +652,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
                 </div>
               );
             })}
-            <Upload showUploadList={false} {...uploadProps}>
+            <Upload showUploadList={false} multiple {...uploadProps}>
               <div className={styles.fileUpload}>
                 <img src={UploadIcon} alt="上传文件" />
                 <span style={{color: '#2A62FA'}}>上传文件</span>
@@ -638,10 +676,12 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
                 <div className="info">{item.lastModifiedTime}</div>
               </div>
             ))}
-            <div className={styles.fileUpload} onClick={() => setShowSupplementary(true)}>
-              <img src={SupIcon} alt="补充信息" />
-              <span style={{color: '#2A62FA'}}>补充信息</span>
-            </div>
+            {itemDetail.supplementary.length === 0 && (
+              <div className={styles.fileUpload} onClick={() => setShowSupplementary(true)}>
+                <img src={SupIcon} alt="补充信息" />
+                <span style={{color: '#2A62FA'}}>补充信息</span>
+              </div>
+            )}
           </div>
         </div>
         <div className="step">
@@ -664,14 +704,48 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
                     className="name"
                     title={item.interviewInstTitle || item.interviewCust || '访谈录音'}
                     onClick={() => {
-                      const fileUrl = item.recordFileInstVo?.recordFileUrl || item.interviewArticleUrl || '';
-                      if (fileUrl) {
-                        onOpenInterviewFile({
-                          fileName: item.interviewInstTitle || item.interviewCust || '访谈录音',
-                          fileUrl: fileUrl,
-                          type: 'wav',
+                      // 打开访谈详情弹框
+                      DueDiligenceAPI.getInterviewInstDetail(item.interviewInstId)
+                        .then((detail) => {
+                          setInterviewDetailModal({
+                            visible: true,
+                            record: {
+                              ...detail,
+                              questionInstList:
+                                detail.questionInstList?.length > 0
+                                  ? detail.questionInstList
+                                  : (itemDetail.questionInfoList || []).map((q) => ({
+                                      id: q.id,
+                                      questionName: q.questionName,
+                                      questionAnswer: q.questionAnswer,
+                                      hitTime: q.hitTime,
+                                      CHECKED: q.CHECKED,
+                                    })),
+                            },
+                          });
+                        })
+                        .catch(() => {
+                          // 降级：若详情接口不可用，则用列表中已有信息构造 record 并打开
+                          setInterviewDetailModal({
+                            visible: true,
+                            record: {
+                              interviewInstId: item.interviewInstId,
+                              interviewInstTitle: item.interviewInstTitle,
+                              interviewCust: item.interviewCust,
+                              lastModifiedTime: item.lastModifiedTime,
+                              recordFileInstVo: item.recordFileInstVo || null,
+                              interviewArticleUrl: item.interviewArticleUrl || null,
+                              interviewArticleUrlBase64: item.interviewArticleUrlBase64 || null,
+                              questionInstList: (itemDetail.questionInfoList || []).map((q) => ({
+                                id: q.id,
+                                questionName: q.questionName,
+                                questionAnswer: q.questionAnswer,
+                                hitTime: q.hitTime,
+                                CHECKED: q.CHECKED,
+                              })),
+                            } as any,
+                          });
                         });
-                      }
                     }}
                   >
                     {item.interviewInstTitle || item.interviewCust || '访谈录音'}
@@ -682,7 +756,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
             ) : (
               <div className={styles.interviewPlaceholder}>
                 <img src={InterviewIcon} alt="InterviewIcon" width={134} />
-                <span className="text">请前往移动端(小狸AI)访谈录音并生成纪要！</span>
+                <span className={styles.text}>请前往移动端(小狸AI)访谈录音并生成纪要！</span>
               </div>
             )}
           </div>
@@ -743,6 +817,13 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
           </div>
         </Modal>
       )}
+
+      {/* 访谈详情弹框 */}
+      <InterviewDetailModal
+        visible={interviewDetailModal.visible}
+        record={interviewDetailModal.record}
+        onClose={() => setInterviewDetailModal({visible: false, record: null})}
+      />
 
       {/* 音频播放浮层 */}
       <AudioPlayerModal
