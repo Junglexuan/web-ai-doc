@@ -87,6 +87,43 @@ export interface ItemDetail {
   }[];
 }
 
+/**
+ * 模板信息（后端返回的实际数据结构）- 用于 /reportApprove 接口
+ */
+export interface TemplateRecord {
+  id: string;
+  agencyId: number;
+  centerUserId: number;
+  approveReportName: string; // 模板名称
+  approveReportStatus: string; // "1"-审批通过，"2"-审批中，"3"-审批未通过
+  approveTemplateUrl: string; // 模板文件URL
+  viewTemplateUrl?: string; // 预览URL
+  createDate: string; // 创建时间
+  createUser: number;
+  lastModifiedDate: string; // 最后修改时间
+  lastModifiedUser: number;
+  errorMsg: string | null; // 错误信息
+  recStatus: string | null;
+}
+
+/**
+ * 报告模板信息 - 用于 /template 接口
+ */
+export interface ReportTemplate {
+  id: string;
+  businessId: string;
+  centerUserId: string | null;
+  dealInstId: string | null;
+  dealInstTitle: string | null;
+  outTemplateId: string;
+  outTemplateUrl: string; // 导出/文件URL
+  viewTemplateUrl: string; // 模板预览URL
+  questionId: number;
+  recStatus: string;
+  reportTemplateName: string; // 模板名称
+  reportTemplateStatus: string; // 模板状态
+}
+
 export type EditItem = ListItem;
 
 export const defaultListSearch: ListSearch = {

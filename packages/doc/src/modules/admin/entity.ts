@@ -1,6 +1,7 @@
 export enum SubModule {
   'home' = 'home',
   'dueDiligence' = 'dueDiligence',
+  'doc' = 'doc',
 }
 
 export interface MenuItem {

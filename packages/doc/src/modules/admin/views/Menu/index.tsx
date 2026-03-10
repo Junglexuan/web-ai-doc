@@ -1,4 +1,4 @@
-import {MessageOutlined} from '@ant-design/icons';
+import {FileTextOutlined, MessageOutlined} from '@ant-design/icons';
 import {Link} from '@elux/react-web';
 import {Menu} from 'antd';
 import {FC, useMemo} from 'react';
@@ -38,6 +38,15 @@ const items: any[] = [
       </Link>
     ),
   },
+  {
+    key: '我的模版',
+    icon: <FileTextOutlined />,
+    label: (
+      <Link to="/admin/dueDiligence/list/tpl" action="relaunch" target="window">
+        我的模版
+      </Link>
+    ),
+  },
 ];
 
 const Component: FC<{}> = () => {
@@ -51,6 +60,9 @@ const Component: FC<{}> = () => {
     }
     if (pathname.startsWith('/admin/dueDiligence/config/setting')) {
       return ['尽调设置'];
+    }
+    if (pathname.startsWith('/admin/dueDiligence/list/tpl')) {
+      return ['我的模版'];
     }
     return [];
   }, [pathname]);

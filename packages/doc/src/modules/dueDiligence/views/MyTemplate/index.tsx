@@ -1,0 +1,329 @@
+import {CloseOutlined, DeleteOutlined, EditOutlined, EllipsisOutlined, InboxOutlined, PlusOutlined, SearchOutlined} from '@ant-design/icons';
+import {Dispatch, DocumentHead} from '@elux/react-web';
+import {Button, Dropdown, Input, Modal, Progress, Space, Tag, Tooltip, Upload, message} from 'antd';
+import {FC, memo, useEffect, useMemo, useState} from 'react';
+import WordIcon from '@/assets/images/word.svg';
+import {SiteInfo, SitesUrl} from '@/Global';
+import {confirm, showMask, useEvent} from '@/utils/tools';
+import {DueDiligenceAPI} from '../../api';
+import {TemplateRecord} from '../../entity';
+import styles from './index.module.less';
+
+interface Props {
+  dispatch: Dispatch;
+}
+
+const StatusMap: {[key: string]: {text: string; color: string}} = {
+  '1': {text: '上传中', color: 'processing'},
+  '2': {text: '上传成功', color: 'success'},
+  '3': {text: '上传失败', color: 'error'},
+};
+
+const MyTemplate: FC<Props> = ({dispatch}) => {
+  const [list, setList] = useState<TemplateRecord[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [showUpload, setShowUpload] = useState(false);
+  const [reportName, setReportName] = useState('');
+  const [fileList, setFileList] = useState<File[]>([]);
+  const [activeTab, setActiveTab] = useState<'all' | 'processing'>('all');
+  const [searchText, setSearchText] = useState('');
+
+  const fetchList = useEvent(() => {
+    setLoading(true);
+    const apiCall = activeTab === 'all' ? DueDiligenceAPI.getTemplateList() : DueDiligenceAPI.queryApproveReport();
+
+    apiCall
+      .then((data: any) => {
+        if (activeTab === 'all') {
+          // 将 ReportTemplate 映射为 TemplateRecord 结构以便展示
+          const mapped = (data || []).map((item: any) => ({
+            id: item.id,
+            approveReportName: item.reportTemplateName || '',
+            approveReportStatus: '2', // 上传成功/已通过
+            approveTemplateUrl: item.outTemplateUrl || '',
+            viewTemplateUrl: item.viewTemplateUrl || '',
+            createDate: item.createDate || '-', // 如果接口没返回 createDate，展示占位符
+          }));
+          setList(mapped);
+        } else {
+          setList(data || []);
+        }
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  });
+
+  useEffect(() => {
+    fetchList();
+  }, [activeTab, fetchList]);
+
+  const filteredList = useMemo(() => {
+    let result = list;
+    if (activeTab === 'processing') {
+      // 不再过滤状态，直接展示接口返回的所有数据
+    }
+    if (searchText) {
+      result = result.filter((item) => item.approveReportName.toLowerCase().includes(searchText.toLowerCase()));
+    }
+    return result;
+  }, [list, activeTab, searchText]);
+
+  const onRename = useEvent((id: string, oldName: string) => {
+    let newName = oldName;
+    Modal.confirm({
+      title: '重命名模板',
+      content: <Input defaultValue={oldName} onChange={(e) => (newName = e.target.value)} />,
+      onOk: () => {
+        if (!newName || newName === oldName) return;
+        DueDiligenceAPI.updateApproveReport({id, approveReportName: newName}).then(() => {
+          message.success('重命名成功');
+          fetchList();
+        });
+      },
+    });
+  });
+
+  const onDelete = useEvent((id: string) => {
+    confirm('确定要删除该模板吗？', (ok) => {
+      if (ok) {
+        DueDiligenceAPI.deleteApproveReport(id).then(() => {
+          message.success('删除成功');
+          fetchList();
+        });
+      }
+    });
+  });
+
+  const onUploadSubmit = useEvent(() => {
+    let finalReportName = reportName;
+    if (!finalReportName && fileList.length === 1) {
+      finalReportName = fileList[0].name.split('.').slice(0, -1).join('.');
+    }
+    if (!finalReportName && fileList.length > 1) {
+      finalReportName = '批量上传模板';
+    }
+
+    if (!finalReportName) {
+      message.warning('请输入名称或等待文件上传');
+      return;
+    }
+    if (fileList.length === 0) {
+      message.warning('请选择模板文件');
+      return;
+    }
+    setLoading(true);
+
+    const uploadPromises = fileList.map((file, index) => {
+      const name = fileList.length > 1 ? `${finalReportName}_${index + 1}` : finalReportName;
+      return DueDiligenceAPI.addApproveReport({reportName: name, file});
+    });
+
+    Promise.all(uploadPromises)
+      .then((results) => {
+        const failedCount = results.filter((res) => !res.success).length;
+        if (failedCount === 0) {
+          message.success('上传成功');
+          setShowUpload(false);
+          setReportName('');
+          setFileList([]);
+          fetchList();
+        } else {
+          message.error(`有 ${failedCount} 个文件上传失败`);
+        }
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  });
+
+  const renderCard = (record: TemplateRecord) => {
+    const status = StatusMap[record.approveReportStatus] || {text: '未知', color: 'default'};
+    const isProcessing = record.approveReportStatus === '1'; // 上传中
+    const isFailed = record.approveReportStatus === '3'; // 上传失败
+
+    return (
+      <div className={styles.card} key={record.id}>
+        <div className="card-hd">
+          <img src={WordIcon} className="word-icon" alt="word" />
+          <div className="name-wrap">
+            <Tooltip title={record.approveReportName}>
+              <div className="name">{record.approveReportName}</div>
+            </Tooltip>
+          </div>
+          {!isProcessing && !isFailed ? null : <span className={`status-tag status-${record.approveReportStatus}`}>{status.text}</span>}
+        </div>
+
+        {(isProcessing || isFailed) && (
+          <div className="card-bd">
+            {isProcessing ? (
+              <div className={styles.processingLayout}>
+                <div className="divider" />
+                <div className="content">
+                  <Progress percent={45} strokeColor="#4F46E5" showInfo={false} size="small" />
+                  <div className="hint">预计2小时后完成</div>
+                </div>
+              </div>
+            ) : (
+              <div className="failed-content">
+                <div className="error-msg">{record.errorMsg || '未通过：模板包含敏感词汇或话术不符合合规要求'}</div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {!isProcessing && (
+          <div className="card-ft">
+            <div className="date">{record.createDate}</div>
+            {activeTab === 'all' ? (
+              <div
+                className="preview-btn"
+                onClick={() => {
+                  const url = record.viewTemplateUrl || record.approveTemplateUrl;
+                  if (!url) {
+                    message.error('暂无预览地址');
+                    return;
+                  }
+                  DueDiligenceAPI.viewReportUrl(null, url).then((res) => {
+                    if (res.success && res.data) {
+                      window.open(res.data, '_blank');
+                    } else {
+                      message.error(res.message || '获取预览地址失败');
+                    }
+                  });
+                }}
+              >
+                预览
+              </div>
+            ) : (
+              <Dropdown
+                menu={{
+                  items: [
+                    {key: 'rename', label: '重命名', icon: <EditOutlined />, onClick: () => onRename(record.id, record.approveReportName)},
+                    {key: 'delete', label: '删除模板', icon: <DeleteOutlined />, danger: true, onClick: () => onDelete(record.id)},
+                  ],
+                }}
+                overlayClassName={styles.actionDropdown}
+                trigger={['click']}
+                placement="bottomRight"
+              >
+                <EllipsisOutlined className="more-btn" />
+              </Dropdown>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  return (
+    <div className={styles.root}>
+      <DocumentHead title={'我的模版-' + SiteInfo.name} />
+      <div className="page-header">
+        <div className="title">我的模板</div>
+        <div className="header-actions">
+          <Input
+            className="search-input"
+            placeholder="输入模板名称"
+            prefix={<SearchOutlined style={{color: '#8c8c8c'}} />}
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+          />
+          <Button type="primary" className="upload-btn" icon={<PlusOutlined />} onClick={() => setShowUpload(true)}>
+            上传模板
+          </Button>
+        </div>
+      </div>
+
+      <div className="tab-container">
+        <div className={`tab-item ${activeTab === 'all' ? 'active' : ''}`} onClick={() => setActiveTab('all')}>
+          我的模板
+        </div>
+        <div className={`tab-item ${activeTab === 'processing' ? 'active' : ''}`} onClick={() => setActiveTab('processing')}>
+          处理中
+        </div>
+      </div>
+
+      <div className="grid-content">
+        {loading && list.length === 0 ? (
+          <div className="loading-state">加载中...</div>
+        ) : filteredList.length > 0 ? (
+          <div className="card-grid">{filteredList.map(renderCard)}</div>
+        ) : (
+          <div className="empty-state">暂无模板数据</div>
+        )}
+      </div>
+
+      <Modal
+        title="上传文件"
+        open={showUpload}
+        onOk={onUploadSubmit}
+        confirmLoading={loading}
+        className={styles.uploadModal}
+        onCancel={() => {
+          setShowUpload(false);
+          setReportName('');
+          setFileList([]);
+        }}
+        okText="确定"
+        cancelText="取消"
+        width={640}
+        centered
+        styles={{
+          body: {margin: '14px 20px'},
+        }}
+      >
+        <div className={styles.uploadContainer}>
+          <Upload.Dragger
+            beforeUpload={(f) => {
+              setFileList((prev) => [...prev, f]);
+              return false;
+            }}
+            multiple
+            showUploadList={false}
+            className={styles.dragger}
+          >
+            <div className={styles.draggerInner}>
+              <div className={styles.fileListHeader}>
+                <div className={styles.fileCount}>
+                  文件数量 <span>{fileList.length}</span>
+                  <span className={styles.total}>/30</span>
+                </div>
+                {fileList.length > 0 && <div className={styles.continueAdd}>继续添加</div>}
+              </div>
+
+              {fileList.length === 0 ? (
+                <div className={styles.emptyUpload}>
+                  <p className="ant-upload-drag-icon">
+                    <InboxOutlined style={{color: '#4F46E5'}} />
+                  </p>
+                  <p className="ant-upload-text">点击或将文件拖拽到这里上传，单次最多可上传30个文件</p>
+                  <p className="ant-upload-hint">支持.doc、.docx格式文件，不超过50MB</p>
+                </div>
+              ) : (
+                <div className={styles.selectedFiles}>
+                  {fileList.map((f, index) => (
+                    <div className={styles.fileItem} key={index} onClick={(e) => e.stopPropagation()}>
+                      <div className={styles.fileInfo}>
+                        <img src={WordIcon} className={styles.wordIcon} alt="word" />
+                        <span className={styles.fileName}>{f.name}</span>
+                      </div>
+                      <CloseOutlined
+                        className={styles.removeIcon}
+                        onClick={() => {
+                          setFileList((prev) => prev.filter((_, i) => i !== index));
+                        }}
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </Upload.Dragger>
+        </div>
+      </Modal>
+    </div>
+  );
+};
+
+export default memo(MyTemplate);

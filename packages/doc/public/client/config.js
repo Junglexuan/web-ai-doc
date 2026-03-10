@@ -11,7 +11,7 @@ window.SitesUrl = {
   helix: '//helix.binarysee.com',
   verse: '//localhost:4004',
   pulse: '//pulse.binarysee.com',
-  preview: 'http://113.44.121.105:8012/onlinePreview', //预览
+  preview: 'http://68.79.42.215:8012/onlinePreview', //预览
   editor: 'http://113.44.121.105:8901', //word编辑器
 };
 window.PathPrefix = '';

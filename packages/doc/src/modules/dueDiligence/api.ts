@@ -1,6 +1,6 @@
 import request from '@/utils/request';
 import {getCurUserId} from '@/utils/tools';
-import {DueConfigs, DueSettings, ItemDetail, ListItem, ListResult, ListSearch} from './entity';
+import {DueConfigs, DueSettings, ItemDetail, ListItem, ListResult, ListSearch, ReportTemplate, TemplateRecord} from './entity';
 
 /** 与移动端对齐：尽调管理、创建尽调、上传资料、生成/重新生成报告、报告详情、资料管理 */
 
@@ -170,10 +170,10 @@ export const DueDiligenceAPI = {
     if (fileId) {
       return request.get(`/api/online/files/${fileId}/view-url`).then((res) => res.data);
     }
-    let url = `/api/webInterface/url/view?url=${encodeURIComponent(fileUrl)}`;
+    const url = `/api/webInterface/url/view?url=${encodeURIComponent(fileUrl)}`;
     return request.get(url).then((res) => res.data);
   },
-  
+
   /** 报告在线编辑：获取编辑地址 */
   editReportUrl(fileId: string): Promise<{success: boolean; data?: string; message?: string}> {
     return request.get(`/api/online/files/${fileId}/edit-info`).then((res) => res.data);
@@ -189,10 +189,48 @@ export const DueDiligenceAPI = {
     const formData = new FormData();
     formData.append('reportName', params.reportName);
     formData.append('file', params.file);
-    return request.post('/api/deal/addApproveReport', formData).then((res) => ({
+    return request.post('/api/reportApprove/addApproveReport', formData, {headers: {'Content-Type': 'multipart/form-data'}}).then((res) => ({
       success: res?.data?.success !== false,
       message: res?.data?.message,
     }));
+  },
+
+  queryApproveReport(approveReportStatus?: number): Promise<TemplateRecord[]> {
+    return request
+      .get('/api/reportApprove/queryApproveReport', {params: approveReportStatus ? {approveReportStatus} : undefined})
+      .then((res) => res.data.data);
+  },
+
+  addApproveReportNew(params: {approveReportName: string; approveTemplateUrl: string}): Promise<void> {
+    return request.post('/api/reportApprove/addApproveReportNew', params).then((res) => res.data.data);
+  },
+
+  updateApproveReport(params: {id: string; approveReportName: string}): Promise<void> {
+    return request.post('/api/reportApprove/updateApproveReport', params).then((res) => res.data.data);
+  },
+
+  deleteApproveReport(id: string): Promise<void> {
+    return request.post('/api/reportApprove/deleteApproveReport', {id}).then((res) => res.data.data);
+  },
+
+  clickApproveReport(id: string): Promise<void> {
+    return request.post('/api/reportApprove/clickApproveReport', {id}).then((res) => res.data.data);
+  },
+
+  getTemplateList(): Promise<ReportTemplate[]> {
+    return request.get('/api/template/list').then((res) => res.data.data);
+  },
+
+  getTemplateDetail(id: string): Promise<ReportTemplate> {
+    return request.get('/api/template/detail', {params: {templateId: id}}).then((res) => res.data.data);
+  },
+
+  insertTemplate(params: {templateName: string; templateUrl?: string}): Promise<void> {
+    return request.post('/api/template/insert', params).then((res) => res.data.data);
+  },
+
+  deleteTemplate(id: string): Promise<void> {
+    return request.post('/api/template/delete', {id}).then((res) => res.data.data);
   },
 };
 

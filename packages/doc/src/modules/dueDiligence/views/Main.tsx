@@ -5,6 +5,7 @@ import {APPState} from '@/Global';
 import {CurRender, CurView, ItemDetail, ListItem, ListSearch, ListSummary} from '../entity';
 import Item from './Item';
 import Maintain from './Maintain';
+import MyTemplate from './MyTemplate';
 import Setting from './Setting';
 
 export interface StoreProps {
@@ -28,6 +29,7 @@ const Component: FC<StoreProps & {dispatch: Dispatch}> = ({curView, curRender, i
       {curView === 'list' &&
         curRender === 'maintain' &&
         (listSummary ? <Maintain dispatch={dispatch} listSearch={listSearch!} list={list!} listSummary={listSummary!} /> : <div></div>)}
+      {curView === 'list' && curRender === 'tpl' && <MyTemplate dispatch={dispatch} />}
       {curView === 'item' &&
         (itemDetail ? <Item itemDetail={itemDetail} dispatch={dispatch} /> : <div style={{background: '#fff', width: '100%', height: '100%'}}></div>)}
       {curView === 'config' && <Setting />}
