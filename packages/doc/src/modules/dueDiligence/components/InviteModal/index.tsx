@@ -1,4 +1,4 @@
-import {CopyOutlined, GiftOutlined, UserAddOutlined} from '@ant-design/icons';
+import {CopyOutlined, GiftOutlined, LinkOutlined, UserAddOutlined} from '@ant-design/icons';
 import {Button, Input, Modal, message} from 'antd';
 import {FC, memo, useEffect, useRef, useState} from 'react';
 import {DueDiligenceAPI} from '../../api';
@@ -11,7 +11,7 @@ interface Props {
 }
 
 const steps = [
-  {icon: <CopyOutlined />, text: '复制您的专属邀请码并发送给好友'},
+  {icon: <LinkOutlined />, text: '复制您的专属邀请码并发送给好友'},
   {icon: <GiftOutlined />, text: '好友在下方填写您的邀请码并点击确定'},
   {icon: <UserAddOutlined />, text: '好友分享，同触AI报告新体验'},
 ];
@@ -41,7 +41,6 @@ const InviteModal: FC<Props> = ({open, onClose, onSuccess}) => {
 
   const handleCopyOrGenerate = async () => {
     if (inviteCode) {
-      // copy
       const text = inviteCode;
       if (navigator.clipboard && window.isSecureContext) {
         navigator.clipboard
@@ -53,7 +52,6 @@ const InviteModal: FC<Props> = ({open, onClose, onSuccess}) => {
       }
       return;
     }
-    // generate
     setIsGenerating(true);
     try {
       const res = await DueDiligenceAPI.getInviteCode();
@@ -83,6 +81,11 @@ const InviteModal: FC<Props> = ({open, onClose, onSuccess}) => {
     document.body.removeChild(el);
   };
 
+  const handleClose = () => {
+    setFriendCode('');
+    onClose();
+  };
+
   const handleConfirm = async () => {
     const code = friendCode.trim().toUpperCase();
     if (!code) {
@@ -102,8 +105,6 @@ const InviteModal: FC<Props> = ({open, onClose, onSuccess}) => {
         setFriendCode('');
       }
     } catch (err: any) {
-      // 如果 request 在业务失败时会抛异常，err.message 里已带有服务端返回的信息，
-      // 直接展示避免与上方的 res.message toast 重复
       const errMsg = err?.response?.data?.message || err?.message;
       if (errMsg) {
         message.error(errMsg);
@@ -115,43 +116,19 @@ const InviteModal: FC<Props> = ({open, onClose, onSuccess}) => {
   };
 
   return (
-    <Modal
-      open={open}
-      onCancel={() => {
-        setFriendCode('');
-        onClose();
-      }}
-      footer={null}
-      width={480}
-      centered
-      className={styles.inviteModalWrap}
-      styles={{
-        content: {padding: 0, borderRadius: 20, overflow: 'hidden'},
-        mask: {backdropFilter: 'blur(4px)'},
-      }}
-    >
-      {/* Top banner */}
-      <div className={styles.banner}>
-        <div className={styles.bannerOverlay} />
-        <div className={styles.bannerContent}>
-          <div className={styles.bannerEmoji}>📄</div>
-          <div className={styles.bannerTitle}>分享邀请码</div>
-          <div className={styles.bannerSubtitle}>好友体验小狸报告</div>
-        </div>
-      </div>
-
-      {/* Main content */}
+    <Modal open={open} title="模板分享" onCancel={handleClose} width={480} centered className="invite-modal-wrap" footer={null}>
       <div className={styles.body}>
-        {/* Card 1: Share code */}
+        {/* Card 1: My invite code */}
         <div className={styles.card}>
-          <div className={styles.cardLabel}>分享邀请码，邀请好友体验小狸报告</div>
+          <div className={styles.cardLabel}>分享自己邀请码</div>
           <div className={styles.codeRow}>
-            <div className={styles.codeBox}>
-              <span className={inviteCode ? styles.codeText : styles.codePlaceholder}>
-                {isLoading || isGenerating ? '...' : inviteCode || 'WAITING...'}
+            <div className={styles.codeLeft}>
+              <span className={styles.codePrefix}>邀请码</span>
+              <span className={isLoading || isGenerating ? styles.codePlaceholder : styles.codeText}>
+                {isLoading || isGenerating ? '...' : inviteCode || '---'}
               </span>
             </div>
-            <Button type="primary" className={styles.copyBtn} loading={isLoading || isGenerating} onClick={handleCopyOrGenerate}>
+            <Button type="primary" loading={isLoading || isGenerating} onClick={handleCopyOrGenerate} className={styles.copyBtn}>
               {inviteCode ? '复制邀请码' : isLoading || isGenerating ? '生成中...' : '生成邀请码'}
             </Button>
           </div>
@@ -161,22 +138,25 @@ const InviteModal: FC<Props> = ({open, onClose, onSuccess}) => {
         <div className={styles.card}>
           <div className={styles.sectionTitle}>邀请步骤</div>
           <div className={styles.steps}>
-            {steps.map((step, idx) => (
-              <div key={idx} className={styles.stepItem}>
-                <div className={styles.stepLeft}>
-                  <div className={styles.stepDot} />
-                  {idx < steps.length - 1 && <div className={styles.stepLine} />}
+            {steps.map((step, idx) => {
+              const isLast = idx === steps.length - 1;
+              return (
+                <div key={idx} className={styles.stepItem}>
+                  <div className={styles.stepLeft}>
+                    <span className={styles.stepDot} />
+                    {!isLast && <span className={styles.stepLine} />}
+                  </div>
+                  <div className={`${styles.stepBody} ${isLast ? styles.stepBodyLast : ''}`}>
+                    <span className={styles.stepIconBox}>{step.icon}</span>
+                    <span className={styles.stepText}>{step.text}</span>
+                  </div>
                 </div>
-                <div className={`${styles.stepContent} ${idx < steps.length - 1 ? styles.stepContentGap : ''}`}>
-                  <span className={styles.stepIcon}>{step.icon}</span>
-                  <span className={styles.stepText}>{step.text}</span>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
-        {/* Card 3: Fill friend code */}
+        {/* Card 3: Friend code */}
         <div className={styles.card}>
           <div className={styles.sectionTitle}>填写好友邀请码</div>
           <div className={styles.codeRow}>
@@ -201,12 +181,7 @@ const InviteModal: FC<Props> = ({open, onClose, onSuccess}) => {
               className={styles.friendCodeInput}
               style={{textTransform: 'uppercase'}}
             />
-            <Button
-              type="primary"
-              className={`${styles.confirmBtn} ${!friendCode.trim() ? styles.confirmBtnDisabled : ''}`}
-              loading={isSubmitting}
-              onClick={handleConfirm}
-            >
+            <Button type="primary" disabled={!friendCode.trim()} loading={isSubmitting} onClick={handleConfirm} className={styles.confirmBtn}>
               确定
             </Button>
           </div>

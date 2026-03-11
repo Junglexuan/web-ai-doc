@@ -515,6 +515,16 @@ export const isIframe = (): boolean => {
     return true;
   }
 };
+
+/**
+ * 获取与工作台消息共享的请求源地址
+ */
+export const getPortalUrl = (): string | null => {
+  const portalUrl = localStorage.getItem('zov-msg-origin');
+  if (portalUrl) return new URL(portalUrl).origin;
+  else return null;
+};
+
 /**
  * 通知父级打开或关闭遮罩层
  * @param open 是否打开遮罩层
@@ -530,14 +540,7 @@ export const showMask = (open: boolean = false): void => {
       getPortalUrl() || '*'
     );
 };
-/**
- * 获取与工作台消息共享的请求源地址
- */
-export const getPortalUrl = (): string | null => {
-  const portalUrl = localStorage.getItem('zov-msg-origin');
-  if (portalUrl) return new URL(portalUrl).origin;
-  else return null;
-};
+
 /**
  * token无效通知工作台重定向登录
  */
@@ -552,10 +555,11 @@ export const tokenExpiredRefresh = (): void => {
       getPortalUrl() || '*'
     );
 };
+
 /**
  * 新页签页面通知工作台返回
  */
-export const returnToWorkbench = (type: 'push' | 'replace', path: string): void => {
+export const returnToWorkbench = (type: 'push' | 'replace' | 'href', path: string): void => {
   console.info('通知父级: 回退地址');
   window.parent &&
     window.parent.postMessage(
@@ -565,6 +569,21 @@ export const returnToWorkbench = (type: 'push' | 'replace', path: string): void 
           type,
           path,
         },
+      },
+      getPortalUrl() || '*'
+    );
+};
+
+/**
+ * 通知工作台更新title
+ */
+export const updateTitleToWorkbench = (title: string): void => {
+  console.info('通知父级: 更新页面title', title);
+  window.parent &&
+    window.parent.postMessage(
+      {
+        method: 'zov:UPDATE_TITLE',
+        data: title,
       },
       getPortalUrl() || '*'
     );

@@ -60,6 +60,10 @@ const MyTemplate: FC<Props> = ({dispatch}) => {
     fetchList();
   }, [activeTab, fetchList]);
 
+  useEffect(() => {
+    showMask(showUpload || showInvite);
+  }, [showUpload, showInvite]);
+
   const filteredList = useMemo(() => {
     let result = list;
     if (activeTab === 'processing') {
