@@ -13,34 +13,82 @@ interface Props {
   record: InterviewInstDetail | null;
 }
 
+const AvatarIcon = ({name, index}: {name: string; index?: number}) => {
+  let colorIndex = index || 0;
+  if (index === undefined) {
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) {
+      hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    colorIndex = Math.abs(hash) % 5;
+  } else {
+    colorIndex = index % 5;
+  }
+
+  const colors = [
+    {fg: 'url(#grad-blue)', bg: '#EDF2FE', border: '#DDE5FE', from: '#6B8DF8', to: '#3859FF'},
+    {fg: 'url(#grad-purple)', bg: '#F5E8FF', border: '#EAD1FF', from: '#C058FF', to: '#9013FF'},
+    {fg: 'url(#grad-lightblue)', bg: '#EAF6FF', border: '#D1E9FF', from: '#59CDFF', to: '#1583FF'},
+    {fg: 'url(#grad-orange)', bg: '#FFEFEA', border: '#FFDFD5', from: '#FF8A58', to: '#FF3B00'},
+    {fg: 'url(#grad-teal)', bg: '#E6FCF8', border: '#CCF8EF', from: '#32E0C4', to: '#00B294'},
+  ][colorIndex];
+
+  return (
+    <div
+      style={{
+        width: 30,
+        height: 30,
+        borderRadius: '50%',
+        backgroundColor: colors.bg,
+        border: `1px solid ${colors.border}`,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexShrink: 0,
+      }}
+    >
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id={colors.fg.replace('url(#', '').replace(')', '')} x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor={colors.from} />
+            <stop offset="100%" stopColor={colors.to} />
+          </linearGradient>
+        </defs>
+        <circle cx="12" cy="7" r="4" fill={colors.fg} />
+        <path d="M5 21C5 17.134 8.13401 14 12 14C15.866 14 19 17.134 19 21H5Z" fill={colors.fg} />
+      </svg>
+    </div>
+  );
+};
+
 const PlayIcon = () => (
   <svg
-    width="22"
-    height="22"
+    width="20"
+    height="20"
     viewBox="0 0 24 24"
     fill="currentColor"
     stroke="currentColor"
-    strokeWidth="2"
+    strokeWidth="1"
     strokeLinecap="round"
     strokeLinejoin="round"
   >
-    <polygon points="5 3 19 12 5 21 5 3" />
+    <polygon points="7 4 19 12 7 20" />
   </svg>
 );
 
 const PauseIcon = () => (
   <svg
-    width="22"
-    height="22"
+    width="18"
+    height="18"
     viewBox="0 0 24 24"
     fill="currentColor"
     stroke="currentColor"
-    strokeWidth="2"
+    strokeWidth="1"
     strokeLinecap="round"
     strokeLinejoin="round"
   >
-    <rect x="6" y="4" width="4" height="16" />
-    <rect x="14" y="4" width="4" height="16" />
+    <rect x="6" y="4" width="3.5" height="16" rx="1.5" />
+    <rect x="14.5" y="4" width="3.5" height="16" rx="1.5" />
   </svg>
 );
 
@@ -57,20 +105,48 @@ const CheckIcon = () => (
   </svg>
 );
 
-const MicIcon = () => (
-  <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" stroke="none">
-    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
-    <path d="M19 10v2a7 7 0 0 1-14 0v-2" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" />
-    <line x1="12" y1="19" x2="12" y2="23" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-    <line x1="8" y1="23" x2="16" y2="23" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+const Forward15Icon = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" />
+    <path d="M21 3v5h-5" />
+    <text x="12" y="15.5" fill="currentColor" stroke="none" fontSize="8.5" fontWeight="600" textAnchor="middle">
+      15
+    </text>
   </svg>
 );
 
-const TargetIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+const Backward15Icon = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+    <path d="M3 3v5h5" />
+    <text x="12" y="15.5" fill="currentColor" stroke="none" fontSize="8.5" fontWeight="600" textAnchor="middle">
+      15
+    </text>
+  </svg>
+);
+
+const CheckCircleIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#52c41a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="12" cy="12" r="10" />
-    <circle cx="12" cy="12" r="6" />
-    <circle cx="12" cy="12" r="2" />
+    <path d="M8 12l2.5 2.5L16 9" />
+  </svg>
+);
+
+const EmptyCircleIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#d9d9d9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10" />
+  </svg>
+);
+
+const ChevronDownIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="6 9 12 15 18 9" />
+  </svg>
+);
+
+const ChevronUpIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="18 15 12 9 6 15" />
   </svg>
 );
 
@@ -117,8 +193,20 @@ const InterviewDetailModal: React.FC<Props> = ({visible, onClose, record}) => {
   const [transcriptLoading, setTranscriptLoading] = useState(false);
   const [transPage, setTransPage] = useState({pageNum: 1, pageSize: 50, total: 0, hasMore: true});
   const [expandedQuestions, setExpandedQuestions] = useState<Set<string>>(new Set());
+  const [activeTab, setActiveTab] = useState<'questions' | 'transcript'>('questions');
 
   const transcriptBodyRef = useRef<HTMLDivElement>(null);
+
+  const roleIndexMap = React.useMemo(() => {
+    const map = new Map<string, number>();
+    let idx = 0;
+    transcript.forEach((item) => {
+      if (!map.has(item.role)) {
+        map.set(item.role, idx++);
+      }
+    });
+    return map;
+  }, [transcript]);
 
   const formatTime = (time: number) => {
     const minutes = Math.floor(time / 60);
@@ -235,13 +323,13 @@ const InterviewDetailModal: React.FC<Props> = ({visible, onClose, record}) => {
       try {
         const ws = WaveSurfer.create({
           container: containerRef.current as unknown as HTMLElement,
-          waveColor: '#C8D8FF',
-          progressColor: '#2A62FA',
-          cursorColor: '#2A62FA',
+          waveColor: '#e2e8f0',
+          progressColor: '#2a62fa',
+          cursorColor: '#2a62fa',
           barWidth: 2,
           barGap: 1.5,
           barRadius: 2,
-          height: 56,
+          height: 64,
           dragToSeek: true,
           interact: true,
           normalize: true,
@@ -315,6 +403,18 @@ const InterviewDetailModal: React.FC<Props> = ({visible, onClose, record}) => {
     }
   };
 
+  const skipForward = () => {
+    if (wavesurferRef.current && isReady) {
+      wavesurferRef.current.skip(15);
+    }
+  };
+
+  const skipBackward = () => {
+    if (wavesurferRef.current && isReady) {
+      wavesurferRef.current.skip(-15);
+    }
+  };
+
   const toggleQuestion = (id: string) => {
     setExpandedQuestions((prev) => {
       const next = new Set(prev);
@@ -329,7 +429,7 @@ const InterviewDetailModal: React.FC<Props> = ({visible, onClose, record}) => {
 
   if (!visible || !record) return null;
 
-  const title = record.interviewInstTitle || record.interviewCust || '访谈录音';
+  const title = record.interviewCust || '访谈录音';
   const hasAudio = !!record.recordFileInstVo?.recordFileUrl;
   const questionList = record.questionInstList || [];
   const hitCount = questionList.filter((q) => q.CHECKED).length;
@@ -339,36 +439,7 @@ const InterviewDetailModal: React.FC<Props> = ({visible, onClose, record}) => {
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         {/* Header */}
         <div className={styles.header}>
-          <div className={styles.headerLeft}>
-            <div className={styles.micIcon}>
-              <MicIcon />
-            </div>
-            <div className={styles.headerInfo}>
-              <h2 className={styles.title}>{title}</h2>
-              <div className={styles.subtitle}>
-                <span className={styles.timeIcon}>
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <circle cx="12" cy="12" r="10" />
-                    <polyline points="12 6 12 12 16 14" />
-                  </svg>
-                </span>
-                <span>{record.lastModifiedTime || '-'}</span>
-                {isReady && duration > 0 && (
-                  <>
-                    <span className={styles.divider}>·</span>
-                    <span className={styles.durationIcon}>
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M9 18V5l12-2v13" />
-                        <circle cx="6" cy="18" r="3" />
-                        <circle cx="18" cy="16" r="3" />
-                      </svg>
-                    </span>
-                    <span>时长: {formatTime(duration)}</span>
-                  </>
-                )}
-              </div>
-            </div>
-          </div>
+          <div className={styles.headerTitle}>{title}</div>
           <button className={styles.closeBtn} onClick={handleClose}>
             <CloseIcon />
           </button>
@@ -376,9 +447,8 @@ const InterviewDetailModal: React.FC<Props> = ({visible, onClose, record}) => {
 
         {/* Body */}
         <div className={styles.body}>
-          {/* Left Panel */}
-          <div className={styles.leftPanel}>
-            {/* Audio Player */}
+          {/* Player section */}
+          <div className={styles.playerSectionWrapper}>
             <div className={styles.playerCard}>
               {hasAudio ? (
                 <>
@@ -392,7 +462,14 @@ const InterviewDetailModal: React.FC<Props> = ({visible, onClose, record}) => {
                     )}
                     {errorMsg && <div className={styles.waveError}>{errorMsg}</div>}
                   </div>
+                  <div className={styles.timeInfo}>
+                    <span className={styles.curTime}>{formatTime(currentTime)}</span>
+                    <span className={styles.totalTime}>{formatTime(duration)}</span>
+                  </div>
                   <div className={styles.playerControls}>
+                    <button className={styles.skipBtn} onClick={skipBackward} disabled={!isReady || !!errorMsg} title="后退15秒">
+                      <Backward15Icon />
+                    </button>
                     <button
                       className={`${styles.playBtn} ${isReady && !errorMsg ? styles.playBtnActive : styles.playBtnDisabled}`}
                       onClick={togglePlay}
@@ -400,37 +477,66 @@ const InterviewDetailModal: React.FC<Props> = ({visible, onClose, record}) => {
                     >
                       {isPlaying ? <PauseIcon /> : <PlayIcon />}
                     </button>
-                    <div className={styles.timeInfo}>
-                      <span className={styles.curTime}>{formatTime(currentTime)}</span>
-                      <span className={styles.totalTime}>{formatTime(duration)}</span>
-                    </div>
+                    <button className={styles.skipBtn} onClick={skipForward} disabled={!isReady || !!errorMsg} title="快进15秒">
+                      <Forward15Icon />
+                    </button>
                   </div>
                 </>
               ) : (
                 <div className={styles.noAudio}>
-                  <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#bbb" strokeWidth="1.5">
-                    <path d="M9 18V5l12-2v13" />
-                    <circle cx="6" cy="18" r="3" />
-                    <circle cx="18" cy="16" r="3" />
-                  </svg>
                   <span>暂无录音文件</span>
                 </div>
               )}
             </div>
+          </div>
 
-            {/* Transcript */}
-            <div className={styles.transcriptCard}>
-              <div className={styles.sectionHead}>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2A62FA" strokeWidth="2.5" strokeLinecap="round">
-                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                  <polyline points="14 2 14 8 20 8" />
-                  <line x1="16" y1="13" x2="8" y2="13" />
-                  <line x1="16" y1="17" x2="8" y2="17" />
-                  <polyline points="10 9 9 9 8 9" />
-                </svg>
-                <span>录音转写全文</span>
+          {/* Tabs */}
+          <div className={styles.tabsWrapper}>
+            <div className={`${styles.tabItem} ${activeTab === 'questions' ? styles.tabItemActive : ''}`} onClick={() => setActiveTab('questions')}>
+              问题清单
+            </div>
+            <div className={`${styles.tabItem} ${activeTab === 'transcript' ? styles.tabItemActive : ''}`} onClick={() => setActiveTab('transcript')}>
+              录音转写
+            </div>
+          </div>
+
+          {/* Tab Content */}
+          <div className={styles.tabContent}>
+            {activeTab === 'questions' && (
+              <div className={styles.questionsWrapper}>
+                <div className={styles.questionsStats}>
+                  已自动匹配 <span>{hitCount}</span> / {questionList.length} 项
+                </div>
+                <div className={styles.questionList}>
+                  {questionList.map((q, index) => {
+                    const isExpanded = expandedQuestions.has(q.id || q.questionName);
+                    const isHit = q.CHECKED;
+                    return (
+                      <div
+                        key={q.id || q.questionName}
+                        className={`${styles.questionItem} ${isHit ? styles.questionHit : styles.questionMiss} ${
+                          isExpanded ? styles.questionExpanded : ''
+                        }`}
+                      >
+                        <div className={styles.questionHeader} onClick={() => isHit && toggleQuestion(q.id || q.questionName)}>
+                          <div className={styles.questionTitleMain}>
+                            {index + 1}.{q.questionName}
+                          </div>
+                          <div className={styles.questionHeaderRight}>
+                            {isHit && <div className={styles.chevronIcon}>{isExpanded ? <ChevronUpIcon /> : <ChevronDownIcon />}</div>}
+                            {isHit ? <CheckCircleIcon /> : <EmptyCircleIcon />}
+                          </div>
+                        </div>
+                        {isHit && isExpanded && <div className={styles.questionAnswerBody}>{q.questionAnswer || '暂无回答内容。'}</div>}
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
-              <div ref={transcriptBodyRef} className={styles.transcriptBody} onScroll={onTranscriptScroll}>
+            )}
+
+            {activeTab === 'transcript' && (
+              <div className={styles.transcriptWrapper} ref={transcriptBodyRef} onScroll={onTranscriptScroll}>
                 {transcriptLoading && transcript.length === 0 ? (
                   <div className={styles.transcriptLoading}>
                     <div className={styles.spinner} />
@@ -438,83 +544,33 @@ const InterviewDetailModal: React.FC<Props> = ({visible, onClose, record}) => {
                   </div>
                 ) : transcript.length > 0 ? (
                   transcript.map((item, idx) => (
-                    <div key={idx} className={`${styles.speechItem} ${item.role === '访谈者' ? styles.speechGuest : styles.speechHost}`}>
-                      <div className={styles.speechRole}>{item.role}</div>
-                      {item.time && <div className={styles.speechTime}>{item.time}</div>}
+                    <div key={idx} className={styles.speechItem}>
+                      <div className={styles.speechHeader}>
+                        <AvatarIcon name={item.role} index={roleIndexMap.get(item.role)} />
+                        <div className={styles.speechRole}>{item.role}</div>
+                        {item.time && <div className={styles.speechTime}>{item.time}</div>}
+                      </div>
                       <div className={styles.speechContent}>{item.content}</div>
                     </div>
                   ))
                 ) : (
                   <div className={styles.noTranscript}>
-                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#d0d0d0" strokeWidth="1.5">
-                      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-                    </svg>
                     <span>暂无转写内容</span>
                   </div>
                 )}
               </div>
-            </div>
+            )}
           </div>
+        </div>
 
-          {/* Right Panel: Question List */}
-          <div className={styles.rightPanel}>
-            <div className={styles.questionHead}>
-              <div className={styles.questionHeadTop}>
-                <TargetIcon />
-                <span className={styles.questionTitle}>问题命中分析</span>
-              </div>
-              <div className={styles.questionSubtitle}>AI 自动识别访谈中覆盖的尽调要点</div>
-            </div>
-            <div className={styles.questionList}>
-              {questionList.length === 0 ? (
-                <div className={styles.noQuestion}>暂无问题清单</div>
-              ) : (
-                questionList.map((q) => {
-                  const isExpanded = expandedQuestions.has(q.id || q.questionName);
-                  return (
-                    <div
-                      key={q.id || q.questionName}
-                      className={`${styles.questionItem} ${q.CHECKED ? styles.questionItemHit : styles.questionItemMiss}`}
-                      onClick={() => q.CHECKED && q.questionAnswer && toggleQuestion(q.id || q.questionName)}
-                    >
-                      <div className={styles.questionTop}>
-                        <div className={styles.questionMeta}>
-                          <span className={`${styles.hitBadge} ${q.CHECKED ? styles.hitBadgeHit : styles.hitBadgeMiss}`}>
-                            {q.CHECKED ? '已命中' : '未命中'}
-                          </span>
-                          {q.hitTime && (
-                            <span className={styles.hitTime}>
-                              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <circle cx="12" cy="12" r="10" />
-                                <polyline points="12 6 12 12 16 14" />
-                              </svg>
-                              {q.hitTime}
-                            </span>
-                          )}
-                        </div>
-                        <div className={styles.questionStatus}>
-                          {q.CHECKED ? (
-                            <span className={styles.statusCheck}>
-                              <CheckIcon />
-                            </span>
-                          ) : (
-                            <span className={styles.statusMiss}>×</span>
-                          )}
-                        </div>
-                      </div>
-                      <div className={styles.questionName}>{q.questionName}</div>
-                      {q.CHECKED && q.questionAnswer && isExpanded && (
-                        <div className={styles.questionAnswer}>
-                          <div className={styles.answerLabel}>答复：</div>
-                          <div className={styles.answerText}>{q.questionAnswer}</div>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })
-              )}
-            </div>
-          </div>
+        {/* Footer */}
+        <div className={styles.footer}>
+          <button className={styles.cancelBtn} onClick={handleClose}>
+            取消
+          </button>
+          <button className={styles.confirmBtn} onClick={handleClose}>
+            确定
+          </button>
         </div>
       </div>
     </div>

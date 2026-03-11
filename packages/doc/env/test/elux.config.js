@@ -2,7 +2,7 @@
 module.exports = {
   prod: {
     clientGlobalVar: {},
-    clientPublicPath: '/client/',
+    clientPublicPath: '/xiaoli-report/client/',
     clientMinimize: false,
     eslint: false,
     stylelint: false,

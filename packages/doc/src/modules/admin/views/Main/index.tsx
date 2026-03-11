@@ -51,14 +51,18 @@ const Component: FC<StoreProps & {dispatch: Dispatch}> = ({curUser, subModule, d
   }
   return (
     <div className={styles.root + (InIframe ? ' in-iframe' : '')}>
-      <div className="side">
-        <Menu />
-      </div>
+      {!InIframe && (
+        <div className="side">
+          <Menu />
+        </div>
+      )}
       <div className="content">
         <div className={styles.doc}>
-          <div className="head">
-            <Header curUser={curUser} dispatch={dispatch} />
-          </div>
+          {!InIframe && (
+            <div className="head">
+              <Header curUser={curUser} dispatch={dispatch} />
+            </div>
+          )}
           <div className="body">{content}</div>
         </div>
       </div>

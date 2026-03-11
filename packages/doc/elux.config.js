@@ -9,7 +9,7 @@ module.exports = {
   all: {
     serverPort: 4004,
     clientGlobalVar: {},
-    clientPublicPath: '/client/',
+    clientPublicPath: '/xiaoli-report/client/',
     urlLoaderLimitSize: 100,
     webpackConfigTransform: (config) => {
       console.log('config: webpackConfigTransform=', config);

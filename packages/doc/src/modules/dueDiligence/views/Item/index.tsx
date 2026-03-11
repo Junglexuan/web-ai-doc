@@ -729,6 +729,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
                             visible: true,
                             record: {
                               ...detail,
+                              interviewCust: detail.interviewCust || item.interviewCust,
                               questionInstList:
                                 detail.questionInstList?.length > 0
                                   ? detail.questionInstList

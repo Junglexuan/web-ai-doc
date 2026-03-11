@@ -3,7 +3,7 @@ window.ApiPrefix = {
   '/auth/': 'http://user.binarysee.com/auth/', //http://user.binarysee.com.cn/auth/
   '/dream/': 'http://113.44.121.105/dream/', //http://verse.binarysee.com.cn/dream/ http://verse.binarysee.com/dream/
   '/api/': 'http://113.44.121.105/report/',
-  '/ws/': 'ws://113.44.121.105/report/ws/',
+  '/ws/': 'ws://68.79.42.215/report/ws/', //ws://113.44.121.105/report/ws/
 };
 window.SitesUrl = {
   user: '//user.binarysee.com.cn',
@@ -16,7 +16,7 @@ window.SitesUrl = {
 };
 window.PathPrefix = '';
 window.SiteInfo = {
-  logo: '/client/logo.svg',
+  logo: '/xiaoli-report/client/logo.svg',
   name: '星启·文枢',
   sites: {pulse: '星启·脉擎', helix: '星启·数璇'},
 };
