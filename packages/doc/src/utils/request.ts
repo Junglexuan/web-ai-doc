@@ -297,3 +297,106 @@ export function downloadFile(url: string, fileName: string): Promise<void> {
     };
   });
 }
+
+export function downloadPdfFromWord(url: string, fileName: string): Promise<void> {
+  message.loading('正在提取内容与纯前端转换PDF中，请稍候...', 0);
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', url, true);
+    xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+    xhr.setRequestHeader('Authorization', getToken());
+    xhr.setRequestHeader('Tenant', getTenant());
+    xhr.send();
+    xhr.responseType = 'blob';
+    xhr.onload = async function () {
+      if (xhr.status === 200) {
+        const docxBlob = this.response;
+        let container: HTMLDivElement | null = null;
+        try {
+          const {renderAsync} = await import('docx-preview');
+          const html2canvas = (await import('html2canvas')).default;
+          const {jsPDF} = await import('jspdf');
+
+          container = document.createElement('div');
+          container.style.position = 'absolute';
+          container.style.left = '-9999px';
+          container.style.top = '0px';
+          container.style.width = '1000px';
+          container.style.backgroundColor = '#fff';
+          container.style.padding = '40px';
+          document.body.appendChild(container);
+
+          await renderAsync(docxBlob, container as any, undefined, {
+            inWrapper: false,
+            ignoreWidth: false,
+            ignoreHeight: false,
+            ignoreFonts: false,
+            breakPages: true,
+            trimXmlDeclaration: true,
+            debug: false,
+          });
+
+          // re-show loading so it updates text
+          message.destroy();
+          message.loading('正在生成PDF并下载，此过程可能较慢，请稍候...', 0);
+
+          const canvas = await html2canvas(container as any, {scale: 2, useCORS: true, backgroundColor: '#ffffff'});
+          const imgData = canvas.toDataURL('image/jpeg', 1.0);
+
+          const pdf = new jsPDF('p', 'mm', 'a4');
+          const imgProps = pdf.getImageProperties(imgData);
+          const pdfWidth = pdf.internal.pageSize.getWidth();
+          const pageHeight = pdf.internal.pageSize.getHeight();
+          const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+          let heightLeft = pdfHeight;
+          let position = 0;
+
+          pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, pdfHeight);
+          heightLeft -= pageHeight;
+
+          while (heightLeft > 0) {
+            position -= pageHeight;
+            pdf.addPage();
+            pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, pdfHeight);
+            heightLeft -= pageHeight;
+          }
+
+          pdf.save(fileName);
+
+          document.body.removeChild(container);
+          message.destroy();
+          resolve();
+        } catch (e: any) {
+          if (container) document.body.removeChild(container);
+          message.destroy();
+          alert('转换 PDF 失败: ' + e.message);
+          resolve();
+        }
+      } else {
+        message.destroy();
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          let errorMsg = '下载文件出现了错误! status=' + xhr.status;
+          try {
+            const result = e.target?.result as string;
+            const errorObj = JSON.parse(result);
+            if (errorObj && errorObj.message) {
+              errorMsg += ' ' + errorObj.message;
+            }
+          } catch (e) {
+            // ignore JSON parse error
+          }
+          alert(errorMsg);
+        };
+        reader.readAsText(this.response);
+        resolve();
+      }
+    };
+    xhr.onerror = () => {
+      message.destroy();
+      alert('下载文件出现了错误!');
+      resolve();
+    };
+  });
+}

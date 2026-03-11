@@ -96,16 +96,8 @@ const MyTemplate: FC<Props> = ({dispatch}) => {
   });
 
   const onUploadSubmit = useEvent(() => {
-    let finalReportName = reportName;
-    if (!finalReportName && fileList.length === 1) {
-      finalReportName = fileList[0].name.split('.').slice(0, -1).join('.');
-    }
-    if (!finalReportName && fileList.length > 1) {
-      finalReportName = '批量上传模板';
-    }
-
-    if (!finalReportName) {
-      message.warning('请输入名称或等待文件上传');
+    if (!reportName.trim()) {
+      message.warning('请输入模板名称');
       return;
     }
     if (fileList.length === 0) {
@@ -115,7 +107,7 @@ const MyTemplate: FC<Props> = ({dispatch}) => {
     setLoading(true);
 
     const uploadPromises = fileList.map((file, index) => {
-      const name = fileList.length > 1 ? `${finalReportName}_${index + 1}` : finalReportName;
+      const name = fileList.length > 1 ? `${reportName}_${index + 1}` : reportName;
       return DueDiligenceAPI.addApproveReport({reportName: name, file});
     });
 
@@ -274,30 +266,30 @@ const MyTemplate: FC<Props> = ({dispatch}) => {
         }}
       >
         <div className={styles.uploadContainer}>
+          <div className={styles.formItem}>
+            <span className={styles.label}>
+              <span className={styles.required}>*</span>模板名称
+            </span>
+            <Input placeholder="请输入模板名称" value={reportName} onChange={(e) => setReportName(e.target.value)} className={styles.input} />
+          </div>
           <Upload.Dragger
             beforeUpload={(f) => {
-              setFileList((prev) => [...prev, f]);
+              setFileList([f]);
+              if (!reportName) {
+                setReportName(f.name.split('.').slice(0, -1).join('.'));
+              }
               return false;
             }}
-            multiple
             showUploadList={false}
             className={styles.dragger}
           >
             <div className={styles.draggerInner}>
-              <div className={styles.fileListHeader}>
-                <div className={styles.fileCount}>
-                  文件数量 <span>{fileList.length}</span>
-                  <span className={styles.total}>/30</span>
-                </div>
-                {fileList.length > 0 && <div className={styles.continueAdd}>继续添加</div>}
-              </div>
-
               {fileList.length === 0 ? (
                 <div className={styles.emptyUpload}>
                   <p className="ant-upload-drag-icon">
                     <InboxOutlined style={{color: '#4F46E5'}} />
                   </p>
-                  <p className="ant-upload-text">点击或将文件拖拽到这里上传，单次最多可上传30个文件</p>
+                  <p className="ant-upload-text">点击或将文件拖拽到这里上传，单次可上传1个文件</p>
                   <p className="ant-upload-hint">支持.doc、.docx格式文件，不超过50MB</p>
                 </div>
               ) : (
@@ -311,7 +303,7 @@ const MyTemplate: FC<Props> = ({dispatch}) => {
                       <CloseOutlined
                         className={styles.removeIcon}
                         onClick={() => {
-                          setFileList((prev) => prev.filter((_, i) => i !== index));
+                          setFileList([]);
                         }}
                       />
                     </div>

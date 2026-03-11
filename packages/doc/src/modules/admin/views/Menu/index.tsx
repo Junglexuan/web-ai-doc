@@ -30,15 +30,6 @@ const items: any[] = [
     ),
   },
   {
-    key: '尽调设置',
-    icon: <MessageOutlined />,
-    label: (
-      <Link to="/admin/dueDiligence/config/setting" action="relaunch" target="window">
-        尽调设置
-      </Link>
-    ),
-  },
-  {
     key: '我的模版',
     icon: <FileTextOutlined />,
     label: (
@@ -55,11 +46,8 @@ const Component: FC<{}> = () => {
     if (pathname.startsWith('/admin/home')) {
       return ['首页'];
     }
-    if (pathname.startsWith('/admin/dueDiligence/list/maintain')) {
+    if (pathname.startsWith('/admin/dueDiligence/list/maintain') || pathname.startsWith('/admin/dueDiligence/item')) {
       return ['尽调管理'];
-    }
-    if (pathname.startsWith('/admin/dueDiligence/config/setting')) {
-      return ['尽调设置'];
     }
     if (pathname.startsWith('/admin/dueDiligence/list/tpl')) {
       return ['我的模版'];

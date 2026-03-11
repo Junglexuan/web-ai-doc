@@ -1,5 +1,5 @@
 import {DownOutlined, PlusOutlined, UpOutlined} from '@ant-design/icons';
-import {Button, Form, Input, Space, Upload, message} from 'antd';
+import {Button, Form, Input, Select, Space, Upload, message} from 'antd';
 import {FC, memo, useEffect, useMemo, useState} from 'react';
 import agentCheckedIcon from '@/assets/agent/agent-checked.png';
 import DocUploads from '../../components/DocUploads';
@@ -184,7 +184,7 @@ const Component: FC<{
         <Form
           labelCol={{span: 5}}
           wrapperCol={{span: 18}}
-          initialValues={{...data, logo: data?.logo || ''}}
+          initialValues={{...data, templateId: data?.template?.id, logo: data?.logo || ''}}
           preserve={false}
           form={form}
           onFinish={(values) => {
@@ -194,6 +194,9 @@ const Component: FC<{
         >
           <Form.Item name="name" label="尽调对象" rules={[{required: true}]}>
             <Input maxLength={64} placeholder="请输入尽调对象名称" />
+          </Form.Item>
+          <Form.Item name="templateId" label="选择模版" rules={[{required: true, message: '请选择模版'}]}>
+            <Select placeholder="请选择模版" options={configs.template.list.map((item) => ({value: item.id, label: item.title}))} />
           </Form.Item>
           <Form.Item name="logo" label="企业图标">
             {/* <IconSelect /> */}

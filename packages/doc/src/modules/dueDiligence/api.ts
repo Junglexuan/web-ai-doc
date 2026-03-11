@@ -134,13 +134,14 @@ export const DueDiligenceAPI = {
       } as any;
     });
   },
-  createItem(data: ListItem): Promise<ListItem> {
-    const {id, name, logo} = data;
+  createItem(data: ListItem & {templateId?: string}): Promise<ListItem> {
+    const {id, name, logo, templateId} = data;
     return request
       .post('/api/deal/createOrUpdateDealInst', {
         id: id || undefined,
         interviewCust: name,
         logo,
+        templateId,
       })
       .then((res) => res.data.data);
   },

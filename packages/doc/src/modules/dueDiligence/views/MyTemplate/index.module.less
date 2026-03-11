@@ -170,7 +170,8 @@
 
         .failed-content {
           .error-msg {
-            display: box;
+            /* stylelint-disable-next-line */
+            display: -webkit-box;
             overflow: hidden;
             font-size: 13px;
             line-height: 1.5;
@@ -301,7 +302,10 @@
     }
 
     .ant-modal-header {
-      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      height: 48px;
+      padding: 0 20px 0 0;
       margin-bottom: 0;
       border-bottom: 1px solid #f0f0f0;
 
@@ -356,6 +360,29 @@
 
 .uploadContainer {
   background: #fff !important;
+
+  .formItem {
+    display: flex;
+    align-items: center;
+    margin-bottom: 24px;
+
+    .label {
+      margin-right: 16px;
+      font-size: 14px;
+      color: #333;
+
+      .required {
+        margin-right: 4px;
+        color: #ff4d4f;
+      }
+    }
+
+    .input {
+      flex: 1;
+      height: 36px;
+      border-radius: 4px;
+    }
+  }
 
   .dragger {
     display: block;

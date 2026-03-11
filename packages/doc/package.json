@@ -53,6 +53,9 @@
   "dependencies": {
     "@wangeditor-next/editor": "file:./@wangeditor-next/editor",
     "benz-amr-recorder": "^1.1.5",
+    "docx-preview": "^0.3.7",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^4.2.0",
     "wavesurfer.js": "^7.12.1"
   },
   "devDependencies": {},

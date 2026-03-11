@@ -27,7 +27,7 @@ import AudioPlayerModal from '@/components/AudioPlayerModal';
 import InterviewDetailModal from '@/components/InterviewDetailModal';
 import LoadingPanel from '@/components/LoadingPanel';
 import {GetActions, GetClientRouter, SiteInfo} from '@/Global';
-import request, {downloadFile, getUploadProps, openDoc, replaceBaseUrl} from '@/utils/request';
+import request, {downloadFile, downloadPdfFromWord, getUploadProps, openDoc, replaceBaseUrl} from '@/utils/request';
 import {getToken, message, showMask, useEvent} from '@/utils/tools';
 import {DueDiligenceAPI} from '../../api';
 import QuestionsFile from '../../components/QuestionsFile';
@@ -430,7 +430,17 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
             <Dropdown
               menu={{
                 onClick: ({key}: {key: string}) => {
-                  downloadFile(replaceBaseUrl(`/api/deal/down?id=${item?.id}&type=${key === '下载Word' ? 'word' : 'pdf'}`), item?.fileName);
+                  if (key === '下载PDF') {
+                    let name = item?.fileName || '';
+                    name = name.replace(/\.docx?$/, '.pdf');
+                    if (!name.endsWith('.pdf')) name += '.pdf';
+                    downloadPdfFromWord(replaceBaseUrl(`/api/deal/down?id=${item?.id}&type=word`), name);
+                  } else {
+                    let name = item?.fileName || '';
+                    name = name.replace(/\.pdf$/, '.docx');
+                    if (!name.endsWith('.doc') && !name.endsWith('.docx')) name += '.docx';
+                    downloadFile(replaceBaseUrl(`/api/deal/down?id=${item?.id}&type=word`), name);
+                  }
                 },
                 items: [
                   {
@@ -583,9 +593,12 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
               <Button
                 color="primary"
                 variant="outlined"
-                onClick={() =>
-                  downloadFile(replaceBaseUrl(`/api/deal/down?id=${itemDetail.report?.id}&type=word`), itemDetail.report?.fileName || '')
-                }
+                onClick={() => {
+                  let name = itemDetail.report?.fileName || '';
+                  name = name.replace(/\.pdf$/, '.docx');
+                  if (!name.endsWith('.doc') && !name.endsWith('.docx')) name += '.docx';
+                  downloadFile(replaceBaseUrl(`/api/deal/down?id=${itemDetail.report?.id}&type=word`), name);
+                }}
                 disabled={!itemDetail.report?.id}
               >
                 下载WORD
@@ -593,7 +606,12 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
               <Button
                 color="primary"
                 variant="outlined"
-                onClick={() => downloadFile(replaceBaseUrl(`/api/deal/down?id=${itemDetail.report?.id}&type=pdf`), itemDetail.report?.fileName || '')}
+                onClick={() => {
+                  let name = itemDetail.report?.fileName || '';
+                  name = name.replace(/\.docx?$/, '.pdf');
+                  if (!name.endsWith('.pdf')) name += '.pdf';
+                  downloadPdfFromWord(replaceBaseUrl(`/api/deal/down?id=${itemDetail.report?.id}&type=word`), name);
+                }}
                 disabled={!itemDetail.report?.id}
               >
                 下载PDF
