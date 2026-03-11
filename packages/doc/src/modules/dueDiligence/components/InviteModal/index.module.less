@@ -1,0 +1,233 @@
+:global {
+  .inviteModalWrap {
+    .ant-modal-content {
+      padding: 0 !important;
+      overflow: hidden;
+      border-radius: 20px !important;
+    }
+  }
+}
+
+:local(.banner) {
+  position: relative;
+  height: 160px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #a5c8ff 0%, #c5b5f8 40%, #8dd4f8 100%);
+}
+
+:local(.bannerOverlay) {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.3) 0%, transparent 60%);
+}
+
+:local(.bannerContent) {
+  position: relative;
+  z-index: 1;
+  padding: 28px 28px 0;
+}
+
+:local(.bannerEmoji) {
+  margin-bottom: 6px;
+  font-size: 36px;
+}
+
+:local(.bannerTitle) {
+  font-family: 'Alibaba PuHuiTi 2.0', sans-serif;
+  font-size: 26px;
+  font-weight: 800;
+  line-height: 1.2;
+  color: #4337f1;
+}
+
+:local(.bannerSubtitle) {
+  margin-top: 4px;
+  font-family: 'Alibaba PuHuiTi 2.0', sans-serif;
+  font-size: 20px;
+  font-weight: 800;
+  color: #111;
+}
+
+:local(.body) {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  background: #f5f6fa;
+}
+
+:local(.card) {
+  padding: 16px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+:local(.cardLabel) {
+  margin-bottom: 12px;
+  font-size: 14px;
+  color: #333;
+}
+
+:local(.sectionTitle) {
+  margin-bottom: 14px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #1a1a2e;
+}
+
+:local(.codeRow) {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+:local(.codeBox) {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  height: 44px;
+  padding: 0 14px;
+  overflow: hidden;
+  background: #f5f6f8;
+  border-radius: 10px;
+}
+
+:local(.codeText) {
+  font-size: 20px;
+  font-weight: 600;
+  color: #4b40f6;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  user-select: all;
+}
+
+:local(.codePlaceholder) {
+  font-size: 14px;
+  color: #aaa;
+}
+
+:local(.copyBtn) {
+  flex-shrink: 0;
+  height: 44px;
+  padding: 0 18px;
+  font-size: 14px;
+  background: linear-gradient(115deg, #6c47ef 0%, #1b68fc 100%);
+  border: none;
+  border-radius: 10px;
+
+  &:hover {
+    background: linear-gradient(115deg, #6c47ef 0%, #1b68fc 100%) !important;
+    opacity: 0.9;
+  }
+}
+
+:local(.steps) {
+  display: flex;
+  flex-direction: column;
+}
+
+:local(.stepItem) {
+  display: flex;
+  gap: 12px;
+}
+
+:local(.stepLeft) {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  align-items: center;
+  width: 12px;
+  margin-top: 3px;
+}
+
+:local(.stepDot) {
+  position: relative;
+  flex-shrink: 0;
+  width: 11px;
+  height: 11px;
+  background: #fff;
+  border: 2.5px solid #ccd1ff;
+  border-radius: 50%;
+
+  &::after {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 4px;
+    height: 4px;
+    content: '';
+    background: #4b40f6;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+  }
+}
+
+:local(.stepLine) {
+  flex: 1;
+  width: 1.5px;
+  min-height: 28px;
+  margin-top: 4px;
+  border-left: 1.5px dashed #ccd1ff;
+}
+
+:local(.stepContent) {
+  display: flex;
+  flex: 1;
+  gap: 12px;
+  align-items: center;
+}
+
+:local(.stepContentGap) {
+  padding-bottom: 24px;
+}
+
+:local(.stepIcon) {
+  flex-shrink: 0;
+  font-size: 18px;
+  color: #555;
+}
+
+:local(.stepText) {
+  font-size: 14px;
+  color: #555;
+}
+
+:local(.friendCodeInput) {
+  flex: 1;
+  height: 44px;
+  font-size: 14px;
+  background: #f5f6f8;
+  border: none;
+  border-radius: 10px;
+
+  &:focus {
+    border-color: #d0caff;
+    box-shadow: 0 0 0 2px rgba(75, 64, 246, 0.1);
+  }
+}
+
+:local(.confirmBtn) {
+  flex-shrink: 0;
+  width: 80px;
+  height: 44px;
+  font-size: 15px;
+  font-weight: 500;
+  background: linear-gradient(115deg, #6c47ef 0%, #1b68fc 100%);
+  border: none;
+  border-radius: 10px;
+
+  &:hover {
+    background: linear-gradient(115deg, #6c47ef 0%, #1b68fc 100%) !important;
+    opacity: 0.9;
+  }
+}
+
+:local(.confirmBtnDisabled) {
+  background: #aea9f8 !important;
+  border: none !important;
+
+  &:hover {
+    background: #aea9f8 !important;
+  }
+}

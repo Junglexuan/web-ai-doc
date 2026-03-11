@@ -562,7 +562,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
             </div>
             <div className={styles.mask} style={{opacity: reportPolling ? 1 : undefined, pointerEvents: reportPolling ? 'auto' : undefined}}>
               <Button type="primary" className={styles.mask_btn} onClick={onRebuildReport} loading={reportPolling}>
-                {reportPolling ? '报告生成中...' : '立即生成'}
+                {reportPolling ? '报告生成中...' : itemDetail.report?.id ? '重新生成' : '立即生成'}
               </Button>
             </div>
           </div>
@@ -586,9 +586,6 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
               </Button>
               <Button color="primary" variant="outlined" onClick={onEditReport} disabled={!itemDetail.report?.id}>
                 在线编辑
-              </Button>
-              <Button color="primary" variant="outlined" onClick={onRebuildReport} disabled={!itemDetail.report?.id}>
-                重新生成
               </Button>
               <Button
                 color="primary"

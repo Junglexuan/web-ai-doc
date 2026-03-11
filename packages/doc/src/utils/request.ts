@@ -134,7 +134,7 @@ instance.interceptors.response.use(
       const config = response.config!;
       const requestHeaders = config.headers;
       const requestUrl = config.url;
-      const errorMessage = `请求错误${data.message ? '（' + data.message + '）' : ''}`;
+      const errorMessage = `${data.message ? data.message : ''}`;
       if (!requestHeaders.quiet) {
         message.error(errorMessage);
       }

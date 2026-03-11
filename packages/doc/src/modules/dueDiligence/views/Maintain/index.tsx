@@ -165,11 +165,11 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
         <div className={styles.list}>
           {list.map((item) => {
             return (
-              <div className={styles.card} key={item.id}>
+              <div className={styles.card} key={item.id} onClick={() => onShowDetail(item)}>
                 {/* <div className="status">{StatusMap[item.status]}</div> */}
                 <div className="bd">
                   <img className="icon" src={item.logo || Icons[0]} />
-                  <div className="title" onClick={() => onShowDetail(item)}>
+                  <div className="title">
                     {item.name}
                     <Dropdown
                       menu={{
@@ -218,13 +218,6 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
         </div>
       </div>
       {curEdit && (
-        // <Modal width={540} title={curEdit.id ? '修改尽调' : '新建尽调'} open={true} footer={null} onCancel={onCloseEdit}>
-        // <Edit
-        //   configs={configs}
-        //   data={curEdit}
-        //   lastSelectedIconIndex={lastSelectedIconIndex}
-        //   onIconSelect={setLastSelectedIconIndex}
-        //   onCancel={onCloseEdit}
         <Modal
           width={590}
           title={curEdit.id ? '修改尽调' : '新建尽调'}

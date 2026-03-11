@@ -155,6 +155,8 @@ export type TPL = {
   title: string;
   remark: string;
   url: string;
+  viewTemplateUrl?: string;
+  approveTemplateUrl?: string;
   isShare: string;
   createUserName: string;
   createDate: string;

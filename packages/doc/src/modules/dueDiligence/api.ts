@@ -49,6 +49,8 @@ export const DueDiligenceAPI = {
             remark: item.remark,
             isShare: '0',
             url: item.outTemplateUrl,
+            viewTemplateUrl: item.viewTemplateUrl,
+            approveTemplateUrl: item.approveTemplateUrl,
             createUserName: item.createUserName,
             createDate: item.createDate,
           })),
@@ -307,6 +309,21 @@ export const DueDiligenceAPI = {
         total: data.total || 0,
       };
     });
+  },
+
+  /** 查询已有邀请码（不生成新的） */
+  queryInviteCode(): Promise<{success: boolean; code: number; message: string; data: string}> {
+    return request.get('/api/user/invitation').then((res) => res.data);
+  },
+
+  /** 获取/生成我的邀请码 */
+  getInviteCode(): Promise<{success: boolean; code: number; message: string; data: string}> {
+    return request.get('/api/user/invitation/inviteCode').then((res) => res.data);
+  },
+
+  /** 导入好友邀请码 */
+  importInviteCode(inviteCode: string): Promise<{success: boolean; code: number; message: string; data: string}> {
+    return request.post('/api/user/invitation/import', {inviteCode}).then((res) => res.data);
   },
 };
 

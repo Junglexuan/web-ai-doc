@@ -4,8 +4,8 @@ import UploadedDoc from '@/components/UploadedDoc';
 import {SitesUrl} from '@/Global';
 import instance, {openDoc} from '@/utils/request';
 import {showMask, useEvent} from '@/utils/tools';
+import {DueDiligenceAPI} from '../../api';
 import {TPL} from '../../entity';
-import Preview from './../../views/Preview';
 import styles from './index.module.less';
 
 const ShareOptions: {[key: string]: string} = {
@@ -21,7 +21,6 @@ const Component: FC<{
   children?: ReactElement;
 }> = ({value = {id: '', name: ''}, onChange, list, children}) => {
   const [showTpl, setShowTpl] = useState(false);
-  const [previewTpl, setPreviewTpl] = useState<TPL>();
 
   const onCloseTpl = useEvent(() => {
     setShowTpl(false);
@@ -30,19 +29,22 @@ const Component: FC<{
     setShowTpl(true);
   });
   const onPreview = useEvent((item: TPL) => {
-    // openDoc(item.id);
-    console.log('item: ', item);
-    setPreviewTpl(item);
+    const url = item.viewTemplateUrl || item.approveTemplateUrl;
+    if (!url) {
+      message.error('暂无预览地址');
+      return;
+    }
+    DueDiligenceAPI.viewReportUrl(null, url).then((res) => {
+      if (res.success && res.data) {
+        window.open(res.data, '_blank');
+      } else {
+        message.error(res.message || '获取预览地址失败');
+      }
+    });
   });
   const onSelected = useEvent((item: TPL) => {
     setShowTpl(false);
     onChange?.({id: item.id, name: item.title});
-  });
-
-  const onApplyTpl = useEvent(() => {
-    setShowTpl(false);
-    console.log('previewTpl: ', previewTpl);
-    previewTpl && onChange?.({id: previewTpl.id, name: previewTpl.title});
   });
 
   return (
@@ -88,7 +90,6 @@ const Component: FC<{
           </div>
         </Modal>
       )}
-      {previewTpl && <Preview tplData={previewTpl} onCancel={() => setPreviewTpl(undefined)} onApply={onApplyTpl} />}
     </>
   );
 };

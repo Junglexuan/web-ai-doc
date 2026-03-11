@@ -6,6 +6,7 @@ import WordIcon from '@/assets/images/word.svg';
 import {SiteInfo, SitesUrl} from '@/Global';
 import {confirm, showMask, useEvent} from '@/utils/tools';
 import {DueDiligenceAPI} from '../../api';
+import InviteModal from '../../components/InviteModal';
 import {TemplateRecord} from '../../entity';
 import styles from './index.module.less';
 
@@ -27,6 +28,7 @@ const MyTemplate: FC<Props> = ({dispatch}) => {
   const [fileList, setFileList] = useState<File[]>([]);
   const [activeTab, setActiveTab] = useState<'all' | 'processing'>('all');
   const [searchText, setSearchText] = useState('');
+  const [showInvite, setShowInvite] = useState(false);
 
   const fetchList = useEvent(() => {
     setLoading(true);
@@ -224,6 +226,9 @@ const MyTemplate: FC<Props> = ({dispatch}) => {
           <Button type="primary" className="upload-btn" icon={<PlusOutlined />} onClick={() => setShowUpload(true)}>
             上传模板
           </Button>
+          <Button onClick={() => setShowInvite(true)} style={{marginLeft: 8}}>
+            模板分享
+          </Button>
         </div>
       </div>
 
@@ -314,6 +319,7 @@ const MyTemplate: FC<Props> = ({dispatch}) => {
           </Upload.Dragger>
         </div>
       </Modal>
+      <InviteModal open={showInvite} onClose={() => setShowInvite(false)} onSuccess={fetchList} />
     </div>
   );
 };

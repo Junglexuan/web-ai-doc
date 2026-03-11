@@ -57,7 +57,7 @@ const Component: FC<StoreProps & {dispatch: Dispatch}> = ({curUser, subModule, d
         </div>
       )}
       <div className="content">
-        <div className={styles.doc}>
+        <div className={styles.doc} style={{paddingTop: InIframe ? 0 : undefined}}>
           {!InIframe && (
             <div className="head">
               <Header curUser={curUser} dispatch={dispatch} />
