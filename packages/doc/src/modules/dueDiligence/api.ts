@@ -325,6 +325,11 @@ export const DueDiligenceAPI = {
   importInviteCode(inviteCode: string): Promise<{success: boolean; code: number; message: string; data: string}> {
     return request.post('/api/user/invitation/import', {inviteCode}).then((res) => res.data);
   },
+
+  /** 测试溯源 - 获取文档定位参数 */
+  getTraceInfo(): Promise<any> {
+    return request.get('/api/wordRecordVariable/query?id=12356').then((res) => res.data);
+  },
 };
 
 export default DueDiligenceAPI;

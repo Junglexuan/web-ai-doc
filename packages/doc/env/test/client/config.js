@@ -1,3 +1,5 @@
+/* eslint-env browser */
+// @ts-nocheck
 window.ApiBaseUrl = '';
 window.ApiPrefix = {
   '/auth/': 'http://user.binarysee.com.cn/auth/',

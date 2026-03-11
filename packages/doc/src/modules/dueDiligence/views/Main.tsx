@@ -6,6 +6,7 @@ import {CurRender, CurView, ItemDetail, ListItem, ListSearch, ListSummary} from 
 import Item from './Item';
 import Maintain from './Maintain';
 import MyTemplate from './MyTemplate';
+import Trace from './Trace';
 
 export interface StoreProps {
   curView?: CurView;
@@ -29,6 +30,7 @@ const Component: FC<StoreProps & {dispatch: Dispatch}> = ({curView, curRender, i
         curRender === 'maintain' &&
         (listSummary ? <Maintain dispatch={dispatch} listSearch={listSearch!} list={list!} listSummary={listSummary!} /> : <div></div>)}
       {curView === 'list' && curRender === 'tpl' && <MyTemplate dispatch={dispatch} />}
+      {curView === 'list' && curRender === 'trace' && <Trace />}
       {curView === 'item' &&
         (itemDetail ? <Item itemDetail={itemDetail} dispatch={dispatch} /> : <div style={{background: '#fff', width: '100%', height: '100%'}}></div>)}
     </Switch>
