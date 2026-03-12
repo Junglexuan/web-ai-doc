@@ -685,7 +685,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
               </div>
               <div className="template">
                 <ProjectOutlined />
-                <span>生成模板：</span>
+                <span>报告名称：</span>
                 <span>{itemDetail.report?.fileName || ''}</span>
               </div>
             </div>

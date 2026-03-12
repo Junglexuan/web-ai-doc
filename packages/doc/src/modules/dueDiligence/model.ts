@@ -68,7 +68,7 @@ export class Model extends BaseModel<ModuleState, APPState> {
         itemId,
       })
     );
-    if (curView === 'list') {
+    if (curView === 'list' && curRender === 'maintain') {
       this.dispatch(this.actions.fetchList(listSearch));
     } else if (curView === 'item') {
       this.dispatch(this.actions.fetchItem(itemId || '', curRender));

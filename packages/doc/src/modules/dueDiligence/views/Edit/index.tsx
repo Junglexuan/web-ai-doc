@@ -189,7 +189,6 @@ const Component: FC<{
             templateId: data?.template?.id ? String(data.template.id) : undefined,
             logo: data?.logo || '',
           }}
-          preserve={false}
           form={form}
           onFinish={(values) => {
             console.log('values: ', values);
@@ -207,14 +206,12 @@ const Component: FC<{
                 const selectedTpl = configs.template.list.find((t) => String(t.id) === String(val));
                 if (selectedTpl?.questionId) {
                   const qTpl = configs.questions.tpls.find((q) => String(q.value) === String(selectedTpl.questionId));
-                  if (qTpl) {
-                    form.setFieldsValue({
-                      questions: {
-                        tpl: qTpl.value,
-                        list: qTpl.list,
-                      },
-                    });
-                  }
+                  form.setFieldsValue({
+                    questions: {
+                      tpl: String(selectedTpl.questionId),
+                      list: qTpl?.list || [],
+                    },
+                  });
                 }
               }}
             />

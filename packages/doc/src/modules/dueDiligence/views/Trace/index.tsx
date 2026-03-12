@@ -23,21 +23,32 @@ const Trace: FC = () => {
             data = data[0] || {};
           }
 
-          if (!data.id) {
+          if (!data.id && !data.knowledgeId) {
             message.warning('返回数据为空');
             return;
           }
 
-          let url = data.fileUrl || data.url || data.docUrl;
-          // Encode URL if it contains special characters
-          if (url && (url.includes(' ') || /[\u4e00-\u9fa5]/.test(url))) {
-            const lastSlashIndex = url.lastIndexOf('/');
-            const baseUrl = url.substring(0, lastSlashIndex + 1);
-            const fileName = url.substring(lastSlashIndex + 1);
-            url = baseUrl + encodeURIComponent(fileName);
+          const fileId = data.fileId || data.knowledgeFileId;
+          const initialUrl = data.fileUrl || data.url || data.docUrl;
+
+          if (!initialUrl && fileId) {
+            DueDiligenceAPI.viewReportUrl(fileId, '').then((urlRes) => {
+              if (urlRes.success && urlRes.data) {
+                setDocUrl(urlRes.data);
+              }
+            });
+          } else if (initialUrl) {
+            let url = initialUrl;
+            // Encode URL if it contains special characters
+            if (url && (url.includes(' ') || /[\u4e00-\u9fa5]/.test(url))) {
+              const lastSlashIndex = url.lastIndexOf('/');
+              const baseUrl = url.substring(0, lastSlashIndex + 1);
+              const fileName = url.substring(lastSlashIndex + 1);
+              url = baseUrl + encodeURIComponent(fileName);
+            }
+            setDocUrl(url);
           }
-          setDocUrl(url);
-          setParams(data);
+          setParams({...data, fileId});
         } else {
           message.warning('返回数据为空');
         }
@@ -79,9 +90,9 @@ const Trace: FC = () => {
     console.log('Final chunk positions:', positions);
 
     return {
-      id: params.id || params.chunkId || 'trace-chunk',
-      document_id: params.fileId || '',
-      content: params.fileName || '',
+      id: String(params.id || params.chunkId || 'trace-chunk'),
+      document_id: String(params.fileId || ''),
+      content: params.fileName || params.matchValue || '',
       positions,
     };
   }, [params]);

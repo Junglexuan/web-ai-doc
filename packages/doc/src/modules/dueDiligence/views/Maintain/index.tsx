@@ -52,14 +52,15 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
     setLastSelectedIconIndex(nextIndex);
 
     showMask(true);
+    const initialQuestionId = template.selected.questionId || questions.selected;
     setCurEdit({
       id: '',
       name: '',
       logo: agentIcons[nextIndex].relativePath,
       pathList: [],
       questions: {
-        tpl: questions.selected,
-        list: questions.tpls.find((item) => String(item.value) === String(questions.selected))?.list || [],
+        tpl: String(initialQuestionId),
+        list: questions.tpls.find((item) => String(item.value) === String(initialQuestionId))?.list || [],
       },
       template: template.selected,
       autoCreateFinalSheets,
@@ -75,7 +76,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
 
     // 根据 data 中的 ID 查找对应的名称或列表，如果找不到则使用当前配置中的默认值
     const selectedTemplate = template.list.find((t) => String(t.id) === String(data.templateId));
-    const selectedQuestionId = data.questionId || questions.selected;
+    const selectedQuestionId = data.questionId || selectedTemplate?.questionId || questions.selected;
     const selectedQuestionList = questions.tpls.find((q) => String(q.value) === String(selectedQuestionId))?.list || [];
 
     // 对于编辑操作，保留原有的信息
@@ -86,7 +87,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
       logo: data.logo,
       pathList: data.pathList,
       questions: {
-        tpl: selectedQuestionId,
+        tpl: String(selectedQuestionId),
         list: selectedQuestionList,
       },
       template: {
@@ -105,6 +106,18 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
   const onEditSubmit = useEvent((data: ListItem) => {
     console.log('data: onEditSubmit=', data);
     const formData = {...curEdit, ...data};
+
+    // 如果在表单中更改了 templateId，则确保同步更新 questionId
+    if (data.templateId) {
+      const selectedTpl = configs?.template.list.find((t) => String(t.id) === String(data.templateId));
+      if (selectedTpl?.questionId) {
+        formData.questionId = String(selectedTpl.questionId);
+        if (formData.questions) {
+          formData.questions.tpl = String(selectedTpl.questionId);
+        }
+      }
+    }
+
     console.log('formData: ', formData);
     DueDiligenceAPI.createItem(formData).then((item) => {
       setCurEdit(undefined);
@@ -115,13 +128,13 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
 
   const onDelete = useEvent((id: string) => {
     confirm(
-      `是否确认删除尽调记录？删除后对应的尽调报告与尽调材料将无法恢复！`,
+      `确认删除尽调吗？删除后该尽调的所有信息将被删除，无法恢复！`,
       (ok) => {
         if (ok) {
           DueDiligenceAPI.deleteItem(id).then(refreshList);
         }
       },
-      {title: '删除提示'}
+      {title: '删除尽调'}
     );
   });
 
@@ -190,7 +203,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
                             label: (
                               <div>
                                 <EditOutlined style={{marginRight: 8}} />
-                                编辑信息
+                                编辑尽调
                               </div>
                             ),
                             onClick: (e: any) => {
@@ -230,7 +243,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
       </div>
       <Modal
         width={590}
-        title={curEdit?.id ? '修改尽调' : '新建尽调'}
+        title={curEdit?.id ? '编辑尽调' : '新建尽调'}
         open={!!curEdit}
         footer={null}
         destroyOnClose

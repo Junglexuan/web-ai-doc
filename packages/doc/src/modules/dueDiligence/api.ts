@@ -28,23 +28,27 @@ export const DueDiligenceAPI = {
           list: data.businessVos.map((item: any) => ({value: item.id, label: item.businessName})),
         },
         questions: {
-          selected: data.questionId,
+          selected: String(data.questionId),
           tpls: data.templateInfoVos.map((item: any) => ({
-            value: item.id,
+            value: String(item.id),
             label: item.templateName,
             list: (item.questionList || []).map(({id, questionName}: any) => ({
-              id,
+              id: String(id),
               questionName,
             })),
           })),
         },
         template: {
-          selected: {
-            id: data.templateId,
-            name: data.reportTemplateVos.find((item: any) => item.id === data.templateId)?.reportTemplateName,
-          },
+          selected: (() => {
+            const t = data.reportTemplateVos.find((item: any) => item.id === data.templateId);
+            return {
+              id: String(data.templateId),
+              name: t?.reportTemplateName,
+              questionId: t?.questionId ? String(t.questionId) : undefined,
+            };
+          })(),
           list: data.reportTemplateVos.map((item: any) => ({
-            id: item.id,
+            id: String(item.id),
             title: item.reportTemplateName,
             remark: item.remark,
             isShare: '0',
@@ -53,7 +57,7 @@ export const DueDiligenceAPI = {
             approveTemplateUrl: item.approveTemplateUrl,
             createUserName: item.createUserName,
             createDate: item.createDate,
-            questionId: item.questionId,
+            questionId: item.questionId ? String(item.questionId) : undefined,
           })),
         },
       };
@@ -142,6 +146,7 @@ export const DueDiligenceAPI = {
     });
   },
   createItem(data: ListItem & {templateId?: string}): Promise<ListItem> {
+    console.log(data, 'dataxxx====');
     const {id, name, logo, templateId} = data;
     return request
       .post('/api/deal/createOrUpdateDealInst', {
@@ -149,7 +154,7 @@ export const DueDiligenceAPI = {
         interviewCust: name,
         logo,
         templateId,
-        questionId: data.questions?.tpl || (data as any).questionId,
+        questionId: data.questions?.tpl || data.questionId,
       })
       .then((res) => res.data.data);
   },
@@ -337,7 +342,9 @@ export const DueDiligenceAPI = {
 
   /** 测试溯源 - 获取文档定位参数 */
   getTraceInfo(req?: any): Promise<any> {
-    return request.post('/api/wordRecordVariable/query', req || {id: '12356'}).then((res) => res.data);
+    return request
+      .post('/api/wordRecordVariable/query', req || {matchKey: 'basic_account_bank', reportId: '2032031389993414657'})
+      .then((res) => res.data);
   },
 };
 

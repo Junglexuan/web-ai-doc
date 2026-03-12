@@ -232,6 +232,7 @@ export type DueConfigs = {
     selected: {
       id: string;
       name: string;
+      questionId?: number | string;
     };
     list: TPL[];
   };
