@@ -1,8 +1,8 @@
 .pdfPreviewerContainer {
   display: flex;
   flex-direction: column;
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
   overflow: hidden;
   background-color: #f5f5f5;
 
@@ -22,17 +22,6 @@
         font-weight: 500;
         color: rgba(0, 0, 0, 0.85);
       }
-
-      .closeIcon {
-        font-size: 20px;
-        color: #999;
-        cursor: pointer;
-        transition: color 0.3s;
-
-        &:hover {
-          color: #666;
-        }
-      }
     }
 
     .viewerWrapper {
@@ -40,24 +29,48 @@
       display: flex;
       flex: 1;
       justify-content: center;
-      overflow: hidden;
+      overflow: auto; /* Allow viewer to handle overflows if necessary */
       background-color: #f0f2f5;
+
+      /* Ensure the inner highlighter fills the space */
+      & > div {
+        width: 100% !important;
+        height: 100% !important;
+      }
     }
 
-    /* react-pdf-highlighter styles override if needed */
+    /* react-pdf-highlighter styles override */
     .PdfHighlighter {
+      width: 100% !important;
+      height: 100% !important;
       background-color: #f0f2f5 !important;
+
+      /* Remove forced flex/align-items from container to avoid breaking internal scroll */
+    }
+
+    /* Target inner viewer content to center pages */
+    .PdfHighlighter :global(.pdfViewer) {
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      padding-bottom: 40px;
+      background-color: #f0f2f5 !important;
+    }
+
+    .PdfHighlighter :global(.page) {
+      margin: 10px 0 !important;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
 
     /* Target highlight style */
     .Highlight__part {
-      background-color: rgba(255, 235, 156, 0.4) !important; /* Semi-transparent yellow like screenshot */
-      box-shadow: 0 0 2px rgba(255, 198, 57, 0.2);
+      background-color: rgba(255, 0, 0, 0.3) !important; /* Semi-transparent red */
+      box-shadow: 0 0 2px rgba(255, 0, 0, 0.2);
     }
 
     .Highlight__scrolledTo .Highlight__part {
-      background-color: rgba(255, 215, 0, 0.5) !important;
-      outline: 1px solid rgba(255, 165, 0, 0.5);
+      background-color: rgba(220, 20, 60, 0.4) !important; /* Crimson red */
+      outline: 1px solid rgba(220, 20, 60, 0.6);
     }
   }
 }

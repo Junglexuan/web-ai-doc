@@ -27,21 +27,28 @@ export const buildChunkHighlights = async (chunk: IReferenceChunk | undefined, p
     const y1 = pos[3];
     const y2 = pos[4];
 
+    // 默认尝试使用 100x100 的百分数系统 (Skill 推荐)
+    // 但如果坐标点本身已经大于 100，则极有可能是原始像素坐标，此时需切换到真实的 PDF 尺寸系统
+    const isPixelSystem = x1 > 100 || y1 > 100 || x2 > 100 || y2 > 100;
+
     let pageWidth = 100;
     let pageHeight = 100;
 
-    // 尝试获取实际页面的宽高达成校准
-    if (pdfDocument && typeof pdfDocument.getPage === 'function') {
+    if (isPixelSystem && pdfDocument && typeof pdfDocument.getPage === 'function') {
       try {
         const page = await pdfDocument.getPage(pageNumber);
-        // 通过 scale: 1 获取原始逻辑尺寸
         const viewport = page.getViewport({scale: 1.0});
         pageWidth = viewport.width;
         pageHeight = viewport.height;
+        console.log(`[buildChunkHighlights] System detected: Pixel. Page ${pageNumber} size: ${pageWidth}x${pageHeight}`);
       } catch (err) {
-        console.warn(`[buildChunkHighlights] getPage error for page ${pageNumber}`, err);
+        console.warn(`[buildChunkHighlights] getPage error`, err);
       }
+    } else {
+      console.log(`[buildChunkHighlights] System detected: Percentage (100x100).`);
     }
+
+    console.log(`[buildChunkHighlights] Rect:`, {pageNumber, x1, y1, x2, y2, pageWidth, pageHeight});
 
     highlights.push({
       id: `${chunk.id || 'chunk'}-${i}`,
@@ -67,8 +74,7 @@ export const buildChunkHighlights = async (chunk: IReferenceChunk | undefined, p
         pageNumber,
       },
       comment: {
-        text: '引用来源片段',
-        emoji: '📍',
+        text: '',
       },
     });
   }

@@ -1,5 +1,7 @@
-import {Card, Spin, message} from 'antd';
-import {FC, useEffect, useState} from 'react';
+import {Card, Skeleton, message} from 'antd';
+import {FC, useEffect, useMemo, useState} from 'react';
+import PdfLocater from '@/skill/pdf-highlighter/components/PdfLocater';
+import {IReferenceChunk} from '@/utils/document-util';
 import {DueDiligenceAPI} from '../../api';
 
 const Trace: FC = () => {
@@ -11,21 +13,24 @@ const Trace: FC = () => {
     setLoading(true);
     DueDiligenceAPI.getTraceInfo()
       .then((res) => {
-        // Here we just safely assume the structure according to the request
         console.log('Trace API response:', res);
 
-        // Usually res contains things like url, chunk details, position...
-        // Let's dump it first and maybe use some defaults if present
+        // According to user provided structure:
+        // res.data contains the object with id, fileUrl, positions etc.
         if (res && res.data) {
-          const data = Array.isArray(res.data) ? res.data[0] : res.data;
-
-          if (data) {
-            const url = data.url || data.docUrl || data.fileUrl;
-            setDocUrl(url);
-            setParams(data);
-          } else {
-            message.warning('返回数据为空');
+          const data = res.data;
+          let url = data.fileUrl || data.url || data.docUrl;
+          // Encode URL if it contains special characters
+          if (url && (url.includes(' ') || /[\u4e00-\u9fa5]/.test(url))) {
+            const lastSlashIndex = url.lastIndexOf('/');
+            const baseUrl = url.substring(0, lastSlashIndex + 1);
+            const fileName = url.substring(lastSlashIndex + 1);
+            url = baseUrl + encodeURIComponent(fileName);
           }
+          setDocUrl(url);
+          setParams(data);
+        } else {
+          message.warning('返回数据为空');
         }
       })
       .catch((err) => {
@@ -37,28 +42,48 @@ const Trace: FC = () => {
       });
   }, []);
 
+  const chunk = useMemo<IReferenceChunk | undefined>(() => {
+    if (!params || !params.positions) {
+      console.log('No positions found in params');
+      return undefined;
+    }
+
+    let positions: number[][] = [];
+    try {
+      const posData = typeof params.positions === 'string' ? JSON.parse(params.positions) : params.positions;
+      console.log('Parsed posData:', posData);
+      if (Array.isArray(posData)) {
+        positions = posData.map((p: any) => {
+          const x = p.x || p.x1 || 0;
+          const y = p.y || p.y1 || 0;
+          // Ensure non-zero width/height to avoid property definition errors
+          const w = p.width || 10;
+          const h = p.height || 10;
+          const page = p.page || p.pageNumber || 1;
+          return [page, x, x + w, y, y + h];
+        });
+      }
+    } catch (e) {
+      console.error('Parse positions error:', e);
+    }
+
+    console.log('Final chunk positions:', positions);
+
+    return {
+      id: params.id || params.chunkId || 'trace-chunk',
+      document_id: params.fileId || '',
+      content: params.fileName || '',
+      positions,
+    };
+  }, [params]);
+
   return (
     <div style={{width: '100%', height: '100%', background: '#fff', display: 'flex', flexDirection: 'column'}}>
-      <div>
-        <h2>测试溯源</h2>
-        {params && (
-          <Card title="API 返回数据详情">
-            <pre style={{maxHeight: 200, overflow: 'auto'}}>{JSON.stringify(params, null, 2)}</pre>
-          </Card>
-        )}
-      </div>
-
-      <div style={{flex: 1, position: 'relative', borderTop: '1px solid #eee'}}>
-        {loading ? (
-          <div style={{position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)'}}>
-            <Spin tip="加载中..." />
-          </div>
-        ) : docUrl ? (
-          <div style={{width: '100%', height: '100%', overflow: 'hidden'}}>
-            <iframe src={docUrl} style={{width: '100%', height: '100%', border: 'none'}} />
-          </div>
+      <div style={{flex: 1, position: 'relative'}}>
+        {!loading && !docUrl ? (
+          <div style={{paddingTop: 20, textAlign: 'center'}}>暂无文档数据以供预览。</div>
         ) : (
-          <div style={{paddingTop: 20}}>暂无文档数据以供预览。</div>
+          <PdfLocater apiLoading={loading} url={docUrl} title={params?.fileName || '文档预览'} chunk={chunk} />
         )}
       </div>
     </div>
