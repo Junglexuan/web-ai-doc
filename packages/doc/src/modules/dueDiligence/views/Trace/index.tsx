@@ -15,10 +15,19 @@ const Trace: FC = () => {
       .then((res) => {
         console.log('Trace API response:', res);
 
-        // According to user provided structure:
-        // res.data contains the object with id, fileUrl, positions etc.
+        // res.data contains the list or object
         if (res && res.data) {
-          const data = res.data;
+          let data = res.data;
+          // If response is a list, take the first item
+          if (Array.isArray(data)) {
+            data = data[0] || {};
+          }
+
+          if (!data.id) {
+            message.warning('返回数据为空');
+            return;
+          }
+
           let url = data.fileUrl || data.url || data.docUrl;
           // Encode URL if it contains special characters
           if (url && (url.includes(' ') || /[\u4e00-\u9fa5]/.test(url))) {

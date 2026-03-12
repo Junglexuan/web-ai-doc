@@ -184,7 +184,11 @@ const Component: FC<{
         <Form
           labelCol={{span: 5}}
           wrapperCol={{span: 18}}
-          initialValues={{...data, templateId: data?.template?.id, logo: data?.logo || ''}}
+          initialValues={{
+            ...data,
+            templateId: data?.template?.id ? String(data.template.id) : undefined,
+            logo: data?.logo || '',
+          }}
           preserve={false}
           form={form}
           onFinish={(values) => {
@@ -198,9 +202,9 @@ const Component: FC<{
           <Form.Item name="templateId" label="选择模版" rules={[{required: true, message: '请选择模版'}]}>
             <Select
               placeholder="请选择模版"
-              options={configs.template.list.map((item) => ({value: item.id, label: item.title}))}
+              options={configs.template.list.map((item) => ({value: String(item.id), label: item.title}))}
               onChange={(val) => {
-                const selectedTpl = configs.template.list.find((t) => t.id === val);
+                const selectedTpl = configs.template.list.find((t) => String(t.id) === String(val));
                 if (selectedTpl?.questionId) {
                   const qTpl = configs.questions.tpls.find((q) => String(q.value) === String(selectedTpl.questionId));
                   if (qTpl) {

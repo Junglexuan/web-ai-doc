@@ -81,6 +81,9 @@ export const DueDiligenceAPI = {
                 desc: item.interviewDealInstDesc || '',
                 progress: Number(item.progress),
                 dealSummary: item.dealSummary || '',
+                templateId: item.templateId,
+                questionId: item.questionId,
+                autoCreateFinalSheets: !!item.autoCreateFinalSheets,
               } as any)
           ),
           summary: {
@@ -333,8 +336,8 @@ export const DueDiligenceAPI = {
   },
 
   /** 测试溯源 - 获取文档定位参数 */
-  getTraceInfo(): Promise<any> {
-    return request.get('/api/wordRecordVariable/query?id=12356').then((res) => res.data);
+  getTraceInfo(req?: any): Promise<any> {
+    return request.post('/api/wordRecordVariable/query', req || {id: '12356'}).then((res) => res.data);
   },
 };
 

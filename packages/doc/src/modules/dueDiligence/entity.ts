@@ -30,6 +30,8 @@ export interface ListItem extends BaseListItem {
     id: string;
     name: string;
   };
+  templateId?: string;
+  questionId?: string;
   status: string;
   dealSummary?: string;
 }

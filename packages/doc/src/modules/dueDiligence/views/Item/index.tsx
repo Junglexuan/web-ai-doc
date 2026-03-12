@@ -61,6 +61,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
   const [reportPolling, setReportPolling] = useState(false);
 
   const [fileProgressMap, setFileProgressMap] = useState<Record<string, {progress: number; status: string}>>({});
+  console.log('fileProgressMap', fileProgressMap);
   const [interviewList, setInterviewList] = useState<InterviewRecord[]>([]);
   const [interviewDetailModal, setInterviewDetailModal] = useState<{visible: boolean; record: InterviewInstDetail | null}>({
     visible: false,
@@ -223,15 +224,32 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
   });
 
   const onRebuildReport = useEvent(() => {
-    setReportPolling(true);
-    DueDiligenceAPI.rebuildReport(itemDetail.id)
-      .then(() => {
-        refreshPage();
-        message.success('报告生成任务已启动，请稍候...');
-      })
-      .catch(() => {
-        setReportPolling(false);
-      });
+    Modal.confirm({
+      title: '确认生成报告？',
+      centered: true,
+      width: 480,
+      okText: '确认',
+      cancelText: '取消',
+      content: (
+        <div style={{color: 'rgba(0, 0, 0, 0.45)', fontSize: '14px', lineHeight: '1.6'}}>
+          <p style={{marginBottom: '16px', color: 'rgba(0, 0, 0, 0.65)'}}>系统将根据当前尽调资料、访谈录音和报告模板生成尽调报告（由AI自动生成）</p>
+          <p style={{fontSize: '13px'}}>
+            小狸报告将使用通义千问 AI 技术为您处理音频图像和文件。点击确认即代表您授权我们将相关素材加密传输至 AI 服务商进行内容识别及报告生成
+          </p>
+        </div>
+      ),
+      onOk: () => {
+        setReportPolling(true);
+        DueDiligenceAPI.rebuildReport(itemDetail.id)
+          .then(() => {
+            refreshPage();
+            message.success('报告生成任务已启动，请稍候...');
+          })
+          .catch(() => {
+            setReportPolling(false);
+          });
+      },
+    });
   });
 
   // 轮询报告状态
@@ -298,18 +316,73 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
   });
 
   const onRemoveResource = useEvent((id: string) => {
-    DueDiligenceAPI.removeResourceFile(itemDetail.id, id).then(() => {
-      message.success('删除成功！');
-      if (editSupplementaryItem?.id === id) {
-        onCloseSupplementaryModal();
-      }
-      refreshPage();
+    Modal.confirm({
+      title: '确认删除',
+      centered: true,
+      okText: '确认',
+      cancelText: '取消',
+      content: '确定要删除该资料吗？此操作无法撤销。',
+      onOk: () => {
+        DueDiligenceAPI.removeResourceFile(itemDetail.id, id).then(() => {
+          message.success('删除成功！');
+          if (editSupplementaryItem?.id === id) {
+            onCloseSupplementaryModal();
+          }
+          refreshPage();
+        });
+      },
     });
   });
 
   const onRenameReport = useEvent((file: string, newName: string) => {
     DueDiligenceAPI.renameReport(itemDetail.id, file, newName).then(refreshPage);
     setShowRename('');
+  });
+
+  const onOpenInterviewDetail = useEvent((item: InterviewRecord) => {
+    // 打开访谈详情弹框
+    showMask(true);
+    DueDiligenceAPI.getInterviewInstDetail(item.interviewInstId)
+      .then((detail) => {
+        setInterviewDetailModal({
+          visible: true,
+          record: {
+            ...detail,
+            interviewCust: detail.interviewCust || item.interviewCust,
+            questionInstList:
+              detail.questionInstList?.length > 0
+                ? detail.questionInstList
+                : (itemDetail.questionInfoList || []).map((q) => ({
+                    id: q.id,
+                    questionName: q.questionName,
+                    questionAnswer: q.questionAnswer,
+                    hitTime: q.hitTime,
+                    CHECKED: q.CHECKED,
+                  })),
+          },
+        });
+      })
+      .catch(() => {
+        // 降级：若详情接口不可用，则用列表中已有信息构造 record 并打开
+        setInterviewDetailModal({
+          visible: true,
+          record: {
+            interviewInstId: item.interviewInstId,
+            interviewInstTitle: item.interviewInstTitle || item.interviewCust || '访谈录音',
+            interviewCust: item.interviewCust,
+            lastModifiedTime: item.lastModifiedTime,
+            recordFileInstVo: item.recordFileInstVo,
+            interviewArticleUrl: item.interviewArticleUrl,
+            questionInstList: (itemDetail.questionInfoList || []).map((q) => ({
+              id: q.id,
+              questionName: q.questionName,
+              questionAnswer: q.questionAnswer,
+              hitTime: q.hitTime,
+              CHECKED: q.CHECKED,
+            })),
+          },
+        });
+      });
   });
 
   const onRenameInterview = useEvent((interviewInstId: string, newTitle: string, interviewCust: string) => {
@@ -681,11 +754,19 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
             {itemDetail.resources.map((item) => {
               const fileProgress = fileProgressMap[item.id];
               return (
-                <div key={item.id} className={styles.file}>
-                  {itemDetail.status !== '5' && <CloseCircleFilled className="close" onClick={() => onRemoveResource(item.id)} />}
+                <div key={item.id} className={styles.file} onClick={() => onPreviewResource(item)}>
+                  {itemDetail.status !== '5' && (
+                    <CloseCircleFilled
+                      className="close"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onRemoveResource(item.id);
+                      }}
+                    />
+                  )}
                   <div className={`g-doc-icon t-${item.fileName?.split('.').pop()?.toLowerCase() || 'doc'}`} />
                   <div className={styles.nameWrap}>
-                    <div className={styles.name} title={item.fileName} onClick={() => onPreviewResource(item)}>
+                    <div className={styles.name} title={item.fileName}>
                       {item.fileName}
                     </div>
                     <Popover
@@ -716,7 +797,14 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
                         />
                       }
                     >
-                      {itemDetail.status !== '5' && <EditOutlined className={styles.edit} />}
+                      {itemDetail.status !== '5' && (
+                        <EditOutlined
+                          className={styles.edit}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                          }}
+                        />
+                      )}
                     </Popover>
                   </div>
                   <div className="info">{item.lastModifiedTime}</div>
@@ -751,11 +839,19 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
           </div>
           <div className={`list ${isSupplementaryCollapsed ? 'collapsed' : ''}`}>
             {itemDetail.supplementary.map((item) => (
-              <div key={item.id} className={styles.file}>
-                {itemDetail.status !== '5' && <CloseCircleFilled className="close" onClick={() => onRemoveResource(item.id)} />}
+              <div key={item.id} className={styles.file} onClick={() => onEditSupplementary(item)}>
+                {itemDetail.status !== '5' && (
+                  <CloseCircleFilled
+                    className="close"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onRemoveResource(item.id);
+                    }}
+                  />
+                )}
                 <div className={`g-doc-icon t-${item.fileName?.split('.').pop()?.toLowerCase() || 'doc'}`} />
                 <div className={styles.nameWrap}>
-                  <div className={styles.name} title={item.fileName} onClick={() => onEditSupplementary(item)}>
+                  <div className={styles.name} title={item.fileName}>
                     {item.fileName}
                   </div>
                   <Popover
@@ -786,7 +882,14 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
                       />
                     }
                   >
-                    {itemDetail.status !== '5' && <EditOutlined className={styles.edit} />}
+                    {itemDetail.status !== '5' && (
+                      <EditOutlined
+                        className={styles.edit}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                        }}
+                      />
+                    )}
                   </Popover>
                 </div>
                 <div className="info">{item.lastModifiedTime}</div>
@@ -811,8 +914,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
           <div className={`list ${isInterviewCollapsed ? 'collapsed' : ''}`}>
             {interviewList.length > 0 ? (
               interviewList.map((item) => (
-                <div key={item.interviewInstId} className={styles.file}>
-                  {itemDetail.status !== '5' && <CloseCircleFilled className="close" onClick={() => onRemoveResource(item.interviewInstId)} />}
+                <div key={item.interviewInstId} className={styles.file} onClick={() => onOpenInterviewDetail(item)}>
                   {(() => {
                     const fileName = item.interviewInstTitle || item.interviewCust || '';
                     const fileUrl = item.recordFileInstVo?.recordFileUrl || item.interviewArticleUrl || '';
@@ -820,56 +922,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
                     return <div className={`g-doc-icon t-${ext} ${ext === 'wav' || ext === 'amr' ? 'wav' : ''}`} />;
                   })()}
                   <div className={styles.nameWrap}>
-                    <div
-                      className={styles.name}
-                      title={item.interviewInstTitle || item.interviewCust || '访谈录音'}
-                      onClick={() => {
-                        // 打开访谈详情弹框
-                        showMask(true);
-                        DueDiligenceAPI.getInterviewInstDetail(item.interviewInstId)
-                          .then((detail) => {
-                            setInterviewDetailModal({
-                              visible: true,
-                              record: {
-                                ...detail,
-                                interviewCust: detail.interviewCust || item.interviewCust,
-                                questionInstList:
-                                  detail.questionInstList?.length > 0
-                                    ? detail.questionInstList
-                                    : (itemDetail.questionInfoList || []).map((q) => ({
-                                        id: q.id,
-                                        questionName: q.questionName,
-                                        questionAnswer: q.questionAnswer,
-                                        hitTime: q.hitTime,
-                                        CHECKED: q.CHECKED,
-                                      })),
-                              },
-                            });
-                          })
-                          .catch(() => {
-                            // 降级：若详情接口不可用，则用列表中已有信息构造 record 并打开
-                            setInterviewDetailModal({
-                              visible: true,
-                              record: {
-                                interviewInstId: item.interviewInstId,
-                                interviewInstTitle: item.interviewInstTitle,
-                                interviewCust: item.interviewCust,
-                                lastModifiedTime: item.lastModifiedTime,
-                                recordFileInstVo: item.recordFileInstVo || null,
-                                interviewArticleUrl: item.interviewArticleUrl || null,
-                                interviewArticleUrlBase64: item.interviewArticleUrlBase64 || null,
-                                questionInstList: (itemDetail.questionInfoList || []).map((q) => ({
-                                  id: q.id,
-                                  questionName: q.questionName,
-                                  questionAnswer: q.questionAnswer,
-                                  hitTime: q.hitTime,
-                                  CHECKED: q.CHECKED,
-                                })),
-                              } as any,
-                            });
-                          });
-                      }}
-                    >
+                    <div className={styles.name} title={item.interviewInstTitle || item.interviewCust || '访谈录音'}>
                       {item.interviewInstTitle || item.interviewCust || '访谈录音'}
                     </div>
                     <Popover
@@ -900,7 +953,14 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
                         />
                       }
                     >
-                      {itemDetail.status !== '5' && <EditOutlined className={styles.edit} />}
+                      {itemDetail.status !== '5' && (
+                        <EditOutlined
+                          className={styles.edit}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                          }}
+                        />
+                      )}
                     </Popover>
                   </div>
                   <div className="info">{item.lastModifiedTime}</div>
@@ -909,7 +969,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
             ) : (
               <div className={styles.interviewPlaceholder}>
                 <img src={InterviewIcon} alt="InterviewIcon" width={134} />
-                <span className={styles.text}>请前往移动端(小狸AI)访谈录音并生成纪要！</span>
+                <span className={styles.text}>请前往移动端(小狸报告)访谈录音并生成纪要！</span>
               </div>
             )}
           </div>

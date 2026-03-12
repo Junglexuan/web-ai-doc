@@ -59,7 +59,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
       pathList: [],
       questions: {
         tpl: questions.selected,
-        list: questions.tpls.find((item) => item.value === questions.selected)?.list || [],
+        list: questions.tpls.find((item) => String(item.value) === String(questions.selected))?.list || [],
       },
       template: template.selected,
       autoCreateFinalSheets,
@@ -73,7 +73,12 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
   const onEdit = useEvent((data: ListItem) => {
     const {autoCreateFinalSheets, questions, template} = configs!;
 
-    // 对于编辑操作，保留原有的logo值
+    // 根据 data 中的 ID 查找对应的名称或列表，如果找不到则使用当前配置中的默认值
+    const selectedTemplate = template.list.find((t) => String(t.id) === String(data.templateId));
+    const selectedQuestionId = data.questionId || questions.selected;
+    const selectedQuestionList = questions.tpls.find((q) => String(q.value) === String(selectedQuestionId))?.list || [];
+
+    // 对于编辑操作，保留原有的信息
     showMask(true);
     setCurEdit({
       id: data.id,
@@ -81,11 +86,14 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
       logo: data.logo,
       pathList: data.pathList,
       questions: {
-        tpl: questions.selected,
-        list: questions.tpls.find((item) => item.value === questions.selected)?.list || [],
+        tpl: selectedQuestionId,
+        list: selectedQuestionList,
       },
-      template: template.selected,
-      autoCreateFinalSheets,
+      template: {
+        id: data.templateId || template.selected.id,
+        name: selectedTemplate?.title || template.selected.name,
+      },
+      autoCreateFinalSheets: data.autoCreateFinalSheets ?? autoCreateFinalSheets,
     });
   });
 
@@ -225,6 +233,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
         title={curEdit?.id ? '修改尽调' : '新建尽调'}
         open={!!curEdit}
         footer={null}
+        destroyOnClose
         onCancel={() => {
           onCloseEdit();
         }}
