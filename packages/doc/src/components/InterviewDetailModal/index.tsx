@@ -5,6 +5,7 @@ import WaveSurfer from 'wavesurfer.js';
 import {DueDiligenceAPI} from '@/modules/dueDiligence/api';
 import {InterviewInstDetail, TranscriptItem} from '@/modules/dueDiligence/entity';
 import {replaceBaseUrl} from '@/utils/request';
+import {showMask} from '@/utils/tools';
 import styles from './index.module.less';
 
 interface Props {
@@ -254,10 +255,15 @@ const InterviewDetailModal: React.FC<Props> = ({visible, onClose, record}) => {
 
   // 初始化加载
   useEffect(() => {
-    if (visible && record?.interviewInstId) {
-      setTranscript([]);
-      setTransPage({pageNum: 1, pageSize: 50, total: 0, hasMore: true});
-      loadTranscript(1, true);
+    if (visible) {
+      showMask(true);
+      if (record?.interviewInstId) {
+        setTranscript([]);
+        setTransPage({pageNum: 1, pageSize: 50, total: 0, hasMore: true});
+        loadTranscript(1, true);
+      }
+    } else {
+      showMask(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible, record?.interviewInstId]);
@@ -389,6 +395,7 @@ const InterviewDetailModal: React.FC<Props> = ({visible, onClose, record}) => {
       }
     }
     setIsPlaying(false);
+    showMask(false);
     onClose();
   };
 

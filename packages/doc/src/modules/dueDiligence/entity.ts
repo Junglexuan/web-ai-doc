@@ -49,6 +49,7 @@ export interface ItemDetail {
   progress: number;
   reportStatus?: string;
   dealSummary?: string;
+  templateId?: string;
   updateDate?: string;
   // 报告
   report: {

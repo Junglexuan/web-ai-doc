@@ -3,6 +3,7 @@ import BenzAMRRecorder from 'benz-amr-recorder';
 import React, {useEffect, useRef, useState} from 'react';
 import {createPortal} from 'react-dom';
 import WaveSurfer from 'wavesurfer.js';
+import {showMask} from '@/utils/tools';
 import styles from './index.module.less';
 
 const PlayIcon = () => (
@@ -104,6 +105,11 @@ const AudioPlayerModal: React.FC<AudioPlayerModalProps> = ({visible, onClose, au
   };
 
   useEffect(() => {
+    if (visible) {
+      showMask(true);
+    } else {
+      showMask(false);
+    }
     if (!visible || !audioUrl) return;
 
     const isAmr = audioUrl.toLowerCase().endsWith('.amr') || fileName?.toLowerCase().endsWith('.amr');

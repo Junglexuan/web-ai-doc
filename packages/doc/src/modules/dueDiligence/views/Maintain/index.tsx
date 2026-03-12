@@ -51,6 +51,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
     // 更新状态
     setLastSelectedIconIndex(nextIndex);
 
+    showMask(true);
     setCurEdit({
       id: '',
       name: '',
@@ -73,6 +74,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
     const {autoCreateFinalSheets, questions, template} = configs!;
 
     // 对于编辑操作，保留原有的logo值
+    showMask(true);
     setCurEdit({
       id: data.id,
       name: data.name,
@@ -88,6 +90,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
   });
 
   const onCloseEdit = useEvent(() => {
+    showMask(false);
     setCurEdit(undefined);
   });
 
@@ -174,7 +177,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
                     <Dropdown
                       menu={{
                         items: [
-                          {
+                          listSearch.status !== 'end' && {
                             key: 'edit',
                             label: (
                               <div>
@@ -182,7 +185,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
                                 编辑信息
                               </div>
                             ),
-                            onClick: (e) => {
+                            onClick: (e: any) => {
                               e.domEvent.stopPropagation();
                               onEdit(item);
                             },
@@ -195,12 +198,12 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
                                 删除尽调
                               </div>
                             ),
-                            onClick: (e) => {
+                            onClick: (e: any) => {
                               e.domEvent.stopPropagation();
                               onDelete(item.id);
                             },
                           },
-                        ],
+                        ].filter(Boolean) as any,
                       }}
                       trigger={['click']}
                       placement="bottomRight"
@@ -217,33 +220,29 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
           })}
         </div>
       </div>
-      {curEdit && (
-        <Modal
-          width={590}
-          title={curEdit.id ? '修改尽调' : '新建尽调'}
-          open={true}
-          footer={null}
+      <Modal
+        width={590}
+        title={curEdit?.id ? '修改尽调' : '新建尽调'}
+        open={!!curEdit}
+        footer={null}
+        onCancel={() => {
+          onCloseEdit();
+        }}
+        afterOpenChange={(open: boolean) => {
+          showMask(open);
+        }}
+      >
+        <Edit
+          configs={configs}
+          data={curEdit || {}}
+          lastSelectedIconIndex={lastSelectedIconIndex}
+          onIconSelect={setLastSelectedIconIndex}
           onCancel={() => {
             onCloseEdit();
-            showMask(false);
           }}
-          afterOpenChange={(open: boolean) => {
-            showMask(open);
-          }}
-        >
-          <Edit
-            configs={configs}
-            data={curEdit}
-            lastSelectedIconIndex={lastSelectedIconIndex}
-            onIconSelect={setLastSelectedIconIndex}
-            onCancel={() => {
-              onCloseEdit();
-              showMask(false);
-            }}
-            onSubmit={onEditSubmit}
-          />
-        </Modal>
-      )}
+          onSubmit={onEditSubmit}
+        />
+      </Modal>
     </div>
   );
 };

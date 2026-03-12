@@ -1,6 +1,7 @@
 import {CopyOutlined, GiftOutlined, LinkOutlined, UserAddOutlined} from '@ant-design/icons';
 import {Button, Input, Modal, message} from 'antd';
 import {FC, memo, useEffect, useRef, useState} from 'react';
+import {showMask} from '@/utils/tools';
 import {DueDiligenceAPI} from '../../api';
 import styles from './index.module.less';
 
@@ -11,8 +12,8 @@ interface Props {
 }
 
 const steps = [
-  {icon: <LinkOutlined />, text: '复制您的专属邀请码并发送给好友'},
-  {icon: <GiftOutlined />, text: '好友在下方填写您的邀请码并点击确定'},
+  {icon: <LinkOutlined />, text: '复制您的专属模板邀请码并发送给好友'},
+  {icon: <GiftOutlined />, text: '好友在下方填写您的模板邀请码并点击确定'},
   {icon: <UserAddOutlined />, text: '好友分享，同触AI报告新体验'},
 ];
 
@@ -116,11 +117,22 @@ const InviteModal: FC<Props> = ({open, onClose, onSuccess}) => {
   };
 
   return (
-    <Modal open={open} title="模板分享" onCancel={handleClose} width={480} centered className="invite-modal-wrap" footer={null}>
+    <Modal
+      open={open}
+      title="模板分享"
+      onCancel={handleClose}
+      width={480}
+      centered
+      className="invite-modal-wrap"
+      footer={null}
+      afterOpenChange={(visible: boolean) => {
+        showMask(visible);
+      }}
+    >
       <div className={styles.body}>
         {/* Card 1: My invite code */}
         <div className={styles.card}>
-          <div className={styles.cardLabel}>分享自己邀请码</div>
+          <div className={styles.cardLabel}>分享自己模板邀请码</div>
           <div className={styles.codeRow}>
             <div className={styles.codeLeft}>
               <span className={styles.codePrefix}>邀请码</span>
@@ -158,7 +170,7 @@ const InviteModal: FC<Props> = ({open, onClose, onSuccess}) => {
 
         {/* Card 3: Friend code */}
         <div className={styles.card}>
-          <div className={styles.sectionTitle}>填写好友邀请码</div>
+          <div className={styles.sectionTitle}>填写好友模板邀请码</div>
           <div className={styles.codeRow}>
             <Input
               value={friendCode}

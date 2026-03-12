@@ -19,13 +19,28 @@ const Component: FC<{
   onChange?: (value?: {id: string; name: string}) => void;
   list: TPL[];
   children?: ReactElement;
-}> = ({value = {id: '', name: ''}, onChange, list, children}) => {
+  disabled?: boolean;
+}> = ({value = {id: '', name: ''}, onChange, list, children, disabled}) => {
   const [showTpl, setShowTpl] = useState(false);
+  console.log('value', value);
+  console.log('list', list);
+  useMemo(() => {
+    if (showTpl && value?.id) {
+      setTimeout(() => {
+        const activeElem = document.getElementById(`tpl-${value.id}`);
+        if (activeElem) {
+          activeElem.scrollIntoView({behavior: 'smooth', block: 'center'});
+        }
+      }, 100);
+    }
+  }, [showTpl, value?.id]);
 
   const onCloseTpl = useEvent(() => {
+    showMask(false);
     setShowTpl(false);
   });
   const onReplace = useEvent(() => {
+    showMask(true);
     setShowTpl(true);
   });
   const onPreview = useEvent((item: TPL) => {
@@ -43,6 +58,7 @@ const Component: FC<{
     });
   });
   const onSelected = useEvent((item: TPL) => {
+    showMask(false);
     setShowTpl(false);
     onChange?.({id: item.id, name: item.title});
   });
@@ -50,46 +66,44 @@ const Component: FC<{
   return (
     <>
       {children ? (
-        cloneElement(children, {onClick: onReplace})
+        cloneElement(children, {onClick: disabled ? undefined : onReplace, disabled})
       ) : (
-        <UploadedDoc file={{uid: value.id, name: value.name, thumbUrl: value.id}} onReplace={onReplace} />
+        <UploadedDoc file={{uid: value.id, name: value.name, thumbUrl: value.id}} onReplace={disabled ? undefined : onReplace} />
       )}
-      {showTpl && (
-        <Modal
-          width={915}
-          title="添加所需成果模板"
-          open={true}
-          footer={null}
-          onCancel={() => {
-            showMask(false);
-            onCloseTpl();
-          }}
-          afterOpenChange={(open: boolean) => {
-            showMask(open);
-          }}
-        >
-          <div className={styles.root}>
-            {list.map((item) => {
-              return (
-                <div key={item.id} className={styles.card}>
-                  <div className={'title icon'}>{item.title}</div>
-                  <div className="remark">{item.remark}</div>
-                  {/* <div className="tags">
+      <Modal
+        width={915}
+        title="添加所需成果模板"
+        open={showTpl}
+        footer={null}
+        onCancel={() => {
+          onCloseTpl();
+        }}
+        afterOpenChange={(open: boolean) => {
+          showMask(open);
+        }}
+      >
+        <div className={styles.root}>
+          {list.map((item) => {
+            return (
+              <div key={item.id} id={`tpl-${item.id}`} className={styles.card}>
+                <div className={'title icon'}>{item.title}</div>
+                <div className="remark">{item.remark}</div>
+                {/* <div className="tags">
                     <span>{ShareOptions[item.isShare]}</span>
                   </div> */}
-                  {/* <div className="creater">
+                {/* <div className="creater">
                     <span>{`${item.createUserName} 创建于 ${item.createDate}`}</span>
                   </div> */}
-                  <div title={item.remark} className="mask">
-                    <div onClick={() => onPreview(item)}>预览</div>
-                    <div onClick={() => onSelected(item)}>使用</div>
-                  </div>
+                {String(item.id || '').trim() === String(value?.id || '').trim() && <div className="using">使用中</div>}
+                <div title={item.remark} className="mask">
+                  <div onClick={() => onPreview(item)}>预览</div>
+                  {!disabled && String(item.id || '').trim() !== String(value?.id || '').trim() && <div onClick={() => onSelected(item)}>使用</div>}
                 </div>
-              );
-            })}
-          </div>
-        </Modal>
-      )}
+              </div>
+            );
+          })}
+        </div>
+      </Modal>
     </>
   );
 };

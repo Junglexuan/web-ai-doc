@@ -146,6 +146,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
 
   const onFileClick = useEvent((item: {id: string; fileName: string; fileUrl: string; type?: string}) => {
     if (item.fileName && isAudioFile(item.fileName)) {
+      showMask(true);
       setAudioPlayer({visible: true, url: replaceBaseUrl(item.fileUrl), fileName: item.fileName});
     } else {
       openDoc(item.id);
@@ -179,9 +180,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
     if (text) {
       // 无论是新建还是编辑，都使用appendResource方法
       DueDiligenceAPI.appendResource(itemDetail.id, text).then(() => {
-        setShowSupplementary(false);
-        setEditSupplementaryItem(null);
-        setSupplementaryContent('');
+        onCloseSupplementaryModal();
         refreshPage();
       });
     }
@@ -190,11 +189,13 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
   // 打开编辑补充信息模态框
   const onEditSupplementary = useEvent((item: {id: string; fileName: string; fileUrl?: string}) => {
     if (item.fileName && isAudioFile(item.fileName) && item.fileUrl) {
+      showMask(true);
       setAudioPlayer({visible: true, url: replaceBaseUrl(item.fileUrl), fileName: item.fileName});
       return;
     }
 
     setEditSupplementaryItem(item);
+    showMask(true);
     setShowSupplementary(true);
     setSupplementaryContent(''); // 开启时先清空上次内容，等待加载
 
@@ -218,6 +219,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
     setShowSupplementary(false);
     setEditSupplementaryItem(null);
     setSupplementaryContent('');
+    showMask(false);
   });
 
   const onRebuildReport = useEvent(() => {
@@ -298,12 +300,23 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
   const onRemoveResource = useEvent((id: string) => {
     DueDiligenceAPI.removeResourceFile(itemDetail.id, id).then(() => {
       message.success('删除成功！');
+      if (editSupplementaryItem?.id === id) {
+        onCloseSupplementaryModal();
+      }
       refreshPage();
     });
   });
 
   const onRenameReport = useEvent((file: string, newName: string) => {
     DueDiligenceAPI.renameReport(itemDetail.id, file, newName).then(refreshPage);
+    setShowRename('');
+  });
+
+  const onRenameInterview = useEvent((interviewInstId: string, newTitle: string, interviewCust: string) => {
+    DueDiligenceAPI.updateInterviewInst({interviewInstId, interviewInstTitle: newTitle, interviewCust}).then(() => {
+      message.success('重命名成功！');
+      refreshPage();
+    });
     setShowRename('');
   });
 
@@ -333,6 +346,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
 
   const onPreviewResource = useEvent((item: {id: string; fileName: string; fileUrl: string}) => {
     if (item.fileName && isAudioFile(item.fileName)) {
+      showMask(true);
       setAudioPlayer({visible: true, url: replaceBaseUrl(item.fileUrl), fileName: item.fileName});
       return;
     }
@@ -347,8 +361,10 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
 
   const onOpenInterviewFile = useEvent((file: {fileName: string; fileUrl: string; type: string}) => {
     if (isAudioFile(file.fileName) || file.type === 'wav') {
+      showMask(true);
       setAudioPlayer({visible: true, url: replaceBaseUrl(file.fileUrl), fileName: file.fileName});
     } else if (file.type === 'list') {
+      showMask(true);
       setShowQuestionsFile(file.fileUrl ? JSON.parse(file.fileUrl) : []);
     }
   });
@@ -424,7 +440,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
             >
               <a>重命名</a>
             </Popover>
-            <TplSelect list={configs!.template.list} value={{id: item?.id, name: item?.fileName}} onChange={onResetTemplate}>
+            <TplSelect list={configs!.template.list} value={{id: itemDetail.templateId || '', name: item?.fileName}} onChange={onResetTemplate}>
               <a>更换模板</a>
             </TplSelect>
             <Dropdown
@@ -495,8 +511,15 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
           <span>/</span>
           <a>尽调详情</a>
         </div>
-        <Button className="archiveBtn" onClick={onArchive} icon={<FileOutlined />} color="primary" variant="outlined">
-          归档
+        <Button
+          className="archiveBtn"
+          onClick={onArchive}
+          icon={<FileOutlined />}
+          color="primary"
+          variant="outlined"
+          disabled={itemDetail.status === '5'}
+        >
+          {itemDetail.status === '5' ? '已归档' : '归档'}
         </Button>
       </div>
       <div className="process">
@@ -552,6 +575,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
                       WebkitLineClamp: '2',
                       WebkitBoxOrient: 'vertical',
                       overflow: 'hidden',
+                      wordBreak: 'break-all',
                     }}
                     title={itemDetail.dealSummary || ''}
                   >
@@ -560,9 +584,21 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
                 </div>
               </div>
             </div>
-            <div className={styles.mask} style={{opacity: reportPolling ? 1 : undefined, pointerEvents: reportPolling ? 'auto' : undefined}}>
-              <Button type="primary" className={styles.mask_btn} onClick={onRebuildReport} loading={reportPolling}>
-                {reportPolling ? '报告生成中...' : itemDetail.report?.id ? '重新生成' : '立即生成'}
+            <div
+              className={styles.mask}
+              style={{
+                opacity: reportPolling ? 1 : undefined,
+                pointerEvents: reportPolling || itemDetail.status === '5' ? 'auto' : undefined,
+              }}
+            >
+              <Button
+                type="primary"
+                className={styles.mask_btn}
+                onClick={onRebuildReport}
+                loading={reportPolling}
+                disabled={itemDetail.status === '5'}
+              >
+                {reportPolling ? '报告生成中...' : itemDetail.status === '5' ? '已归档' : itemDetail.report?.id ? '重新生成' : '立即生成'}
               </Button>
             </div>
           </div>
@@ -584,7 +620,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
               <Button color="primary" variant="outlined" onClick={onPreviewReport} disabled={!itemDetail.report?.id}>
                 在线预览
               </Button>
-              <Button color="primary" variant="outlined" onClick={onEditReport} disabled={!itemDetail.report?.id}>
+              <Button color="primary" variant="outlined" onClick={onEditReport} disabled={!itemDetail.report?.id || itemDetail.status === '5'}>
                 在线编辑
               </Button>
               <Button
@@ -618,8 +654,9 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
           <div className="right">
             <TplSelect
               list={configs!.template.list}
-              value={{id: itemDetail.report?.id, name: itemDetail.report?.fileName}}
+              value={{id: itemDetail.templateId || '', name: itemDetail.report?.fileName || ''}}
               onChange={onResetTemplate}
+              disabled={itemDetail.status === '5'}
             >
               <Button color="primary" variant="outlined">
                 更换模板
@@ -645,10 +682,42 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
               const fileProgress = fileProgressMap[item.id];
               return (
                 <div key={item.id} className={styles.file}>
-                  <CloseCircleFilled className="close" onClick={() => onRemoveResource(item.id)} />
+                  {itemDetail.status !== '5' && <CloseCircleFilled className="close" onClick={() => onRemoveResource(item.id)} />}
                   <div className={`g-doc-icon t-${item.fileName?.split('.').pop()?.toLowerCase() || 'doc'}`} />
-                  <div className="name" title={item.fileName} onClick={() => onPreviewResource(item)}>
-                    {item.fileName}
+                  <div className={styles.nameWrap}>
+                    <div className={styles.name} title={item.fileName} onClick={() => onPreviewResource(item)}>
+                      {item.fileName}
+                    </div>
+                    <Popover
+                      trigger="click"
+                      destroyOnHidden
+                      open={showRename === item.id}
+                      onOpenChange={(open) => setShowRename(open ? item.id : '')}
+                      content={
+                        <Input
+                          allowClear
+                          autoFocus
+                          style={{width: '200px'}}
+                          defaultValue={item.fileName}
+                          onBlur={(e: any) => {
+                            const value = e.target.value.trim();
+                            if (value && value !== item.fileName) {
+                              onRenameReport(item.id, value);
+                            }
+                          }}
+                          onKeyDown={(e: any) => {
+                            if (e.key === 'Enter') {
+                              const value = e.target.value.trim();
+                              if (value && value !== item.fileName) {
+                                onRenameReport(item.id, value);
+                              }
+                            }
+                          }}
+                        />
+                      }
+                    >
+                      {itemDetail.status !== '5' && <EditOutlined className={styles.edit} />}
+                    </Popover>
                   </div>
                   <div className="info">{item.lastModifiedTime}</div>
                   {fileProgress && fileProgress.status !== '1' && (
@@ -667,10 +736,10 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
                 </div>
               );
             })}
-            <Upload showUploadList={false} multiple {...uploadProps}>
-              <div className={styles.fileUpload}>
+            <Upload showUploadList={false} multiple {...uploadProps} disabled={itemDetail.status === '5'}>
+              <div className={`${styles.fileUpload} ${itemDetail.status === '5' ? styles.fileUploadDisabled : ''}`}>
                 <img src={UploadIcon} alt="上传文件" />
-                <span style={{color: '#2A62FA'}}>上传文件</span>
+                <span>上传文件</span>
               </div>
             </Upload>
           </div>
@@ -683,18 +752,53 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
           <div className={`list ${isSupplementaryCollapsed ? 'collapsed' : ''}`}>
             {itemDetail.supplementary.map((item) => (
               <div key={item.id} className={styles.file}>
-                <CloseCircleFilled className="close" onClick={() => onRemoveResource(item.id)} />
+                {itemDetail.status !== '5' && <CloseCircleFilled className="close" onClick={() => onRemoveResource(item.id)} />}
                 <div className={`g-doc-icon t-${item.fileName?.split('.').pop()?.toLowerCase() || 'doc'}`} />
-                <div className="name" title={item.fileName} onClick={() => onEditSupplementary(item)}>
-                  {item.fileName}
+                <div className={styles.nameWrap}>
+                  <div className={styles.name} title={item.fileName} onClick={() => onEditSupplementary(item)}>
+                    {item.fileName}
+                  </div>
+                  <Popover
+                    trigger="click"
+                    destroyOnHidden
+                    open={showRename === item.id}
+                    onOpenChange={(open) => setShowRename(open ? item.id : '')}
+                    content={
+                      <Input
+                        allowClear
+                        autoFocus
+                        style={{width: '200px'}}
+                        defaultValue={item.fileName}
+                        onBlur={(e: any) => {
+                          const value = e.target.value.trim();
+                          if (value && value !== item.fileName) {
+                            onRenameReport(item.id, value);
+                          }
+                        }}
+                        onKeyDown={(e: any) => {
+                          if (e.key === 'Enter') {
+                            const value = e.target.value.trim();
+                            if (value && value !== item.fileName) {
+                              onRenameReport(item.id, value);
+                            }
+                          }
+                        }}
+                      />
+                    }
+                  >
+                    {itemDetail.status !== '5' && <EditOutlined className={styles.edit} />}
+                  </Popover>
                 </div>
                 <div className="info">{item.lastModifiedTime}</div>
               </div>
             ))}
             {itemDetail.supplementary.length === 0 && (
-              <div className={styles.fileUpload} onClick={() => setShowSupplementary(true)}>
+              <div
+                className={`${styles.fileUpload} ${itemDetail.status === '5' ? styles.fileUploadDisabled : ''}`}
+                onClick={() => itemDetail.status !== '5' && setShowSupplementary(true)}
+              >
                 <img src={SupIcon} alt="补充信息" />
-                <span style={{color: '#2A62FA'}}>补充信息</span>
+                <span>补充信息</span>
               </div>
             )}
           </div>
@@ -708,63 +812,96 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
             {interviewList.length > 0 ? (
               interviewList.map((item) => (
                 <div key={item.interviewInstId} className={styles.file}>
-                  <CloseCircleFilled className="close" onClick={() => onRemoveResource(item.interviewInstId)} />
+                  {itemDetail.status !== '5' && <CloseCircleFilled className="close" onClick={() => onRemoveResource(item.interviewInstId)} />}
                   {(() => {
                     const fileName = item.interviewInstTitle || item.interviewCust || '';
                     const fileUrl = item.recordFileInstVo?.recordFileUrl || item.interviewArticleUrl || '';
                     const ext = (fileUrl || fileName).split('.').pop()?.toLowerCase() || 'wav';
                     return <div className={`g-doc-icon t-${ext} ${ext === 'wav' || ext === 'amr' ? 'wav' : ''}`} />;
                   })()}
-                  <div
-                    className="name"
-                    title={item.interviewInstTitle || item.interviewCust || '访谈录音'}
-                    onClick={() => {
-                      // 打开访谈详情弹框
-                      DueDiligenceAPI.getInterviewInstDetail(item.interviewInstId)
-                        .then((detail) => {
-                          setInterviewDetailModal({
-                            visible: true,
-                            record: {
-                              ...detail,
-                              interviewCust: detail.interviewCust || item.interviewCust,
-                              questionInstList:
-                                detail.questionInstList?.length > 0
-                                  ? detail.questionInstList
-                                  : (itemDetail.questionInfoList || []).map((q) => ({
-                                      id: q.id,
-                                      questionName: q.questionName,
-                                      questionAnswer: q.questionAnswer,
-                                      hitTime: q.hitTime,
-                                      CHECKED: q.CHECKED,
-                                    })),
-                            },
+                  <div className={styles.nameWrap}>
+                    <div
+                      className={styles.name}
+                      title={item.interviewInstTitle || item.interviewCust || '访谈录音'}
+                      onClick={() => {
+                        // 打开访谈详情弹框
+                        showMask(true);
+                        DueDiligenceAPI.getInterviewInstDetail(item.interviewInstId)
+                          .then((detail) => {
+                            setInterviewDetailModal({
+                              visible: true,
+                              record: {
+                                ...detail,
+                                interviewCust: detail.interviewCust || item.interviewCust,
+                                questionInstList:
+                                  detail.questionInstList?.length > 0
+                                    ? detail.questionInstList
+                                    : (itemDetail.questionInfoList || []).map((q) => ({
+                                        id: q.id,
+                                        questionName: q.questionName,
+                                        questionAnswer: q.questionAnswer,
+                                        hitTime: q.hitTime,
+                                        CHECKED: q.CHECKED,
+                                      })),
+                              },
+                            });
+                          })
+                          .catch(() => {
+                            // 降级：若详情接口不可用，则用列表中已有信息构造 record 并打开
+                            setInterviewDetailModal({
+                              visible: true,
+                              record: {
+                                interviewInstId: item.interviewInstId,
+                                interviewInstTitle: item.interviewInstTitle,
+                                interviewCust: item.interviewCust,
+                                lastModifiedTime: item.lastModifiedTime,
+                                recordFileInstVo: item.recordFileInstVo || null,
+                                interviewArticleUrl: item.interviewArticleUrl || null,
+                                interviewArticleUrlBase64: item.interviewArticleUrlBase64 || null,
+                                questionInstList: (itemDetail.questionInfoList || []).map((q) => ({
+                                  id: q.id,
+                                  questionName: q.questionName,
+                                  questionAnswer: q.questionAnswer,
+                                  hitTime: q.hitTime,
+                                  CHECKED: q.CHECKED,
+                                })),
+                              } as any,
+                            });
                           });
-                        })
-                        .catch(() => {
-                          // 降级：若详情接口不可用，则用列表中已有信息构造 record 并打开
-                          setInterviewDetailModal({
-                            visible: true,
-                            record: {
-                              interviewInstId: item.interviewInstId,
-                              interviewInstTitle: item.interviewInstTitle,
-                              interviewCust: item.interviewCust,
-                              lastModifiedTime: item.lastModifiedTime,
-                              recordFileInstVo: item.recordFileInstVo || null,
-                              interviewArticleUrl: item.interviewArticleUrl || null,
-                              interviewArticleUrlBase64: item.interviewArticleUrlBase64 || null,
-                              questionInstList: (itemDetail.questionInfoList || []).map((q) => ({
-                                id: q.id,
-                                questionName: q.questionName,
-                                questionAnswer: q.questionAnswer,
-                                hitTime: q.hitTime,
-                                CHECKED: q.CHECKED,
-                              })),
-                            } as any,
-                          });
-                        });
-                    }}
-                  >
-                    {item.interviewInstTitle || item.interviewCust || '访谈录音'}
+                      }}
+                    >
+                      {item.interviewInstTitle || item.interviewCust || '访谈录音'}
+                    </div>
+                    <Popover
+                      trigger="click"
+                      destroyOnHidden
+                      open={showRename === item.interviewInstId}
+                      onOpenChange={(open) => setShowRename(open ? item.interviewInstId : '')}
+                      content={
+                        <Input
+                          allowClear
+                          autoFocus
+                          style={{width: '200px'}}
+                          defaultValue={item.interviewInstTitle || item.interviewCust}
+                          onBlur={(e: any) => {
+                            const value = e.target.value.trim();
+                            if (value && value !== (item.interviewInstTitle || item.interviewCust)) {
+                              onRenameInterview(item.interviewInstId, value, item.interviewCust);
+                            }
+                          }}
+                          onKeyDown={(e: any) => {
+                            if (e.key === 'Enter') {
+                              const value = e.target.value.trim();
+                              if (value && value !== (item.interviewInstTitle || item.interviewCust)) {
+                                onRenameInterview(item.interviewInstId, value, item.interviewCust);
+                              }
+                            }
+                          }}
+                        />
+                      }
+                    >
+                      {itemDetail.status !== '5' && <EditOutlined className={styles.edit} />}
+                    </Popover>
                   </div>
                   <div className="info">{item.lastModifiedTime}</div>
                 </div>
@@ -796,49 +933,56 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
           </div>
         </div> */}
       </div>
-      {showQuestionsFile && (
-        <Modal title="问题清单" width={750} open={true} footer={null} onCancel={() => setShowQuestionsFile(undefined)}>
-          <QuestionsFile value={showQuestionsFile} onChange={onQuestionsFileChange} />
-        </Modal>
-      )}
-      {showSupplementary && (
-        // <Modal title={editSupplementaryItem ? '编辑补充信息' : '补充信息'} width={650} open={true} footer={null} onCancel={onCloseSupplementaryModal}>
-        <Modal
-          title="补充信息"
-          width={650}
-          open={true}
-          footer={null}
-          onCancel={() => {
-            setShowSupplementary(false);
-            showMask(false);
-          }}
-          afterOpenChange={(open: boolean) => {
-            showMask(open);
-          }}
-        >
-          <div className={styles.info}>
-            <div className="form">
-              <Input.TextArea
-                placeholder={editSupplementaryItem ? '请修改补充的文本信息' : '请输入您需要补充的文本信息,AI将自动为您分析'}
-                rows={15}
-                value={supplementaryContent}
-                onChange={(e) => setSupplementaryContent(e.target.value)}
-              />
-            </div>
-            <div className="actions">
-              <Button type="primary" onClick={onSupplementarySubmit}>
-                {editSupplementaryItem ? '确认修改' : '确认补充'}
-              </Button>
-            </div>
+      <Modal
+        title="问题清单"
+        width={750}
+        open={!!showQuestionsFile}
+        footer={null}
+        onCancel={() => {
+          showMask(false);
+          setShowQuestionsFile(undefined);
+        }}
+        afterOpenChange={(open: boolean) => {
+          showMask(open);
+        }}
+      >
+        <QuestionsFile value={showQuestionsFile!} onChange={onQuestionsFileChange} />
+      </Modal>
+      <Modal
+        title="补充信息"
+        width={650}
+        open={showSupplementary}
+        footer={null}
+        onCancel={onCloseSupplementaryModal}
+        afterOpenChange={(open: boolean) => {
+          showMask(open);
+        }}
+      >
+        <div className={styles.info}>
+          <div className="form">
+            <Input.TextArea
+              placeholder={editSupplementaryItem ? '请修改补充的文本信息' : '请输入您需要补充的文本信息,AI将自动为您分析'}
+              rows={15}
+              value={supplementaryContent}
+              onChange={(e) => setSupplementaryContent(e.target.value)}
+            />
           </div>
-        </Modal>
-      )}
+          <div className="actions">
+            <Button type="primary" onClick={onSupplementarySubmit}>
+              {editSupplementaryItem ? '确认修改' : '确认补充'}
+            </Button>
+          </div>
+        </div>
+      </Modal>
 
       {/* 访谈详情弹框 */}
       <InterviewDetailModal
         visible={interviewDetailModal.visible}
         record={interviewDetailModal.record}
-        onClose={() => setInterviewDetailModal({visible: false, record: null})}
+        onClose={() => {
+          showMask(false);
+          setInterviewDetailModal({visible: false, record: null});
+        }}
       />
 
       {/* 音频播放浮层 */}
@@ -846,7 +990,10 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
         visible={audioPlayer.visible}
         audioUrl={audioPlayer.url}
         fileName={audioPlayer.fileName}
-        onClose={() => setAudioPlayer({...audioPlayer, visible: false})}
+        onClose={() => {
+          showMask(false);
+          setAudioPlayer({...audioPlayer, visible: false});
+        }}
       />
     </div>
   );

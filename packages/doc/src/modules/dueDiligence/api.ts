@@ -106,6 +106,7 @@ export const DueDiligenceAPI = {
         progress: Number(item.progress),
         reportStatus: item.reportStatus,
         dealSummary: item.dealSummary || '',
+        templateId: item.templateId,
         report,
         questionInfoList: (item.questionInfoList || []).map((q: any) => ({
           id: q.id || q.questionId || '',
@@ -264,7 +265,10 @@ export const DueDiligenceAPI = {
       .then((res) => res.data.data.records || []);
   },
 
-  /** 获取访谈实例详情：含录音、转写、问题清单 */
+  /** 更新访谈实例：改名等 */
+  updateInterviewInst(params: {interviewInstId: string; interviewInstTitle: string; interviewCust?: string}): Promise<void> {
+    return request.post('/api/interview/updateInterviewInst', params).then((res) => res.data.data);
+  },
   getInterviewInstDetail(interviewInstId: string): Promise<InterviewInstDetail> {
     return request.post('/api/interview/queryInterviewRecordFileInstByInterviewInstId', {interviewInstId}).then((res) => {
       const data = res.data.data || {};
