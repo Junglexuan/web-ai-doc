@@ -160,6 +160,7 @@ export type TPL = {
   isShare: string;
   createUserName: string;
   createDate: string;
+  questionId?: number;
 };
 
 export interface InterviewRecord {

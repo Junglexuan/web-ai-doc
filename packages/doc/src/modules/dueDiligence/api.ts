@@ -53,6 +53,7 @@ export const DueDiligenceAPI = {
             approveTemplateUrl: item.approveTemplateUrl,
             createUserName: item.createUserName,
             createDate: item.createDate,
+            questionId: item.questionId,
           })),
         },
       };
@@ -144,6 +145,7 @@ export const DueDiligenceAPI = {
         interviewCust: name,
         logo,
         templateId,
+        questionId: data.questions?.tpl || (data as any).questionId,
       })
       .then((res) => res.data.data);
   },

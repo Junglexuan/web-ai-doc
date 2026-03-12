@@ -196,7 +196,24 @@ const Component: FC<{
             <Input maxLength={64} placeholder="请输入尽调对象名称" />
           </Form.Item>
           <Form.Item name="templateId" label="选择模版" rules={[{required: true, message: '请选择模版'}]}>
-            <Select placeholder="请选择模版" options={configs.template.list.map((item) => ({value: item.id, label: item.title}))} />
+            <Select
+              placeholder="请选择模版"
+              options={configs.template.list.map((item) => ({value: item.id, label: item.title}))}
+              onChange={(val) => {
+                const selectedTpl = configs.template.list.find((t) => t.id === val);
+                if (selectedTpl?.questionId) {
+                  const qTpl = configs.questions.tpls.find((q) => String(q.value) === String(selectedTpl.questionId));
+                  if (qTpl) {
+                    form.setFieldsValue({
+                      questions: {
+                        tpl: qTpl.value,
+                        list: qTpl.list,
+                      },
+                    });
+                  }
+                }
+              }}
+            />
           </Form.Item>
           <Form.Item name="logo" label="企业图标">
             {/* <IconSelect /> */}
