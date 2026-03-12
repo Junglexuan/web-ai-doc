@@ -29,7 +29,8 @@
       display: flex;
       flex: 1;
       justify-content: center;
-      overflow: auto; /* Allow viewer to handle overflows if necessary */
+      overflow: hidden;
+      overflow-y: auto;
       background-color: #f0f2f5;
 
       /* Ensure the inner highlighter fills the space */
@@ -44,6 +45,7 @@
       width: 100% !important;
       height: 100% !important;
       scroll-behavior: smooth !important;
+      overflow-x: hidden !important;
       background-color: #f0f2f5 !important;
 
       /* Remove forced flex/align-items from container to avoid breaking internal scroll */

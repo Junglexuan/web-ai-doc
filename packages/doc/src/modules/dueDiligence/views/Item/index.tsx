@@ -10,11 +10,12 @@ import {
   LeftOutlined,
   ProfileOutlined,
   ProjectOutlined,
+  RedoOutlined,
   RocketOutlined,
   UserOutlined,
 } from '@ant-design/icons';
 import {Dispatch, DocumentHead} from '@elux/react-web';
-import {Button, Dropdown, Input, Modal, Popover, Progress, Table, Upload, UploadProps} from 'antd';
+import {Button, Dropdown, Input, Modal, Popover, Progress, Table, Tooltip, Upload, UploadProps} from 'antd';
 import {FC, memo, useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import CollectIcon from '@/assets/images/collect.png';
 import InterviewIcon from '@/assets/images/interview.png';
@@ -59,6 +60,9 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
   const [isSupplementaryCollapsed, setIsSupplementaryCollapsed] = useState(false); //补充企业信息
   const [isInterviewCollapsed, setIsInterviewCollapsed] = useState(false);
   const [reportPolling, setReportPolling] = useState(false);
+  const [isSummaryCollapsed, setIsSummaryCollapsed] = useState(true);
+  const [hasSummaryMore, setHasSummaryMore] = useState(false);
+  const summaryContentRef = useRef<HTMLDivElement>(null);
 
   const [fileProgressMap, setFileProgressMap] = useState<Record<string, {progress: number; status: string}>>({});
   console.log('fileProgressMap', fileProgressMap);
@@ -162,19 +166,46 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [itemDetail.id]);
 
-  const uploadProps: UploadProps = useMemo(
-    () =>
-      getUploadProps('/api/deal/upload', {
-        onProcess: () => setUploading('upload'),
-        onSuccess: () => {
+  const uploadProps: UploadProps = useMemo(() => {
+    const props = getUploadProps('/api/deal/upload', {
+      onProcess: () => setUploading('upload'),
+      data: {id: itemDetail.id},
+    });
+
+    const originalOnChange = props.onChange;
+    props.onChange = (info: any) => {
+      const {fileList} = info;
+      const isAnyUploading = fileList.some((f: any) => f.status === 'uploading');
+      if (isAnyUploading) {
+        setUploading('upload');
+      } else {
+        const allFinished = fileList.every((f: any) => f.status === 'done' || f.status === 'error');
+        if (allFinished) {
           setUploading('');
           refreshPage();
-        },
-        onError: () => setUploading(''),
-        data: {id: itemDetail.id},
-      }),
-    [itemDetail.id, refreshPage]
-  );
+        }
+      }
+      originalOnChange?.(info);
+    };
+    return props;
+  }, [itemDetail.id, refreshPage]);
+
+  useEffect(() => {
+    if (summaryContentRef.current) {
+      const element = summaryContentRef.current;
+      // 临时移除 clamp 样式来测量真实高度
+      const originalStyle = element.style.display;
+      element.style.display = 'block';
+      element.style.webkitLineClamp = 'unset';
+
+      const isOverflow = element.scrollHeight > element.clientHeight + 2; // 微调阈值
+
+      element.style.display = originalStyle;
+      element.style.webkitLineClamp = isSummaryCollapsed ? '1' : 'unset';
+
+      setHasSummaryMore(isOverflow);
+    }
+  }, [itemDetail.dealSummary, isSummaryCollapsed]);
 
   const onSupplementarySubmit = useEvent(() => {
     const text = supplementaryContent.trim();
@@ -334,9 +365,27 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
     });
   });
 
-  const onRenameReport = useEvent((file: string, newName: string) => {
-    DueDiligenceAPI.renameReport(itemDetail.id, file, newName).then(refreshPage);
+  const onRefreshSummary = useEvent(async () => {
+    try {
+      message.loading({content: '总结提炼中...', key: 'refreshSummary'});
+      await DueDiligenceAPI.refreshSummary(itemDetail.id);
+      message.success({content: '提炼完成', key: 'refreshSummary'});
+      refreshPage();
+    } catch (e: any) {
+      // 错误已由 request 拦截器处理
+    }
+  });
+
+  const onRenameReport = useEvent((fileId: string, fileName: string) => {
+    DueDiligenceAPI.renameReport(itemDetail.id, fileId, fileName).then(refreshPage);
     setShowRename('');
+  });
+
+  const onReparseFile = useEvent((fileId: string) => {
+    DueDiligenceAPI.reparseFile(itemDetail.id, fileId).then(() => {
+      message.success('重新解析已触发');
+      refreshPage();
+    });
   });
 
   const onOpenInterviewDetail = useEvent((item: InterviewRecord) => {
@@ -626,36 +675,13 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
           </div>
         </div>
       </div>
+
       <div className="cd">
-        {/* <div className="title">{itemDetail.name}</div>
-        <label>完成进度</label>
-        <Progress percent={itemDetail.progress} strokeColor={twoColors} size={{height: 10}} showInfo={false} />
-        <span>{`${itemDetail.progress}%`}</span> */}
         <div className="top">
           <div className="left">
             <img className="icon" src={itemDetail.logo} />
             <div className="cont">
               <div className="title">{itemDetail.name}</div>
-              <div className="progress">
-                <div className="hor">
-                  <span
-                    className="summary-text"
-                    style={{
-                      fontSize: '12px',
-                      color: '#666',
-                      lineHeight: '1.5',
-                      display: '-webkit-box',
-                      WebkitLineClamp: '2',
-                      WebkitBoxOrient: 'vertical',
-                      overflow: 'hidden',
-                      wordBreak: 'break-all',
-                    }}
-                    title={itemDetail.dealSummary || ''}
-                  >
-                    {itemDetail.dealSummary || '-'}
-                  </span>
-                </div>
-              </div>
             </div>
             <div
               className={styles.mask}
@@ -737,6 +763,44 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
             </TplSelect>
           </div>
         </div>
+
+        <div className={styles.summaryWrap}>
+          <div className="summary-hd">
+            <div className="title-group">
+              <span className="title">访谈小总结</span>
+              <span className="tag">AI自动提炼，仅供参考</span>
+            </div>
+            <div className="actions">
+              <Button type="text" size="small" icon={<RedoOutlined />} onClick={onRefreshSummary} className="action-btn" title="重新生成" />
+              {hasSummaryMore && (
+                <Button
+                  type="text"
+                  size="small"
+                  icon={isSummaryCollapsed ? <CaretDownOutlined /> : <CaretUpOutlined />}
+                  onClick={() => setIsSummaryCollapsed(!isSummaryCollapsed)}
+                  className="expand-btn"
+                >
+                  {isSummaryCollapsed ? '展开' : '收起'}
+                </Button>
+              )}
+            </div>
+          </div>
+          <div className="summary-bd">
+            <div
+              ref={summaryContentRef}
+              className="content"
+              style={{
+                display: '-webkit-box',
+                WebkitLineClamp: isSummaryCollapsed ? 1 : 'unset',
+                WebkitBoxOrient: 'vertical',
+                overflow: 'hidden',
+                transition: 'all 0.3s',
+              }}
+            >
+              {itemDetail.dealSummary || '暂无内容，请点击重新生成按钮进行提炼'}
+            </div>
+          </div>
+        </div>
       </div>
       {/* <div className="bd">
         <Table rowKey="id" dataSource={TableSource} columns={TableColumns} pagination={false} />
@@ -811,7 +875,8 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
                   {fileProgress && fileProgress.status !== '1' && (
                     <div
                       className="progress-wrap"
-                      title={`解析状态: ${fileProgress.status === '3' ? '成功' : fileProgress.status === '4' ? '失败' : '解析中'}`}
+                      title={fileProgress.status === '3' ? '解析成功' : fileProgress.status === '4' ? '解析失败' : '解析中'}
+                      style={{display: 'flex', alignItems: 'center', gap: 8}}
                     >
                       <Progress
                         type="circle"
@@ -819,15 +884,28 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
                         size={30}
                         status={fileProgress.status === '4' ? 'exception' : fileProgress.status === '3' ? 'success' : 'active'}
                       />
+                      {fileProgress.status === '4' && (
+                        <Tooltip title="重新解析">
+                          <Button
+                            type="text"
+                            size="small"
+                            icon={<RedoOutlined style={{color: '#1890ff', fontSize: 16}} />}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onReparseFile(item.id);
+                            }}
+                          />
+                        </Tooltip>
+                      )}
                     </div>
                   )}
                 </div>
               );
             })}
-            <Upload showUploadList={false} multiple {...uploadProps} disabled={itemDetail.status === '5'}>
-              <div className={`${styles.fileUpload} ${itemDetail.status === '5' ? styles.fileUploadDisabled : ''}`}>
+            <Upload showUploadList={false} multiple {...uploadProps} disabled={itemDetail.status === '5' || !!uploading}>
+              <div className={`${styles.fileUpload} ${itemDetail.status === '5' || !!uploading ? styles.fileUploadDisabled : ''}`}>
                 <img src={UploadIcon} alt="上传文件" />
-                <span>上传文件</span>
+                <span>{uploading ? '上传中...' : '上传文件'}</span>
               </div>
             </Upload>
           </div>

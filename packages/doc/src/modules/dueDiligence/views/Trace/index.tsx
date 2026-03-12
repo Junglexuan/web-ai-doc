@@ -94,18 +94,19 @@ const Trace: FC = () => {
   }, [currentData]);
 
   return (
-    <div style={{width: '100%', height: '100%', background: '#fff', display: 'flex', position: 'relative'}}>
+    <div style={{width: '100%', height: 'calc(100vh - 120px)', background: '#fff', display: 'flex', position: 'relative', overflow: 'hidden'}}>
       {/* 左侧目录 */}
       <div
         style={{
           width: collapsed ? 0 : 300,
           borderRight: collapsed ? 'none' : '1px solid #f0f0f0',
           height: '100%',
-          overflow: collapsed ? 'hidden' : 'auto',
-          padding: collapsed ? 0 : '16px',
+          overflow: 'hidden',
           background: '#fafafa',
           transition: 'all 0.3s ease-in-out',
           position: 'relative',
+          display: 'flex',
+          flexDirection: 'column',
         }}
       >
         {!collapsed && (
@@ -113,12 +114,14 @@ const Trace: FC = () => {
             <div
               style={{
                 fontWeight: 'bold',
-                marginBottom: 20,
                 fontSize: 16,
+                padding: '16px',
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
                 color: '#333',
+                borderBottom: '1px solid #f0f0f0',
+                flexShrink: 0,
               }}
             >
               <span>溯源目录 ({dataList.length})</span>
@@ -127,7 +130,7 @@ const Trace: FC = () => {
                 onClick={() => setCollapsed(true)}
               />
             </div>
-            <div style={{display: 'flex', flexDirection: 'column', gap: 10}}>
+            <div style={{flex: 1, overflowY: 'auto', padding: '16px', display: 'flex', flexDirection: 'column', gap: 10}}>
               {dataList.map((item, index) => (
                 <div
                   key={index}
@@ -140,10 +143,15 @@ const Trace: FC = () => {
                     border: `1px solid ${activeIndex === index ? '#91d5ff' : '#d9d9d9'}`,
                     transition: 'all 0.2s',
                     boxShadow: activeIndex === index ? '0 2px 8px rgba(24,144,255,0.15)' : 'none',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: 8,
                   }}
                 >
                   <div
                     style={{
+                      flex: 1,
                       fontSize: 14,
                       fontWeight: activeIndex === index ? 600 : 400,
                       color: activeIndex === index ? '#1890ff' : '#333',
@@ -151,24 +159,11 @@ const Trace: FC = () => {
                       textOverflow: 'ellipsis',
                       whiteSpace: 'nowrap',
                     }}
-                    title={item.matchValue || item.fileName || `结果 ${index + 1}`}
+                    title={item.fileName || item.matchValue || `结果 ${index + 1}`}
                   >
-                    {item.matchValue || item.fileName || `结果 ${index + 1}`}
+                    {item.fileName || item.matchValue || `结果 ${index + 1}`}
                   </div>
-                  <div style={{fontSize: 12, color: '#999', marginTop: 6, display: 'flex', justifyContent: 'space-between'}}>
-                    <span>
-                      页码:{' '}
-                      {(() => {
-                        try {
-                          const p = typeof item.positions === 'string' ? JSON.parse(item.positions) : item.positions;
-                          return Array.isArray(p) ? p[0]?.page || 1 : 1;
-                        } catch (e) {
-                          return 1;
-                        }
-                      })()}
-                    </span>
-                    {activeIndex === index && <span style={{color: '#52c41a', fontSize: 12}}>当前查看</span>}
-                  </div>
+                  {activeIndex === index && <span style={{fontSize: 12, color: '#52c41a', whiteSpace: 'nowrap', flexShrink: 0}}>当前查看</span>}
                 </div>
               ))}
             </div>

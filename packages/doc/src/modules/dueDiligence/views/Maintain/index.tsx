@@ -186,60 +186,66 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
         </div>
       </div>
       <div className="bd">
-        <div className={styles.list}>
-          {list.map((item) => {
-            return (
-              <div className={styles.card} key={item.id} onClick={() => onShowDetail(item)}>
-                {/* <div className="status">{StatusMap[item.status]}</div> */}
-                <div className="bd">
-                  <img className="icon" src={item.logo || Icons[0]} />
-                  <div className="title">
-                    {item.name}
-                    <Dropdown
-                      menu={{
-                        items: [
-                          listSearch.status !== 'end' && {
-                            key: 'edit',
-                            label: (
-                              <div>
-                                <EditOutlined style={{marginRight: 8}} />
-                                编辑尽调
-                              </div>
-                            ),
-                            onClick: (e: any) => {
-                              e.domEvent.stopPropagation();
-                              onEdit(item);
+        {list.length === 0 ? (
+          <div className={styles.empty}>
+            <img src={require('@/assets/imgs/null.png')} alt="暂无尽调内容" />
+            <p>暂无尽调内容</p>
+          </div>
+        ) : (
+          <div className={styles.list}>
+            {list.map((item) => {
+              return (
+                <div className={styles.card} key={item.id} onClick={() => onShowDetail(item)}>
+                  <div className="bd">
+                    <img className="icon" src={item.logo || Icons[0]} />
+                    <div className="title">
+                      {item.name}
+                      <Dropdown
+                        menu={{
+                          items: [
+                            listSearch.status !== 'end' && {
+                              key: 'edit',
+                              label: (
+                                <div>
+                                  <EditOutlined style={{marginRight: 8}} />
+                                  编辑尽调
+                                </div>
+                              ),
+                              onClick: (e: any) => {
+                                e.domEvent.stopPropagation();
+                                onEdit(item);
+                              },
                             },
-                          },
-                          {
-                            key: 'delete',
-                            label: (
-                              <div>
-                                <DeleteOutlined style={{marginRight: 8}} />
-                                删除尽调
-                              </div>
-                            ),
-                            onClick: (e: any) => {
-                              e.domEvent.stopPropagation();
-                              onDelete(item.id);
+                            {
+                              key: 'delete',
+                              label: (
+                                <div>
+                                  <DeleteOutlined style={{marginRight: 8}} />
+                                  删除尽调
+                                </div>
+                              ),
+                              onClick: (e: any) => {
+                                e.domEvent.stopPropagation();
+                                onDelete(item.id);
+                              },
                             },
-                          },
-                        ].filter(Boolean) as any,
-                      }}
-                      trigger={['click']}
-                      placement="bottomRight"
-                    >
-                      <EllipsisOutlined className={styles.moreActions} onClick={(e) => e.stopPropagation()} />
-                    </Dropdown>
+                          ].filter(Boolean) as any,
+                        }}
+                        trigger={['click']}
+                        placement="bottomRight"
+                      >
+                        <EllipsisOutlined className={styles.moreActions} onClick={(e) => e.stopPropagation()} />
+                      </Dropdown>
+                    </div>
+                    <Tooltip title={item.dealSummary} placement="bottomLeft">
+                      <div className="ft">{item.dealSummary || '-'}</div>
+                    </Tooltip>
                   </div>
-                  <Tooltip title={item.dealSummary} placement="bottomLeft">
-                    <div className="ft">{item.dealSummary || '-'}</div>
-                  </Tooltip>
                 </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )}
       </div>
       <Modal
         width={590}

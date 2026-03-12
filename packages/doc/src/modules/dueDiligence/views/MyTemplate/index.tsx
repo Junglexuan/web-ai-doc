@@ -1,4 +1,13 @@
-import {CloseOutlined, DeleteOutlined, EditOutlined, EllipsisOutlined, InboxOutlined, PlusOutlined, SearchOutlined} from '@ant-design/icons';
+import {
+  CloseOutlined,
+  DeleteOutlined,
+  EditOutlined,
+  EllipsisOutlined,
+  ExclamationCircleOutlined,
+  InboxOutlined,
+  PlusOutlined,
+  SearchOutlined,
+} from '@ant-design/icons';
 import {Dispatch, DocumentHead} from '@elux/react-web';
 import {Button, Dropdown, Input, Modal, Progress, Space, Tag, Tooltip, Upload, message} from 'antd';
 import {FC, memo, useEffect, useMemo, useState} from 'react';
@@ -148,25 +157,24 @@ const MyTemplate: FC<Props> = ({dispatch}) => {
             <Tooltip title={record.approveReportName}>
               <div className="name">{record.approveReportName}</div>
             </Tooltip>
+            {isFailed && (
+              <Tooltip title={record.errorMsg || '未通过：模板包含敏感词汇或话术不符合合规要求'}>
+                <ExclamationCircleOutlined style={{color: '#ff4d4f', fontSize: 14, cursor: 'pointer', marginLeft: 4}} />
+              </Tooltip>
+            )}
           </div>
-          {!isProcessing && !isFailed ? null : <span className={`status-tag status-${record.approveReportStatus}`}>{status.text}</span>}
+          {activeTab === 'processing' && <span className={`status-tag status-${record.approveReportStatus}`}>{status.text}</span>}
         </div>
 
-        {(isProcessing || isFailed) && (
+        {isProcessing && (
           <div className="card-bd">
-            {isProcessing ? (
-              <div className={styles.processingLayout}>
-                <div className="divider" />
-                <div className="content">
-                  <Progress percent={45} strokeColor="#4F46E5" showInfo={false} size="small" />
-                  <div className="hint">预计2小时后完成</div>
-                </div>
+            <div className={styles.processingLayout}>
+              <div className="divider" />
+              <div className="content">
+                <Progress percent={45} strokeColor="#4F46E5" showInfo={false} size="small" />
+                <div className="hint">预计2小时后完成</div>
               </div>
-            ) : (
-              <div className="failed-content">
-                <div className="error-msg">{record.errorMsg || '未通过：模板包含敏感词汇或话术不符合合规要求'}</div>
-              </div>
-            )}
+            </div>
           </div>
         )}
 
@@ -251,7 +259,10 @@ const MyTemplate: FC<Props> = ({dispatch}) => {
         ) : filteredList.length > 0 ? (
           <div className="card-grid">{filteredList.map(renderCard)}</div>
         ) : (
-          <div className="empty-state">暂无模板数据</div>
+          <div className={styles['empty-state']}>
+            <img src={require('@/assets/imgs/null.png')} alt="暂无模板内容" />
+            <p>暂无模板内容</p>
+          </div>
         )}
       </div>
 

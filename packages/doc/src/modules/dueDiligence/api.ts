@@ -344,6 +344,14 @@ export const DueDiligenceAPI = {
   getTraceInfo(req?: any): Promise<any> {
     return request.post('/api/wordRecordVariable/query', req || {matchKey: 'company', reportId: '2032031389993414657'}).then((res) => res.data);
   },
+  /** 重新解析文件 */
+  reparseFile(id: string, fileId: string): Promise<void> {
+    return request.post('/api/deal/reparse-file', {id, fileId});
+  },
+  /** 刷新小总结 */
+  refreshSummary(id: string): Promise<void> {
+    return request.post('/report/interview/summary', {id, direct: true});
+  },
 };
 
 export default DueDiligenceAPI;
