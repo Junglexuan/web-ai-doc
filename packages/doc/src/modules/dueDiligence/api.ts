@@ -350,7 +350,7 @@ export const DueDiligenceAPI = {
   },
   /** 刷新小总结 */
   refreshSummary(id: string): Promise<void> {
-    return request.post('/report/interview/summary', {id, direct: true});
+    return request.post('/api/interview/summary', {id, direct: true});
   },
 };
 
