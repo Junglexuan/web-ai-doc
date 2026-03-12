@@ -45,6 +45,7 @@ interface IProps {
   title?: string;
   chunk?: IReferenceChunk; // 从组件上游传入的 Chunk 对象用于定位高亮
   apiLoading?: boolean; // 新增：来自上游 API 的加载状态
+  headerStyle?: React.CSSProperties; // 新增：自定义头部样式
 }
 
 /**
@@ -129,7 +130,7 @@ const PdfViewerRenderer = ({pdfDocument, chunk, fallbackHighlights}: {pdfDocumen
  * 带有“跳转定位”功能的 PDF 预览页面组件
  * 根据需求文档分析重构，支持解析 chunk.positions 并结合实际 PDF 尺寸定位
  */
-const PdfLocater: React.FC<IProps> = ({url: propUrl, title = '文档预览', chunk, apiLoading}) => {
+const PdfLocater: React.FC<IProps> = ({url: propUrl, title = '文档预览', chunk, apiLoading, headerStyle}) => {
   const params = useMemo(() => getQueryParams(window.location.hash || window.location.search), []);
   const pdfUrl = propUrl || (params.fileId ? `/api/pdf/fetch?id=${params.fileId}` : '');
 
@@ -172,7 +173,7 @@ const PdfLocater: React.FC<IProps> = ({url: propUrl, title = '文档预览', chu
   return (
     <div className={styles.pdfPreviewerContainer}>
       {/* 顶部状态栏 始终显示，避免点击退出中断 */}
-      <header className="header">
+      <header className="header" style={headerStyle}>
         <span className="title">{title}</span>
       </header>
 

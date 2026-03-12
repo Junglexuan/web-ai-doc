@@ -342,9 +342,7 @@ export const DueDiligenceAPI = {
 
   /** 测试溯源 - 获取文档定位参数 */
   getTraceInfo(req?: any): Promise<any> {
-    return request
-      .post('/api/wordRecordVariable/query', req || {matchKey: 'basic_account_bank', reportId: '2032031389993414657'})
-      .then((res) => res.data);
+    return request.post('/api/wordRecordVariable/query', req || {matchKey: 'company', reportId: '2032031389993414657'}).then((res) => res.data);
   },
 };
 
