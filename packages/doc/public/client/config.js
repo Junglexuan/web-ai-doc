@@ -16,9 +16,9 @@ window.SitesUrl = {
   preview: 'http://68.79.42.215:8012/onlinePreview', //预览
   editor: 'http://113.44.121.105:8901', //word编辑器
 };
-window.PathPrefix = '';
+window.PathPrefix = '/xiaoli-desktop';
 window.SiteInfo = {
-  logo: '/xiaoli-report/client/logo.svg',
+  logo: '/xiaoli-desktop/client/logo.svg',
   name: '星启·文枢',
   sites: {pulse: '星启·脉擎', helix: '星启·数璇'},
   /** 溯源页顶部右侧「返回」外链地址，不配置则不显示 */
