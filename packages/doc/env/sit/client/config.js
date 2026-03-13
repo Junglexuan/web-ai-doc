@@ -19,4 +19,6 @@ window.SiteInfo = {
   logo: '/client/logo.svg',
   name: '星启·文枢',
   sites: {pulse: '星启·脉擎', helix: '星启·数璇'},
+  /** 溯源页顶部右侧「返回」外链地址，不配置则不显示 */
+  traceBackUrl: '',
 };
