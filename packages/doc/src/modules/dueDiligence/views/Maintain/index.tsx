@@ -165,13 +165,15 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
         <h1>尽调管理</h1>
         <div style={{display: 'flex', alignItems: 'center'}}>
           <Input
-            allowClear
-            value={searchText}
-            className="search"
+            className="search-input"
             placeholder="搜索尽调项目名称..."
-            prefix={<SearchOutlined style={{color: '#94a3b8', marginRight: 4}} />}
-            onChange={(e) => setSearchText(e.target.value.trim())}
-            onPressEnter={() => onSearch(searchText || '')}
+            prefix={<SearchOutlined style={{color: '#8c8c8c'}} />}
+            value={searchText}
+            onChange={(e) => {
+              const val = e.target.value;
+              setSearchText(val);
+              onSearch(val);
+            }}
           />
           <Button type="primary" icon={<PlusOutlined />} onClick={onCreate} style={{borderRadius: 10, fontWeight: 500}}>
             新建尽调

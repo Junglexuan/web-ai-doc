@@ -236,10 +236,10 @@ const MyTemplate: FC<Props> = ({dispatch}) => {
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
           />
-          <Button type="primary" className="upload-btn" icon={<PlusOutlined />} onClick={() => setShowUpload(true)}>
+          <Button type="primary" icon={<PlusOutlined />} onClick={() => setShowUpload(true)} style={{borderRadius: 10, fontWeight: 500}}>
             上传模板
           </Button>
-          <Button onClick={() => setShowInvite(true)} style={{marginLeft: 8}}>
+          <Button onClick={() => setShowInvite(true)} style={{borderRadius: 10, fontWeight: 500}}>
             模板分享
           </Button>
         </div>
