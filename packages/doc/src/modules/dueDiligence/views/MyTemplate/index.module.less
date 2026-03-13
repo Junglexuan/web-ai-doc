@@ -2,7 +2,7 @@
   height: 100%;
   padding: 24px 32px;
   overflow-y: auto;
-  background: #fff;
+  background-color: #f8fafc;
 
   :global {
     .page-header {
@@ -12,68 +12,78 @@
       margin-bottom: 24px;
 
       .title {
-        font-size: 20px;
-        font-weight: 600;
+        font-size: 26px;
+        font-weight: 800;
         color: #1e293b;
+        letter-spacing: -0.5px;
       }
 
       .header-actions {
         display: flex;
-        gap: 12px;
+        gap: 16px;
         align-items: center;
 
         .search-input {
-          width: 280px;
-          padding: 6px 16px;
+          width: 300px;
+          border-radius: 12px;
+          padding: 8px 16px;
+          background: rgba(255, 255, 255, 0.8);
+          backdrop-filter: blur(10px);
           border: 1px solid #e2e8f0;
-          border-radius: 999px;
 
           &:hover,
           &:focus {
+            background: #fff;
             border-color: #4f46e5;
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.08);
           }
         }
 
         .upload-btn {
           display: flex;
-          gap: 6px;
+          gap: 8px;
           align-items: center;
-          height: 38px;
-          font-weight: 500;
+          height: 42px;
+          padding: 0 20px;
+          font-weight: 700;
           background: #4f46e5;
-          border-radius: 8px;
+          border-radius: 10px;
+          box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+          transition: all 0.3s;
+
+          &:hover {
+            background: #4338ca;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(79, 70, 229, 0.3);
+          }
         }
       }
     }
 
     .tab-container {
-      display: flex;
-      gap: 32px;
-      margin-bottom: 24px;
-      border-bottom: 1px solid transparent;
+      display: inline-flex;
+      gap: 8px;
+      margin-bottom: 32px;
+      padding: 6px;
+      background: rgba(226, 232, 240, 0.5);
+      backdrop-filter: blur(10px);
+      border-radius: 14px;
+      width: fit-content;
 
       .tab-item {
         position: relative;
-        padding: 4px 0;
+        padding: 8px 24px;
         font-size: 15px;
+        font-weight: 600;
         color: #64748b;
         cursor: pointer;
-        transition: all 0.3s;
+        border-radius: 10px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
         &.active {
-          font-weight: 600;
           color: #4f46e5;
-
-          &::after {
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            content: '';
-            background: #4f46e5;
-            border-radius: 999px;
-          }
+          background: #fff;
+          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
         }
 
         &:hover {
@@ -85,15 +95,21 @@
     .grid-content {
       .card-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 20px;
+        grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+        gap: 24px;
+        padding-top: 12px; // 为 hover 向上位移留出空间
       }
 
       .loading-state {
-        padding: 100px 0;
+        padding: 120px 0;
         font-size: 15px;
+        font-weight: 600;
         color: #94a3b8;
         text-align: center;
+        background: rgba(255, 255, 255, 0.5);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        border: 2px dashed #e2e8f0;
       }
     }
   }
@@ -124,28 +140,32 @@
     position: relative;
     display: flex;
     flex-direction: column;
-    gap: 16px;
-    padding: 16px;
+    gap: 20px;
+    padding: 24px;
     background: #fff;
     border: 1px solid #e2e8f0;
-    border-radius: 12px;
-    transition: all 0.3s ease;
+    border-radius: 20px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
 
     &:hover {
       border-color: #4f46e5;
-      box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.1), 0 4px 6px -2px rgba(79, 70, 229, 0.05);
-      transform: translateY(-2px);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.06), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
+      transform: translateY(-6px);
     }
 
     :global {
       .card-hd {
         display: flex;
-        gap: 10px;
+        gap: 16px;
         align-items: center;
 
         .word-icon {
-          width: 32px;
-          height: 32px;
+          width: 44px;
+          height: 44px;
+          background: #f8fafc;
+          border-radius: 12px;
+          padding: 8px;
         }
 
         .name-wrap {
@@ -157,8 +177,8 @@
           .name {
             flex: 0 1 auto;
             overflow: hidden;
-            font-size: 15px;
-            font-weight: 500;
+            font-size: 16px;
+            font-weight: 600;
             color: #1e293b;
             text-overflow: ellipsis;
             white-space: nowrap;
@@ -166,23 +186,23 @@
         }
 
         .status-tag {
-          padding: 2px 8px;
+          padding: 4px 10px;
           font-size: 12px;
           font-weight: 500;
-          border-radius: 4px;
+          border-radius: 6px;
 
           &.status-1 {
-            color: #f97316;
-            background: #fff7ed;
+            color: #d97706;
+            background: #fffbeb;
           }
 
           &.status-2 {
-            color: #10b981;
+            color: #059669;
             background: #ecfdf5;
           }
 
           &.status-3 {
-            color: #ef4444;
+            color: #dc2626;
             background: #fef2f2;
           }
         }
@@ -194,11 +214,10 @@
 
         .failed-content {
           .error-msg {
-            /* stylelint-disable-next-line */
             display: -webkit-box;
             overflow: hidden;
-            font-size: 13px;
-            line-height: 1.5;
+            font-size: 14px;
+            line-height: 1.6;
             color: #ef4444;
             -webkit-box-orient: vertical;
             -webkit-line-clamp: 2;
@@ -208,7 +227,8 @@
 
         .success-content {
           .success-hint {
-            font-size: 13px;
+            font-size: 14px;
+            line-height: 1.6;
             color: #64748b;
           }
         }
@@ -218,32 +238,34 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding-top: 14px;
-        border-top: 1px dashed #e2e8f0;
+        padding-top: 16px;
+        border-top: 1px dashed #f1f5f9;
 
         .date {
-          font-size: 14px;
+          font-size: 13px;
           color: #94a3b8;
         }
 
         .preview-btn {
           font-size: 14px;
+          font-weight: 500;
           color: #4f46e5;
           cursor: pointer;
-          transition: color 0.3s;
+          transition: all 0.2s;
 
           &:hover {
             color: #4338ca;
-            text-decoration: underline;
+            transform: scale(1.05);
           }
         }
 
         .more-btn {
-          padding: 4px;
+          padding: 6px;
           font-size: 20px;
-          color: #64748b;
+          color: #94a3b8;
           cursor: pointer;
-          border-radius: 4px;
+          border-radius: 6px;
+          transition: all 0.2s;
 
           &:hover {
             color: #4f46e5;
@@ -307,10 +329,6 @@
         &-danger {
           color: #ef4444 !important;
 
-          &:hover {
-            color: #ef4444 !important;
-            background: #fef2f2 !important;
-          }
         }
       }
     }
@@ -321,61 +339,64 @@
 .uploadModal {
   :global {
     .ant-modal-content {
-      padding: 0;
+      padding: 0 !important;
       overflow: hidden;
-      border-radius: 12px;
+      border-radius: 8px !important; 
+      background: #ffffff !important;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08) !important;
     }
 
     .ant-modal-header {
-      display: flex;
-      align-items: center;
-      height: 48px;
-      padding: 0 20px 0 0;
-      margin-bottom: 0;
-      border-bottom: 1px solid #f0f0f0;
+      padding: 16px 24px !important;
+      border-bottom: 1px solid #f1f5f9 !important;
+      background: #ffffff !important;
 
       .ant-modal-title {
-        font-size: 16px;
-        font-weight: 600;
-        color: #1e293b;
+        font-size: 16px !important;
+        font-weight: 600 !important;
+        color: #1e293b !important;
       }
     }
 
     .ant-modal-body {
-      padding: 0;
+      padding: 20px 24px 24px !important;
     }
 
     .ant-modal-footer {
-      padding: 12px 24px;
-      margin-top: 0;
-      border-top: 1px solid #f0f0f0;
+      padding: 12px 24px !important;
+      margin: 0 !important;
+      border-top: 1px solid #f1f5f9 !important;
+      background: #f8fafc !important; 
+      text-align: right;
+      border-radius: 0 0 8px 8px;
 
       .ant-btn {
         height: 36px;
-        padding: 4px 20px;
-        font-weight: 500;
+        padding: 0 20px;
         border-radius: 6px;
+        font-weight: 500;
+        font-size: 14px;
+        transition: all 0.2s;
 
         &-default {
           color: #64748b;
-          background: #f1f5f9;
           border: none;
-
+          background: #f1f5f9;
+          margin-right: 12px;
           &:hover {
-            color: #475569;
+            color: #1e293b;
             background: #e2e8f0;
           }
         }
 
         &-primary {
-          color: #4f46e5;
-          background: #dbeafe;
-          border: none;
-          box-shadow: none;
-
+          background: #3b82f6; 
+          color: #fff;
+          box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
           &:hover {
-            color: #4338ca;
-            background: #bfdbfe;
+            background: #2563eb !important;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(37, 99, 235, 0.3);
           }
         }
       }
@@ -384,48 +405,62 @@
 }
 
 .uploadContainer {
-  background: #fff !important;
-
   .formItem {
     display: flex;
     align-items: center;
     margin-bottom: 24px;
 
     .label {
-      margin-right: 16px;
+      width: 80px;
+      flex-shrink: 0;
       font-size: 14px;
-      color: #333;
+      color: #475569;
 
       .required {
         margin-right: 4px;
-        color: #ff4d4f;
+        color: #ef4444;
       }
     }
 
     .input {
       flex: 1;
-      height: 36px;
-      border-radius: 4px;
+      height: 38px;
+      border-radius: 6px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      padding: 0 12px;
+      font-size: 14px;
+      transition: all 0.2s;
+
+      &:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+      }
     }
   }
 
   .dragger {
     display: block;
     width: auto !important;
-    background: #fafafa !important;
-    border: 1px dashed #d9d9d9 !important;
-    border-radius: 4px !important;
-    transition: all 0.3s;
+    background: #f8fafc !important;
+    border: 1.5px dashed #cbd5e1 !important;
+    border-radius: 8px !important;
+    transition: all 0.2s;
 
     &:hover {
-      background: #f5f5f5 !important;
-      border-color: #4f46e5 !important;
+      background: #f0f7ff !important;
+      border-color: #3b82f6 !important;
+
+      :global(.ant-upload-drag-icon .anticon) {
+        color: #3b82f6 !important;
+        transform: translateY(-2px);
+      }
     }
 
     :global {
       .ant-upload-drag-container {
         display: block;
-        padding: 32px 0;
+        padding: 40px 0;
       }
 
       .ant-upload-btn {
@@ -438,118 +473,54 @@
       box-sizing: border-box;
       min-height: 200px;
       text-align: center;
+    }
 
-      .fileListHeader {
+    .selectedFiles {
+      box-sizing: border-box;
+      max-height: 360px;
+      padding: 0 24px;
+      overflow-y: auto;
+      text-align: left;
+
+      .fileItem {
         box-sizing: border-box;
         display: flex !important;
         align-items: center;
         justify-content: space-between;
-        padding: 0 24px;
-        margin-bottom: 20px;
+        padding: 10px 0;
+        transition: background 0.3s;
 
-        .fileCount {
-          font-size: 16px;
-          font-weight: 400;
-          color: #333;
+        .fileInfo {
+          display: flex;
+          flex: 1;
+          gap: 12px;
+          align-items: center;
+          min-width: 0;
 
-          span {
+          .fileName {
+            overflow: hidden;
+            font-size: 16px;
             color: #333;
-          }
-
-          .total {
-            color: #b0b0b0;
+            text-overflow: ellipsis;
+            white-space: nowrap;
           }
         }
 
-        .continueAdd {
-          font-size: 15px;
-          color: #5b7efb;
+        .removeIcon {
+          padding: 4px;
+          font-size: 16px;
+          color: #999;
           cursor: pointer;
-          transition: color 0.3s;
+          border-radius: 4px;
+          transition: all 0.3s;
 
           &:hover {
-            color: #4338ca;
-          }
-        }
-      }
-
-      .emptyUpload {
-        padding-top: 10px;
-
-        :global {
-          .ant-upload-drag-icon {
-            margin-bottom: 16px;
-
-            .anticon {
-              font-size: 56px;
-            }
-          }
-
-          .ant-upload-text {
-            margin-bottom: 8px;
-            font-size: 16px;
-            font-weight: 400;
-            color: #333;
-          }
-
-          .ant-upload-hint {
-            font-size: 14px;
-            color: #999;
-          }
-        }
-      }
-
-      .selectedFiles {
-        box-sizing: border-box;
-        max-height: 360px;
-        padding: 0 24px;
-        overflow-y: auto;
-        text-align: left;
-
-        .fileItem {
-          box-sizing: border-box;
-          display: flex !important;
-          align-items: center;
-          justify-content: space-between;
-          padding: 10px 0;
-          transition: background 0.3s;
-
-          .fileInfo {
-            display: flex;
-            flex: 1;
-            gap: 12px;
-            align-items: center;
-            min-width: 0;
-
-            .wordIcon {
-              flex-shrink: 0;
-              width: 22px;
-              height: 22px;
-            }
-
-            .fileName {
-              overflow: hidden;
-              font-size: 16px;
-              color: #333;
-              text-overflow: ellipsis;
-              white-space: nowrap;
-            }
-          }
-
-          .removeIcon {
-            padding: 4px;
-            font-size: 16px;
-            color: #999;
-            cursor: pointer;
-            border-radius: 4px;
-            transition: all 0.3s;
-
-            &:hover {
-              color: #666;
-            }
+            color: #666;
           }
         }
       }
     }
   }
 }
+
+

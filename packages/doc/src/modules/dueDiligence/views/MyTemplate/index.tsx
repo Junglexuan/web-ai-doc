@@ -279,11 +279,8 @@ const MyTemplate: FC<Props> = ({dispatch}) => {
         }}
         okText="确定"
         cancelText="取消"
-        width={640}
+        width={540}
         centered
-        styles={{
-          body: {margin: '14px 20px'},
-        }}
       >
         <div className={styles.uploadContainer}>
           <div className={styles.formItem}>

@@ -1,11 +1,14 @@
 import {
   CaretDownOutlined,
+  CaretRightOutlined,
   CaretUpOutlined,
+  CheckCircleFilled,
   ClockCircleOutlined,
   CloseCircleFilled,
   CloudUploadOutlined,
   DownOutlined,
   EditOutlined,
+  ExclamationCircleFilled,
   FileOutlined,
   LeftOutlined,
   ProfileOutlined,
@@ -37,8 +40,8 @@ import {DealReportStatusEnum, DueConfigs, InterviewInstDetail, InterviewRecord, 
 import styles from './index.module.less';
 
 const twoColors = {
-  '0%': '#6C47EF',
-  '100%': '#1B68FC',
+  '0%': '#4f46e5',
+  '100%': '#818cf8',
 };
 
 interface Props {
@@ -193,14 +196,19 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
   useEffect(() => {
     if (summaryContentRef.current) {
       const element = summaryContentRef.current;
-      // 临时移除 clamp 样式来测量真实高度
-      const originalStyle = element.style.display;
-      element.style.display = 'block';
+      const originalClamp = element.style.webkitLineClamp;
+
+      // 测量完整高度
       element.style.webkitLineClamp = 'unset';
+      const fullHeight = element.scrollHeight;
 
-      const isOverflow = element.scrollHeight > element.clientHeight + 2; // 微调阈值
+      // 测量一行高度
+      element.style.webkitLineClamp = '1';
+      const clampHeight = element.offsetHeight || element.clientHeight;
 
-      element.style.display = originalStyle;
+      const isOverflow = fullHeight > clampHeight + 4;
+
+      // 恢复当前状态
       element.style.webkitLineClamp = isSummaryCollapsed ? '1' : 'unset';
 
       setHasSummaryMore(isOverflow);
@@ -769,8 +777,6 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
             <div className="title-group">
               <span className="title">访谈小总结</span>
               <span className="tag">AI自动提炼，仅供参考</span>
-            </div>
-            <div className="actions">
               <Button type="text" size="small" icon={<RedoOutlined />} onClick={onRefreshSummary} className="action-btn" title="重新生成" />
               {hasSummaryMore && (
                 <Button
@@ -811,14 +817,14 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
         </div>
         <div className="step">
           <div className="subject" onClick={() => setIsResourcesCollapsed(!isResourcesCollapsed)}>
-            <div className="collapse-icon">{isResourcesCollapsed ? <CaretDownOutlined /> : <CaretUpOutlined />}</div>
-            上传企业资料
+            <div className="collapse-icon">{isResourcesCollapsed ? <CaretRightOutlined /> : <CaretDownOutlined />}</div>
+            文档资料
           </div>
-          <div className={`list ${isResourcesCollapsed ? 'collapsed' : ''}`}>
+          <div className={`${styles.list} ${isResourcesCollapsed ? styles.collapsed : ''}`}>
             {itemDetail.resources.map((item) => {
               const fileProgress = fileProgressMap[item.id];
               return (
-                <div key={item.id} className={styles.file} onClick={() => onPreviewResource(item)}>
+                <div key={item.id} className={styles.file} onClick={() => onFileClick(item)}>
                   {itemDetail.status !== '5' && (
                     <CloseCircleFilled
                       className="close"
@@ -878,32 +884,20 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
                       title={fileProgress.status === '3' ? '解析成功' : fileProgress.status === '4' ? '解析失败' : '解析中'}
                       style={{display: 'flex', alignItems: 'center', gap: 8}}
                     >
-                      <Progress
-                        type="circle"
-                        percent={fileProgress.status === '3' ? 100 : Math.round(fileProgress.progress * 100)}
-                        size={30}
-                        status={fileProgress.status === '4' ? 'exception' : fileProgress.status === '3' ? 'success' : 'active'}
-                      />
-                      {fileProgress.status === '4' && (
-                        <Tooltip title="重新解析">
-                          <Button
-                            type="text"
-                            size="small"
-                            icon={<RedoOutlined style={{color: '#1890ff', fontSize: 16}} />}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onReparseFile(item.id);
-                            }}
-                          />
-                        </Tooltip>
+                      {fileProgress.status === '3' ? (
+                        <CheckCircleFilled style={{color: '#10b981', fontSize: '20px'}} />
+                      ) : fileProgress.status === '4' ? (
+                        <ExclamationCircleFilled style={{color: '#f43f5e', fontSize: '20px'}} />
+                      ) : (
+                        <Progress type="circle" percent={Math.round(fileProgress.progress * 100)} size={24} status="active" strokeColor={twoColors} />
                       )}
                     </div>
                   )}
                 </div>
               );
             })}
-            <Upload showUploadList={false} multiple {...uploadProps} disabled={itemDetail.status === '5' || !!uploading}>
-              <div className={`${styles.fileUpload} ${itemDetail.status === '5' || !!uploading ? styles.fileUploadDisabled : ''}`}>
+            <Upload className={styles.uploadWrapper} showUploadList={false} multiple {...uploadProps} disabled={itemDetail.status === '5'}>
+              <div className={`${styles.fileUpload} ${itemDetail.status === '5' ? styles.fileUploadDisabled : ''}`}>
                 <img src={UploadIcon} alt="上传文件" />
                 <span>{uploading ? '上传中...' : '上传文件'}</span>
               </div>
@@ -912,10 +906,10 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
         </div>
         <div className="step">
           <div className="subject" onClick={() => setIsSupplementaryCollapsed(!isSupplementaryCollapsed)}>
-            <div className="collapse-icon">{isSupplementaryCollapsed ? <CaretDownOutlined /> : <CaretUpOutlined />}</div>
-            补充企业资料
+            <div className="collapse-icon">{isSupplementaryCollapsed ? <CaretRightOutlined /> : <CaretDownOutlined />}</div>
+            文本资料
           </div>
-          <div className={`list ${isSupplementaryCollapsed ? 'collapsed' : ''}`}>
+          <div className={`${styles.list} ${isSupplementaryCollapsed ? styles.collapsed : ''}`}>
             {itemDetail.supplementary.map((item) => (
               <div key={item.id} className={styles.file} onClick={() => onEditSupplementary(item)}>
                 {itemDetail.status !== '5' && (
@@ -986,10 +980,10 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
         </div>
         <div className="step">
           <div className="subject" onClick={() => setIsInterviewCollapsed(!isInterviewCollapsed)}>
-            <div className="collapse-icon">{isInterviewCollapsed ? <CaretDownOutlined /> : <CaretUpOutlined />}</div>
-            现场访谈尽调
+            <div className="collapse-icon">{isInterviewCollapsed ? <CaretRightOutlined /> : <CaretDownOutlined />}</div>
+            访谈信息
           </div>
-          <div className={`list ${isInterviewCollapsed ? 'collapsed' : ''}`}>
+          <div className={`${styles.list} ${isInterviewCollapsed ? styles.collapsed : ''}`}>
             {interviewList.length > 0 ? (
               interviewList.map((item) => (
                 <div key={item.interviewInstId} className={styles.file} onClick={() => onOpenInterviewDetail(item)}>
@@ -1046,8 +1040,10 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
               ))
             ) : (
               <div className={styles.interviewPlaceholder}>
-                <img src={InterviewIcon} alt="InterviewIcon" width={134} />
-                <span className={styles.text}>请前往移动端(小狸报告)访谈录音并生成纪要！</span>
+                <div className={styles.placeholderCard}>
+                  <img src={InterviewIcon} alt="InterviewIcon" />
+                  <div className={styles.text}>请前往移动端(小狸报告)访谈录音并生成纪要！</div>
+                </div>
               </div>
             )}
           </div>

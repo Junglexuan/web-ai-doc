@@ -94,8 +94,8 @@ export const {Modules, LoadComponent, GetActions, GetClientRouter, useStore, use
 export const PathPrefix = window['PathPrefix'] || '';
 export const ApiBaseUrl = window['ApiBaseUrl'] || '';
 export const ApiPrefix = window['ApiPrefix'] || {};
-export const SitesUrl = window['SitesUrl'] || {};
-export const SiteInfo = window['SiteInfo'] || {};
+export const SitesUrl = (window['SitesUrl'] || {}) as Window['SitesUrl'];
+export const SiteInfo = (window['SiteInfo'] || {}) as Window['SiteInfo'];
 export const DefaultModel = 'qwen-turbo';
 
 export const InIframe = window.parent !== window;

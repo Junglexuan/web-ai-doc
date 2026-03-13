@@ -2,7 +2,16 @@
   "extends": "@elux/babel-preset/tsconfig.lint.json",
   "compilerOptions": {
     "baseUrl": "./",
-    "rootDir": "./"
+    "rootDir": "./",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "lib": ["dom", "esnext"],
+    "jsx": "react-jsx",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "paths": {
+      "@/*": ["src/*"]
+    }
   },
   "include": ["./"],
   "exclude": ["./dist", "./public"]

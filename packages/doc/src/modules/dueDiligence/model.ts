@@ -68,6 +68,12 @@ export class Model extends BaseModel<ModuleState, APPState> {
         itemId,
       })
     );
+    this.onActive();
+  }
+
+  public onActive(): void {
+    const routeParams = this.getRouteParams();
+    const {curView, curRender, listSearch, itemId} = routeParams;
     if (curView === 'list' && curRender === 'maintain') {
       this.dispatch(this.actions.fetchList(listSearch));
     } else if (curView === 'item') {

@@ -1,4 +1,4 @@
-import {DeleteOutlined, EditOutlined, EllipsisOutlined, PlusOutlined} from '@ant-design/icons';
+import {DeleteOutlined, EditOutlined, EllipsisOutlined, PlusOutlined, SearchOutlined} from '@ant-design/icons';
 import {Dispatch, DocumentHead} from '@elux/react-web';
 import {Button, Dropdown, Input, Modal, Tooltip} from 'antd';
 import {FC, memo, useCallback, useEffect, useMemo, useState} from 'react';
@@ -162,27 +162,28 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
     <div className={styles.root}>
       <DocumentHead title={'尽调管理-' + SiteInfo.name} />
       <div className="hd">
-        <h1>尽调管理</h1>
-        <div>
-          <Input.Search
+        <h1>尽调管理项目</h1>
+        <div style={{display: 'flex', alignItems: 'center'}}>
+          <Input
             allowClear
             value={searchText}
             className="search"
-            placeholder="请输入搜索关键字..."
+            placeholder="搜索尽调项目名称..."
+            prefix={<SearchOutlined style={{color: '#94a3b8', marginRight: 4}} />}
             onChange={(e) => setSearchText(e.target.value.trim())}
-            onSearch={onSearch}
+            onPressEnter={() => onSearch(searchText || '')}
           />
-          <Button type="primary" icon={<PlusOutlined />} onClick={onCreate}>
+          <Button type="primary" size="large" icon={<PlusOutlined />} onClick={onCreate} style={{borderRadius: 8, fontWeight: 500}}>
             新建尽调
           </Button>
         </div>
       </div>
       <div className="cd">
         <div className={listSearch.status !== 'end' ? 'active' : ''} onClick={() => onTab('start')}>
-          进行中
+          进行中项目
         </div>
         <div className={listSearch.status === 'end' ? 'active' : ''} onClick={() => onTab('end')}>
-          已归档
+          已归档项目
         </div>
       </div>
       <div className="bd">

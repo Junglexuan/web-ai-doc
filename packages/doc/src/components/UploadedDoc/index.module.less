@@ -9,47 +9,74 @@
     justify-content: center;
     width: 102px;
     height: 102px;
-    padding: 5px;
+    padding: 8px;
     overflow: hidden;
     word-break: break-all;
     cursor: pointer;
-    border: 1px solid #d9d9d9;
-    border-radius: 4px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    transition: all 0.2s;
+
+    &:hover {
+      background: #fff;
+      border-color: #4f46e5;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+      
+      .del, .replace {
+        color: #ef4444; // 删除图标 hover 色
+      }
+    }
 
     > .loading {
       position: absolute;
-      top: 5px;
-      left: 5px;
+      top: 8px;
+      left: 8px;
     }
 
     > .del {
       position: absolute;
-      top: 5px;
-      right: 5px;
-      color: #d8d8d8;
+      top: 6px;
+      right: 6px;
+      color: #cbd5e1;
+      font-size: 14px;
       cursor: pointer;
+      padding: 4px;
+      border-radius: 4px;
+      transition: all 0.2s;
 
       &:hover {
-        color: #999;
+        background: #fee2e2;
+        color: #ef4444 !important;
       }
     }
 
     > .replace {
       position: absolute;
-      top: 5px;
-      right: 5px;
-      color: #d8d8d8;
+      top: 6px;
+      right: 6px;
+      color: #cbd5e1;
+      font-size: 14px;
       cursor: pointer;
+      padding: 4px;
+      border-radius: 4px;
+      transition: all 0.2s;
 
       &:hover {
-        color: #999;
+        background: #eff6ff;
+        color: #3b82f6 !important;
       }
     }
 
     > .name {
+      width: 100%;
+      text-align: center;
       font-size: 11px;
-      line-height: 1.5;
-      color: #666;
+      line-height: 1.4;
+      color: #64748b;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
   }
 }

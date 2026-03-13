@@ -1,24 +1,95 @@
 :global {
   :local(.root) {
-    padding-top: 25px;
+    padding-top: 10px;
+
+    :global(.ant-form-item-label > label) {
+      font-weight: 700;
+      color: #334155;
+      font-size: 14px;
+    }
+
+    :global(.ant-input), :global(.ant-select-selector) {
+      border-radius: 10px !important;
+      background: #f8fafc !important;
+      border: 1px solid #e2e8f0 !important;
+      transition: all 0.3s !important;
+
+      &:hover, &:focus {
+        background: #fff !important;
+        border-color: #4f46e5 !important;
+        box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.05) !important;
+      }
+    }
 
     > .bd {
-      padding-bottom: 20px;
+      padding-bottom: 24px;
 
       .more {
-        gap: 3px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        margin-top: 12px;
+        height: 40px;
+        border-radius: 10px;
+        font-weight: 700;
+        color: #4f46e5;
+        border: 1px dashed #ddd6fe;
+        background: #f5f3ff;
+        width: 100%;
+
+        &:hover {
+          background: #ede9fe;
+          border-color: #4f46e5;
+          transform: translateY(-1px);
+        }
       }
     }
 
     > .ft {
-      padding: 10px 20px;
+      position: sticky;
+      bottom: -32px; // 抵消 Modal 的 padding
+      padding: 28px 40px;
+      margin: 0 -40px -32px;
       text-align: right;
-      border-top: 1px solid #eee;
+      background: #fff; // 提升背景纯净度，解决不协调感
+      border-top: 1px solid #f1f5f9;
+      z-index: 10;
+      border-radius: 0 0 28px 28px;
+
+      :global(.ant-btn) {
+        height: 44px;
+        padding: 0 32px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 15px;
+        transition: all 0.3s;
+
+        &-default {
+          color: #64748b;
+          border: 1px solid #e2e8f0;
+          background: #fff;
+          &:hover {
+            color: #1e293b;
+            background: #f8fafc;
+            border-color: #cbd5e1;
+          }
+        }
+
+        &-primary {
+          background: #4f46e5;
+          box-shadow: 0 8px 16px -4px rgba(79, 70, 229, 0.3);
+          &:hover {
+            background: #4338ca !important;
+            transform: translateY(-1px);
+            box-shadow: 0 12px 20px -5px rgba(79, 70, 229, 0.4);
+          }
+        }
+      }
     }
   }
 }
 
-// 顶层样式，可直接在React中使用
 .createAgentIcons {
   display: flex;
   flex-wrap: wrap;
@@ -26,95 +97,71 @@
   margin-top: 10px;
 }
 
-.createAgentAvatar {
+.createAgentAvatar, .uploadedImageBox, .uploadIconBox {
   position: relative;
-  width: 64px;
-  height: 64px;
+  width: 72px;
+  height: 72px;
+  padding: 4px;
   cursor: pointer;
-  background: #f1f1f3;
-  border: 2px solid #fff;
-  border-radius: 10px;
+  background: #f8fafc;
+  border: 2px solid transparent;
+  border-radius: 18px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
 
   &:hover {
-    border: 2px solid #1890ff;
+    transform: translateY(-2px);
+    background: #fff;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
   }
 
   &.active {
-    border: 2px solid #1890ff;
+    background: #fff;
+    border-color: #4f46e5;
+    box-shadow: 0 10px 20px -5px rgba(79, 70, 229, 0.2);
 
     .agentChecked {
       display: block;
+      animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
-  }
-
-  .agentAvatar {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 8px;
-  }
-
-  .agentChecked {
-    position: absolute;
-    right: -5px;
-    bottom: -3px;
-    display: none;
-    width: 15px;
-    height: 15px;
   }
 }
 
 .uploadIconBox {
+  border: 2px dashed #e2e8f0;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 64px;
-  height: 64px;
-  cursor: pointer;
-  border: 1px dashed #d9d9d9;
-  border-radius: 10px;
-
-  svg path {
-    fill: #85888f;
-  }
-
+  
   &:hover {
-    border-color: #1890ff;
+    border-color: #4f46e5;
+    border-style: solid;
+    svg {
+      transform: scale(1.1);
+      color: #4f46e5;
+    }
   }
 }
 
-.uploadedImageBox {
-  position: relative;
-  width: 64px;
-  height: 64px;
-  cursor: pointer;
-  border: 2px dashed #d9d9d9; // 使用透明边框，使样式与其他图标一致
-  border-radius: 10px;
+.agentAvatar, .uploadedImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 12px;
+}
 
-  .uploadedImage {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
+.agentChecked {
+  position: absolute;
+  right: -8px;
+  top: -8px;
+  display: none;
+  width: 24px;
+  height: 24px;
+  z-index: 5;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+}
 
-  .agentChecked {
-    position: absolute;
-    right: -5px;
-    bottom: -3px;
-    display: none; // 默认隐藏，只有选中时显示
-    width: 15px;
-    height: 15px;
-  }
-
-  &:hover {
-    border: 2px dashed #1890ff;
-  }
-
-  &.active {
-    border: 2px dashed #1890ff;
-
-    .agentChecked {
-      display: block;
-    }
-  }
+@keyframes popIn {
+  from { transform: scale(0); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
 }

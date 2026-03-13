@@ -94,80 +94,25 @@ const Trace: FC = () => {
   }, [currentData]);
 
   return (
-    <div style={{width: '100%', height: 'calc(100vh - 120px)', background: '#fff', display: 'flex', position: 'relative', overflow: 'hidden'}}>
-      {/* 左侧目录 */}
+    <div style={{width: '100%', height: '100%', background: '#f8fafc', padding: '24px 32px', display: 'flex', flexDirection: 'column'}}>
       <div
         style={{
-          width: collapsed ? 0 : 300,
-          borderRight: collapsed ? 'none' : '1px solid #f0f0f0',
-          height: '100%',
-          overflow: 'hidden',
-          background: '#fafafa',
-          transition: 'all 0.3s ease-in-out',
+          flex: 1,
           position: 'relative',
-          display: 'flex',
-          flexDirection: 'column',
+          background: '#fff',
+          borderRadius: 12,
+          border: '1px solid #e2e8f0',
+          overflow: 'hidden',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
         }}
       >
-        {!collapsed && (
-          <>
-            <div
-              style={{
-                fontWeight: 'bold',
-                fontSize: 16,
-                padding: '16px',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                color: '#333',
-                borderBottom: '1px solid #f0f0f0',
-                flexShrink: 0,
-              }}
-            >
-              <span>溯源目录 ({dataList.length})</span>
-              <LeftOutlined
-                style={{cursor: 'pointer', fontSize: 14, color: '#999', padding: '4px', borderRadius: '4px', background: '#eee'}}
-                onClick={() => setCollapsed(true)}
-              />
-            </div>
-            <div style={{flex: 1, overflowY: 'auto', padding: '16px', display: 'flex', flexDirection: 'column', gap: 10}}>
-              {dataList.map((item, index) => (
-                <div
-                  key={index}
-                  onClick={() => setActiveIndex(index)}
-                  style={{
-                    padding: '12px',
-                    borderRadius: 8,
-                    cursor: 'pointer',
-                    background: activeIndex === index ? '#e6f7ff' : '#fff',
-                    border: `1px solid ${activeIndex === index ? '#91d5ff' : '#d9d9d9'}`,
-                    transition: 'all 0.2s',
-                    boxShadow: activeIndex === index ? '0 2px 8px rgba(24,144,255,0.15)' : 'none',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    gap: 8,
-                  }}
-                >
-                  <div
-                    style={{
-                      flex: 1,
-                      fontSize: 14,
-                      fontWeight: activeIndex === index ? 600 : 400,
-                      color: activeIndex === index ? '#1890ff' : '#333',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap',
-                    }}
-                    title={item.fileName || item.matchValue || `结果 ${index + 1}`}
-                  >
-                    {item.fileName || item.matchValue || `结果 ${index + 1}`}
-                  </div>
-                  {activeIndex === index && <span style={{fontSize: 12, color: '#52c41a', whiteSpace: 'nowrap', flexShrink: 0}}>当前查看</span>}
-                </div>
-              ))}
-            </div>
-          </>
+        {!loading && !docUrl ? (
+          <div style={{paddingTop: 100, textAlign: 'center', color: '#64748b'}}>
+            <Skeleton active paragraph={{rows: 4}} style={{maxWidth: 400, margin: '0 auto'}} />
+            <div style={{marginTop: 24}}>正在加载溯源文档...</div>
+          </div>
+        ) : (
+          <PdfLocater apiLoading={loading} url={docUrl} title={currentData?.fileName || currentData?.matchValue || '文档预览'} chunk={chunk} />
         )}
       </div>
 
