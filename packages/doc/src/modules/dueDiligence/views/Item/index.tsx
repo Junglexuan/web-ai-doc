@@ -194,26 +194,33 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
   }, [itemDetail.id, refreshPage]);
 
   useEffect(() => {
-    if (summaryContentRef.current) {
-      const element = summaryContentRef.current;
-      const originalClamp = element.style.webkitLineClamp;
+    const checkOverflow = () => {
+      if (summaryContentRef.current) {
+        const element = summaryContentRef.current;
+        // 临时强制设置为 1 行来测量单行高度
+        const oldClamp = element.style.webkitLineClamp;
+        const oldMaxHeight = element.style.maxHeight;
 
-      // 测量完整高度
-      element.style.webkitLineClamp = 'unset';
-      const fullHeight = element.scrollHeight;
+        element.style.webkitLineClamp = '1';
+        element.style.maxHeight = 'none';
+        const singleLineHeight = element.clientHeight;
 
-      // 测量一行高度
-      element.style.webkitLineClamp = '1';
-      const clampHeight = element.offsetHeight || element.clientHeight;
+        // 测量总高度
+        element.style.webkitLineClamp = 'unset';
+        const totalHeight = element.scrollHeight;
 
-      const isOverflow = fullHeight > clampHeight + 4;
+        // 恢复原始样式（由 React 控制，这里只是瞬时测量）
+        element.style.webkitLineClamp = oldClamp;
+        element.style.maxHeight = oldMaxHeight;
 
-      // 恢复当前状态
-      element.style.webkitLineClamp = isSummaryCollapsed ? '1' : 'unset';
+        setHasSummaryMore(totalHeight > singleLineHeight + 4);
+      }
+    };
 
-      setHasSummaryMore(isOverflow);
-    }
-  }, [itemDetail.dealSummary, isSummaryCollapsed]);
+    // 延迟一丁点逻辑，确保 DOM 已经根据内容渲染完毕
+    const timer = setTimeout(checkOverflow, 100);
+    return () => clearTimeout(timer);
+  }, [itemDetail.dealSummary]); // 仅在内容变化时重新计算是否有更多内容
 
   const onSupplementarySubmit = useEvent(() => {
     const text = supplementaryContent.trim();
@@ -777,7 +784,15 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
             <div className="title-group">
               <span className="title">访谈小总结</span>
               <span className="tag">AI自动提炼，仅供参考</span>
-              <Button type="text" size="small" icon={<RedoOutlined />} onClick={onRefreshSummary} className="action-btn" title="重新生成" />
+              <Button
+                type="text"
+                size="small"
+                icon={<RedoOutlined />}
+                onClick={onRefreshSummary}
+                className="action-btn"
+                title="重新生成"
+                style={{padding: 0, height: 'auto', marginLeft: 4}}
+              />
               {hasSummaryMore && (
                 <Button
                   type="text"
@@ -785,6 +800,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
                   icon={isSummaryCollapsed ? <CaretDownOutlined /> : <CaretUpOutlined />}
                   onClick={() => setIsSummaryCollapsed(!isSummaryCollapsed)}
                   className="expand-btn"
+                  style={{padding: 0, height: 'auto', marginLeft: 12, color: '#6366f1'}}
                 >
                   {isSummaryCollapsed ? '展开' : '收起'}
                 </Button>
@@ -817,8 +833,8 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
         </div>
         <div className="step">
           <div className="subject" onClick={() => setIsResourcesCollapsed(!isResourcesCollapsed)}>
-            <div className="collapse-icon">{isResourcesCollapsed ? <CaretRightOutlined /> : <CaretDownOutlined />}</div>
-            文档资料
+            <div className="collapse-icon">{isResourcesCollapsed ? <CaretDownOutlined /> : <CaretUpOutlined />}</div>
+            企业资料提交
           </div>
           <div className={`${styles.list} ${isResourcesCollapsed ? styles.collapsed : ''}`}>
             {itemDetail.resources.map((item) => {
@@ -896,8 +912,14 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
                 </div>
               );
             })}
-            <Upload className={styles.uploadWrapper} showUploadList={false} multiple {...uploadProps} disabled={itemDetail.status === '5'}>
-              <div className={`${styles.fileUpload} ${itemDetail.status === '5' ? styles.fileUploadDisabled : ''}`}>
+            <Upload
+              className={styles.uploadWrapper}
+              showUploadList={false}
+              multiple
+              {...uploadProps}
+              disabled={itemDetail.status === '5' || !!uploading}
+            >
+              <div className={`${styles.fileUpload} ${itemDetail.status === '5' || !!uploading ? styles.fileUploadDisabled : ''}`}>
                 <img src={UploadIcon} alt="上传文件" />
                 <span>{uploading ? '上传中...' : '上传文件'}</span>
               </div>
@@ -906,8 +928,8 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
         </div>
         <div className="step">
           <div className="subject" onClick={() => setIsSupplementaryCollapsed(!isSupplementaryCollapsed)}>
-            <div className="collapse-icon">{isSupplementaryCollapsed ? <CaretRightOutlined /> : <CaretDownOutlined />}</div>
-            文本资料
+            <div className="collapse-icon">{isSupplementaryCollapsed ? <CaretDownOutlined /> : <CaretUpOutlined />}</div>
+            企业资料补录
           </div>
           <div className={`${styles.list} ${isSupplementaryCollapsed ? styles.collapsed : ''}`}>
             {itemDetail.supplementary.map((item) => (
