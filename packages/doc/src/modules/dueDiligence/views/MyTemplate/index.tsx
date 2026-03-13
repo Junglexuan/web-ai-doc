@@ -291,7 +291,13 @@ const MyTemplate: FC<Props> = ({dispatch}) => {
             <Input placeholder="请输入模板名称" value={reportName} onChange={(e) => setReportName(e.target.value)} className={styles.input} />
           </div>
           <Upload.Dragger
+            accept=".doc,.docx"
             beforeUpload={(f) => {
+              const isDoc = f.name.endsWith('.doc') || f.name.endsWith('.docx');
+              if (!isDoc) {
+                message.error('只能上传 .doc 或 .docx 格式的模板文件');
+                return Upload.LIST_IGNORE;
+              }
               setFileList([f]);
               if (!reportName) {
                 setReportName(f.name.split('.').slice(0, -1).join('.'));
