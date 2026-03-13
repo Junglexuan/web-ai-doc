@@ -173,7 +173,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
             onChange={(e) => setSearchText(e.target.value.trim())}
             onPressEnter={() => onSearch(searchText || '')}
           />
-          <Button type="primary" size="large" icon={<PlusOutlined />} onClick={onCreate} style={{borderRadius: 8, fontWeight: 500}}>
+          <Button type="primary" icon={<PlusOutlined />} onClick={onCreate} style={{borderRadius: 10, fontWeight: 500}}>
             新建尽调
           </Button>
         </div>
@@ -238,8 +238,8 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
                         <EllipsisOutlined className={styles.moreActions} onClick={(e) => e.stopPropagation()} />
                       </Dropdown>
                     </div>
-                    <Tooltip title={item.dealSummary} placement="bottomLeft">
-                      <div className="ft">{item.dealSummary || '-'}</div>
+                    <Tooltip title={item.dealSummary || '访谈小总结未生成，请刷新生成。'} placement="bottomLeft">
+                      <div className="ft">{item.dealSummary || '访谈小总结未生成，请刷新生成。'}</div>
                     </Tooltip>
                     {item.updateDate && <div className={styles.time}>更新时间：{item.updateDate}</div>}
                   </div>

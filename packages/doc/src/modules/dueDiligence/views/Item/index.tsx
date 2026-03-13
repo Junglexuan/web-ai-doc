@@ -857,7 +857,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
                 transition: 'all 0.3s',
               }}
             >
-              {itemDetail.dealSummary || '暂无内容，请点击重新生成按钮进行提炼'}
+              {itemDetail.dealSummary || '访谈小总结未生成，请刷新生成。'}
             </div>
           </div>
         </div>
