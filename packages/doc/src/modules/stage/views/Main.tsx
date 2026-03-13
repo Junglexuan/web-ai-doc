@@ -7,11 +7,13 @@ import zhCN from 'antd/es/locale/zh_CN';
 import {FC} from 'react';
 import ErrorPage from '@/components/ErrorPage';
 import LoadingPanel from '@/components/LoadingPanel';
-import {APPState, LoadComponent, SiteInfo} from '@/Global';
+import {APPState, LoadComponent, PathPrefix, SiteInfo, useRouter} from '@/Global';
 import {CurView, SubModule} from '../entity';
 import LoginForm from './LoginForm';
 
+const TRACE_PAGE_PREFIX = '/admin/dueDiligence/list/trace';
 const Admin = LoadComponent('admin', 'main');
+const DueDiligenceMain = LoadComponent('dueDiligence', 'main');
 
 export interface StoreProps {
   subModule?: SubModule;
@@ -40,6 +42,11 @@ const defaultTheme: any = {
 };
 
 const Component: FC<StoreProps & {dispatch: Dispatch}> = ({dispatch, subModule, curView, globalLoading, error}) => {
+  const router = useRouter();
+  const pathname = router?.location?.pathname || '';
+  const pathWithoutPrefix = pathname.replace(PathPrefix, '');
+  const isTracePage = pathWithoutPrefix.startsWith(TRACE_PAGE_PREFIX);
+
   return (
     <ConfigProvider
       locale={zhCN}
@@ -63,7 +70,8 @@ const Component: FC<StoreProps & {dispatch: Dispatch}> = ({dispatch, subModule, 
       <DocumentHead title={SiteInfo.name} />
       <Switch elseView={<ErrorPage />}>
         {!!error && <ErrorPage message={error} />}
-        {subModule === 'admin' && <Admin />}
+        {isTracePage && <DueDiligenceMain />}
+        {!isTracePage && subModule === 'admin' && <Admin />}
         {curView === 'login' && <LoginForm dispatch={dispatch} />}
       </Switch>
       <LoadingPanel loadingState={globalLoading} />

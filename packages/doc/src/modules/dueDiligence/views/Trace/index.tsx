@@ -1,7 +1,7 @@
 import {LeftOutlined, RightOutlined} from '@ant-design/icons';
 import {Button, Skeleton, message} from 'antd';
 import {FC, useCallback, useEffect, useMemo, useState} from 'react';
-import {useRouter} from '@/Global';
+import {SiteInfo, useRouter} from '@/Global';
 import PdfLocater from '@/skill/pdf-highlighter/components/PdfLocater';
 import {IReferenceChunk} from '@/utils/document-util';
 import {useEvent, useThrottleEvent} from '@/utils/tools';
@@ -188,6 +188,8 @@ const Trace: FC = () => {
             title={currentData?.fileName || currentData?.matchValue || '文档预览'}
             chunk={chunk}
             headerStyle={collapsed ? {paddingLeft: 46} : undefined}
+            backUrl={SiteInfo.traceBackUrl}
+            backLabel="返回小狸报告"
           />
         )}
       </main>

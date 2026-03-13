@@ -17,10 +17,30 @@
       background-color: #fff;
       border-bottom: 1px solid #e8e8e8;
 
+      .titleSpacer {
+        flex: 1;
+        min-width: 0;
+      }
+
       .title {
+        flex: 0 0 auto;
         font-size: 16px;
         font-weight: 500;
         color: rgba(0, 0, 0, 0.85);
+      }
+
+      .backLink {
+        flex: 1;
+        font-size: 14px;
+        color: #1890ff;
+        text-align: right;
+        text-decoration: none;
+        cursor: pointer;
+
+        &:hover {
+          color: #40a9ff;
+          text-decoration: underline;
+        }
       }
     }
 

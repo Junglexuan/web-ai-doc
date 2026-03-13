@@ -1,7 +1,8 @@
 .traceContainer {
   display: flex;
   width: 100%;
-  height: calc(100vh - 64px); // 假设顶部导航高度为 64px
+  height: 100vh; // 独立页无顶栏，直接占满视口
+  min-height: 100vh;
   overflow: hidden;
   background: #f8fafc;
 

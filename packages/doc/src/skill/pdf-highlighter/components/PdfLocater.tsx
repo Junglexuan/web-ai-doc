@@ -44,8 +44,11 @@ interface IProps {
   url?: string; // 如果已知则传入，否则通过 URL 参数解析
   title?: string;
   chunk?: IReferenceChunk; // 从组件上游传入的 Chunk 对象用于定位高亮
-  apiLoading?: boolean; // 新增：来自上游 API 的加载状态
-  headerStyle?: React.CSSProperties; // 新增：自定义头部样式
+  apiLoading?: boolean; // 来自上游 API 的加载状态
+  headerStyle?: React.CSSProperties; // 自定义头部样式
+  /** 头部右侧返回外链，如 config 中 traceBackUrl */
+  backUrl?: string;
+  backLabel?: string; // 默认「返回」
 }
 
 /**
@@ -130,7 +133,7 @@ const PdfViewerRenderer = ({pdfDocument, chunk, fallbackHighlights}: {pdfDocumen
  * 带有“跳转定位”功能的 PDF 预览页面组件
  * 根据需求文档分析重构，支持解析 chunk.positions 并结合实际 PDF 尺寸定位
  */
-const PdfLocater: React.FC<IProps> = ({url: propUrl, title = '文档预览', chunk, apiLoading, headerStyle}) => {
+const PdfLocater: React.FC<IProps> = ({url: propUrl, title = '文档预览', chunk, apiLoading, headerStyle, backUrl, backLabel = '返回'}) => {
   const params = useMemo(() => getQueryParams(window.location.hash || window.location.search), []);
   const pdfUrl = propUrl || (params.fileId ? `/api/pdf/fetch?id=${params.fileId}` : '');
 
@@ -172,9 +175,19 @@ const PdfLocater: React.FC<IProps> = ({url: propUrl, title = '文档预览', chu
 
   return (
     <div className={styles.pdfPreviewerContainer}>
-      {/* 顶部状态栏 始终显示，避免点击退出中断 */}
+      {/* 顶部状态栏：标题居中，右侧始终显示返回；有 backUrl 跳外链，否则 history.back() */}
       <header className="header" style={headerStyle}>
+        <span className="titleSpacer" />
         <span className="title">{title}</span>
+        {backUrl ? (
+          <a className="backLink" href={backUrl} target="_blank" rel="noopener noreferrer">
+            {backLabel}
+          </a>
+        ) : (
+          <span className="backLink" role="button" tabIndex={0} onClick={() => window.history.back()} onKeyDown={(e) => e.key === 'Enter' && window.history.back()}>
+            {backLabel}
+          </span>
+        )}
       </header>
 
       {/* PDF 内容区 */}

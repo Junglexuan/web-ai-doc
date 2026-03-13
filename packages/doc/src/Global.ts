@@ -12,7 +12,7 @@ declare global {
     ApiBaseUrl: string;
     ApiPrefix: {[key: string]: string};
     SitesUrl: {user: string; nexus: string; pulse: string; helix: string; verse: string; preview: string; editor: string};
-    SiteInfo: {logo: string; name: string; sites?: {[key: string]: string}};
+    SiteInfo: {logo: string; name: string; sites?: {[key: string]: string}; traceBackUrl?: string};
     ChartBIView: {
       snapshot: (data: {dsl: any}) => Promise<string>;
     };
