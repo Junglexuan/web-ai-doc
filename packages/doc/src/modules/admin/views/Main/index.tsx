@@ -1,12 +1,15 @@
 import {Dispatch, Switch, connectStore} from '@elux/react-web';
 import {FC, useMemo} from 'react';
 import ErrorPage from '@/components/ErrorPage';
-import {APPState, LoadComponent} from '@/Global';
+import {APPState, GetClientRouter, LoadComponent, PathPrefix} from '@/Global';
 import {CurUser, InIframe} from '@/utils/base';
 import {SubModule} from '../../entity';
 import Header from '../Header';
 import Menu from '../Menu';
 import styles from './index.module.less';
+
+/** 尽调溯源页可免登录访问，需在此处放行渲染 */
+const TRACE_PAGE_PREFIX = '/admin/dueDiligence/list/trace';
 
 const SubModuleViews: {[moduleName: string]: () => JSX.Element} = Object.keys(SubModule).reduce((cache: any, moduleName) => {
   cache[moduleName] = LoadComponent(moduleName as any, 'main');
@@ -26,6 +29,10 @@ function mapStateToProps(appState: APPState): StoreProps {
 }
 
 const Component: FC<StoreProps & {dispatch: Dispatch}> = ({curUser, subModule, dialogMode, dispatch}) => {
+  const pathname = GetClientRouter().location.pathname;
+  const pathWithoutPrefix = (pathname || '').replace(PathPrefix, '');
+  const isTracePage = pathWithoutPrefix.startsWith(TRACE_PAGE_PREFIX);
+
   const content = useMemo(
     () => (
       <Switch elseView={<ErrorPage />}>
@@ -43,7 +50,7 @@ const Component: FC<StoreProps & {dispatch: Dispatch}> = ({curUser, subModule, d
     [subModule]
   );
 
-  if (!curUser.hasLogin) {
+  if (!curUser.hasLogin && !isTracePage) {
     return null;
   }
   if (dialogMode) {
@@ -58,7 +65,7 @@ const Component: FC<StoreProps & {dispatch: Dispatch}> = ({curUser, subModule, d
       )}
       <div className="content">
         <div className={styles.doc} style={{paddingTop: InIframe ? 0 : undefined}}>
-          {!InIframe && (
+          {!InIframe && curUser.hasLogin && (
             <div className="head">
               <Header curUser={curUser} dispatch={dispatch} />
             </div>

@@ -1,10 +1,24 @@
 import {LeftOutlined, RightOutlined} from '@ant-design/icons';
 import {Button, Skeleton, message} from 'antd';
 import {FC, useEffect, useMemo, useState} from 'react';
+import {useRouter} from '@/Global';
 import PdfLocater from '@/skill/pdf-highlighter/components/PdfLocater';
 import {IReferenceChunk} from '@/utils/document-util';
 import {DueDiligenceAPI} from '../../api';
 import styles from './index.module.less';
+
+/** 从 URL 解析 query（兼容 hash 路由 #/path?k=v 与 search ?k=v） */
+function getTraceQuery(): Record<string, string> {
+  const hash = window.location.hash || '';
+  const search = window.location.search || '';
+  const queryString = hash.includes('?') ? hash.split('?')[1] || '' : search.replace(/^\?/, '');
+  const params = new URLSearchParams(queryString);
+  const out: Record<string, string> = {};
+  params.forEach((v, k) => {
+    out[k] = v;
+  });
+  return out;
+}
 
 const Trace: FC = () => {
   const [loading, setLoading] = useState(false);
@@ -12,20 +26,21 @@ const Trace: FC = () => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [docUrl, setDocUrl] = useState<string>('');
   const [collapsed, setCollapsed] = useState(false);
-
+  const router = useRouter();
   const currentData = useMemo(() => dataList[activeIndex], [dataList, activeIndex]);
 
   useEffect(() => {
     setLoading(true);
-    // 从 URL 中尝试获取参数供 API 使用
-    const hash = window.location.hash || '';
-    const search = window.location.search || '';
-    const params = new URLSearchParams((hash.includes('?') ? hash.split('?')[1] : search) || '');
-
-    const apiParams = {
-      matchKey: params.get('matchKey') || 'company',
-      reportId: params.get('reportId') || '2032031389993414657',
+    // 参数优先从 URL 取：reportId、fieldId；matchKey 优先 URL，无则用 fieldId 对应
+    const query = router?.location?.searchQuery ? {...router.location.searchQuery} : getTraceQuery();
+    const reportId = query.reportId || '2032031389993414657';
+    const fieldId = query.fieldId || '';
+    const matchKey = query.matchKey || fieldId || 'company';
+    const apiParams: Record<string, string> = {
+      reportId,
+      matchKey,
     };
+    if (fieldId) apiParams.fieldId = fieldId;
 
     DueDiligenceAPI.getTraceInfo(apiParams)
       .then((res) => {
