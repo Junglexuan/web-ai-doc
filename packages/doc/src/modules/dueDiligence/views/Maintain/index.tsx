@@ -4,7 +4,7 @@ import {Button, Dropdown, Input, Modal, Tooltip} from 'antd';
 import {FC, memo, useCallback, useEffect, useMemo, useState} from 'react';
 import LoadingPanel from '@/components/LoadingPanel';
 import {GetActions, GetClientRouter, SiteInfo} from '@/Global';
-import {confirm, showMask, useEvent} from '@/utils/tools';
+import {confirm, showMask, useEvent, useThrottleEvent} from '@/utils/tools';
 import {DueDiligenceAPI} from '../../api';
 import Icons from '../../components/IconSelect/icons';
 import {DueConfigs, ListItem, ListSearch, ListSummary, StatusMap} from '../../entity';
@@ -42,7 +42,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
     }));
   }, []);
 
-  const onCreate = useEvent(() => {
+  const onCreate = useThrottleEvent(() => {
     const {autoCreateFinalSheets, questions, template} = configs!;
 
     // 计算下一个图标索引（循环到第一个）
@@ -67,11 +67,11 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
     });
   });
 
-  const onShowDetail = useEvent((data: ListItem) => {
+  const onShowDetail = useThrottleEvent((data: ListItem) => {
     GetClientRouter().push({url: `/admin/dueDiligence/item/edit/${data.id}`}, 'window');
   });
 
-  const onEdit = useEvent((data: ListItem) => {
+  const onEdit = useThrottleEvent((data: ListItem) => {
     const {autoCreateFinalSheets, questions, template} = configs!;
 
     // 根据 data 中的 ID 查找对应的名称或列表，如果找不到则使用当前配置中的默认值
@@ -103,7 +103,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
     setCurEdit(undefined);
   });
 
-  const onEditSubmit = useEvent((data: ListItem) => {
+  const onEditSubmit = useThrottleEvent((data: ListItem) => {
     console.log('data: onEditSubmit=', data);
     const formData = {...curEdit, ...data};
 
@@ -126,7 +126,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
     });
   });
 
-  const onDelete = useEvent((id: string) => {
+  const onDelete = useThrottleEvent((id: string) => {
     confirm(
       `确认删除尽调吗？删除后该尽调的所有信息将被删除，无法恢复！`,
       (ok) => {
@@ -138,11 +138,11 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
     );
   });
 
-  const onSearch = useEvent((keyWord: string) => {
+  const onSearch = useThrottleEvent((keyWord: string) => {
     dispatch(dueDiligenceActions.fetchList({...listSearch, keyWord}));
   });
 
-  const onTab = useEvent((status: 'start' | 'end') => {
+  const onTab = useThrottleEvent((status: 'start' | 'end') => {
     dispatch(dueDiligenceActions.fetchList({status, keyWord: undefined}));
   });
 

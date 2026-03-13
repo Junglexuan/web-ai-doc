@@ -124,6 +124,41 @@ export function useEvent<F extends Function>(handler: F): F {
   }, []) as any;
 }
 
+export function useDebounceEvent<F extends Function>(handler: F, delay = 300): F {
+  const handlerRef = useRef<F>();
+  handlerRef.current = useMemo(() => handler, [handler]);
+  const timerRef = useRef<any>(null);
+
+  return useCallback(
+    (...args: any) => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+      timerRef.current = setTimeout(() => {
+        handlerRef.current!(...args);
+      }, delay);
+    },
+    [delay]
+  ) as any;
+}
+
+export function useThrottleEvent<F extends Function>(handler: F, delay = 500): F {
+  const handlerRef = useRef<F>();
+  handlerRef.current = useMemo(() => handler, [handler]);
+  const lastTimeRef = useRef(0);
+
+  return useCallback(
+    (...args: any) => {
+      const now = Date.now();
+      if (now - lastTimeRef.current >= delay) {
+        lastTimeRef.current = now;
+        return handlerRef.current!(...args);
+      }
+    },
+    [delay]
+  ) as any;
+}
+
 export function useSingleWindow(): RouteTarget {
   const router = useRouter();
   return router.location.classname.startsWith('_') ? 'page' : 'window';
@@ -410,11 +445,9 @@ export function setFavicon(url: string): void {
 
 /**
  * 节流函数 (throttle)
- * @param func 要执行的函数
- * @param wait 节流时间间隔(毫秒)
- * @param options 配置选项
- * @param options.leading 是否在节流开始时调用 (默认true)
- * @param options.trailing 是否在节流结束后调用 (默认true)
+ * @param func - 要执行的函数
+ * @param wait - 节流时间间隔(毫秒)
+ * @param options - 配置选项
  */
 export function throttle<T extends (...args: any[]) => any>(
   func: T,
@@ -527,7 +560,7 @@ export const getPortalUrl = (): string | null => {
 
 /**
  * 通知父级打开或关闭遮罩层
- * @param open 是否打开遮罩层
+ * @param open - 是否打开遮罩层
  */
 export const showMask = (open: boolean = false): void => {
   console.info(open, `向父级通知${open ? '打开' : '关闭'}遮罩层`);

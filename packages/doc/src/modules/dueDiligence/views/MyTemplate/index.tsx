@@ -13,7 +13,7 @@ import {Button, Dropdown, Input, Modal, Progress, Space, Tag, Tooltip, Upload, m
 import {FC, memo, useEffect, useMemo, useState} from 'react';
 import WordIcon from '@/assets/images/word.svg';
 import {SiteInfo, SitesUrl} from '@/Global';
-import {confirm, showMask, useEvent} from '@/utils/tools';
+import {confirm, showMask, useEvent, useThrottleEvent} from '@/utils/tools';
 import {DueDiligenceAPI} from '../../api';
 import InviteModal from '../../components/InviteModal';
 import {TemplateRecord} from '../../entity';
@@ -39,7 +39,7 @@ const MyTemplate: FC<Props> = ({dispatch}) => {
   const [searchText, setSearchText] = useState('');
   const [showInvite, setShowInvite] = useState(false);
 
-  const fetchList = useEvent(() => {
+  const fetchList = useThrottleEvent(() => {
     setLoading(true);
     const apiCall = activeTab === 'all' ? DueDiligenceAPI.getTemplateList() : DueDiligenceAPI.queryApproveReport();
 
@@ -84,7 +84,7 @@ const MyTemplate: FC<Props> = ({dispatch}) => {
     return result;
   }, [list, activeTab, searchText]);
 
-  const onRename = useEvent((id: string, oldName: string) => {
+  const onRename = useThrottleEvent((id: string, oldName: string) => {
     let newName = oldName;
     Modal.confirm({
       title: '重命名模板',
@@ -100,7 +100,7 @@ const MyTemplate: FC<Props> = ({dispatch}) => {
     });
   });
 
-  const onDelete = useEvent((id: string) => {
+  const onDelete = useThrottleEvent((id: string) => {
     confirm('确定要删除该模板吗？', (ok) => {
       if (ok) {
         DueDiligenceAPI.deleteApproveReport(id).then(() => {
@@ -111,7 +111,7 @@ const MyTemplate: FC<Props> = ({dispatch}) => {
     });
   });
 
-  const onUploadSubmit = useEvent(() => {
+  const onUploadSubmit = useThrottleEvent(() => {
     if (!reportName.trim()) {
       message.warning('请输入模板名称');
       return;

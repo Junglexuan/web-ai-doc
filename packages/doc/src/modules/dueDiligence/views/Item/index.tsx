@@ -32,7 +32,7 @@ import InterviewDetailModal from '@/components/InterviewDetailModal';
 import LoadingPanel from '@/components/LoadingPanel';
 import {GetActions, GetClientRouter, SiteInfo} from '@/Global';
 import request, {downloadFile, downloadPdfFromWord, getUploadProps, openDoc, replaceBaseUrl} from '@/utils/request';
-import {getToken, message, showMask, useEvent} from '@/utils/tools';
+import {getToken, message, showMask, useEvent, useThrottleEvent} from '@/utils/tools';
 import {DueDiligenceAPI} from '../../api';
 import QuestionsFile from '../../components/QuestionsFile';
 import TplSelect from '../../components/TplSelect';
@@ -230,7 +230,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
     };
   }, [itemDetail.dealSummary]);
 
-  const onSupplementarySubmit = useEvent(() => {
+  const onSupplementarySubmit = useThrottleEvent(() => {
     const text = supplementaryContent.trim();
     if (!text) {
       message.warning('请输入补充信息');
@@ -281,7 +281,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
     showMask(false);
   });
 
-  const onRebuildReport = useEvent(() => {
+  const onRebuildReport = useThrottleEvent(() => {
     Modal.confirm({
       title: '确认生成报告？',
       centered: true,
@@ -338,7 +338,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
     return () => timer && clearInterval(timer);
   }, [itemDetail.id, itemDetail.reportStatus, dispatch, reportPolling]);
 
-  const onResetTemplate = useEvent((tpl: {id: string} | undefined) => {
+  const onResetTemplate = useThrottleEvent((tpl: {id: string} | undefined) => {
     if (tpl?.id) {
       DueDiligenceAPI.resetTemplate(itemDetail.id, tpl.id).then(() => {
         refreshPage();
@@ -347,7 +347,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
     }
   });
 
-  const onArchive = useEvent(() => {
+  const onArchive = useThrottleEvent(() => {
     Modal.confirm({
       title: '尽调归档',
       content: '请确认所有访谈工作已完成。归档后仅支持查看和导出报告，不再支持编辑。',
@@ -366,7 +366,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
     });
   });
 
-  const onRemoveResource = useEvent((id: string) => {
+  const onRemoveResource = useThrottleEvent((id: string) => {
     Modal.confirm({
       title: '确认删除',
       centered: true,
@@ -386,7 +386,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
     });
   });
 
-  const onRefreshSummary = useEvent(async () => {
+  const onRefreshSummary = useThrottleEvent(async () => {
     try {
       message.loading({content: '总结提炼中...', key: 'refreshSummary'});
       await DueDiligenceAPI.refreshSummary(itemDetail.id);
@@ -397,7 +397,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
     }
   });
 
-  const onRenameReport = useEvent((fileId: string, fileName: string) => {
+  const onRenameReport = useThrottleEvent((fileId: string, fileName: string) => {
     const specialChars = /[<>?/\\|*]/;
     if (specialChars.test(fileName)) {
       message.error('名称不能包含特殊字符: <>?/|\\*');
@@ -411,7 +411,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
     setShowRename('');
   });
 
-  const onReparseFile = useEvent((fileId: string) => {
+  const onReparseFile = useThrottleEvent((fileId: string) => {
     DueDiligenceAPI.reparseFile(itemDetail.id, fileId).then(() => {
       message.success('重新解析已触发');
       refreshPage();

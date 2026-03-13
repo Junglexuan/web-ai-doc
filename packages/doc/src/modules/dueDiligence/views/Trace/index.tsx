@@ -1,9 +1,10 @@
 import {LeftOutlined, RightOutlined} from '@ant-design/icons';
 import {Button, Skeleton, message} from 'antd';
-import {FC, useEffect, useMemo, useState} from 'react';
+import {FC, useCallback, useEffect, useMemo, useState} from 'react';
 import {useRouter} from '@/Global';
 import PdfLocater from '@/skill/pdf-highlighter/components/PdfLocater';
 import {IReferenceChunk} from '@/utils/document-util';
+import {useEvent, useThrottleEvent} from '@/utils/tools';
 import {DueDiligenceAPI} from '../../api';
 import styles from './index.module.less';
 
@@ -27,6 +28,13 @@ const Trace: FC = () => {
   const [docUrl, setDocUrl] = useState<string>('');
   const [collapsed, setCollapsed] = useState(false);
   const router = useRouter();
+  const onSelectItem = useThrottleEvent((index: number) => {
+    setActiveIndex(index);
+  }, 300);
+
+  const onToggleCollapse = useThrottleEvent((val: boolean) => {
+    setCollapsed(val);
+  }, 300);
   const currentData = useMemo(() => dataList[activeIndex], [dataList, activeIndex]);
 
   useEffect(() => {
@@ -62,7 +70,7 @@ const Trace: FC = () => {
       .finally(() => {
         setLoading(false);
       });
-  }, []);
+  }, [router.location.searchQuery]);
 
   useEffect(() => {
     if (!currentData) return;
@@ -142,7 +150,7 @@ const Trace: FC = () => {
             <Skeleton active paragraph={{rows: 8}} />
           ) : (
             dataList.map((item, index) => (
-              <div key={index} className={`${styles.traceItem} ${activeIndex === index ? styles.active : ''}`} onClick={() => setActiveIndex(index)}>
+              <div key={index} className={`${styles.traceItem} ${activeIndex === index ? styles.active : ''}`} onClick={() => onSelectItem(index)}>
                 <div className={styles.itemTitle}>{item.fileName || item.matchValue || `溯源结果 ${index + 1}`}</div>
                 <div className={styles.itemDesc}>{item.fileId ? `文件ID: ${item.fileId}` : '在线文档'}</div>
               </div>
@@ -151,7 +159,7 @@ const Trace: FC = () => {
         </div>
 
         <div className={styles.footer}>
-          <Button icon={<LeftOutlined />} type="text" onClick={() => setCollapsed(true)}>
+          <Button icon={<LeftOutlined />} type="text" onClick={() => onToggleCollapse(true)}>
             收起目录
           </Button>
         </div>
@@ -159,7 +167,7 @@ const Trace: FC = () => {
 
       {/* 展开触发器 (当侧边栏收起时显示) */}
       {collapsed && (
-        <div className={styles.collapseTrigger} onClick={() => setCollapsed(false)}>
+        <div className={styles.collapseTrigger} onClick={() => onToggleCollapse(false)}>
           <RightOutlined />
         </div>
       )}
