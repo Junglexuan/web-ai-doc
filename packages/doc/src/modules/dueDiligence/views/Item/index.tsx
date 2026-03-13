@@ -153,12 +153,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
   };
 
   const onFileClick = useEvent((item: {id: string; fileName: string; fileUrl: string; type?: string}) => {
-    if (item.fileName && isAudioFile(item.fileName)) {
-      showMask(true);
-      setAudioPlayer({visible: true, url: replaceBaseUrl(item.fileUrl), fileName: item.fileName});
-    } else {
-      openDoc(item.id);
-    }
+    onPreviewResource(item);
   });
 
   const refreshPage = useCallback(() => {
@@ -197,30 +192,38 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
     const checkOverflow = () => {
       if (summaryContentRef.current) {
         const element = summaryContentRef.current;
-        // 临时强制设置为 1 行来测量单行高度
-        const oldClamp = element.style.webkitLineClamp;
-        const oldMaxHeight = element.style.maxHeight;
+        const oldStyle = element.getAttribute('style') || '';
 
+        // 测量单行参考高度
+        element.style.display = '-webkit-box';
         element.style.webkitLineClamp = '1';
+        element.style.webkitBoxOrient = 'vertical';
         element.style.maxHeight = 'none';
-        const singleLineHeight = element.clientHeight;
+        const singleLineHeight = element.getBoundingClientRect().height;
 
-        // 测量总高度
+        // 测量完整内容高度
         element.style.webkitLineClamp = 'unset';
         const totalHeight = element.scrollHeight;
 
-        // 恢复原始样式（由 React 控制，这里只是瞬时测量）
-        element.style.webkitLineClamp = oldClamp;
-        element.style.maxHeight = oldMaxHeight;
+        // 还原原始样式
+        element.setAttribute('style', oldStyle);
 
-        setHasSummaryMore(totalHeight > singleLineHeight + 4);
+        // 只要总高度明显大于单行高度（允许2px像素误差），就认为有更多内容
+        const isOverflow = totalHeight > singleLineHeight + 2;
+        setHasSummaryMore(isOverflow);
       }
     };
 
-    // 延迟一丁点逻辑，确保 DOM 已经根据内容渲染完毕
-    const timer = setTimeout(checkOverflow, 100);
-    return () => clearTimeout(timer);
-  }, [itemDetail.dealSummary]); // 仅在内容变化时重新计算是否有更多内容
+    // 立即执行一次，并设置延迟执行以应对样式注入延迟
+    checkOverflow();
+    const timer = setTimeout(checkOverflow, 200);
+    window.addEventListener('resize', checkOverflow);
+
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('resize', checkOverflow);
+    };
+  }, [itemDetail.dealSummary, isSummaryCollapsed]); // 增加 isSummaryCollapsed 作为触发源，确保状态切换时的布局测量准确
 
   const onSupplementarySubmit = useEvent(() => {
     const text = supplementaryContent.trim();
@@ -834,7 +837,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
         <div className="step">
           <div className="subject" onClick={() => setIsResourcesCollapsed(!isResourcesCollapsed)}>
             <div className="collapse-icon">{isResourcesCollapsed ? <CaretDownOutlined /> : <CaretUpOutlined />}</div>
-            企业资料提交
+            文档资料
           </div>
           <div className={`${styles.list} ${isResourcesCollapsed ? styles.collapsed : ''}`}>
             {itemDetail.resources.map((item) => {
@@ -903,7 +906,20 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
                       {fileProgress.status === '3' ? (
                         <CheckCircleFilled style={{color: '#10b981', fontSize: '20px'}} />
                       ) : fileProgress.status === '4' ? (
-                        <ExclamationCircleFilled style={{color: '#f43f5e', fontSize: '20px'}} />
+                        <div style={{display: 'flex', alignItems: 'center', gap: 8}}>
+                          <ExclamationCircleFilled style={{color: '#f43f5e', fontSize: '20px'}} />
+                          <Button
+                            type="primary"
+                            size="small"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onReparseFile(item.id);
+                            }}
+                            style={{fontSize: '12px', height: '24px', padding: '0 8px', borderRadius: '4px'}}
+                          >
+                            重新解析
+                          </Button>
+                        </div>
                       ) : (
                         <Progress type="circle" percent={Math.round(fileProgress.progress * 100)} size={24} status="active" strokeColor={twoColors} />
                       )}
@@ -929,7 +945,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
         <div className="step">
           <div className="subject" onClick={() => setIsSupplementaryCollapsed(!isSupplementaryCollapsed)}>
             <div className="collapse-icon">{isSupplementaryCollapsed ? <CaretDownOutlined /> : <CaretUpOutlined />}</div>
-            企业资料补录
+            文本资料
           </div>
           <div className={`${styles.list} ${isSupplementaryCollapsed ? styles.collapsed : ''}`}>
             {itemDetail.supplementary.map((item) => (
@@ -987,6 +1003,46 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
                   </Popover>
                 </div>
                 <div className="info">{item.lastModifiedTime}</div>
+                {(() => {
+                  const fileProgress = fileProgressMap[item.id];
+                  if (fileProgress && fileProgress.status !== '1') {
+                    return (
+                      <div
+                        className="progress-wrap"
+                        title={fileProgress.status === '3' ? '解析成功' : fileProgress.status === '4' ? '解析失败' : '解析中'}
+                        style={{display: 'flex', alignItems: 'center', gap: 8}}
+                      >
+                        {fileProgress.status === '3' ? (
+                          <CheckCircleFilled style={{color: '#10b981', fontSize: '20px'}} />
+                        ) : fileProgress.status === '4' ? (
+                          <div style={{display: 'flex', alignItems: 'center', gap: 8}}>
+                            <ExclamationCircleFilled style={{color: '#f43f5e', fontSize: '20px'}} />
+                            <Button
+                              type="primary"
+                              size="small"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onReparseFile(item.id);
+                              }}
+                              style={{fontSize: '12px', height: '24px', padding: '0 8px', borderRadius: '4px'}}
+                            >
+                              重新解析
+                            </Button>
+                          </div>
+                        ) : (
+                          <Progress
+                            type="circle"
+                            percent={Math.round(fileProgress.progress * 100)}
+                            size={24}
+                            status="active"
+                            strokeColor={twoColors}
+                          />
+                        )}
+                      </div>
+                    );
+                  }
+                  return null;
+                })()}
               </div>
             ))}
             {itemDetail.supplementary.length === 0 && (

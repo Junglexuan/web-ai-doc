@@ -1,0 +1,141 @@
+.traceContainer {
+  display: flex;
+  width: 100%;
+  height: calc(100vh - 64px); // 假设顶部导航高度为 64px
+  overflow: hidden;
+  background: #f8fafc;
+
+  .sidebar {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: #fff;
+    border-right: 1px solid #e2e8f0;
+    box-shadow: 4px 0 12px rgba(0, 0, 0, 0.02);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    &.collapsed {
+      width: 0 !important;
+      overflow: hidden;
+      border-right: none;
+    }
+
+    .header {
+      padding: 24px 20px;
+      border-bottom: 1px solid #f1f5f9;
+
+      .title {
+        font-size: 18px;
+        font-weight: 800;
+        color: #1e293b;
+        letter-spacing: -0.5px;
+      }
+    }
+
+    .listWrapper {
+      flex: 1;
+      padding: 12px;
+      overflow-y: auto;
+
+      &::-webkit-scrollbar {
+        width: 4px;
+      }
+
+      &::-webkit-scrollbar-thumb {
+        background: #e2e8f0;
+        border-radius: 2px;
+      }
+
+      .traceItem {
+        padding: 16px 20px;
+        margin-bottom: 10px;
+        cursor: pointer;
+        background: #fff;
+        border: 1px solid #f1f5f9;
+        border-radius: 12px;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+        &:hover {
+          background: #f5f3ff;
+          border-color: #4f46e5;
+          box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.1);
+          transform: translateY(-1px);
+        }
+
+        &.active {
+          background: #4f46e5;
+          border-color: #4f46e5;
+          box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.3);
+
+          .itemTitle {
+            color: #fff;
+          }
+
+          .itemDesc {
+            color: rgba(255, 255, 255, 0.8);
+          }
+        }
+
+        .itemTitle {
+          margin-bottom: 4px;
+          overflow: hidden;
+          font-size: 14px;
+          font-weight: 700;
+          color: #334155;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        .itemDesc {
+          overflow: hidden;
+          font-size: 12px;
+          color: #94a3b8;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+      }
+    }
+
+    .footer {
+      padding: 16px;
+      text-align: center;
+      border-top: 1px solid #f1f5f9;
+    }
+  }
+
+  .collapseTrigger {
+    position: absolute;
+    top: 80px;
+    left: 20px;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 56px;
+    color: #fff;
+    cursor: pointer;
+    background: #4f46e5;
+    border-radius: 0 10px 10px 0;
+    box-shadow: 4px 0 15px rgba(79, 70, 229, 0.3);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+    &:hover {
+      width: 34px;
+      background: #4338ca;
+      box-shadow: 6px 0 20px rgba(79, 70, 229, 0.4);
+    }
+  }
+
+  .mainContent {
+    position: relative;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-width: 0;
+    height: 100%;
+    padding: 0; // PdfLocater has its own header and padding
+  }
+}

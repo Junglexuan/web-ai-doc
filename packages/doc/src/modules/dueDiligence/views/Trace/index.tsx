@@ -1,9 +1,10 @@
 import {LeftOutlined, RightOutlined} from '@ant-design/icons';
-import {Button, Card, Skeleton, message} from 'antd';
+import {Button, Skeleton, message} from 'antd';
 import {FC, useEffect, useMemo, useState} from 'react';
 import PdfLocater from '@/skill/pdf-highlighter/components/PdfLocater';
 import {IReferenceChunk} from '@/utils/document-util';
 import {DueDiligenceAPI} from '../../api';
+import styles from './index.module.less';
 
 const Trace: FC = () => {
   const [loading, setLoading] = useState(false);
@@ -16,7 +17,17 @@ const Trace: FC = () => {
 
   useEffect(() => {
     setLoading(true);
-    DueDiligenceAPI.getTraceInfo()
+    // 从 URL 中尝试获取参数供 API 使用
+    const hash = window.location.hash || '';
+    const search = window.location.search || '';
+    const params = new URLSearchParams((hash.includes('?') ? hash.split('?')[1] : search) || '');
+
+    const apiParams = {
+      matchKey: params.get('matchKey') || 'company',
+      reportId: params.get('reportId') || '2032031389993414657',
+    };
+
+    DueDiligenceAPI.getTraceInfo(apiParams)
       .then((res) => {
         console.log('Trace API response:', res);
         if (res && res.data) {
@@ -45,12 +56,20 @@ const Trace: FC = () => {
     const initialUrl = currentData.fileUrl || currentData.url || currentData.docUrl;
 
     if (!initialUrl && fileId) {
-      setDocUrl(''); // 重置 URL，显示加载状态
-      DueDiligenceAPI.viewReportUrl(fileId, '').then((urlRes) => {
-        if (urlRes.success && urlRes.data) {
-          setDocUrl(urlRes.data);
-        }
-      });
+      setDocUrl('');
+      DueDiligenceAPI.viewReportUrl(fileId, '')
+        .then((urlRes) => {
+          if (urlRes.success && urlRes.data) {
+            setDocUrl(urlRes.data);
+          } else {
+            message.error(urlRes.message || '获取文档预览地址失败');
+            setDocUrl('ERROR'); // 设置一个标记值以停止加载状态
+          }
+        })
+        .catch(() => {
+          message.error('获取文档预览地址失败');
+          setDocUrl('ERROR');
+        });
     } else if (initialUrl) {
       let url = initialUrl;
       if (url && (url.includes(' ') || /[\u4e00-\u9fa5]/.test(url))) {
@@ -94,71 +113,61 @@ const Trace: FC = () => {
   }, [currentData]);
 
   return (
-    <div style={{width: '100%', height: '100%', background: '#f8fafc', padding: '24px 32px', display: 'flex', flexDirection: 'column'}}>
-      <div
-        style={{
-          flex: 1,
-          position: 'relative',
-          background: '#fff',
-          borderRadius: 12,
-          border: '1px solid #e2e8f0',
-          overflow: 'hidden',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
-        }}
-      >
-        {!loading && !docUrl ? (
-          <div style={{paddingTop: 100, textAlign: 'center', color: '#64748b'}}>
-            <Skeleton active paragraph={{rows: 4}} style={{maxWidth: 400, margin: '0 auto'}} />
-            <div style={{marginTop: 24}}>正在加载溯源文档...</div>
+    <div className={styles.traceContainer}>
+      {/* 左侧目录 */}
+      <aside className={`${styles.sidebar} ${collapsed ? styles.collapsed : ''}`} style={{width: 320}}>
+        <div className="summary-hd">
+          <div className={styles.header}>
+            <span className={styles.title}>溯源目录</span>
           </div>
-        ) : (
-          <PdfLocater apiLoading={loading} url={docUrl} title={currentData?.fileName || currentData?.matchValue || '文档预览'} chunk={chunk} />
-        )}
-      </div>
+        </div>
 
-      {/* 右侧预览区 */}
-      <div style={{flex: 1, position: 'relative', height: '100%', minWidth: 0, display: 'flex', flexDirection: 'column'}}>
-        {collapsed && (
-          <div
-            style={{
-              position: 'absolute',
-              left: 0,
-              top: 10,
-              zIndex: 100,
-              background: '#fff',
-              border: '1px solid #d9d9d9',
-              borderLeft: 'none',
-              borderRadius: '0 4px 4px 0',
-              padding: '8px 4px',
-              cursor: 'pointer',
-              boxShadow: '2px 2px 8px rgba(0,0,0,0.1)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-            onClick={() => setCollapsed(false)}
-            title="展开目录"
-          >
-            <RightOutlined style={{fontSize: 14, color: '#1890ff'}} />
-          </div>
-        )}
-
-        <div style={{flex: 1, position: 'relative'}}>
-          {!loading && !docUrl ? (
-            <div style={{paddingTop: 100, textAlign: 'center', color: '#999', width: '100%'}}>
-              {dataList.length > 0 ? '正在加载文档预览...' : '暂无文档数据以供预览。'}
-            </div>
+        <div className={styles.listWrapper}>
+          {loading ? (
+            <Skeleton active paragraph={{rows: 8}} />
           ) : (
-            <PdfLocater
-              apiLoading={loading || (!docUrl && !!currentData)}
-              url={docUrl}
-              title={currentData?.fileName || currentData?.matchValue || '文档预览'}
-              chunk={chunk}
-              headerStyle={collapsed ? {padding: '0 46px'} : undefined}
-            />
+            dataList.map((item, index) => (
+              <div key={index} className={`${styles.traceItem} ${activeIndex === index ? styles.active : ''}`} onClick={() => setActiveIndex(index)}>
+                <div className={styles.itemTitle}>{item.fileName || item.matchValue || `溯源结果 ${index + 1}`}</div>
+                <div className={styles.itemDesc}>{item.fileId ? `文件ID: ${item.fileId}` : '在线文档'}</div>
+              </div>
+            ))
           )}
         </div>
-      </div>
+
+        <div className={styles.footer}>
+          <Button icon={<LeftOutlined />} type="text" onClick={() => setCollapsed(true)}>
+            收起目录
+          </Button>
+        </div>
+      </aside>
+
+      {/* 展开触发器 (当侧边栏收起时显示) */}
+      {collapsed && (
+        <div className={styles.collapseTrigger} onClick={() => setCollapsed(false)}>
+          <RightOutlined />
+        </div>
+      )}
+
+      {/* 右侧主预览区 */}
+      <main className={styles.mainContent}>
+        {!loading && !docUrl && !!currentData ? (
+          <div style={{flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8fafc'}}>
+            <div style={{textAlign: 'center', color: '#64748b'}}>
+              <Skeleton active paragraph={{rows: 15}} style={{width: 800, background: '#fff', padding: 40}} />
+              <div style={{marginTop: 20}}>正在获取文档加载地址...</div>
+            </div>
+          </div>
+        ) : (
+          <PdfLocater
+            apiLoading={loading || (!docUrl && !!currentData)}
+            url={docUrl}
+            title={currentData?.fileName || currentData?.matchValue || '文档预览'}
+            chunk={chunk}
+            headerStyle={collapsed ? {paddingLeft: 46} : undefined}
+          />
+        )}
+      </main>
     </div>
   );
 };

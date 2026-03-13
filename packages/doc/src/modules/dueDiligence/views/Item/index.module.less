@@ -198,7 +198,6 @@
     > .cd {
       display: flex;
       flex-direction: column;
-      padding: 32px;
       margin-bottom: 32px;
       background: rgba(255, 255, 255, 0.8);
       backdrop-filter: blur(25px);
@@ -209,8 +208,8 @@
       > .top {
         position: relative;
         display: flex;
-        width: 100%;
         gap: 40px;
+        width: 100%;
 
         > .left {
           position: relative;
@@ -275,8 +274,7 @@
             background: #fff;
             border: 1px solid #e2e8f0;
             border-radius: 16px;
-            padding: 8px;
-            box-shadow: 0 4px 6px -1px rgba(0,  0 ,  0, 0.05);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
           }
 
           > .cont {
@@ -305,8 +303,8 @@
           display: flex;
           flex: 0 1 auto;
           flex-direction: column;
-          justify-content: center;
           gap: 24px;
+          justify-content: center;
 
           > .top {
             display: flex;
@@ -371,7 +369,101 @@
           :global(.ant-btn) {
             height: 38px;
             font-weight: 600;
+            border-radius: 8px;
           }
+        }
+      }
+    }
+
+    :local(.summaryWrap) {
+      padding: 32px;
+      margin-top: 12px;
+      background: #fff;
+      border: 1px solid #f1f5f9;
+      border-radius: 16px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+
+      .summary-hd {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+
+        .title-group {
+          display: flex;
+          gap: 12px;
+          align-items: center;
+
+          .title {
+            font-size: 18px;
+            font-weight: 800;
+            color: #1e293b;
+          }
+
+          .tag {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            padding: 6px 14px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #4f46e5;
+            background: rgba(79, 70, 229, 0.08);
+            border-radius: 100px;
+
+            &::before {
+              width: 6px;
+              height: 6px;
+              content: '';
+              background: #4f46e5;
+              border-radius: 50%;
+              box-shadow: 0 0 8px rgba(79, 70, 229, 0.5);
+            }
+          }
+
+          .action-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            color: #94a3b8;
+            background: #f8fafc;
+            border-radius: 10px;
+            transition: all 0.2s;
+
+            &:hover {
+              color: #4f46e5;
+              background: #f1f5f9;
+              transform: rotate(30deg);
+            }
+          }
+
+          .expand-btn {
+            height: 32px;
+            padding: 0 14px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #4f46e5;
+            background: #f5f3ff;
+            border: none;
+            border-radius: 8px;
+            transition: all 0.2s;
+
+            &:hover {
+              background: #ede9fe;
+              transform: translateY(-1px);
+            }
+          }
+        }
+      }
+
+      .summary-bd {
+        .content {
+          font-size: 15px;
+          line-height: 1.8;
+          color: #475569;
+          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
       }
     }
@@ -438,10 +530,8 @@
             color: #94a3b8;
           }
         }
+
         :local(.list) {
-          grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
-          gap: 24px;
-          width: 100%;
           box-sizing: border-box;
           display: grid;
           grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
@@ -465,8 +555,7 @@
   // 共享的基础卡片样式
   :local(.file),
   :local(.fileUpload) {
-    position: re
- lative;
+    position: relative;
     box-sizing: border-box;
     width: 100% !important;
     height: 110px;
@@ -503,7 +592,46 @@
       left: 22px;
       width: 60px;
       height: 60px;
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: contain;
       transform: translateY(-50%);
+
+      &.t-pdf {
+        background-image: url('@/assets/imgs/pdf.png');
+      }
+
+      &.t-doc,
+      &.t-docx {
+        background-image: url('@/assets/imgs/doc.svg');
+      }
+
+      &.t-xls,
+      &.t-xlsx {
+        background-image: url('@/assets/imgs/excel.png');
+      }
+
+      &.t-ppt,
+      &.t-pptx {
+        background-image: url('@/assets/imgs/ppt.png');
+      }
+
+      &.t-png,
+      &.t-jpg,
+      &.t-jpeg,
+      &.t-gif {
+        background-image: url('@/assets/imgs/image.png');
+      }
+
+      &.t-wav,
+      &.t-mp3,
+      &.t-m4a {
+        background-image: url('@/assets/imgs/wav.png');
+      }
+
+      &.t-txt {
+        background-image: url('@/assets/imgs/txt.png');
+      }
     }
 
     :local(.nameWrap) {
@@ -525,12 +653,9 @@
         font-size: 14px;
         color: #94a3b8;
         cursor: pointer;
-        visibility: hidden;
-        opacity: 0;
         transition: all 0.2s;
 
         &:hover {
-
           color: #4f46e5;
           transform: scale(1.15);
         }
@@ -555,21 +680,8 @@
       transition: all 0.2s;
 
       &:hover {
-        color: #ef4444;
-        transform: scale(1.15);
-      }
-    }
-
-    &:hover {
-      border-color: #4f46e5;
-      transform: translateY(-4px);
-      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05);
-
-      :global(.close),
-      :local(.edit) {
-
-        opacity: 1;
-        visibility: visible;
+        color: #94a3b8;
+        transform: scale(1.1);
       }
     }
 
@@ -620,14 +732,11 @@
     }
   }
 
-  :local(.uploadWrapper) {
-    display: block;
-    width: 100%;
-
-    :global(.ant-upload) {
-      width: 100% !important;
-      display: block !important;
-    }
+  > img {
+    width: 36px;
+    height: 36px;
+    margin-bottom: 8px;
+    transition: transform 0.3s ease;
   }
 
   > span {
@@ -656,7 +765,7 @@
 
 :local(.interviewPlaceholder) {
   display: flex;
-  justify-content: flex-start; // 用户反馈：靠左展示更自然
+  justify-content: flex-start;
   width: 100%;
   padding: 10px 0;
 
@@ -677,16 +786,10 @@
     &:hover {
       background: #fff;
       border-color: #4f46e5;
-      color: #4f46e5;
-      border-style: solid;
-      box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.1);
+      box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05);
 
       img {
-        transform: translateY(-4px);
-      }
-
-      span {
-        color: #4f46e5;
+        transform: scale(1.02);
       }
     }
 
@@ -701,49 +804,19 @@
       padding: 0 40px;
       font-size: 14px;
       font-weight: 700;
+      line-height: 1.6;
       color: #64748b;
-      transition: color 0.3s ease;
-    }
-
-    &.fileUploadDisabled {
-      cursor: not-allowed;
-      opacity: 0.6;
-
-      &:hover {
-        background: rgba(255, 255, 255, 0.4);
-        border-color: #cbd5e1;
-        border-style: dashed;
-        box-shadow: none;
-
-        img {
-
-
-          transform: none;
-        }
-      }
+      text-align: center;
     }
   }
 }
 
-  :local(.interviewPlaceholder) {
-    width: 100%;
-    padding: 10px 0;
-    display: flex;
-    justify-content: flex-start; // 用户反馈：靠左展示更自然
+// 补充信息弹窗样式
+:local(.info) {
+  padding: 4px 0 0;
 
-    :local(.placeholderCard) {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      width: 100%;
-      max-width: 420px;
-      min-height: 180px;
-      background: rgba(255, 255, 255, 0.5);
-      backdrop-filter: blur(10px);
-      border: 1px dashed #cbd5e1;
-      border-radius: 20px;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  :global(.form) {
+    margin-bottom: 24px;
 
     :global(.ant-input-textarea) {
       padding: 20px;
@@ -771,50 +844,19 @@
     gap: 12px;
     justify-content: flex-end;
 
-    :global(.form) {
-      margin-bottom: 24px;
+    :global(.ant-btn) {
+      width: 100%;
+      height: 52px;
+      padding: 0 40px;
+      font-size: 16px;
+      font-weight: 800;
+      border-radius: 14px;
+      box-shadow: 0 10px 20px -5px rgba(79, 70, 229, 0.3);
+      transition: all 0.3s;
 
-      :global(.ant-input-textarea) {
-        border-radius: 16px;
-        background: rgba(248, 250, 252, 0.8);
-        border: 1px solid #e2e8f0;
-        padding: 20px;
-        font-size: 15px;
-        transiti
-       on: all 0.3s;
-
-        &:focus,
-        &:hover {
-          background: #fff;
-          border-color: #4f46e5;
-          box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.05);
-        }
-
-        &::placeholder {
-          color: #94a3b8;
-        }
-      }
-    }
-
-    :global(.actions) {
-      display: flex;
-      justify-content: flex-end;
-      gap: 12px;
-
-      :global(.ant-btn) {
-        height: 52px;
-        padding: 0 40px;
-        border-radius: 14px;
-        font-weight: 800;
-        font-size: 16px;
-        box-shadow: 0 10px 20px -5px rgba(79, 70, 229, 0.3);
-        width: 100%;
-        transition: all 0.3s;
-
-        &:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 15px 25px -5px rgba(79, 70, 229, 0.4);
-        }
+      &:hover {
+        box-shadow: 0 15px 25px -5px rgba(79, 70, 229, 0.4);
+        transform: translateY(-2px);
       }
     }
   }
@@ -822,14 +864,12 @@
 
 // 全局弹窗规范升级（纯净超感版）
 :global(.ant-modal) {
-  :global(.ant-modalntent) {
-    border-radius: 28px !important;
+  :global(.ant-modal-content) {
     padding: 32px 40px !important;
-    background: #fff !important; // 改为 1.0 纯白，解决用户反馈的“背景深”问题
+    background: #fff !important;
     border: 1px solid #f1f5f9 !important;
     border-radius: 28px !important;
-    // backdrop-filter: none !important; // 移除滤镜，避免灰度干扰
-    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.08) !important; // 减轻阴影
+    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.08) !important;
   }
 
   :global(.ant-modal-header) {
@@ -847,8 +887,7 @@
 
   :global(.ant-modal-close) {
     top: 24px !important;
-    right: 24px !importan
-t;
+    right: 24px !important;
     background: rgba(241, 245, 249, 0.5) !important;
     border-radius: 12px !important;
     transition: all 0.2s;
