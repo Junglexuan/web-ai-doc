@@ -13,7 +13,7 @@ import {Button, Dropdown, Input, Modal, Progress, Space, Tag, Tooltip, Upload, m
 import {FC, memo, useEffect, useMemo, useState} from 'react';
 import WordIcon from '@/assets/images/word.svg';
 import {SiteInfo, SitesUrl} from '@/Global';
-import {confirm, showMask, useEvent, useThrottleEvent} from '@/utils/tools';
+import {confirm, showMask, useDebounceEvent, useEvent, useThrottleEvent} from '@/utils/tools';
 import {DueDiligenceAPI} from '../../api';
 import InviteModal from '../../components/InviteModal';
 import {TemplateRecord} from '../../entity';
@@ -37,7 +37,12 @@ const MyTemplate: FC<Props> = ({dispatch}) => {
   const [fileList, setFileList] = useState<File[]>([]);
   const [activeTab, setActiveTab] = useState<'all' | 'processing'>('all');
   const [searchText, setSearchText] = useState('');
+  const [filterText, setFilterText] = useState('');
   const [showInvite, setShowInvite] = useState(false);
+
+  const onSearch = useDebounceEvent((val: string) => {
+    setFilterText(val);
+  }, 500);
 
   const fetchList = useThrottleEvent(() => {
     setLoading(true);
@@ -78,11 +83,11 @@ const MyTemplate: FC<Props> = ({dispatch}) => {
     if (activeTab === 'processing') {
       // 不再过滤状态，直接展示接口返回的所有数据
     }
-    if (searchText) {
-      result = result.filter((item) => item.approveReportName.toLowerCase().includes(searchText.toLowerCase()));
+    if (filterText) {
+      result = result.filter((item) => item.approveReportName.toLowerCase().includes(filterText.toLowerCase()));
     }
     return result;
-  }, [list, activeTab, searchText]);
+  }, [list, activeTab, filterText]);
 
   const onRename = useThrottleEvent((id: string, oldName: string) => {
     let newName = oldName;
@@ -231,10 +236,24 @@ const MyTemplate: FC<Props> = ({dispatch}) => {
         <div className="header-actions">
           <Input
             className="search-input"
-            placeholder="输入模板名称"
-            prefix={<SearchOutlined style={{color: '#8c8c8c'}} />}
+            placeholder="请搜索模板名称"
+            allowClear
             value={searchText}
-            onChange={(e) => setSearchText(e.target.value)}
+            onChange={(e) => {
+              const val = e.target.value;
+              setSearchText(val);
+              onSearch(val);
+            }}
+            onPressEnter={() => {
+              onSearch(searchText);
+            }}
+            suffix={
+              <SearchOutlined
+                onClick={() => {
+                  onSearch(searchText);
+                }}
+              />
+            }
           />
           <Button type="primary" icon={<PlusOutlined />} onClick={() => setShowUpload(true)} style={{borderRadius: 10, fontWeight: 500}}>
             上传模板

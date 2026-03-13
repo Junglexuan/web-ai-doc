@@ -4,7 +4,7 @@ import {Button, Dropdown, Input, Modal, Tooltip} from 'antd';
 import {FC, memo, useCallback, useEffect, useMemo, useState} from 'react';
 import LoadingPanel from '@/components/LoadingPanel';
 import {GetActions, GetClientRouter, SiteInfo} from '@/Global';
-import {confirm, showMask, useEvent, useThrottleEvent} from '@/utils/tools';
+import {confirm, showMask, useDebounceEvent, useEvent, useThrottleEvent} from '@/utils/tools';
 import {DueDiligenceAPI} from '../../api';
 import Icons from '../../components/IconSelect/icons';
 import {DueConfigs, ListItem, ListSearch, ListSummary, StatusMap} from '../../entity';
@@ -123,9 +123,9 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
     );
   });
 
-  const onSearch = useThrottleEvent((keyWord: string) => {
+  const onSearch = useDebounceEvent((keyWord: string) => {
     dispatch(dueDiligenceActions.fetchList({...listSearch, keyWord}));
-  });
+  }, 500);
 
   const onTab = useThrottleEvent((status: 'start' | 'end') => {
     GetClientRouter().push({url: `/admin/dueDiligence/list/maintain?status=${status}`}, 'window');
@@ -151,14 +151,16 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
         <div style={{display: 'flex', alignItems: 'center'}}>
           <Input
             className="search-input"
-            placeholder="搜索尽调项目名称..."
-            prefix={<SearchOutlined style={{color: '#8c8c8c'}} />}
+            placeholder="请搜索尽调项目"
+            allowClear
             value={searchText}
             onChange={(e) => {
               const val = e.target.value;
               setSearchText(val);
               onSearch(val);
             }}
+            onPressEnter={() => onSearch(searchText || '')}
+            suffix={<SearchOutlined onClick={() => onSearch(searchText || '')} />}
           />
           <Button type="primary" icon={<PlusOutlined />} onClick={onCreate} style={{borderRadius: 10, fontWeight: 500}}>
             新建尽调
