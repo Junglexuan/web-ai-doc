@@ -8,7 +8,7 @@ import {confirm, showMask, useEvent, useThrottleEvent} from '@/utils/tools';
 import {DueDiligenceAPI} from '../../api';
 import Icons from '../../components/IconSelect/icons';
 import {DueConfigs, ListItem, ListSearch, ListSummary, StatusMap} from '../../entity';
-import Edit, {IconItem} from '../Edit';
+import Edit from '../Edit';
 import styles from './index.module.less';
 
 interface Props {
@@ -24,7 +24,6 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
   const [searchText, setSearchText] = useState<string | undefined>(listSearch.keyWord);
   const [curEdit, setCurEdit] = useState<Partial<ListItem>>();
   const [configs, setConfigs] = useState<DueConfigs>();
-  const [lastSelectedIconIndex, setLastSelectedIconIndex] = useState<number>(-1);
 
   useMemo(() => {
     setSearchText(listSearch.keyWord);
@@ -34,29 +33,14 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
     return dispatch(dueDiligenceActions.fetchList());
   }, [dispatch]);
 
-  const agentIcons = useMemo((): IconItem[] => {
-    return Array.from({length: 4}, (_, index) => ({
-      id: index + 1,
-      path: require(`@/assets/agent/${index + 1}.png`),
-      relativePath: `agent/${index + 1}.png`,
-    }));
-  }, []);
-
   const onCreate = useThrottleEvent(() => {
-    const {autoCreateFinalSheets, questions, template} = configs!;
-
-    // 计算下一个图标索引（循环到第一个）
-    const nextIndex = (lastSelectedIconIndex + 1) % agentIcons.length;
-
-    // 更新状态
-    setLastSelectedIconIndex(nextIndex);
-
-    showMask(true);
+    if (!configs) return;
+    const {autoCreateFinalSheets, questions, template} = configs;
     const initialQuestionId = template.selected.questionId || questions.selected;
     setCurEdit({
       id: '',
       name: '',
-      logo: agentIcons[nextIndex].relativePath,
+      logo: '',
       pathList: [],
       questions: {
         tpl: String(initialQuestionId),
@@ -72,7 +56,8 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
   });
 
   const onEdit = useThrottleEvent((data: ListItem) => {
-    const {autoCreateFinalSheets, questions, template} = configs!;
+    if (!configs) return;
+    const {autoCreateFinalSheets, questions, template} = configs;
 
     // 根据 data 中的 ID 查找对应的名称或列表，如果找不到则使用当前配置中的默认值
     const selectedTemplate = template.list.find((t) => String(t.id) === String(data.templateId));
@@ -143,7 +128,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
   });
 
   const onTab = useThrottleEvent((status: 'start' | 'end') => {
-    dispatch(dueDiligenceActions.fetchList({status, keyWord: undefined}));
+    GetClientRouter().push({url: `/admin/dueDiligence/list/maintain?status=${status}`}, 'window');
   });
 
   useEffect(() => {
@@ -243,7 +228,11 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
                     <Tooltip title={item.dealSummary || '访谈小总结未生成，请刷新生成。'} placement="bottomLeft">
                       <div className="ft">{item.dealSummary || '访谈小总结未生成，请刷新生成。'}</div>
                     </Tooltip>
-                    {item.updateDate && <div className={styles.time}>更新时间：{item.updateDate}</div>}
+                    {item.updateDate && (
+                      <div className={styles.time}>
+                        {listSearch.status === 'end' ? '归档时间' : '更新时间'}：{item.updateDate}
+                      </div>
+                    )}
                   </div>
                 </div>
               );
@@ -265,10 +254,8 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
         }}
       >
         <Edit
-          configs={configs}
+          configs={configs!}
           data={curEdit || {}}
-          lastSelectedIconIndex={lastSelectedIconIndex}
-          onIconSelect={setLastSelectedIconIndex}
           onCancel={() => {
             onCloseEdit();
           }}

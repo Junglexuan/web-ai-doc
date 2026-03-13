@@ -152,6 +152,7 @@ export const defaultListSearch: ListSearch = {
   sorterOrder: undefined,
   sorterField: undefined,
   keyWord: undefined,
+  status: undefined,
 };
 
 export type TPL = {

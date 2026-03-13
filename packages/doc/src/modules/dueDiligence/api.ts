@@ -355,6 +355,17 @@ export const DueDiligenceAPI = {
   refreshSummary(id: string): Promise<void> {
     return request.post('/api/interview/summary', {id, direct: true});
   },
+  /** 上传文件至 MinIO */
+  uploadFile(file: File): Promise<string> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return request.post('/api/upload/file', formData, {headers: {'Content-Type': 'multipart/form-data'}}).then((res) => {
+      if (res.data.errno === 0) {
+        return res.data.data.url;
+      }
+      throw new Error(res.data.message || '上传失败');
+    });
+  },
 };
 
 export default DueDiligenceAPI;

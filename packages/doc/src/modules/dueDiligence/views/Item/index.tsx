@@ -663,6 +663,12 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
     }
   }, [itemDetail.id]);
 
+  const onBack = useEvent(() => {
+    const router = GetClientRouter();
+    const url = itemDetail.status === '5' ? '/admin/dueDiligence/list/maintain?status=end' : '/admin/dueDiligence/list/maintain';
+    router.push({url});
+  });
+
   if (!configs) {
     return (
       <div className={styles.root}>
@@ -676,8 +682,8 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
       <DocumentHead title={'尽调管理-' + SiteInfo.name} />
       <div className="hd">
         <div className="back">
-          <LeftOutlined onClick={() => GetClientRouter().back(1)} />
-          <a onClick={() => GetClientRouter().back(1)}>尽调管理</a>
+          <LeftOutlined onClick={onBack} />
+          <a onClick={onBack}>尽调管理</a>
           <span>/</span>
           <a>尽调详情</a>
         </div>
@@ -764,6 +770,15 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
               </div>
             </div>
             <div className="btns">
+              <Button
+                type="primary"
+                onClick={onRebuildReport}
+                loading={reportPolling}
+                disabled={itemDetail.status === '5'}
+                style={{borderRadius: 10, fontWeight: 500}}
+              >
+                {reportPolling ? '报告生成中...' : itemDetail.report?.id ? '重新生成' : '立即生成'}
+              </Button>
               <Button color="primary" variant="outlined" onClick={onPreviewReport} disabled={!isReportGenerated || !itemDetail.report?.id}>
                 在线预览
               </Button>
@@ -788,7 +803,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
               >
                 下载WORD
               </Button>
-              <Button
+              {/* <Button
                 color="primary"
                 variant="outlined"
                 onClick={() => {
@@ -800,7 +815,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
                 disabled={!isReportGenerated || !itemDetail.report?.id}
               >
                 下载PDF
-              </Button>
+              </Button> */}
             </div>
           </div>
           <div className="right">
@@ -827,6 +842,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
                 size="small"
                 icon={<RedoOutlined />}
                 onClick={onRefreshSummary}
+                disabled={itemDetail.status === '5'}
                 className="action-btn"
                 title="重新生成"
                 style={{padding: 0, height: 'auto', marginLeft: 4}}
@@ -1189,11 +1205,12 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
               placeholder={editSupplementaryItem ? '请修改补充的文本信息' : '请输入您需要补充的文本信息,AI将自动为您分析'}
               rows={15}
               value={supplementaryContent}
+              readOnly={itemDetail.status === '5'}
               onChange={(e) => setSupplementaryContent(e.target.value)}
             />
           </div>
           <div className="actions">
-            <Button type="primary" onClick={onSupplementarySubmit}>
+            <Button type="primary" onClick={onSupplementarySubmit} disabled={itemDetail.status === '5'}>
               {editSupplementaryItem ? '确认修改' : '确认补充'}
             </Button>
           </div>

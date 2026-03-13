@@ -130,7 +130,10 @@ instance.interceptors.request.use((req) => {
 instance.interceptors.response.use(
   (response: AxiosResponse<any>) => {
     const data = response.data;
-    if (!data.success && !data.successful) {
+    // 兼容 errno === 0 的成功返回结构
+    const isSuccess = data.success || data.successful || data.errno === 0;
+
+    if (!isSuccess) {
       const config = response.config!;
       const requestHeaders = config.headers;
       const requestUrl = config.url;

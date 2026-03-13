@@ -1,7 +1,8 @@
-import {DownOutlined, PlusOutlined, UpOutlined} from '@ant-design/icons';
-import {Button, Form, Input, Select, Space, Upload, message} from 'antd';
+import {DownOutlined, LoadingOutlined, PlusOutlined, UpOutlined} from '@ant-design/icons';
+import {Button, Form, Input, Select, Space, Spin, Upload, message} from 'antd';
 import {FC, memo, useEffect, useMemo, useState} from 'react';
 import agentCheckedIcon from '@/assets/agent/agent-checked.png';
+import DueDiligenceAPI from '../../api';
 import DocUploads from '../../components/DocUploads';
 import IconSelect from '../../components/IconSelect';
 import Questions from '../../components/Questions';
@@ -9,54 +10,27 @@ import TplSelect from '../../components/TplSelect';
 import {DueConfigs, ListItem} from '../../entity';
 import styles from './index.module.less';
 
-// 定义图标类型
-export interface IconItem {
-  id: number;
-  path: string;
-  relativePath: string;
-}
-
 const Component: FC<{
   configs: DueConfigs;
   data: Partial<ListItem>;
-  lastSelectedIconIndex: number;
-  onIconSelect: (index: number) => void;
   onCancel: () => void;
   onSubmit: (data: ListItem) => void;
-}> = ({configs, data, lastSelectedIconIndex, onIconSelect, onCancel, onSubmit}) => {
+}> = ({configs, data, onCancel, onSubmit}) => {
   console.log(data);
   const [form] = Form.useForm();
   const [setting, setSetting] = useState(false);
-  const [selectedIcon, setSelectedIcon] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
+  const [selectedIcon, setSelectedIcon] = useState<string | null>(null);
 
   // 初始化时处理已有的logo值
   useEffect(() => {
     if (data?.logo) {
-      // 判断是否是base64格式
-      if (data.logo.startsWith('data:')) {
-        setUploadedImage(data.logo);
-        setSelectedIcon(data.logo);
-      } else {
-        // 相对路径，设置为选中的图标
-        setSelectedIcon(data.logo);
-      }
+      setUploadedImage(data.logo);
+      setSelectedIcon(data.logo);
     }
   }, [data?.logo]);
 
-  // 复用通用转换函数
-  const convertImgToBase64 = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      if (!file || !file.type.startsWith('image/')) {
-        reject(new Error('无效的图片文件'));
-        return;
-      }
-      const reader = new FileReader();
-      reader.onload = (e) => resolve(e.target?.result as string);
-      reader.onerror = (err) => reject(err);
-      reader.readAsDataURL(file);
-    });
-  };
   // 处理文件上传
   const handleFileUpload = async (file: File) => {
     if (!file.type.startsWith('image/')) {
@@ -65,36 +39,22 @@ const Component: FC<{
     }
 
     try {
-      const imageUrl = await convertImgToBase64(file);
-      console.log('imageUrl: handleFileUpload=', imageUrl);
-      setUploadedImage(imageUrl);
-      setSelectedIcon(imageUrl);
-      // 上传图片时，将图标索引设置为特殊值（表示自定义图片）
-      localStorage.setItem('lastSelectedIconIndex', 'custom');
+      setUploading(true);
+      message.loading({content: '图片上传中...', key: 'uploading'});
+      const url = await DueDiligenceAPI.uploadFile(file);
+      message.success({content: '上传成功', key: 'uploading'});
+      setUploadedImage(url);
+      setSelectedIcon(url);
       // 更新表单中的图标字段
-      form.setFieldsValue({logo: imageUrl});
-    } catch (error) {
-      message.error('图片处理失败');
-      console.error('图片处理失败:', error);
+      form.setFieldsValue({logo: url});
+    } catch (error: any) {
+      message.error({content: error.message || '图片上传失败', key: 'uploading'});
+      console.error('图片上传失败:', error);
+    } finally {
+      setUploading(false);
     }
 
     return false; // 阻止默认上传行为
-  };
-
-  const agentIcons = useMemo((): IconItem[] => {
-    return Array.from({length: 4}, (_, index) => ({
-      id: index + 1,
-      path: require(`@/assets/agent/${index + 1}.png`),
-      relativePath: `agent/${index + 1}.png`,
-    }));
-  }, []);
-
-  const handleIconClick = (icon: IconItem) => {
-    setSelectedIcon(icon.relativePath);
-    // 通知父组件更新选择的图标索引
-    onIconSelect(icon.id - 1);
-    // 更新表单中的图标字段
-    form.setFieldsValue({logo: icon.relativePath});
   };
 
   // 将图片转换为base64格式
@@ -105,23 +65,6 @@ const Component: FC<{
     }
 
     try {
-      // 查找对应的agentIcons对象
-      const iconObj = agentIcons.find((icon) => icon.relativePath === imagePath);
-      if (iconObj) {
-        // 使用预加载的图片资源
-        const response = await fetch(iconObj.path);
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        const blob = await response.blob();
-        return new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result as string);
-          reader.onerror = reject;
-          reader.readAsDataURL(blob);
-        });
-      }
-
       // 对于其他相对路径，我们假设它们已经可以在项目中直接访问
       // 实际项目中，你可能需要将相对路径转换为绝对URL
       const response = await fetch(imagePath);
@@ -145,28 +88,10 @@ const Component: FC<{
 
   const handleCreateAgent = async (data: any) => {
     try {
-      let iconBase64 = '';
-
-      // 优先处理选中的图标（包括新选择的图标）
-      if (selectedIcon) {
-        const iconObj = agentIcons.find((icon) => icon.relativePath === selectedIcon);
-        if (iconObj) {
-          // 确保将选中的图标转换为base64
-          iconBase64 = await imageToBase64(selectedIcon);
-        } else {
-          // 处理上传的图片或非标准图标
-          iconBase64 = selectedIcon.startsWith('data:') ? selectedIcon : await imageToBase64(selectedIcon);
-        }
-      }
-      // 如果没有选中图标，再处理上传的图片
-      else if (uploadedImage) {
-        iconBase64 = uploadedImage;
-      }
-
       // 将表单数据和图标信息传递给外部处理
       const formData = {
         ...data,
-        logo: iconBase64,
+        logo: selectedIcon || uploadedImage || '',
       };
 
       if (onSubmit) {
@@ -228,34 +153,33 @@ const Component: FC<{
               }}
             />
           </Form.Item>
-          <Form.Item name="logo" label="企业图标">
-            {/* <IconSelect /> */}
-            <div className={styles.createAgentIcons}>
-              <Upload accept="image/*" showUploadList={false} beforeUpload={handleFileUpload} className={styles.picture}>
-                <div className={styles.uploadIconBox}>
-                  <PlusOutlined style={{fontSize: '30px'}} color="#85888F" />
-                </div>
-              </Upload>
-              {uploadedImage && (
-                <div
-                  className={`${styles.uploadedImageBox} ${selectedIcon === uploadedImage ? styles.active : ''}`}
-                  onClick={() => setSelectedIcon(uploadedImage)}
-                >
-                  <img src={uploadedImage} alt="上传的图标" className={styles.uploadedImage} />
-                  {selectedIcon === uploadedImage && <img src={agentCheckedIcon} alt="agent-checked" className={styles.agentChecked} />}
-                </div>
-              )}
-              {agentIcons.map((item, index) => (
-                <div
-                  key={index}
-                  className={selectedIcon === item.relativePath ? `${styles.createAgentAvatar} ${styles.active}` : styles.createAgentAvatar}
-                >
-                  <img src={item.path} alt={String(index + 1)} onClick={() => handleIconClick(item)} className={styles.agentAvatar} />
-                  <img src={agentCheckedIcon} alt="agent-checked" className={styles.agentChecked} />
-                </div>
-              ))}
-            </div>
-          </Form.Item>
+          {data.id && (
+            <Form.Item name="logo" label="企业图标">
+              <div className={styles.createAgentIcons}>
+                <Upload accept="image/*" showUploadList={false} beforeUpload={handleFileUpload} className={styles.picture} disabled={uploading}>
+                  <div className={styles.uploadIconBox}>
+                    {uploading ? (
+                      <Spin indicator={<LoadingOutlined style={{fontSize: 24}} spin />} />
+                    ) : (
+                      <>
+                        {uploadedImage ? (
+                          <>
+                            <img src={uploadedImage} alt="企业图标" className={styles.uploadedImage} />
+                            <div className={styles.uploadOverlay}>
+                              <PlusOutlined />
+                            </div>
+                          </>
+                        ) : (
+                          <PlusOutlined style={{fontSize: '36px', color: '#85888F'}} />
+                        )}
+                      </>
+                    )}
+                  </div>
+                  <div className={styles.uploadHint}>{uploading ? '正在上传...' : uploadedImage ? '点击更换图片' : '上传企业照片'}</div>
+                </Upload>
+              </div>
+            </Form.Item>
+          )}
           {/* <Form.Item name="pathList" label="尽调资料" help={<div style={{margin: '5px 0 15px'}}>支持上传doc、docx、xlsx、pdf格式的文档</div>}>
             <DocUploads />
           </Form.Item>
