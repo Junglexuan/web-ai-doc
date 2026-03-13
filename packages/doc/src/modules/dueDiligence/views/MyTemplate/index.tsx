@@ -89,6 +89,7 @@ const MyTemplate: FC<Props> = ({dispatch}) => {
     Modal.confirm({
       title: '重命名模板',
       content: <Input defaultValue={oldName} onChange={(e) => (newName = e.target.value)} />,
+      afterOpenChange: (open) => showMask(open),
       onOk: () => {
         if (!newName || newName === oldName) return;
         DueDiligenceAPI.updateApproveReport({id, approveReportName: newName}).then(() => {

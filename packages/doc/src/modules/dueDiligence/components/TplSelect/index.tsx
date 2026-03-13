@@ -72,7 +72,7 @@ const Component: FC<{
       )}
       <Modal
         width={915}
-        title="添加所需成果模板"
+        title="更换模板"
         open={showTpl}
         footer={null}
         onCancel={() => {

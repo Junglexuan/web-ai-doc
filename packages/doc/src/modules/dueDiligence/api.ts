@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import request from '@/utils/request';
 import {getCurUserId} from '@/utils/tools';
 import {
@@ -88,6 +89,8 @@ export const DueDiligenceAPI = {
                 templateId: item.templateId,
                 questionId: item.questionId,
                 autoCreateFinalSheets: !!item.autoCreateFinalSheets,
+                updateDate:
+                  item.updateDate || item.lastModifiedDate ? dayjs(item.updateDate || item.lastModifiedDate).format('YYYY-MM-DD HH:mm:ss') : '',
               } as any)
           ),
           summary: {

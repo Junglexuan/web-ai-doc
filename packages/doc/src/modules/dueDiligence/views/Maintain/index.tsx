@@ -241,6 +241,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
                     <Tooltip title={item.dealSummary} placement="bottomLeft">
                       <div className="ft">{item.dealSummary || '-'}</div>
                     </Tooltip>
+                    {item.updateDate && <div className={styles.time}>更新时间：{item.updateDate}</div>}
                   </div>
                 </div>
               );

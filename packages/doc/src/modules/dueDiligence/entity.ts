@@ -34,6 +34,7 @@ export interface ListItem extends BaseListItem {
   questionId?: string;
   status: string;
   dealSummary?: string;
+  updateDate?: string;
 }
 export interface ListSummary extends BaseListSummary {}
 

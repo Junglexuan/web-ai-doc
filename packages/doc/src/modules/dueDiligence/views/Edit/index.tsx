@@ -196,7 +196,19 @@ const Component: FC<{
           }}
         >
           <Form.Item name="name" label="尽调对象" rules={[{required: true}]}>
-            <Input maxLength={64} placeholder="请输入尽调对象名称" />
+            <Input
+              placeholder="请输入尽调对象名称"
+              onChange={(e) => {
+                let val = e.target.value;
+                // 1. 限制最大长度 30
+                if (val.length > 30) {
+                  val = val.slice(0, 30);
+                }
+                // 2. 过滤特殊字符: \ | / ? * < > 、连续的点 .. 以及换行符
+                val = val.replace(new RegExp('[\\\\|/?*<>]|\\.\\.|[\\r\\n]', 'g'), '');
+                form.setFieldsValue({name: val});
+              }}
+            />
           </Form.Item>
           <Form.Item name="templateId" label="选择模版" rules={[{required: true, message: '请选择模版'}]}>
             <Select

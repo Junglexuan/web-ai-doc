@@ -66,6 +66,9 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
   const [isSummaryCollapsed, setIsSummaryCollapsed] = useState(true);
   const [hasSummaryMore, setHasSummaryMore] = useState(false);
   const summaryContentRef = useRef<HTMLDivElement>(null);
+  const currentTemplateName = useMemo(() => {
+    return configs?.template.list.find((t) => String(t.id) === String(itemDetail.templateId))?.title || '-';
+  }, [configs, itemDetail.templateId]);
 
   const [fileProgressMap, setFileProgressMap] = useState<Record<string, {progress: number; status: string}>>({});
   console.log('fileProgressMap', fileProgressMap);
@@ -152,7 +155,8 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
     return /\.(wav|mp3|m4a|aac|flac|amr|3gp|ogg)$/i.test(name);
   };
 
-  const onFileClick = useEvent((item: {id: string; fileName: string; fileUrl: string; type?: string}) => {
+  const onFileClick = useEvent((e: React.MouseEvent<any>, item: {id: string; fileName: string; fileUrl: string; type?: string}) => {
+    if (!e.currentTarget.contains(e.target as Node)) return;
     onPreviewResource(item);
   });
 
@@ -192,38 +196,36 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
     const checkOverflow = () => {
       if (summaryContentRef.current) {
         const element = summaryContentRef.current;
+        // 存储当前样式以备还原
         const oldStyle = element.getAttribute('style') || '';
 
-        // 测量单行参考高度
+        // 强制进入单行显示模式进行测量
         element.style.display = '-webkit-box';
         element.style.webkitLineClamp = '1';
         element.style.webkitBoxOrient = 'vertical';
         element.style.maxHeight = 'none';
-        const singleLineHeight = element.getBoundingClientRect().height;
+        element.style.overflow = 'hidden';
 
-        // 测量完整内容高度
-        element.style.webkitLineClamp = 'unset';
-        const totalHeight = element.scrollHeight;
+        // scrollHeight 是完整内容高度，clientHeight 是单行高度
+        const isOverflow = element.scrollHeight > element.clientHeight + 4;
+        setHasSummaryMore(isOverflow);
 
         // 还原原始样式
         element.setAttribute('style', oldStyle);
-
-        // 只要总高度明显大于单行高度（允许2px像素误差），就认为有更多内容
-        const isOverflow = totalHeight > singleLineHeight + 2;
-        setHasSummaryMore(isOverflow);
       }
     };
 
-    // 立即执行一次，并设置延迟执行以应对样式注入延迟
+    // 延迟多次执行，确保在内容加载、字体渲染、容器宽度稳定后均能准确捕捉
     checkOverflow();
-    const timer = setTimeout(checkOverflow, 200);
+    const timers = [setTimeout(checkOverflow, 100), setTimeout(checkOverflow, 500), setTimeout(checkOverflow, 1000)];
+
     window.addEventListener('resize', checkOverflow);
 
     return () => {
-      clearTimeout(timer);
+      timers.forEach(clearTimeout);
       window.removeEventListener('resize', checkOverflow);
     };
-  }, [itemDetail.dealSummary, isSummaryCollapsed]); // 增加 isSummaryCollapsed 作为触发源，确保状态切换时的布局测量准确
+  }, [itemDetail.dealSummary]);
 
   const onSupplementarySubmit = useEvent(() => {
     const text = supplementaryContent.trim();
@@ -237,7 +239,9 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
   });
 
   // 打开编辑补充信息模态框
-  const onEditSupplementary = useEvent((item: {id: string; fileName: string; fileUrl?: string}) => {
+  const onEditSupplementary = useEvent((e: React.MouseEvent<any>, item: {id: string; fileName: string; fileUrl?: string}) => {
+    if (!e.currentTarget.contains(e.target as Node)) return;
+
     if (item.fileName && isAudioFile(item.fileName) && item.fileUrl) {
       showMask(true);
       setAudioPlayer({visible: true, url: replaceBaseUrl(item.fileUrl), fileName: item.fileName});
@@ -279,6 +283,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
       width: 480,
       okText: '确认',
       cancelText: '取消',
+      afterOpenChange: (open) => showMask(open),
       content: (
         <div style={{color: 'rgba(0, 0, 0, 0.45)', fontSize: '14px', lineHeight: '1.6'}}>
           <p style={{marginBottom: '16px', color: 'rgba(0, 0, 0, 0.65)'}}>系统将根据当前尽调资料、访谈录音和报告模板生成尽调报告（由AI自动生成）</p>
@@ -339,27 +344,19 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
 
   const onArchive = useEvent(() => {
     Modal.confirm({
-      title: '记录归档',
-      content: '是否确认对此次尽调记录进行归档？归档后本条尽调记录将被移动到"已归档"文件夹。',
-      okText: '确认',
-      cancelText: '取消',
+      title: '尽调归档',
+      content: '请确认所有访谈工作已完成。归档后仅支持查看和导出报告，不再支持编辑。',
+      okText: '确认归档',
+      cancelText: '暂不归档',
+      afterOpenChange: (open) => showMask(open),
       onOk: () => {
         // 调用实际的归档API
-        DueDiligenceAPI.archiveItem(itemDetail.id)
-          .then(() => {
-            message.success('归档成功！');
-            // 返回列表页并切换到已归档标签
-            const router = GetClientRouter();
-            router.back(1);
-            // 等待页面加载后再切换标签
-            setTimeout(() => {
-              // 触发切换到已归档状态
-              dispatch(dueDiligenceActions.fetchList({status: 'end'}));
-            }, 100);
-          })
-          .catch(() => {
-            message.error('归档失败，请重试');
-          });
+        DueDiligenceAPI.archiveItem(itemDetail.id).then(() => {
+          message.success('归档成功！');
+          // 返回列表页并切换到已归档标签
+          const router = GetClientRouter();
+          router.push({url: '/admin/dueDiligence/list/maintain?status=end'});
+        });
       },
     });
   });
@@ -371,6 +368,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
       okText: '确认',
       cancelText: '取消',
       content: '确定要删除该资料吗？此操作无法撤销。',
+      afterOpenChange: (open) => showMask(open),
       onOk: () => {
         DueDiligenceAPI.removeResourceFile(itemDetail.id, id).then(() => {
           message.success('删除成功！');
@@ -406,7 +404,8 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
     });
   });
 
-  const onOpenInterviewDetail = useEvent((item: InterviewRecord) => {
+  const onOpenInterviewDetail = useEvent((e: React.MouseEvent<any>, item: InterviewRecord) => {
+    if (!e.currentTarget.contains(e.target as Node)) return;
     // 打开访谈详情弹框
     showMask(true);
     DueDiligenceAPI.getInterviewInstDetail(item.interviewInstId)
@@ -723,9 +722,9 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
             <div className="top">
               <div className="title">报告详细信息</div>
               <div className="template">
-                <ClockCircleOutlined />
-                <span>最后修改时间：</span>
-                <span>{itemDetail.report?.lastModifiedTime}</span>
+                <ProfileOutlined />
+                <span>当前使用模板：</span>
+                <span>{currentTemplateName}</span>
               </div>
               <div className="template">
                 <ProjectOutlined />
@@ -843,7 +842,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
             {itemDetail.resources.map((item) => {
               const fileProgress = fileProgressMap[item.id];
               return (
-                <div key={item.id} className={styles.file} onClick={() => onFileClick(item)}>
+                <div key={item.id} className={styles.file} onClick={(e) => onFileClick(e, item)}>
                   {itemDetail.status !== '5' && (
                     <CloseCircleFilled
                       className="close"
@@ -864,26 +863,28 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
                       open={showRename === item.id}
                       onOpenChange={(open) => setShowRename(open ? item.id : '')}
                       content={
-                        <Input
-                          allowClear
-                          autoFocus
-                          style={{width: '200px'}}
-                          defaultValue={item.fileName}
-                          onBlur={(e: any) => {
-                            const value = e.target.value.trim();
-                            if (value && value !== item.fileName) {
-                              onRenameReport(item.id, value);
-                            }
-                          }}
-                          onKeyDown={(e: any) => {
-                            if (e.key === 'Enter') {
+                        <div onClick={(e) => e.stopPropagation()}>
+                          <Input
+                            allowClear
+                            autoFocus
+                            style={{width: '200px'}}
+                            defaultValue={item.fileName}
+                            onBlur={(e: any) => {
                               const value = e.target.value.trim();
                               if (value && value !== item.fileName) {
                                 onRenameReport(item.id, value);
                               }
-                            }
-                          }}
-                        />
+                            }}
+                            onKeyDown={(e: any) => {
+                              if (e.key === 'Enter') {
+                                const value = e.target.value.trim();
+                                if (value && value !== item.fileName) {
+                                  onRenameReport(item.id, value);
+                                }
+                              }
+                            }}
+                          />
+                        </div>
                       }
                     >
                       {itemDetail.status !== '5' && (
@@ -949,7 +950,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
           </div>
           <div className={`${styles.list} ${isSupplementaryCollapsed ? styles.collapsed : ''}`}>
             {itemDetail.supplementary.map((item) => (
-              <div key={item.id} className={styles.file} onClick={() => onEditSupplementary(item)}>
+              <div key={item.id} className={styles.file} onClick={(e) => onEditSupplementary(e, item)}>
                 {itemDetail.status !== '5' && (
                   <CloseCircleFilled
                     className="close"
@@ -970,26 +971,28 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
                     open={showRename === item.id}
                     onOpenChange={(open) => setShowRename(open ? item.id : '')}
                     content={
-                      <Input
-                        allowClear
-                        autoFocus
-                        style={{width: '200px'}}
-                        defaultValue={item.fileName}
-                        onBlur={(e: any) => {
-                          const value = e.target.value.trim();
-                          if (value && value !== item.fileName) {
-                            onRenameReport(item.id, value);
-                          }
-                        }}
-                        onKeyDown={(e: any) => {
-                          if (e.key === 'Enter') {
+                      <div onClick={(e) => e.stopPropagation()}>
+                        <Input
+                          allowClear
+                          autoFocus
+                          style={{width: '200px'}}
+                          defaultValue={item.fileName}
+                          onBlur={(e: any) => {
                             const value = e.target.value.trim();
                             if (value && value !== item.fileName) {
                               onRenameReport(item.id, value);
                             }
-                          }
-                        }}
-                      />
+                          }}
+                          onKeyDown={(e: any) => {
+                            if (e.key === 'Enter') {
+                              const value = e.target.value.trim();
+                              if (value && value !== item.fileName) {
+                                onRenameReport(item.id, value);
+                              }
+                            }
+                          }}
+                        />
+                      </div>
                     }
                   >
                     {itemDetail.status !== '5' && (
@@ -1064,7 +1067,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
           <div className={`${styles.list} ${isInterviewCollapsed ? styles.collapsed : ''}`}>
             {interviewList.length > 0 ? (
               interviewList.map((item) => (
-                <div key={item.interviewInstId} className={styles.file} onClick={() => onOpenInterviewDetail(item)}>
+                <div key={item.interviewInstId} className={styles.file} onClick={(e) => onOpenInterviewDetail(e, item)}>
                   {(() => {
                     const fileName = item.interviewInstTitle || item.interviewCust || '';
                     const fileUrl = item.recordFileInstVo?.recordFileUrl || item.interviewArticleUrl || '';
@@ -1081,26 +1084,28 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
                       open={showRename === item.interviewInstId}
                       onOpenChange={(open) => setShowRename(open ? item.interviewInstId : '')}
                       content={
-                        <Input
-                          allowClear
-                          autoFocus
-                          style={{width: '200px'}}
-                          defaultValue={item.interviewInstTitle || item.interviewCust}
-                          onBlur={(e: any) => {
-                            const value = e.target.value.trim();
-                            if (value && value !== (item.interviewInstTitle || item.interviewCust)) {
-                              onRenameInterview(item.interviewInstId, value, item.interviewCust);
-                            }
-                          }}
-                          onKeyDown={(e: any) => {
-                            if (e.key === 'Enter') {
+                        <div onClick={(e) => e.stopPropagation()}>
+                          <Input
+                            allowClear
+                            autoFocus
+                            style={{width: '200px'}}
+                            defaultValue={item.interviewInstTitle || item.interviewCust}
+                            onBlur={(e: any) => {
                               const value = e.target.value.trim();
                               if (value && value !== (item.interviewInstTitle || item.interviewCust)) {
                                 onRenameInterview(item.interviewInstId, value, item.interviewCust);
                               }
-                            }
-                          }}
-                        />
+                            }}
+                            onKeyDown={(e: any) => {
+                              if (e.key === 'Enter') {
+                                const value = e.target.value.trim();
+                                if (value && value !== (item.interviewInstTitle || item.interviewCust)) {
+                                  onRenameInterview(item.interviewInstId, value, item.interviewCust);
+                                }
+                              }
+                            }}
+                          />
+                        </div>
                       }
                     >
                       {itemDetail.status !== '5' && (
@@ -1120,7 +1125,9 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
               <div className={styles.interviewPlaceholder}>
                 <div className={styles.placeholderCard}>
                   <img src={InterviewIcon} alt="InterviewIcon" />
-                  <div className={styles.text}>请前往移动端(小狸报告)访谈录音并生成纪要！</div>
+                  <div className={styles.text}>
+                    {itemDetail.status === '5' ? '尽调已归档，当前没有访谈录音哦！' : '请前往移动端(小狸报告)访谈录音并生成纪要！'}
+                  </div>
                 </div>
               </div>
             )}
