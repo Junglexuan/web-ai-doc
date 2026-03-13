@@ -162,7 +162,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
     <div className={styles.root}>
       <DocumentHead title={'尽调管理-' + SiteInfo.name} />
       <div className="hd">
-        <h1>尽调管理项目</h1>
+        <h1>尽调管理</h1>
         <div style={{display: 'flex', alignItems: 'center'}}>
           <Input
             allowClear
@@ -180,10 +180,10 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
       </div>
       <div className="cd">
         <div className={listSearch.status !== 'end' ? 'active' : ''} onClick={() => onTab('start')}>
-          进行中项目
+          进行中
         </div>
         <div className={listSearch.status === 'end' ? 'active' : ''} onClick={() => onTab('end')}>
-          已归档项目
+          已归档
         </div>
       </div>
       <div className="bd">

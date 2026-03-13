@@ -71,7 +71,7 @@ const Component: FC<{
         <UploadedDoc file={{uid: value.id, name: value.name, thumbUrl: value.id}} onReplace={disabled ? undefined : onReplace} />
       )}
       <Modal
-        width={915}
+        width={950}
         title="更换模板"
         open={showTpl}
         footer={null}

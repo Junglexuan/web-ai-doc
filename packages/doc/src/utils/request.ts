@@ -181,10 +181,17 @@ export default instance;
 
 export function getUploadProps(
   url: string,
-  callback?: {onProcess?: () => void; onSuccess?: (file: any, res: any) => void; onError?: (data: any, res: any) => void; data?: Record<string, any>}
+  callback?: {
+    onProcess?: () => void;
+    onSuccess?: (file: any, res: any) => void;
+    onError?: (data: any, res: any) => void;
+    data?: Record<string, any>;
+    accept?: string;
+  }
 ): {[key: string]: any} {
   return {
     name: 'file',
+    accept: callback?.accept,
     action: replaceBaseUrl(url),
     ...(callback?.data && {data: callback.data}),
     headers: {

@@ -70,6 +70,8 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
     return configs?.template.list.find((t) => String(t.id) === String(itemDetail.templateId))?.title || '-';
   }, [configs, itemDetail.templateId]);
 
+  const isReportGenerated = itemDetail.reportStatus === DealReportStatusEnum.REPORT_GENERATED;
+
   const [fileProgressMap, setFileProgressMap] = useState<Record<string, {progress: number; status: string}>>({});
   console.log('fileProgressMap', fileProgressMap);
   const [interviewList, setInterviewList] = useState<InterviewRecord[]>([]);
@@ -172,6 +174,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
     const props = getUploadProps('/api/deal/upload', {
       onProcess: () => setUploading('upload'),
       data: {id: itemDetail.id},
+      accept: '.docx,.pdf,.xlsx,.txt,.wav,.mp3,.m4a,.amr,.aac,.ogg,.flac,.png,.jpg,.jpeg',
     });
 
     const originalOnChange = props.onChange;
@@ -229,13 +232,15 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
 
   const onSupplementarySubmit = useEvent(() => {
     const text = supplementaryContent.trim();
-    if (text) {
-      // 无论是新建还是编辑，都使用appendResource方法
-      DueDiligenceAPI.appendResource(itemDetail.id, text).then(() => {
-        onCloseSupplementaryModal();
-        refreshPage();
-      });
+    if (!text) {
+      message.warning('请输入补充信息');
+      return;
     }
+    // 无论是新建还是编辑，都使用appendResource方法
+    DueDiligenceAPI.appendResource(itemDetail.id, text).then(() => {
+      onCloseSupplementaryModal();
+      refreshPage();
+    });
   });
 
   // 打开编辑补充信息模态框
@@ -393,6 +398,15 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
   });
 
   const onRenameReport = useEvent((fileId: string, fileName: string) => {
+    const specialChars = /[<>?/\\|*]/;
+    if (specialChars.test(fileName)) {
+      message.error('名称不能包含特殊字符: <>?/|\\*');
+      return;
+    }
+    if (/\.\./.test(fileName)) {
+      message.error('名称不能包含连续的点');
+      return;
+    }
     DueDiligenceAPI.renameReport(itemDetail.id, fileId, fileName).then(refreshPage);
     setShowRename('');
   });
@@ -452,6 +466,15 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
   });
 
   const onRenameInterview = useEvent((interviewInstId: string, newTitle: string, interviewCust: string) => {
+    const specialChars = /[<>?/\\|*]/;
+    if (specialChars.test(newTitle)) {
+      message.error('名称不能包含特殊字符: <>?/|\\*');
+      return;
+    }
+    if (/\.\./.test(newTitle)) {
+      message.error('名称不能包含连续的点');
+      return;
+    }
     DueDiligenceAPI.updateInterviewInst({interviewInstId, interviewInstTitle: newTitle, interviewCust}).then(() => {
       message.success('重命名成功！');
       refreshPage();
@@ -563,14 +586,17 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
                   onBlur={(e: any) => {
                     const value = e.target.value.trim();
                     if (value && value !== item?.fileName) {
-                      onRenameReport(item.id, e.target.value);
+                      onRenameReport(item.id, value);
                     }
+                  }}
+                  onChange={(e) => {
+                    e.target.value = e.target.value.replace(/[<>?/\\|*]|\.\.|[\r\n]/g, '');
                   }}
                   onKeyDown={(e: any) => {
                     if (e.key === 'Enter') {
                       const value = e.target.value.trim();
                       if (value && value !== item?.fileName) {
-                        onRenameReport(item.id, e.target.value);
+                        onRenameReport(item.id, value);
                       }
                     }
                   }}
@@ -579,7 +605,12 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
             >
               <a>重命名</a>
             </Popover>
-            <TplSelect list={configs!.template.list} value={{id: itemDetail.templateId || '', name: item?.fileName}} onChange={onResetTemplate}>
+            <TplSelect
+              list={configs!.template.list}
+              value={{id: itemDetail.templateId || '', name: item?.fileName}}
+              onChange={onResetTemplate}
+              disabled={itemDetail.status === '5' || reportPolling || itemDetail.reportStatus === DealReportStatusEnum.REPORT_GENERATING}
+            >
               <a>更换模板</a>
             </TplSelect>
             <Dropdown
@@ -733,10 +764,15 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
               </div>
             </div>
             <div className="btns">
-              <Button color="primary" variant="outlined" onClick={onPreviewReport} disabled={!itemDetail.report?.id}>
+              <Button color="primary" variant="outlined" onClick={onPreviewReport} disabled={!isReportGenerated || !itemDetail.report?.id}>
                 在线预览
               </Button>
-              <Button color="primary" variant="outlined" onClick={onEditReport} disabled={!itemDetail.report?.id || itemDetail.status === '5'}>
+              <Button
+                color="primary"
+                variant="outlined"
+                onClick={onEditReport}
+                disabled={!isReportGenerated || !itemDetail.report?.id || itemDetail.status === '5'}
+              >
                 在线编辑
               </Button>
               <Button
@@ -748,7 +784,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
                   if (!name.endsWith('.doc') && !name.endsWith('.docx')) name += '.docx';
                   downloadFile(replaceBaseUrl(`/api/deal/down?id=${itemDetail.report?.id}&type=word`), name);
                 }}
-                disabled={!itemDetail.report?.id}
+                disabled={!isReportGenerated || !itemDetail.report?.id}
               >
                 下载WORD
               </Button>
@@ -761,7 +797,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
                   if (!name.endsWith('.pdf')) name += '.pdf';
                   downloadPdfFromWord(replaceBaseUrl(`/api/deal/down?id=${itemDetail.report?.id}&type=word`), name);
                 }}
-                disabled={!itemDetail.report?.id}
+                disabled={!isReportGenerated || !itemDetail.report?.id}
               >
                 下载PDF
               </Button>
@@ -772,7 +808,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
               list={configs!.template.list}
               value={{id: itemDetail.templateId || '', name: itemDetail.report?.fileName || ''}}
               onChange={onResetTemplate}
-              disabled={itemDetail.status === '5'}
+              disabled={itemDetail.status === '5' || reportPolling || itemDetail.reportStatus === DealReportStatusEnum.REPORT_GENERATING}
             >
               <Button color="primary" variant="outlined">
                 更换模板
@@ -835,7 +871,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
         </div>
         <div className="step">
           <div className="subject" onClick={() => setIsResourcesCollapsed(!isResourcesCollapsed)}>
-            <div className="collapse-icon">{isResourcesCollapsed ? <CaretDownOutlined /> : <CaretUpOutlined />}</div>
+            <div className="collapse-icon">{isResourcesCollapsed ? <CaretRightOutlined /> : <CaretDownOutlined />}</div>
             文档资料
           </div>
           <div className={`${styles.list} ${isResourcesCollapsed ? styles.collapsed : ''}`}>
@@ -874,6 +910,9 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
                               if (value && value !== item.fileName) {
                                 onRenameReport(item.id, value);
                               }
+                            }}
+                            onChange={(e) => {
+                              e.target.value = e.target.value.replace(/[<>?/\\|*]|\.\.|[\r\n]/g, '');
                             }}
                             onKeyDown={(e: any) => {
                               if (e.key === 'Enter') {
@@ -938,14 +977,17 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
             >
               <div className={`${styles.fileUpload} ${itemDetail.status === '5' || !!uploading ? styles.fileUploadDisabled : ''}`}>
                 <img src={UploadIcon} alt="上传文件" />
-                <span>{uploading ? '上传中...' : '上传文件'}</span>
+                <div className={styles.uploadText}>
+                  <span>{uploading ? '正在上传...' : '点击上传文件'}</span>
+                  {!uploading && <p>支持 docx、pdf、xlsx、txt、音频及图片</p>}
+                </div>
               </div>
             </Upload>
           </div>
         </div>
         <div className="step">
           <div className="subject" onClick={() => setIsSupplementaryCollapsed(!isSupplementaryCollapsed)}>
-            <div className="collapse-icon">{isSupplementaryCollapsed ? <CaretDownOutlined /> : <CaretUpOutlined />}</div>
+            <div className="collapse-icon">{isSupplementaryCollapsed ? <CaretRightOutlined /> : <CaretDownOutlined />}</div>
             文本资料
           </div>
           <div className={`${styles.list} ${isSupplementaryCollapsed ? styles.collapsed : ''}`}>
@@ -965,45 +1007,6 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
                   <div className={styles.name} title={item.fileName}>
                     {item.fileName}
                   </div>
-                  <Popover
-                    trigger="click"
-                    destroyOnHidden
-                    open={showRename === item.id}
-                    onOpenChange={(open) => setShowRename(open ? item.id : '')}
-                    content={
-                      <div onClick={(e) => e.stopPropagation()}>
-                        <Input
-                          allowClear
-                          autoFocus
-                          style={{width: '200px'}}
-                          defaultValue={item.fileName}
-                          onBlur={(e: any) => {
-                            const value = e.target.value.trim();
-                            if (value && value !== item.fileName) {
-                              onRenameReport(item.id, value);
-                            }
-                          }}
-                          onKeyDown={(e: any) => {
-                            if (e.key === 'Enter') {
-                              const value = e.target.value.trim();
-                              if (value && value !== item.fileName) {
-                                onRenameReport(item.id, value);
-                              }
-                            }
-                          }}
-                        />
-                      </div>
-                    }
-                  >
-                    {itemDetail.status !== '5' && (
-                      <EditOutlined
-                        className={styles.edit}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                        }}
-                      />
-                    )}
-                  </Popover>
                 </div>
                 <div className="info">{item.lastModifiedTime}</div>
                 {(() => {
@@ -1095,6 +1098,9 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
                               if (value && value !== (item.interviewInstTitle || item.interviewCust)) {
                                 onRenameInterview(item.interviewInstId, value, item.interviewCust);
                               }
+                            }}
+                            onChange={(e) => {
+                              e.target.value = e.target.value.replace(/[<>?/\\|*]|\.\.|[\r\n]/g, '');
                             }}
                             onKeyDown={(e: any) => {
                               if (e.key === 'Enter') {
