@@ -5,7 +5,7 @@ window.ApiPrefix = {
   '/auth/': 'http://user.binarysee.com/auth/',
   '/dream/': '/dream/',
   '/api/': '/report/', //http://106gx1895yn84.vicp.fun/
-  '/ws/': 'ws://xiaoli.binarysee.com/report/ws/', //ws://113.44.121.105/report/ws/
+  '/ws/': 'wss://xiaoli.binarysee.com/report/ws/', //ws://113.44.121.105/report/ws/
 };
 window.SitesUrl = {
   user: '//user.binarysee.com',
