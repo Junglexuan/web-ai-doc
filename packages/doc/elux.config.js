@@ -7,6 +7,8 @@ module.exports = {
   mockServer: {port: 3003},
   cssProcessors: {less: true},
   all: {
+    eslint: false,
+    stylelint: false,
     serverPort: 4004,
     clientGlobalVar: {},
     clientPublicPath: '/xiaoli-desktop/client/',
@@ -29,6 +31,8 @@ module.exports = {
     stylelint: false,
     apiProxy: {
       '/dream/': 'http://113.44.121.105/',
+      // 用户中心认证接口代理（解决 CORS，与 talk-assistant vite proxy 一致）
+      '/api/iam/': 'http://192.168.8.201:21000/',
     },
   },
 };

@@ -12,6 +12,7 @@ import {CurView, SubModule} from '../entity';
 import LoginForm from './LoginForm';
 
 const TRACE_PAGE_PREFIX = '/admin/dueDiligence/list/trace';
+const SHARE_PAGE_PREFIX = '/admin/dueDiligence/list/share';
 const Admin = LoadComponent('admin', 'main');
 const DueDiligenceMain = LoadComponent('dueDiligence', 'main');
 
@@ -45,7 +46,7 @@ const Component: FC<StoreProps & {dispatch: Dispatch}> = ({dispatch, subModule, 
   const router = useRouter();
   const pathname = router?.location?.pathname || '';
   const pathWithoutPrefix = pathname.replace(PathPrefix, '');
-  const isTracePage = pathWithoutPrefix.startsWith(TRACE_PAGE_PREFIX);
+  const isTracePage = pathWithoutPrefix.startsWith(TRACE_PAGE_PREFIX) || pathWithoutPrefix.startsWith(SHARE_PAGE_PREFIX);
 
   return (
     <ConfigProvider

@@ -333,6 +333,38 @@ export const clearToken = (): void => {
   localStorage.removeItem('zov-user-info');
 };
 
+/** 邀请链接参数结构 */
+export interface InviteParams {
+  inviterUserId: string;
+  inviterUserName: string;
+  inviterTenantId: string;
+  type: string;
+  inviteCode: string;
+}
+
+const INVITE_PARAMS_KEY = 'zov-invite-params';
+
+/** 持久化邀请链接参数（进入 ShareLink 页面时调用） */
+export const saveInviteParams = (params: InviteParams): void => {
+  localStorage.setItem(INVITE_PARAMS_KEY, JSON.stringify(params));
+};
+
+/** 读取已保存的邀请链接参数 */
+export const getInviteParams = (): InviteParams | null => {
+  const raw = localStorage.getItem(INVITE_PARAMS_KEY);
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw) as InviteParams;
+  } catch {
+    return null;
+  }
+};
+
+/** 登录并调用接口后清除邀请链接参数 */
+export const clearInviteParams = (): void => {
+  localStorage.removeItem(INVITE_PARAMS_KEY);
+};
+
 export const getCurUserId = (): string => {
   const info = localStorage.getItem('zov-user-info');
   const user = info ? JSON.parse(info) : {};

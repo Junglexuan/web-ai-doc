@@ -5,7 +5,7 @@ window.ApiPrefix = {
   '/auth/': 'http://user.binarysee.com.cn/auth/',
   '/dream/': '/dream/',
   '/api/': '/report/', //http://106gx1895yn84.vicp.fun/
-  '/ws/': 'ws://68.79.42.215/report/ws/', //ws://113.44.121.105/report/ws/
+  '/ws/': 'ws://192.168.8.201:20101/report/ws/', //ws://113.44.121.105/report/ws/
 };
 window.SitesUrl = {
   user: '//user.binarysee.com.cn',
@@ -13,7 +13,7 @@ window.SitesUrl = {
   helix: '//helix.binarysee.com.cn',
   verse: '//verse.binarysee.com.cn',
   pulse: 'http://113.44.121.105:8066', //pulse.binarysee.com.cn
-  preview: 'http://113.44.121.105:8012/onlinePreview',
+  preview: 'http://192.168.8.201:20101/report/onlinePreview',
 };
 window.PathPrefix = '/xiaoli-desktop';
 window.SiteInfo = {
@@ -21,5 +21,5 @@ window.SiteInfo = {
   name: '星启·文枢',
   sites: {pulse: '星启·脉擎', helix: '星启·数璇'},
   /** 溯源页顶部右侧「返回」外链地址，不配置则不显示 */
-  traceBackUrl: 'http://113.44.121.105/zov-portal-web/app/xl-dueDiligence',
+  traceBackUrl: 'http://192.168.8.201:21003/zov-portal-web/app/xl-dueDiligence',
 };

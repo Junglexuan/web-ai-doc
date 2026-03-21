@@ -184,7 +184,13 @@ const PdfLocater: React.FC<IProps> = ({url: propUrl, title = '文档预览', chu
             {backLabel}
           </a>
         ) : (
-          <span className="backLink" role="button" tabIndex={0} onClick={() => window.history.back()} onKeyDown={(e) => e.key === 'Enter' && window.history.back()}>
+          <span
+            className="backLink"
+            role="button"
+            tabIndex={0}
+            onClick={() => window.history.back()}
+            onKeyDown={(e) => e.key === 'Enter' && window.history.back()}
+          >
             {backLabel}
           </span>
         )}

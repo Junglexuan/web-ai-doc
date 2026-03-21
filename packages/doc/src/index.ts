@@ -13,7 +13,7 @@ let isLoading = isIframe();
 console.log('isInIframe: 当前是否iframe嵌套', isLoading);
 // let appStarted = false; //避免重复渲染
 
-const originWhiteList = ['http://113.44.121.105', 'http://192.168.1.126:5173', 'https://astra.binarysee.com']; //定义一套自定义消息共享源链白名单
+const originWhiteList = ['http://113.44.121.105', 'http://192.168.1.126:5173', 'https://astra.binarysee.com', 'http://192.168.8.201:21003']; //定义一套自定义消息共享源链白名单
 const handleMessage = (event: MessageEvent) => {
   console.log('event信息监听: ', event);
   //验证消息来源

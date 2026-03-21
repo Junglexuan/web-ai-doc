@@ -10,6 +10,7 @@ import type {CurUser} from '@/utils/base';
 
 /** 尽调溯源页：不请求 currentUser，可免登录访问；仅影响此路径 */
 const TRACE_PAGE_PREFIX = '/admin/dueDiligence/list/trace';
+const SHARE_PAGE_PREFIX = '/admin/dueDiligence/list/share';
 
 export interface ModuleState {
   curUser: CurUser;
@@ -48,11 +49,11 @@ export class Model extends BaseModel<ModuleState, APPState> {
     this.routeParams = this.getRouteParams();
     const {subModule, curView, query, pathname} = this.routeParams;
     const pathWithoutPrefix = pathname.replace(PathPrefix, '');
-    const isTracePage = pathWithoutPrefix.startsWith(TRACE_PAGE_PREFIX);
+    const isTracePage = pathWithoutPrefix.startsWith(TRACE_PAGE_PREFIX) || pathWithoutPrefix.startsWith(SHARE_PAGE_PREFIX);
     const {ticket = '', from = ''} = pathname.endsWith('/stage/login') ? query : {};
     const {curUser: _curUser, siteConfig: _siteConfig} = this.getPrevState() || {};
     try {
-      const curUser = isTracePage ? (_curUser || guest) : _curUser || (await api.getCurUser(ticket, from));
+      const curUser = isTracePage ? _curUser || guest : _curUser || (await api.getCurUser(ticket, from));
       const siteConfig = _siteConfig || (await api.getSiteConfig());
       const initState: ModuleState = {curUser, siteConfig, subModule, curView};
       this.dispatch(this.privateActions._initState(initState));
@@ -92,7 +93,7 @@ export class Model extends BaseModel<ModuleState, APPState> {
 
   private checkNeedsLogin(pathname: string): boolean {
     const pathWithoutPrefix = pathname.replace(PathPrefix, '');
-    if (pathWithoutPrefix.startsWith(TRACE_PAGE_PREFIX)) return false;
+    if (pathWithoutPrefix.startsWith(TRACE_PAGE_PREFIX) || pathWithoutPrefix.startsWith(SHARE_PAGE_PREFIX)) return false;
     return ['/admin/'].some((prefix) => pathname.startsWith(prefix));
   }
 

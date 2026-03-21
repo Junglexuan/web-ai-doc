@@ -47,6 +47,15 @@ const items: any[] = [
       </Link>
     ),
   },
+  {
+    key: '分享链接',
+    icon: <FileTextOutlined />,
+    label: (
+      <Link to="/admin/dueDiligence/list/share" action="relaunch" target="window">
+        分享链接
+      </Link>
+    ),
+  },
 ];
 
 const Component: FC<{}> = () => {
@@ -63,6 +72,9 @@ const Component: FC<{}> = () => {
     }
     if (pathname.startsWith('/admin/dueDiligence/list/trace')) {
       return ['测试溯源'];
+    }
+    if (pathname.startsWith('/admin/dueDiligence/list/share')) {
+      return ['分享链接'];
     }
     return [];
   }, [pathname]);

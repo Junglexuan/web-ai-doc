@@ -1,3 +1,4 @@
+import axios from 'axios';
 import dayjs from 'dayjs';
 import request from '@/utils/request';
 import {getCurUserId} from '@/utils/tools';
@@ -343,6 +344,14 @@ export const DueDiligenceAPI = {
     return request.post('/api/user/invitation/import', {inviteCode}).then((res) => res.data);
   },
 
+  /** 注册邀请关系（登录后调用） */
+  registerInvitation(
+    params: any,
+    headers?: {Authorization?: string; Tenant?: string}
+  ): Promise<{success: boolean; code: number; message: string; data: any}> {
+    return request.post('/api/user/invitation/register', params, {headers}).then((res) => res.data);
+  },
+
   /** 测试溯源 - 获取文档定位参数 */
   getTraceInfo(req?: any): Promise<any> {
     return request.post('/api/wordRecordVariable/query', req || {matchKey: 'company', reportId: '2032031389993414657'}).then((res) => res.data);
@@ -369,3 +378,51 @@ export const DueDiligenceAPI = {
 };
 
 export default DueDiligenceAPI;
+
+// ─── 用户中心认证接口（与 talk-assistant authService 保持一致） ───────────────
+
+interface AuthResult {
+  successful: boolean;
+  code: number;
+  message: string;
+  data: {
+    accessToken: string;
+    userId: string;
+    tenantId?: string;
+    nickName?: string;
+    username?: string;
+  };
+}
+
+export const AuthAPI = {
+  /**
+   * 发送登录/注册验证码
+   * 走相对路径 /api/iam/...，本地由 elux.config.js apiProxy 代理到 user.binarysee.com.cn，
+   * 生产由 Nginx 反向代理转发，彻底解决 CORS 问题（与 talk-assistant vite proxy 方案一致）
+   */
+  sendSms(mobile: string): Promise<AuthResult> {
+    return axios.post('/api/iam/sso/send-sms', {mobile, autoRegister: true}, {headers: {'Content-Type': 'application/json'}}).then((res) => res.data);
+  },
+
+  /** 手机号验证码登录（同上，走相对路径代理） */
+  loginWithPhoneCode(mobile: string, captcha: string): Promise<AuthResult> {
+    return axios
+      .post('/api/iam/sso/login-with-phonecode', {mobile, captcha, autoRegister: true}, {headers: {'Content-Type': 'application/json'}})
+      .then((res) => res.data);
+  },
+
+  /** 获取用户信息（使用登录获取的 token） */
+  getUserInfo(token: string): Promise<any> {
+    return axios
+      .post(
+        '/api/iam/users/userinfo',
+        {},
+        {
+          headers: {
+            Authorization: token.startsWith('Bearer ') ? token : `Bearer ${token}`,
+          },
+        }
+      )
+      .then((res) => res.data);
+  },
+};
