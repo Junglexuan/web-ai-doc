@@ -2,10 +2,10 @@
 // @ts-nocheck
 window.ApiBaseUrl = '';
 window.ApiPrefix = {
-  '/auth/': 'http://192.168.8.201:21000/', //http://user.binarysee.com.cn/auth/
+  '/auth/': 'https://user.binarysee.com.cn/', //http://user.binarysee.com.cn/auth/ http://192.168.8.201:21000/
   '/dream/': 'http://113.44.121.105/dream/', //http://verse.binarysee.com.cn/dream/ http://verse.binarysee.com/dream/
-  '/api/': 'http://192.168.8.201:20101/report/',
-  '/ws/': 'ws://192.168.8.201:20101/report/ws/', //ws://113.44.121.105/report/ws/
+  '/api/': 'http://68.79.42.215/report/', //http://192.168.8.201:20101/report/
+  '/ws/': 'ws://68.79.42.215/report/ws/', //ws://113.44.121.105/report/ws/ 192.168.8.201:20101
 };
 window.SitesUrl = {
   user: '//user.binarysee.com.cn',
@@ -13,8 +13,8 @@ window.SitesUrl = {
   helix: '//helix.binarysee.com',
   verse: '//localhost:4004',
   pulse: '//pulse.binarysee.com',
-  preview: 'http://192.168.8.201:20101/report/onlinePreview', //预览
-  editor: 'http://192.168.8.201:20101/report/', //word编辑器
+  preview: 'http://68.79.42.215/report/onlinePreview', //预览
+  editor: 'http://68.79.42.215/report/', //word编辑器
 };
 window.PathPrefix = '/xiaoli-desktop';
 window.SiteInfo = {

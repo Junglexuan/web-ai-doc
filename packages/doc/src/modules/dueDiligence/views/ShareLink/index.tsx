@@ -12,6 +12,7 @@ import {
 } from '@ant-design/icons';
 import {Modal, message} from 'antd';
 import {FC, useEffect, useState} from 'react';
+import androidApk from '@/assets/imgs/androidapk.png';
 import {useRouter} from '@/Global';
 import {saveInviteParams} from '@/utils/tools';
 import {AuthAPI, DueDiligenceAPI} from '../../api';
@@ -41,6 +42,7 @@ const ShareLink: FC = () => {
 
   // 进入页面时，若 URL 携带邀请参数则持久化
   useEffect(() => {
+    document.title = '小狸报告';
     if (inviteCode) {
       saveInviteParams({inviterUserId, inviterUserName, inviterTenantId, type, inviteCode});
     }
@@ -272,11 +274,7 @@ const ShareLink: FC = () => {
             </div>
             <div className={styles.modalTitle}>正在打开 App Store...</div>
             <div className={styles.modalSub}>如未自动跳转，请点击下方按钮</div>
-            <button
-              className={styles.iosBtn}
-              type="button"
-              onClick={() => window.open('https://apps.apple.com/cn/app/%E5%B0%8F%E7%8B%B8%E6%8A%A5%E5%91%8A/id6740695123')}
-            >
+            <button className={styles.iosBtn} type="button" onClick={() => window.open('https://apps.apple.com/cn/app/id6757141299')}>
               <AppleFilled style={{marginRight: 8}} /> 前往 App Store 下载
             </button>
           </div>
@@ -299,13 +297,13 @@ const ShareLink: FC = () => {
             <div className={styles.modalTitle}>下载安卓版</div>
             <div className={styles.modalSub}>长按识别二维码或点击直接下载</div>
             <div className={styles.qrCodeBox}>
-              <img src="/xiaoli-desktop/client/androidapk.png" alt="QR Code" />
+              <img src={androidApk} alt="QR Code" />
               <div className={styles.qrLogo}>狸</div>
             </div>
             <button
               className={styles.androidBtn}
               type="button"
-              onClick={() => (window.location.href = 'https://api.binarysee.com.cn/report/android/xiaoli-report.apk')}
+              onClick={() => (window.location.href = 'https://img.aiipu.com/xiaoli-report1772784294394.apk')}
             >
               <CloudDownloadOutlined style={{marginRight: 8}} /> 直接下载 APK 安装包
             </button>

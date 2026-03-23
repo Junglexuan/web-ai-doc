@@ -1,6 +1,6 @@
 import axios from 'axios';
 import dayjs from 'dayjs';
-import request from '@/utils/request';
+import request, {replaceBaseUrl} from '@/utils/request';
 import {getCurUserId} from '@/utils/tools';
 import {
   DealReportStatusEnum,
@@ -401,13 +401,19 @@ export const AuthAPI = {
    * 生产由 Nginx 反向代理转发，彻底解决 CORS 问题（与 talk-assistant vite proxy 方案一致）
    */
   sendSms(mobile: string): Promise<AuthResult> {
-    return axios.post('/api/iam/sso/send-sms', {mobile, autoRegister: true}, {headers: {'Content-Type': 'application/json'}}).then((res) => res.data);
+    return axios
+      .post(replaceBaseUrl('/auth/api/iam/sso/send-sms'), {mobile, autoRegister: true}, {headers: {'Content-Type': 'application/json'}})
+      .then((res) => res.data);
   },
 
   /** 手机号验证码登录（同上，走相对路径代理） */
   loginWithPhoneCode(mobile: string, captcha: string): Promise<AuthResult> {
     return axios
-      .post('/api/iam/sso/login-with-phonecode', {mobile, captcha, autoRegister: true}, {headers: {'Content-Type': 'application/json'}})
+      .post(
+        replaceBaseUrl('/auth/api/iam/sso/login-with-phonecode'),
+        {mobile, captcha, autoRegister: true},
+        {headers: {'Content-Type': 'application/json'}}
+      )
       .then((res) => res.data);
   },
 
@@ -415,7 +421,7 @@ export const AuthAPI = {
   getUserInfo(token: string): Promise<any> {
     return axios
       .post(
-        '/api/iam/users/userinfo',
+        replaceBaseUrl('/auth/api/iam/users/userinfo'),
         {},
         {
           headers: {

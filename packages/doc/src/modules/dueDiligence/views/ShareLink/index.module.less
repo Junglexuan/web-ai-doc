@@ -368,182 +368,181 @@
 
       .fdesc {
         font-size: 11px;
-        color: #94a3b8;
+      }
+    }
+  }
+}
+
+.downloadModal {
+  :global(.ant-modal-content) {
+    padding: 0 !important;
+    overflow: hidden;
+    border-radius: 24px !important;
+  }
+
+  .modalClose {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    z-index: 10;
+    cursor: pointer;
+    transition: opacity 0.3s;
+
+    &:hover {
+      opacity: 0.7;
+    }
+  }
+
+  .modalTitle {
+    margin-bottom: 8px;
+    font-size: 20px;
+    font-weight: 800;
+    color: #1e293b;
+    text-align: center;
+  }
+
+  .modalSub {
+    margin-bottom: 24px;
+    font-size: 14px;
+    color: #64748b;
+    text-align: center;
+  }
+
+  .iosContent {
+    padding: 44px 20px 32px;
+    text-align: center;
+
+    .modalTitle {
+      margin-bottom: 12px;
+      font-size: 24px;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    .modalSub {
+      margin-bottom: 32px;
+      font-size: 15px;
+      color: #64748b;
+    }
+
+    .appleLogo {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 84px;
+      height: 84px;
+      margin-bottom: 32px;
+      font-size: 44px;
+      color: #1e293b;
+      background: #f1f5f9;
+      border-radius: 22px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+    }
+
+    .iosBtn {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 60px;
+      font-size: 17px;
+      font-weight: 700;
+      color: #fff;
+      cursor: pointer;
+      background: #000;
+      border: none;
+      border-radius: 16px;
+      transition: all 0.2s;
+
+      &:active {
+        opacity: 0.9;
+        transform: scale(0.97);
       }
     }
   }
 
-  .downloadModal {
-    :global(.ant-modal-content) {
-      padding: 0 !important;
-      overflow: hidden;
-      border-radius: 24px !important;
-    }
-
-    .modalClose {
-      position: absolute;
-      top: 16px;
-      right: 16px;
-      z-index: 10;
-      cursor: pointer;
-      transition: opacity 0.3s;
-
-      &:hover {
-        opacity: 0.7;
-      }
-    }
+  .androidContent {
+    padding: 44px 20px 32px;
+    text-align: center;
 
     .modalTitle {
-      margin-bottom: 8px;
-      font-size: 20px;
-      font-weight: 800;
-      color: #1e293b;
-      text-align: center;
+      margin-bottom: 12px;
+      font-size: 24px;
+      font-weight: 700;
+      color: #0f172a;
     }
 
     .modalSub {
-      margin-bottom: 24px;
+      margin-bottom: 28px;
       font-size: 14px;
+      font-weight: 500;
       color: #64748b;
-      text-align: center;
     }
 
-    .iosContent {
-      padding: 44px 20px 32px;
-      text-align: center;
+    .qrCodeBox {
+      position: relative;
+      display: inline-block;
+      padding: 16px;
+      margin-bottom: 32px;
+      background: #fff;
+      border: 2px dashed #e2e8f0;
+      border-radius: 20px;
 
-      .modalTitle {
-        margin-bottom: 12px;
-        font-size: 24px;
-        font-weight: 700;
-        color: #0f172a;
+      img {
+        display: block;
+        width: 176px;
+        height: 176px;
       }
 
-      .modalSub {
-        margin-bottom: 32px;
-        font-size: 15px;
-        color: #64748b;
-      }
-
-      .appleLogo {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 84px;
-        height: 84px;
-        margin-bottom: 32px;
-        font-size: 44px;
-        color: #1e293b;
-        background: #f1f5f9;
-        border-radius: 22px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
-      }
-
-      .iosBtn {
+      .qrLogo {
+        position: absolute;
+        top: 50%;
+        left: 50%;
         display: flex;
-        gap: 10px;
         align-items: center;
         justify-content: center;
-        width: 100%;
-        height: 60px;
-        font-size: 17px;
-        font-weight: 700;
+        width: 36px;
+        height: 36px;
+        font-size: 16px;
+        font-weight: 800;
         color: #fff;
-        cursor: pointer;
-        background: #000;
-        border: none;
-        border-radius: 16px;
-        transition: all 0.2s;
-
-        &:active {
-          opacity: 0.9;
-          transform: scale(0.97);
-        }
-      }
-    }
-
-    .androidContent {
-      padding: 44px 20px 32px;
-      text-align: center;
-
-      .modalTitle {
-        margin-bottom: 12px;
-        font-size: 24px;
-        font-weight: 700;
-        color: #0f172a;
-      }
-
-      .modalSub {
-        margin-bottom: 28px;
-        font-size: 14px;
-        font-weight: 500;
-        color: #64748b;
-      }
-
-      .qrCodeBox {
-        position: relative;
-        display: inline-block;
-        padding: 16px;
-        margin-bottom: 32px;
-        background: #fff;
-        border: 2px dashed #e2e8f0;
-        border-radius: 20px;
-
-        img {
-          display: block;
-          width: 176px;
-          height: 176px;
-        }
-
-        .qrLogo {
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          width: 36px;
-          height: 36px;
-          font-size: 16px;
-          font-weight: 800;
-          color: #fff;
-          background: #2563eb;
-          border: 3px solid #fff;
-          border-radius: 6px;
-          box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
-          transform: translate(-50%, -50%);
-        }
-      }
-
-      .androidBtn {
-        display: flex;
-        gap: 10px;
-        align-items: center;
-        justify-content: center;
-        width: 100%;
-        height: 60px;
-        font-size: 17px;
-        font-weight: 700;
-        color: #fff;
-        cursor: pointer;
         background: #2563eb;
-        border: none;
-        border-radius: 16px;
-        box-shadow: 0 10px 20px rgba(37, 99, 235, 0.15);
-        transition: all 0.2s;
-
-        &:active {
-          box-shadow: 0 4px 8px rgba(37, 99, 235, 0.15);
-          transform: scale(0.97);
-        }
+        border: 3px solid #fff;
+        border-radius: 6px;
+        box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
+        transform: translate(-50%, -50%);
       }
+    }
 
-      .wechatHint {
-        margin-top: 20px;
-        font-size: 12px;
-        font-weight: 400;
-        color: #94a3b8;
+    .androidBtn {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 60px;
+      font-size: 17px;
+      font-weight: 700;
+      color: #fff;
+      cursor: pointer;
+      background: #2563eb;
+      border: none;
+      border-radius: 16px;
+      box-shadow: 0 10px 20px rgba(37, 99, 235, 0.15);
+      transition: all 0.2s;
+
+      &:active {
+        box-shadow: 0 4px 8px rgba(37, 99, 235, 0.15);
+        transform: scale(0.97);
       }
+    }
+
+    .wechatHint {
+      margin-top: 20px;
+      font-size: 12px;
+      font-weight: 400;
+      color: #94a3b8;
     }
   }
 }

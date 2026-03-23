@@ -107,14 +107,24 @@ const instance = axios.create({
 //instance.defaults.withCredentials = true;
 
 instance.interceptors.request.use((req) => {
-  const token = getToken();
-  if (token) {
-    req.headers['Authorization'] = token.startsWith('Bearer ') ? token : `Bearer ${token}`;
+  if (!req.headers['Authorization']) {
+    const token = getToken();
+    if (token) {
+      req.headers['Authorization'] = token.startsWith('Bearer ') ? token : `Bearer ${token}`;
+    } else {
+      req.headers['Authorization'] = '';
+    }
   } else {
-    req.headers['Authorization'] = '';
+    // 即使外部传入了 token，也要确保格式符合要求
+    const auth = String(req.headers['Authorization']);
+    if (auth && !auth.startsWith('Bearer ')) {
+      req.headers['Authorization'] = `Bearer ${auth}`;
+    }
   }
-  const tenant = getTenant();
-  req.headers['Tenant'] = tenant || '';
+  if (!req.headers['Tenant']) {
+    const tenant = getTenant();
+    req.headers['Tenant'] = tenant || '';
+  }
   req.url = replaceBaseUrl(req.url!);
   if (req.method === 'post') {
     if (!req.data) {
