@@ -21,7 +21,7 @@ import styles from './index.module.less';
 const ShareLink: FC = () => {
   const router = useRouter();
   const query = router.location.searchQuery || {};
-  const {inviterUserId = '', inviterUserName = '', inviterTenantId = '', type = '', inviteCode = '', inviteName = ''} = query;
+  const {inviterUserId = '', inviterUserName = '', inviterTenantId = '', tenantName = '', type = '', inviteCode = '', inviteName = ''} = query;
 
   // 根据 type 区分两套文案
   const isTenant = type === 'tenant';
@@ -150,7 +150,7 @@ const ShareLink: FC = () => {
               <UserOutlined className={styles.avatarImg} />
             </div>
             <div className={styles.inviteText}>
-              您的好友 <strong>「{displayName}」</strong> 邀请您加入小狸报告
+              您的好友 <strong>「{displayName}」</strong> 邀请您加入{tenantName ? `${tenantName}组织` : '小狸报告'}
             </div>
           </div>
           <h1 className={styles.mainTitle}>专业尽调，一键生成</h1>
