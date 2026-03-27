@@ -123,6 +123,18 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
     );
   });
 
+  const onCancelArchive = useThrottleEvent((id: string) => {
+    confirm(
+      `确认取消归档吗？取消归档后该尽调将恢复到进行中状态。`,
+      (ok) => {
+        if (ok) {
+          DueDiligenceAPI.cancelArchive(id).then(refreshList);
+        }
+      },
+      {title: '取消归档'}
+    );
+  });
+
   const onSearch = useDebounceEvent((keyWord: string) => {
     dispatch(dueDiligenceActions.fetchList({...listSearch, keyWord}));
   }, 500);
@@ -206,7 +218,20 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
                                 onEdit(item);
                               },
                             },
-                            {
+                            listSearch.status === 'end' && {
+                              key: 'cancelArchive',
+                              label: (
+                                <div>
+                                  <EditOutlined style={{marginRight: 8}} />
+                                  取消归档
+                                </div>
+                              ),
+                              onClick: (e: any) => {
+                                e.domEvent.stopPropagation();
+                                onCancelArchive(item.id);
+                              },
+                            },
+                            listSearch.status !== 'end' && {
                               key: 'delete',
                               label: (
                                 <div>

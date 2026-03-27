@@ -204,6 +204,9 @@ export const DueDiligenceAPI = {
   archiveItem(id: string): Promise<void> {
     return request.post('/api/deal/archive', {id});
   },
+  cancelArchive(id: string): Promise<void> {
+    return request.post('/api/deal/cancelArchive', {id});
+  },
   /** 报告预览：获取可访问的预览地址，与移动端 viewReportUrl 一致 */
   viewReportUrl(fileId: string | undefined | null, fileUrl: string): Promise<{success: boolean; data?: string; message?: string}> {
     if (fileId) {
