@@ -81,6 +81,7 @@ export interface ItemDetail {
     fileUrl: string;
     type: string;
     lastModifiedTime: string;
+    fileTags?: string;
   }[];
   // 补充资料
   supplementary: {
@@ -89,6 +90,7 @@ export interface ItemDetail {
     fileUrl: string;
     type: string;
     lastModifiedTime: string;
+    fileTags?: string;
   }[];
   // 访谈资料
   interviewInstList: {

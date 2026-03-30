@@ -691,9 +691,31 @@
       }
     }
 
+    :local(.fileTagsWrap) {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      overflow: hidden;
+
+      :local(.tagItem) {
+        display: inline-block;
+        max-width: 200px;
+        padding: 0 4px;
+        overflow: hidden;
+        font-size: 11px;
+        line-height: 18px;
+        color: #4f46e5;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        vertical-align: top;
+        background: #e0e7ff;
+        border-radius: 4px;
+      }
+    }
+
     .info {
-      margin-top: 4px;
-      font-size: 13px;
+      margin-top: 2px;
+      font-size: 12px;
       color: #94a3b8;
     }
 

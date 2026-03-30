@@ -952,6 +952,15 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
                       )}
                     </Popover>
                   </div>
+                  {item.fileTags && (
+                    <div className={styles.fileTagsWrap}>
+                      {item.fileTags.split(',').map((tag: string, index: number) => (
+                        <span key={index} className={styles.tagItem} title={tag}>
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                   <div className="info">{item.lastModifiedTime}</div>
                   {fileProgress && fileProgress.status !== '1' && (
                     <div

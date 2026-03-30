@@ -339,7 +339,7 @@ export const DueDiligenceAPI = {
 
   /** 获取/生成我的邀请码 */
   getInviteCode(): Promise<{success: boolean; code: number; message: string; data: string}> {
-    return request.get('/api/user/invitation/inviteCode').then((res) => res.data);
+    return request.get('/api/user/invitation/inviteCodeOld').then((res) => res.data);
   },
 
   /** 导入好友邀请码 */
