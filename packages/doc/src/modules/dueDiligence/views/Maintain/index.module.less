@@ -203,16 +203,23 @@
 
       > .title {
         position: relative;
-        padding-right: 28px;
+        display: flex;
+        align-items: flex-start;
+        height: 28px;
         margin-bottom: 4px;
-        overflow: visible; // 防止裁剪操作图标
         font-size: 19px;
         font-weight: 800;
         line-height: 1.4;
         color: #1e293b;
-        text-overflow: ellipsis;
-        white-space: nowrap;
         transition: color 0.2s;
+
+        :global(.name-text) {
+          flex: 1;
+          padding-right: 32px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
       }
 
       > .ft {

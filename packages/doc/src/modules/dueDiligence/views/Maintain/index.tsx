@@ -201,7 +201,9 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
                   <div className="bd">
                     <img className="icon" src={item.logo || Icons[0]} />
                     <div className="title">
-                      {item.name}
+                      <Tooltip title={item.name} placement="topLeft" mouseEnterDelay={0.5}>
+                        <span className="name-text">{item.name}</span>
+                      </Tooltip>
                       <Dropdown
                         menu={{
                           items: [
