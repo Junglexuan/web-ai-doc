@@ -68,7 +68,6 @@ export class Model extends BaseModel<ModuleState, APPState> {
         itemId,
       })
     );
-    this.onActive();
   }
 
   public onActive(): void {

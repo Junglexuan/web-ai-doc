@@ -827,6 +827,99 @@
   }
 }
 
+:local(.uploadDropdown) {
+  :global(.ant-dropdown-menu) {
+    padding: 8px !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    border: 1px solid rgba(226, 232, 240, 0.8) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05) !important;
+    backdrop-filter: blur(12px) !important;
+
+    :global(.ant-dropdown-menu-item) {
+      padding: 0 !important;
+      background: transparent !important;
+      border-radius: 8px !important;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+
+      &:hover {
+        background: rgba(79, 70, 229, 0.04) !important;
+        transform: translateX(4px) !important;
+
+        :local(.iconBox) {
+          color: #4f46e5;
+          background: rgba(79, 70, 229, 0.1);
+          transform: scale(1.05);
+        }
+
+        :local(.mTitle) {
+          color: #4f46e5;
+        }
+      }
+    }
+  }
+}
+
+:local(.dropdownMenuItem) {
+  margin-bottom: 4px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+:local(.menuUpload) {
+  display: block;
+  width: 100%;
+
+  :global(.ant-upload) {
+    display: block !important;
+    width: 100% !important;
+  }
+}
+
+:local(.menuItemContent) {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  cursor: pointer;
+
+  :local(.iconBox) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    margin-right: 14px;
+    font-size: 18px;
+    color: #64748b;
+    background: #f1f5f9;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+  }
+
+  :local(.textBox) {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    justify-content: center;
+
+    :local(.mTitle) {
+      font-size: 15px;
+      font-weight: 600;
+      color: #1e293b;
+      transition: color 0.3s ease;
+    }
+
+    :local(.mDesc) {
+      margin-top: 2px;
+      font-size: 12px;
+      font-weight: 400;
+      color: #94a3b8;
+    }
+  }
+}
+
 :local(.interviewPlaceholder) {
   display: flex;
   justify-content: flex-start;

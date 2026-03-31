@@ -9,7 +9,9 @@ import {
   DownOutlined,
   EditOutlined,
   ExclamationCircleFilled,
+  FileAddOutlined,
   FileOutlined,
+  FolderOpenOutlined,
   LeftOutlined,
   ProfileOutlined,
   ProjectOutlined,
@@ -66,6 +68,8 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
   const [isSummaryCollapsed, setIsSummaryCollapsed] = useState(true);
   const [hasSummaryMore, setHasSummaryMore] = useState(false);
   const summaryContentRef = useRef<HTMLDivElement>(null);
+  const detailRef = useRef(itemDetail);
+  detailRef.current = itemDetail;
   const currentTemplateName = useMemo(() => {
     return configs?.template.list.find((t) => String(t.id) === String(itemDetail.templateId))?.title || '-';
   }, [configs, itemDetail.templateId]);
@@ -79,6 +83,14 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
     visible: false,
     record: null,
   });
+
+  const refreshPage = useCallback(() => {
+    dispatch(dueDiligenceActions.fetchItem(itemDetail.id));
+    if (itemDetail.id) {
+      DueDiligenceAPI.queryInterviewInstListByPage(itemDetail.id).then(setInterviewList);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [itemDetail.id]);
 
   useEffect(() => {
     if (!itemDetail.id) return;
@@ -145,6 +157,69 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
     };
   }, [itemDetail.id]);
 
+  // 新增：报告状态 WebSocket 实时获取
+  useEffect(() => {
+    if (!itemDetail.id) return;
+    const token = getToken();
+    let wsUrl = replaceBaseUrl(`/ws/report-status?dealInstId=${itemDetail.id}&token=${token}`);
+    if (wsUrl.startsWith('/')) {
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const host = window.location.host;
+      wsUrl = `${protocol}//${host}${wsUrl}`;
+    }
+
+    let ws: WebSocket;
+    let pingInterval: any;
+
+    try {
+      ws = new WebSocket(wsUrl);
+      ws.onopen = () => {
+        pingInterval = setInterval(() => {
+          if (ws.readyState === WebSocket.OPEN) {
+            ws.send('ping');
+          }
+        }, 15000);
+      };
+      ws.onmessage = (event) => {
+        if (event.data === 'pong') return;
+        try {
+          const data = JSON.parse(event.data);
+          // 如果后端在推送中直接带了状态，则根据状态处理
+          if (data.reportStatus) {
+            // 更新本地轮询状态标志
+            if (data.reportStatus === DealReportStatusEnum.REPORT_GENERATED || data.reportStatus === DealReportStatusEnum.REPORT_FAILED) {
+              setReportPolling(false);
+              // 状态同步到 store
+              dispatch(dueDiligenceActions.putCurrentItem(detailRef.current.id, {...detailRef.current, reportStatus: data.reportStatus}));
+            } else if (data.reportStatus === DealReportStatusEnum.REPORT_GENERATING) {
+              setReportPolling(true);
+              // 状态同步到 store
+              dispatch(dueDiligenceActions.putCurrentItem(detailRef.current.id, {...detailRef.current, reportStatus: data.reportStatus}));
+            }
+          }
+        } catch (e) {
+          // ignore parse error
+        }
+      };
+      ws.onclose = () => clearInterval(pingInterval);
+      ws.onerror = () => clearInterval(pingInterval);
+    } catch (e) {
+      console.error('Failed to connect report status WS:', e);
+    }
+
+    return () => {
+      if (pingInterval) clearInterval(pingInterval);
+      if (ws) ws.close();
+    };
+  }, [itemDetail.id, refreshPage, dispatch]);
+
+  // 当处于生成状态时，初始设置 reportPolling 为 true
+  useEffect(() => {
+    if (itemDetail.reportStatus === DealReportStatusEnum.REPORT_GENERATING) {
+      setReportPolling(true);
+    }
+  }, [itemDetail.reportStatus]);
+
   const [supplementaryContent, setSupplementaryContent] = useState('');
 
   const [audioPlayer, setAudioPlayer] = useState<{visible: boolean; url: string; fileName: string}>({
@@ -162,13 +237,6 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
     onPreviewResource(item);
   });
 
-  const refreshPage = useCallback(() => {
-    dispatch(dueDiligenceActions.fetchItem(itemDetail.id));
-    if (itemDetail.id) {
-      DueDiligenceAPI.queryInterviewInstListByPage(itemDetail.id).then(setInterviewList);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [itemDetail.id]);
 
   const uploadProps: UploadProps = useMemo(() => {
     const props = getUploadProps('/api/deal/upload', {
@@ -301,7 +369,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
         setReportPolling(true);
         DueDiligenceAPI.rebuildReport(itemDetail.id)
           .then(() => {
-            refreshPage();
+            // refreshPage();
             message.success('报告生成任务已启动，请稍候...');
           })
           .catch(() => {
@@ -311,32 +379,6 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
     });
   });
 
-  // 轮询报告状态
-  useEffect(() => {
-    let timer: any;
-    // 当状态是生成中，或者用户点击了立即生成且此时reportPolling为true，则开启轮询
-    if (reportPolling || itemDetail.reportStatus === DealReportStatusEnum.REPORT_GENERATING) {
-      if (!reportPolling) setReportPolling(true);
-      timer = setInterval(() => {
-        DueDiligenceAPI.getItem(itemDetail.id).then((newDetail) => {
-          dispatch(dueDiligenceActions.putCurrentItem(itemDetail.id, newDetail));
-          // 如果后端返回的状态已生成或失败，则结束轮询
-          if (newDetail.reportStatus === DealReportStatusEnum.REPORT_GENERATED || newDetail.reportStatus === DealReportStatusEnum.REPORT_FAILED) {
-            setReportPolling(false);
-            clearInterval(timer);
-            if (newDetail.reportStatus === DealReportStatusEnum.REPORT_GENERATED) {
-              message.success('报告已顺利生成！');
-            } else {
-              message.error('报告生成失败，请重试');
-            }
-          }
-        });
-      }, 3000);
-    } else {
-      setReportPolling(false);
-    }
-    return () => timer && clearInterval(timer);
-  }, [itemDetail.id, itemDetail.reportStatus, dispatch, reportPolling]);
 
   const onResetTemplate = useThrottleEvent((tpl: {id: string} | undefined) => {
     if (tpl?.id) {
@@ -993,21 +1035,61 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
                 </div>
               );
             })}
-            <Upload
-              className={styles.uploadWrapper}
-              showUploadList={false}
-              multiple
-              {...uploadProps}
+            <Dropdown
               disabled={itemDetail.status === '5' || !!uploading}
+              trigger={['click']}
+              overlayClassName={styles.uploadDropdown}
+              placement="bottom"
+              arrow={{pointAtCenter: true}}
+              menu={{
+                items: [
+                  {
+                    key: 'file',
+                    className: styles.dropdownMenuItem,
+                    label: (
+                      <Upload showUploadList={false} multiple {...uploadProps} className={styles.menuUpload}>
+                        <div className={styles.menuItemContent}>
+                          <div className={styles.iconBox}>
+                            <FileAddOutlined />
+                          </div>
+                          <div className={styles.textBox}>
+                            <div className={styles.mTitle}>上传文件</div>
+                            <div className={styles.mDesc}>支持多选文档、图片等</div>
+                          </div>
+                        </div>
+                      </Upload>
+                    ),
+                  },
+                  {
+                    key: 'directory',
+                    className: styles.dropdownMenuItem,
+                    label: (
+                      <Upload showUploadList={false} multiple directory {...uploadProps} className={styles.menuUpload}>
+                        <div className={styles.menuItemContent}>
+                          <div className={styles.iconBox}>
+                            <FolderOpenOutlined />
+                          </div>
+                          <div className={styles.textBox}>
+                            <div className={styles.mTitle}>上传文件夹</div>
+                            <div className={styles.mDesc}>一键导入整个目录结构</div>
+                          </div>
+                        </div>
+                      </Upload>
+                    ),
+                  },
+                ],
+              }}
             >
-              <div className={`${styles.fileUpload} ${itemDetail.status === '5' || !!uploading ? styles.fileUploadDisabled : ''}`}>
-                <img src={UploadIcon} alt="上传文件" />
-                <div className={styles.uploadText}>
-                  <span>{uploading ? '正在上传...' : '点击上传文件'}</span>
-                  {!uploading && <p>支持 docx、pdf、xlsx、txt、音频及图片</p>}
+              <div className={styles.uploadWrapper}>
+                <div className={`${styles.fileUpload} ${itemDetail.status === '5' || !!uploading ? styles.fileUploadDisabled : ''}`}>
+                  <img src={UploadIcon} alt="上传资料" />
+                  <div className={styles.uploadText}>
+                    <span>{uploading ? '正在上传...' : '点击上传资料'}</span>
+                    {!uploading && <p>支持文件或文件夹上传</p>}
+                  </div>
                 </div>
               </div>
-            </Upload>
+            </Dropdown>
           </div>
         </div>
         <div className="step">
