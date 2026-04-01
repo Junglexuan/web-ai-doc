@@ -237,7 +237,6 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
     onPreviewResource(item);
   });
 
-
   const uploadProps: UploadProps = useMemo(() => {
     const props = getUploadProps('/api/deal/upload', {
       onProcess: () => setUploading('upload'),
@@ -260,6 +259,21 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
       }
       originalOnChange?.(info);
     };
+
+    props.beforeUpload = (file, fileList) => {
+      // 检查当前选中的所有文件总大小 (30MB = 30 * 1024 * 1024 bytes)
+      const totalSize = fileList.reduce((acc, f) => acc + (f.size || 0), 0);
+      const isLt30M = totalSize < 30 * 1024 * 1024;
+      if (!isLt30M) {
+        // 多个文件时只在处理第一个文件时提示一次
+        if (file === fileList[0]) {
+          message.error('所选文件（或文件夹）总大小不能超过 30MB');
+        }
+        return Upload.LIST_IGNORE;
+      }
+      return true;
+    };
+
     return props;
   }, [itemDetail.id, refreshPage]);
 
@@ -378,7 +392,6 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
       },
     });
   });
-
 
   const onResetTemplate = useThrottleEvent((tpl: {id: string} | undefined) => {
     if (tpl?.id) {
