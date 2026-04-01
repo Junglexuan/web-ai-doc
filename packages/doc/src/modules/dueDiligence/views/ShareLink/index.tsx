@@ -150,7 +150,7 @@ const ShareLink: FC = () => {
               <UserOutlined className={styles.avatarImg} />
             </div>
             <div className={styles.inviteText}>
-              您的好友 <strong>「{displayName}」</strong> 邀请您加入{tenantName ? `「${tenantName}」组织` : '小狸报告'}
+              您的好友 <strong>「{displayName}」</strong> 邀请您加入{type === 'app' || !tenantName ? '小狸报告' : `「${tenantName}」组织`}
             </div>
           </div>
           <h1 className={styles.mainTitle}>专业尽调，一键生成</h1>
