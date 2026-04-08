@@ -39,6 +39,15 @@ const items: any[] = [
     ),
   },
   {
+    key: '我的报告',
+    icon: <FileTextOutlined />,
+    label: (
+      <Link to="/admin/dueDiligence/list/report" action="relaunch" target="window">
+        我的报告
+      </Link>
+    ),
+  },
+  {
     key: '测试溯源',
     icon: <FileTextOutlined />,
     label: (
@@ -69,6 +78,9 @@ const Component: FC<{}> = () => {
     }
     if (pathname.startsWith('/admin/dueDiligence/list/tpl')) {
       return ['我的模版'];
+    }
+    if (pathname.startsWith('/admin/dueDiligence/list/report')) {
+      return ['我的报告'];
     }
     if (pathname.startsWith('/admin/dueDiligence/list/trace')) {
       return ['测试溯源'];

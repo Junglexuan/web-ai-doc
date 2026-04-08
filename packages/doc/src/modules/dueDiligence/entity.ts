@@ -146,6 +146,20 @@ export interface ReportTemplate {
   reportTemplateStatus: string; // 模板状态
 }
 
+export interface ReportRecord {
+  id: string;
+  fileName: string;
+  relationId: string;
+  fileUrl: string;
+  type: string;
+  fileCreateFinishTime?: string;
+  lastModifiedTime?: string;
+  createDate?: string;
+  dealSummary?: string;
+  matchNum?: number;
+  total?: number;
+}
+
 export type EditItem = ListItem;
 
 export const defaultListSearch: ListSearch = {

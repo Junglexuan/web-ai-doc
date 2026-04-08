@@ -5,7 +5,7 @@ import {APPState, PathPrefix} from '@/Global';
 import {mergeDefaultParams} from '@/utils/request';
 import DueDiligenceAPI from './api';
 import {defaultListSearch} from './entity';
-import type {CurRender, CurView, ItemDetail, ListItem, ListSearch, ListSummary} from './entity';
+import type {CurRender, CurView, ItemDetail, ListItem, ListSearch, ListSummary, ReportRecord} from './entity';
 
 //定义本模块的状态结构
 export interface ModuleState {
@@ -17,6 +17,8 @@ export interface ModuleState {
   listLoading?: LoadingState;
   itemId?: string;
   itemDetail?: ItemDetail;
+  reportList?: ReportRecord[];
+  reportListTotal?: number;
 }
 
 //定义路由中的本模块感兴趣的信息
@@ -73,8 +75,12 @@ export class Model extends BaseModel<ModuleState, APPState> {
   public onActive(): void {
     const routeParams = this.getRouteParams();
     const {curView, curRender, listSearch, itemId} = routeParams;
-    if (curView === 'list' && curRender === 'maintain') {
-      this.dispatch(this.actions.fetchList(listSearch));
+    if (curView === 'list') {
+      if (curRender === 'maintain') {
+        this.dispatch(this.actions.fetchList(listSearch));
+      } else if (curRender === 'report') {
+        this.dispatch(this.actions.fetchReportList(listSearch));
+      }
     } else if (curView === 'item') {
       this.dispatch(this.actions.fetchItem(itemId || '', curRender));
     }
@@ -95,6 +101,22 @@ export class Model extends BaseModel<ModuleState, APPState> {
   @reducer
   public putCurrentItem(itemId = '', itemDetail: ItemDetail): ModuleState {
     return {...this.state, itemId, itemDetail};
+  }
+
+  @reducer
+  public putReportList(reportList: ReportRecord[], reportListTotal: number, listSearch: ListSearch): ModuleState {
+    return {...this.state, reportList, reportListTotal, listSearch};
+  }
+
+  @effect()
+  public async fetchReportList(listSearchData?: ListSearch): Promise<void> {
+    const listSearch = listSearchData || this.state.listSearch || defaultListSearch;
+    const {list, total} = await DueDiligenceAPI.queryDealReportListByPage({
+      pageNo: listSearch.pageCurrent || 1,
+      pageSize: listSearch.pageSize || 20,
+      fileName: listSearch.keyWord,
+    });
+    this.dispatch(this.actions.putReportList(list, total, listSearch));
   }
 
   @effect()

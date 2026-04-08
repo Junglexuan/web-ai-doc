@@ -378,6 +378,20 @@ export const DueDiligenceAPI = {
       throw new Error(res.data.message || '上传失败');
     });
   },
+  /** 分页查询报告列表 */
+  queryDealReportListByPage(params: {
+    pageNo: number;
+    pageSize: number;
+    fileName?: string; // 搜索关键词
+  }): Promise<{list: any[]; total: number}> {
+    return request.post('/api/deal/queryDealReportListByPage', params).then((res) => {
+      const data = res.data.data || {};
+      return {
+        list: data.records || [],
+        total: data.total || 0,
+      };
+    });
+  },
 };
 
 export default DueDiligenceAPI;

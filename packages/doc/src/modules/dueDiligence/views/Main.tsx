@@ -5,6 +5,7 @@ import {APPState} from '@/Global';
 import {CurRender, CurView, ItemDetail, ListItem, ListSearch, ListSummary} from '../entity';
 import Item from './Item';
 import Maintain from './Maintain';
+import MyReport from './MyReport';
 import MyTemplate from './MyTemplate';
 import ShareLink from './ShareLink';
 import Trace from './Trace';
@@ -16,14 +17,26 @@ export interface StoreProps {
   listSearch?: ListSearch;
   list?: ListItem[];
   listSummary?: ListSummary;
+  reportList?: any[];
+  reportListTotal?: number;
 }
 
 function mapStateToProps(appState: APPState): StoreProps {
-  const {curView, curRender, itemDetail, list, listSearch, listSummary} = appState.dueDiligence!;
-  return {curView, curRender, itemDetail, list, listSearch, listSummary};
+  const {curView, curRender, itemDetail, list, listSearch, listSummary, reportList, reportListTotal} = appState.dueDiligence!;
+  return {curView, curRender, itemDetail, list, listSearch, listSummary, reportList, reportListTotal};
 }
 
-const Component: FC<StoreProps & {dispatch: Dispatch}> = ({curView, curRender, itemDetail, listSearch, list, listSummary, dispatch}) => {
+const Component: FC<StoreProps & {dispatch: Dispatch}> = ({
+  curView,
+  curRender,
+  itemDetail,
+  listSearch,
+  list,
+  listSummary,
+  reportList,
+  reportListTotal,
+  dispatch,
+}) => {
   console.log('itemDetail: ', itemDetail);
   return (
     <Switch elseView={<ErrorPage />}>
@@ -33,6 +46,9 @@ const Component: FC<StoreProps & {dispatch: Dispatch}> = ({curView, curRender, i
       {curView === 'list' && curRender === 'tpl' && <MyTemplate dispatch={dispatch} />}
       {curView === 'list' && curRender === 'trace' && <Trace />}
       {curView === 'list' && curRender === 'share' && <ShareLink />}
+      {curView === 'list' && curRender === 'report' && (
+        <MyReport dispatch={dispatch} listSearch={listSearch!} reportList={reportList} reportListTotal={reportListTotal} />
+      )}
       {curView === 'item' &&
         (itemDetail ? <Item itemDetail={itemDetail} dispatch={dispatch} /> : <div style={{background: '#fff', width: '100%', height: '100%'}}></div>)}
     </Switch>
