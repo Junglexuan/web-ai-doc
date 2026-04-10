@@ -2,25 +2,50 @@
   :local(.root) {
     padding-top: 10px;
 
-    :global(.ant-form-item-label > label) {
-      font-size: 14px;
-      font-weight: 700;
-      color: #334155;
+    :global(.ant-form-item-label) {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-top: 0 !important;
+      padding-right: 12px !important; // 统一增加一个空格位置的间距
+      padding-bottom: 0 !important;
+
+      > label {
+        height: auto !important;
+        font-size: 14px;
+        font-weight: 700;
+        line-height: 1.4 !important;
+        color: #334155;
+        text-align: left !important;
+        white-space: normal !important;
+
+        &::after {
+          display: none !important; // 继续保持隐藏冒号
+        }
+      }
     }
 
     :global(.ant-input),
     :global(.ant-select-selector) {
       width: 100%;
-      background: #f8fafc !important;
+      height: 38px !important;
+      padding: 0 12px !important;
+      background: #fff !important;
       border: 1px solid #e2e8f0 !important;
-      border-radius: 10px !important;
+      border-radius: 6px !important;
       transition: all 0.3s !important;
 
       &:hover,
-      &:focus {
+      &:focus,
+      &:focus-within {
         background: #fff !important;
         border-color: #4f46e5 !important;
-        box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.05) !important;
+        box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1) !important;
+      }
+
+      :global(.ant-select-selection-item),
+      :global(.ant-select-selection-placeholder) {
+        line-height: 36px !important;
       }
     }
 

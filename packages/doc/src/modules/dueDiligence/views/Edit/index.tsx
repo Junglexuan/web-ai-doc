@@ -135,6 +135,17 @@ const Component: FC<{
               }}
             />
           </Form.Item>
+          <Form.Item
+            name="creditCode"
+            label={
+              <span>
+                企业名称 /<br />
+                信用代码
+              </span>
+            }
+          >
+            <Input placeholder="请输入企业名称或信用代码（选填）" />
+          </Form.Item>
           <Form.Item name="templateId" label="选择模版" rules={[{required: true, message: '请选择模版'}]}>
             <Select
               placeholder="请选择模版"

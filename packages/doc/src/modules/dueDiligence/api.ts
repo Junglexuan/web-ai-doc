@@ -89,6 +89,7 @@ export const DueDiligenceAPI = {
                 dealSummary: item.dealSummary || '',
                 templateId: item.templateId,
                 questionId: item.questionId,
+                creditCode: item.creditCode,
                 autoCreateFinalSheets: !!item.autoCreateFinalSheets,
                 updateDate:
                   item.updateDate || item.lastModifiedDate ? dayjs(item.updateDate || item.lastModifiedDate).format('YYYY-MM-DD HH:mm:ss') : '',
@@ -118,6 +119,7 @@ export const DueDiligenceAPI = {
         reportStatus: item.reportStatus,
         dealSummary: item.dealSummary || '',
         templateId: item.templateId,
+        creditCode: item.creditCode,
         report,
         questionInfoList: (item.questionInfoList || []).map((q: any) => ({
           id: q.id || q.questionId || '',
@@ -158,6 +160,7 @@ export const DueDiligenceAPI = {
         interviewCust: name,
         logo,
         templateId,
+        creditCode: data.creditCode,
         questionId: data.questions?.tpl || data.questionId,
       })
       .then((res) => res.data.data);

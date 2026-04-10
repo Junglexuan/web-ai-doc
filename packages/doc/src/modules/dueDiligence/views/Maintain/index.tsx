@@ -41,6 +41,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
       id: '',
       name: '',
       logo: '',
+      creditCode: '',
       pathList: [],
       questions: {
         tpl: String(initialQuestionId),
@@ -70,6 +71,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
       id: data.id,
       name: data.name,
       logo: data.logo,
+      creditCode: data.creditCode,
       pathList: data.pathList,
       questions: {
         tpl: String(selectedQuestionId),

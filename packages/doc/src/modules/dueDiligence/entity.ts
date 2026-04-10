@@ -19,6 +19,7 @@ export interface ListItem extends BaseListItem {
   name: string;
   logo: string;
   desc: string;
+  creditCode?: string;
   progress: number;
   pathList: {uid: string; name: string; status: string; url: string; thumbUrl: string}[];
   autoCreateFinalSheets: boolean;
@@ -48,6 +49,7 @@ export interface ItemDetail {
   name: string;
   logo: string;
   desc: string;
+  creditCode?: string;
   status: string;
   progress: number;
   reportStatus?: string;
