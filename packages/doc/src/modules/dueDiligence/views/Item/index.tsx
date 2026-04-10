@@ -241,7 +241,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
     const props = getUploadProps('/api/deal/upload', {
       onProcess: () => setUploading('upload'),
       data: {id: itemDetail.id},
-      accept: '.docx,.pdf,.xlsx,.txt,.wav,.mp3,.m4a,.amr,.aac,.ogg,.flac,.png,.jpg,.jpeg',
+      accept: '.docx,.xls,.pdf,.xlsx,.txt,.wav,.mp3,.m4a,.amr,.aac,.ogg,.flac,.png,.jpg,.jpeg',
     });
 
     const originalOnChange = props.onChange;
