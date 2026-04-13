@@ -2,6 +2,7 @@ import {DownOutlined, LoadingOutlined, PlusOutlined, UpOutlined} from '@ant-desi
 import {Button, Form, Input, Select, Space, Spin, Upload, message} from 'antd';
 import {FC, memo, useEffect, useMemo, useState} from 'react';
 import agentCheckedIcon from '@/assets/agent/agent-checked.png';
+import {useDebounceEvent} from '@/utils/tools';
 import DueDiligenceAPI from '../../api';
 import DocUploads from '../../components/DocUploads';
 import IconSelect from '../../components/IconSelect';
@@ -22,6 +23,22 @@ const Component: FC<{
   const [uploading, setUploading] = useState(false);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [selectedIcon, setSelectedIcon] = useState<string | null>(null);
+  const [enterpriseOptions, setEnterpriseOptions] = useState<{value: string; label: string}[]>([]);
+
+  const handleEnterpriseSearch = useDebounceEvent((word: string) => {
+    if (!word) {
+      setEnterpriseOptions([]);
+      return;
+    }
+    DueDiligenceAPI.searchEnterprise(word).then((list) => {
+      setEnterpriseOptions(
+        (list || []).map((item) => ({
+          value: item.creditCode || item.name || '',
+          label: item.name || '',
+        }))
+      );
+    });
+  }, 500);
 
   // 初始化时处理已有的logo值
   useEffect(() => {
@@ -107,12 +124,13 @@ const Component: FC<{
     <div className={styles.root}>
       <div className="bd">
         <Form
-          labelCol={{span: 5}}
-          wrapperCol={{span: 18}}
+          labelCol={{span: 6}}
+          wrapperCol={{span: 17}}
           initialValues={{
             ...data,
             templateId: data?.template?.id ? String(data.template.id) : undefined,
             logo: data?.logo || '',
+            creditCode: data?.companyName || data?.creditCode || undefined,
           }}
           form={form}
           onFinish={(values) => {
@@ -138,13 +156,35 @@ const Component: FC<{
           <Form.Item
             name="creditCode"
             label={
-              <span>
-                企业名称 /<br />
-                信用代码
-              </span>
+              <div style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-end'}}>
+                <span style={{lineHeight: 1.2}}>企业名称</span>
+                <span style={{fontSize: 12, color: '#94a3b8', fontWeight: 500, lineHeight: 1.2, marginTop: 2}}>/ 信用代码</span>
+              </div>
             }
           >
-            <Input placeholder="请输入企业名称或信用代码（选填）" />
+            <Select
+              showSearch
+              placeholder="请输入企业名称或信用代码(选填)"
+              filterOption={false}
+              onSearch={handleEnterpriseSearch}
+              defaultActiveFirstOption={false}
+              notFoundContent={null}
+              allowClear
+              options={enterpriseOptions}
+              onChange={(val, option: any) => {
+                form.setFieldsValue({
+                  creditCode: val,
+                  companyName: option?.label || val,
+                });
+                // 如果尽调对象名称为空，自动回填企业名称
+                if (!form.getFieldValue('name') && option?.label) {
+                  form.setFieldsValue({name: option.label});
+                }
+              }}
+            />
+          </Form.Item>
+          <Form.Item name="companyName" noStyle>
+            <Input type="hidden" />
           </Form.Item>
           <Form.Item name="templateId" label="选择模版" rules={[{required: true, message: '请选择模版'}]}>
             <Select

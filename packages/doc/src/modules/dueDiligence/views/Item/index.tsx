@@ -1,26 +1,41 @@
 import {
+  ApiOutlined,
+  BankOutlined,
   CaretDownOutlined,
   CaretRightOutlined,
   CaretUpOutlined,
   CheckCircleFilled,
+  CheckCircleOutlined,
+  CheckOutlined,
   ClockCircleOutlined,
   CloseCircleFilled,
+  CloseOutlined,
   CloudUploadOutlined,
   DownOutlined,
   EditOutlined,
   ExclamationCircleFilled,
+  ExclamationCircleOutlined,
   FileAddOutlined,
   FileOutlined,
   FolderOpenOutlined,
+  InfoCircleOutlined,
   LeftOutlined,
+  LoadingOutlined,
+  PlusOutlined,
   ProfileOutlined,
   ProjectOutlined,
   RedoOutlined,
+  ReloadOutlined,
+  RightOutlined,
   RocketOutlined,
-  UserOutlined,
+  SafetyCertificateOutlined,
+  SwapOutlined,
+  SyncOutlined,
+  ThunderboltOutlined,
 } from '@ant-design/icons';
 import {Dispatch, DocumentHead} from '@elux/react-web';
-import {Button, Dropdown, Input, Modal, Popover, Progress, Table, Tooltip, Upload, UploadProps} from 'antd';
+import {Button, Dropdown, Input, List, Modal, Popover, Progress, Table, Tooltip, Upload, UploadProps, notification} from 'antd';
+import classNames from 'classnames';
 import {FC, memo, useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import CollectIcon from '@/assets/images/collect.png';
 import InterviewIcon from '@/assets/images/interview.png';
@@ -39,7 +54,9 @@ import {DueDiligenceAPI} from '../../api';
 import QuestionsFile from '../../components/QuestionsFile';
 import TplSelect from '../../components/TplSelect';
 import {DealReportStatusEnum, DueConfigs, InterviewInstDetail, InterviewRecord, ItemDetail, StatusMap} from '../../entity';
-import styles from './index.module.less';
+import Edit from '../Edit';
+import _styles from './index.module.less';
+const styles: any = _styles;
 
 const twoColors = {
   '0%': '#4f46e5',
@@ -54,19 +71,41 @@ interface Props {
 const {dueDiligence: dueDiligenceActions} = GetActions('dueDiligence');
 
 const Component: FC<Props> = ({itemDetail, dispatch}) => {
-  console.log('itemDetail: Item=', itemDetail);
+  useEffect(() => {
+    console.log('itemDetail: Item=', itemDetail);
+  }, [itemDetail.id, itemDetail.status, itemDetail.reportStatus]); // 仅在关键核心字段变化时打印，减少噪音
   const [configs, setConfigs] = useState<DueConfigs>();
   const [uploading, setUploading] = useState<'upload' | 'info' | ''>('');
   const [showSupplementary, setShowSupplementary] = useState(false);
   const [editSupplementaryItem, setEditSupplementaryItem] = useState<{id: string; fileName: string; fileUrl?: string} | null>(null);
+  const [scrapingStatus, setScrapingStatus] = useState<'ready' | 'loading' | 'completed'>('ready');
   const [showRename, setShowRename] = useState('');
   const [showQuestionsFile, setShowQuestionsFile] = useState<{id: string; question: string; answer: string}[]>();
   const [isResourcesCollapsed, setIsResourcesCollapsed] = useState(false); //上传企业资料
   const [isSupplementaryCollapsed, setIsSupplementaryCollapsed] = useState(false); //补充企业信息
   const [isInterviewCollapsed, setIsInterviewCollapsed] = useState(false);
+  const [isQuestionListCollapsed, setIsQuestionListCollapsed] = useState(false); //访谈问题清单
+  const [questionList, setQuestionList] = useState<{id: string; title: string; desc: string; status: string; isManual?: boolean}[]>([]);
   const [reportPolling, setReportPolling] = useState(false);
   const [isSummaryCollapsed, setIsSummaryCollapsed] = useState(true);
+  const [isQuestionModalVisible, setIsQuestionModalVisible] = useState(false);
+  const [allQuestionsTemplates, setAllQuestionsTemplates] = useState<any[]>([]);
+  const [switchingQuestion, setSwitchingQuestion] = useState(false);
+  const [isAddingQuestion, setIsAddingQuestion] = useState(false);
+  const [newQuestionValue, setNewQuestionValue] = useState('');
+  const [editingQuestionId, setEditingQuestionId] = useState<string | null>(null);
+  const [editingQuestionValue, setEditingQuestionValue] = useState('');
   const [hasSummaryMore, setHasSummaryMore] = useState(false);
+  const [showScrapingResultModal, setShowScrapingResultModal] = useState(false);
+  const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+  const [aiInsightStatus, setAiInsightStatus] = useState<'idle' | 'loading' | 'completed'>('idle');
+  const [aiInsightProgress, setAiInsightProgress] = useState(0);
+  const [showAiInsightView, setShowAiInsightView] = useState(false);
+  const [aiInsightList, setAiInsightList] = useState<any[]>([]);
+  const [selectedAiKeys, setSelectedAiKeys] = useState<string[]>([]);
+  const [enterpriseInfo, setEnterpriseInfo] = useState<any>(null);
+  const [isEnterpriseLoading, setIsEnterpriseLoading] = useState(false);
+  const needsAiRefreshRef = useRef(true); // 标记是否需要刷新 AI 洞察列表
   const summaryContentRef = useRef<HTMLDivElement>(null);
   const detailRef = useRef(itemDetail);
   detailRef.current = itemDetail;
@@ -75,6 +114,9 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
   }, [configs, itemDetail.templateId]);
 
   const isReportGenerated = itemDetail.reportStatus === DealReportStatusEnum.REPORT_GENERATED;
+  const isAIInsightDisabled = useMemo(() => {
+    return !itemDetail.creditCode && (itemDetail.resources || []).length === 0 && (itemDetail.supplementary || []).length === 0;
+  }, [itemDetail.creditCode, itemDetail.resources, itemDetail.supplementary]);
 
   const [fileProgressMap, setFileProgressMap] = useState<Record<string, {progress: number; status: string}>>({});
   console.log('fileProgressMap', fileProgressMap);
@@ -91,6 +133,39 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [itemDetail.id]);
+
+  useEffect(() => {
+    console.log(enterpriseInfo, 'enterpriseInfoxxx===');
+  }, [enterpriseInfo]);
+
+  useEffect(() => {
+    // 如果已有补充数据，说明之前抓取过，同步状态为已完成
+    if (scrapingStatus === 'ready' && (itemDetail.supplementary || []).length > 0) {
+      setScrapingStatus('completed');
+    }
+  }, [itemDetail.supplementary, scrapingStatus]);
+
+  useEffect(() => {
+    if (showScrapingResultModal && itemDetail.id) {
+      setIsEnterpriseLoading(true);
+      DueDiligenceAPI.getEnterpriseBasicInfo(itemDetail.id)
+        .then(setEnterpriseInfo)
+        .finally(() => setIsEnterpriseLoading(false));
+    }
+  }, [showScrapingResultModal, itemDetail.id]);
+
+  useEffect(() => {
+    if (itemDetail.questionInfoList) {
+      // 将后端字段映射到 UI 使用的字段格式
+      const mappedList = (itemDetail.questionInfoList || []).map((q) => ({
+        id: q.id,
+        title: q.questionName,
+        desc: q.questionAnswer,
+        status: q.CHECKED ? 'covered' : 'uncovered', // 优先根据 CHECKED 字段判定状态
+      }));
+      setQuestionList(mappedList);
+    }
+  }, [itemDetail.questionInfoList]);
 
   useEffect(() => {
     if (!itemDetail.id) return;
@@ -186,15 +261,17 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
           const data = JSON.parse(event.data);
           // 如果后端在推送中直接带了状态，则根据状态处理
           if (data.reportStatus) {
-            // 更新本地轮询状态标志
-            if (data.reportStatus === DealReportStatusEnum.REPORT_GENERATED || data.reportStatus === DealReportStatusEnum.REPORT_FAILED) {
-              setReportPolling(false);
-              // 状态同步到 store
-              dispatch(dueDiligenceActions.putCurrentItem(detailRef.current.id, {...detailRef.current, reportStatus: data.reportStatus}));
-            } else if (data.reportStatus === DealReportStatusEnum.REPORT_GENERATING) {
-              setReportPolling(true);
-              // 状态同步到 store
-              dispatch(dueDiligenceActions.putCurrentItem(detailRef.current.id, {...detailRef.current, reportStatus: data.reportStatus}));
+            const prevStatus = detailRef.current.reportStatus;
+            if (prevStatus !== data.reportStatus) {
+              // 状态改变，记录并处理
+              if (data.reportStatus === DealReportStatusEnum.REPORT_GENERATED || data.reportStatus === DealReportStatusEnum.REPORT_FAILED) {
+                setReportPolling(false);
+                dispatch(dueDiligenceActions.putCurrentItem(detailRef.current.id, {...detailRef.current, reportStatus: data.reportStatus}));
+                refreshPage();
+              } else if (data.reportStatus === DealReportStatusEnum.REPORT_GENERATING) {
+                setReportPolling(true);
+                dispatch(dueDiligenceActions.putCurrentItem(detailRef.current.id, {...detailRef.current, reportStatus: data.reportStatus}));
+              }
             }
           }
         } catch (e) {
@@ -212,13 +289,6 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
       if (ws) ws.close();
     };
   }, [itemDetail.id, refreshPage, dispatch]);
-
-  // 当处于生成状态时，初始设置 reportPolling 为 true
-  useEffect(() => {
-    if (itemDetail.reportStatus === DealReportStatusEnum.REPORT_GENERATING) {
-      setReportPolling(true);
-    }
-  }, [itemDetail.reportStatus]);
 
   const [supplementaryContent, setSupplementaryContent] = useState('');
 
@@ -276,6 +346,29 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
 
     return props;
   }, [itemDetail.id, refreshPage]);
+
+  const onEditSubmit = useThrottleEvent((data: any) => {
+    const formData = {...itemDetail, ...data};
+    const isCompanyNameChanged = data.companyName && data.companyName !== itemDetail.companyName;
+
+    // 如果在表单中更改了 templateId，则确保同步更新 questionId
+    if (data.templateId && configs) {
+      const selectedTpl = configs.template.list.find((t) => String(t.id) === String(data.templateId));
+      if (selectedTpl?.questionId) {
+        formData.questionId = String(selectedTpl.questionId);
+      }
+    }
+
+    DueDiligenceAPI.createItem(formData).then(() => {
+      setIsEditModalVisible(false);
+      if (isCompanyNameChanged && itemDetail.id) {
+        DueDiligenceAPI.clearAiInsight(itemDetail.id).catch((err) => {
+          console.error('Failed to clear AI Insight:', err);
+        });
+      }
+      refreshPage();
+    });
+  });
 
   useEffect(() => {
     const checkOverflow = () => {
@@ -389,6 +482,348 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
           .catch(() => {
             setReportPolling(false);
           });
+      },
+    });
+  });
+
+  const onShowScrapingSuccess = useThrottleEvent(() => {
+    notification.open({
+      message: null,
+      description: (
+        <div className={styles.scrapingNotification}>
+          <div className="hd">
+            <div className="icon-wrap">
+              <ThunderboltOutlined />
+            </div>
+            <div className="title-wrap">
+              <div className="title">企业数据抓取已完成!</div>
+            </div>
+          </div>
+          <div className="bd">
+            系统已为您抓取该企业的全网数据并提炼深度线索，<span className="highlight">发现多项重要异常特征</span>，建议立即查看。
+          </div>
+          <div className="ft">
+            <Button
+              type="primary"
+              block
+              style={{height: 40, borderRadius: 14, fontSize: 14, fontWeight: 700}}
+              onClick={() => {
+                notification.destroy();
+                setShowScrapingResultModal(true);
+              }}
+            >
+              立即查看数据结果
+            </Button>
+          </div>
+        </div>
+      ),
+      placement: 'bottomRight',
+      duration: 3,
+      className: styles.customNotification,
+      style: {
+        width: 360,
+        borderRadius: 20,
+        padding: 0,
+      },
+      closeIcon: (
+        <div style={{background: '#f1f5f9', borderRadius: '50%', padding: 4, display: 'flex'}}>
+          <CloseOutlined style={{fontSize: 14, color: '#94a3b8'}} />
+        </div>
+      ),
+    });
+  });
+
+  const executeScraping = useCallback(() => {
+    setScrapingStatus('loading');
+    DueDiligenceAPI.syncEnterprise(itemDetail.id)
+      .then(() => {
+        setScrapingStatus('completed');
+        onShowScrapingSuccess();
+        refreshPage(); // 抓取完成后刷新页面获取最新数据
+      })
+      .catch(() => {
+        setScrapingStatus('ready');
+        message.error('企业数据抓取失败，请稍后重试');
+      });
+  }, [itemDetail.id, onShowScrapingSuccess, refreshPage]);
+
+  const onStartScraping = useThrottleEvent(() => {
+    Modal.confirm({
+      centered: true,
+      width: 480,
+      icon: null,
+      className: styles.scrapingModal,
+      content: (
+        <div className={styles.modalContent}>
+          <div className="icon-header">
+            <ClockCircleOutlined />
+          </div>
+          <div className="title">确认开始企业数据抓取？</div>
+          <div className="info-box">
+            <div className="item">
+              <ThunderboltOutlined className="lightning" />
+              <span>系统将启动全网数据抓取引擎，深度检索工商、司法、舆情及行业研报。</span>
+            </div>
+            <div className="item">
+              <ExclamationCircleOutlined className="warning" />
+              <span>
+                由于涉及大量实时数据处理与 AI 深度推理，<span className="highlight">整个过程预计需要 1-2 分钟</span>
+                ，请保持页面开启。
+              </span>
+            </div>
+          </div>
+        </div>
+      ),
+      okText: (
+        <span>
+          立即开始分析 <ThunderboltOutlined style={{marginLeft: 4}} />
+        </span>
+      ),
+      cancelText: '取消',
+      okButtonProps: {
+        className: styles.modalOkBtn,
+      },
+      cancelButtonProps: {
+        className: styles.modalCancelBtn,
+      },
+      onOk: () => {
+        executeScraping();
+      },
+      afterOpenChange: (open) => showMask(open),
+    });
+  });
+
+  const hasAutoAttempted = useRef(false);
+  useEffect(() => {
+    // 自动抓取逻辑：如果有关联企业（creditCode 或 companyName）且当前补充信息为空，则进入页面后自动启动静默抓取
+    const hasEnterpriseInfo = !!(itemDetail.creditCode || itemDetail.companyName);
+    const hasNoSupplementary = !itemDetail.supplementary || itemDetail.supplementary.length === 0;
+
+    if (hasEnterpriseInfo && hasNoSupplementary && scrapingStatus === 'ready' && !hasAutoAttempted.current) {
+      hasAutoAttempted.current = true;
+      const timer = setTimeout(() => {
+        executeScraping();
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+    return undefined;
+  }, [itemDetail.id, itemDetail.creditCode, itemDetail.companyName, scrapingStatus, executeScraping, itemDetail.supplementary]);
+
+  const onShowAIInsightSuccess = useThrottleEvent((count: number) => {
+    notification.open({
+      message: null,
+      description: (
+        <div className={styles.aiInsightNotification}>
+          <div className={styles.iconWrap}>
+            <RocketOutlined />
+          </div>
+          <div className={styles.rightContent}>
+            <div className={styles.title}>AI洞察已生成完成</div>
+            <div className={styles.bd}>已生成 {count} 个补充问题，可直接导入访谈问题清单。</div>
+            <div className={styles.ft}>
+              <Button
+                type="primary"
+                className={styles.primaryBtn}
+                onClick={() => {
+                  notification.destroy();
+                  setShowAiInsightView(true);
+                }}
+              >
+                查看 AI洞察
+              </Button>
+              <Button className={styles.secondaryBtn} onClick={() => notification.destroy()}>
+                稍后处理
+              </Button>
+            </div>
+          </div>
+        </div>
+      ),
+      placement: 'bottomRight',
+      duration: 3,
+      className: styles.customNotification,
+      style: {
+        width: 360,
+        borderRadius: 20,
+        padding: 0,
+      },
+    });
+  });
+
+  const executeAiInsight = useCallback(
+    (regenerate: boolean = false) => {
+      setAiInsightStatus('loading');
+      setAiInsightProgress(0);
+      // 模拟进度条，但同时发起真实请求
+      const timer = setInterval(() => {
+        setAiInsightProgress((prev) => (prev >= 90 ? 90 : prev + 10));
+      }, 300);
+
+      DueDiligenceAPI.aiInsight(itemDetail.id, regenerate)
+        .then((list) => {
+          clearInterval(timer);
+          setAiInsightProgress(100);
+          setAiInsightList(list || []);
+          setSelectedAiKeys((list || []).map((item) => item.id)); // 默认全选
+          setAiInsightStatus('completed');
+          onShowAIInsightSuccess((list || []).length);
+        })
+        .catch(() => {
+          clearInterval(timer);
+          setAiInsightStatus('idle');
+          message.error('AI洞察生成失败，请稍后重试');
+        });
+    },
+    [itemDetail.id, onShowAIInsightSuccess]
+  );
+
+  const onImportAiQuestions = useThrottleEvent(async () => {
+    if (selectedAiKeys.length === 0) {
+      message.warning('请选择要导入的问题');
+      return;
+    }
+
+    const questionsToImport = aiInsightList.filter((q) => selectedAiKeys.includes(q.id));
+
+    try {
+      await DueDiligenceAPI.acceptAiInsight(itemDetail.id, questionsToImport);
+      message.success(`成功导入 ${questionsToImport.length} 条问题`);
+      needsAiRefreshRef.current = true; // 导入成功后标记需要重新拉取
+      setShowAiInsightView(false);
+      refreshPage();
+    } catch (e: any) {
+      message.error('导入失败：' + (e.message || '未知错误'));
+    }
+  });
+
+  const onQuestionListAction = (action: string) => {
+    switch (action) {
+      case 'ai':
+        if (aiInsightStatus !== 'completed' || needsAiRefreshRef.current) {
+          executeAiInsight(false);
+          needsAiRefreshRef.current = false;
+        } else {
+          setShowAiInsightView(true);
+        }
+        break;
+      case 'switch':
+        setIsQuestionModalVisible(true);
+        DueDiligenceAPI.getTemplateInfoList(itemDetail.id).then((list) => {
+          setAllQuestionsTemplates(list || []);
+        });
+        break;
+      case 'add':
+        setIsAddingQuestion((prev) => !prev);
+        break;
+      default:
+        break;
+    }
+  };
+
+  const onConfirmAddQuestion = useEvent(async () => {
+    const val = newQuestionValue.trim();
+    if (!val) {
+      setIsAddingQuestion(false);
+      return;
+    }
+
+    // 构造新问题对象（契合后端需要的字段格式，不传 id 交由后端生成）
+    const newQ = {
+      questionName: val,
+      questionAnswer: '',
+      CHECKED: false,
+      isManual: true, // 标记为手动添加
+    };
+
+    // 构造全量上传列表
+    const payloadList = [newQ, ...(itemDetail.questionInfoList || [])];
+
+    try {
+      await DueDiligenceAPI.updateQuestionList({
+        id: itemDetail.id,
+        questionId: itemDetail.questionId,
+        questionInfoList: payloadList,
+      });
+      message.success('问题添加成功');
+      setNewQuestionValue('');
+      setIsAddingQuestion(false);
+      // 调用接口保存成功后，再刷新页面取最新数据
+      refreshPage();
+    } catch (e: any) {
+      console.error(e);
+      message.error(e?.message || '问题添加失败，请重试');
+    }
+  });
+
+  const onSelectQuestionTemplate = (tplId: string) => {
+    setSwitchingQuestion(true);
+    // 更新当前尽调实例关联的问题清单 ID
+    DueDiligenceAPI.createItem({
+      id: itemDetail.id,
+      questionId: tplId,
+    } as any)
+      .then(() => {
+        message.success('切换清单成功');
+        setIsQuestionModalVisible(false);
+        refreshPage();
+      })
+      .finally(() => {
+        setSwitchingQuestion(false);
+      });
+  };
+
+  const onConfirmEditQuestion = useEvent(async (id: string) => {
+    const val = editingQuestionValue.trim();
+    if (!val || !itemDetail.questionInfoList) {
+      setEditingQuestionId(null);
+      return;
+    }
+
+    const payloadList = itemDetail.questionInfoList.map((q) => {
+      if (String(q.id) === String(id)) {
+        return {...q, questionName: val};
+      }
+      return q;
+    });
+
+    try {
+      await DueDiligenceAPI.updateQuestionList({
+        id: itemDetail.id,
+        questionId: itemDetail.questionId,
+        questionInfoList: payloadList,
+      });
+      message.success('更新成功');
+      setEditingQuestionId(null);
+      refreshPage();
+    } catch (e: any) {
+      console.error(e);
+      message.error(e?.message || '更新失败');
+    }
+  });
+
+  const onDeleteQuestion = useEvent((id: string) => {
+    Modal.confirm({
+      title: '删除确认',
+      content: '确定要删除这条访谈问题吗？删除后不可恢复。',
+      okText: '删除',
+      okButtonProps: {danger: true},
+      cancelText: '取消',
+      centered: true,
+      onOk: async () => {
+        if (!itemDetail.questionInfoList) return;
+        const payloadList = itemDetail.questionInfoList.filter((q) => String(q.id) !== String(id));
+
+        try {
+          await DueDiligenceAPI.updateQuestionList({
+            id: itemDetail.id,
+            questionId: itemDetail.questionId,
+            questionInfoList: payloadList,
+          });
+          message.success('删除成功');
+          refreshPage();
+        } catch (e: any) {
+          console.error(e);
+          message.error(e?.message || '删除失败');
+        }
       },
     });
   });
@@ -784,30 +1219,98 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
           </div>
         </div>
       </div>
+      <div
+        className={classNames(styles.scrapingRow, {
+          [styles.loading]: scrapingStatus === 'loading',
+          [styles.completed]: scrapingStatus === 'completed',
+        })}
+      >
+        <div className="left">
+          <div className="icon-box">
+            <img src={ReviewIcon} alt="BrainIcon" />
+            {scrapingStatus === 'loading' && <div className="loading-mask" />}
+          </div>
+          <div className="text-box">
+            <div className="title">
+              {scrapingStatus === 'loading' ? '企业数据抓取中' : scrapingStatus === 'completed' ? '企业数据抓取已完成' : '企业数据抓取'}
+            </div>
+            {scrapingStatus !== 'completed' && (
+              <div className="desc">
+                {scrapingStatus === 'loading'
+                  ? '正在调取全网检索接口，执行深度隐患筛查，此过程不影响您当前的操作'
+                  : '全网数据深度抓取，精准识别访谈重点'}
+                {scrapingStatus === 'loading' && <span className="dot">...</span>}
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="right-action">
+          {scrapingStatus === 'ready' && (
+            <Button type="primary" icon={<ThunderboltOutlined />} style={{borderRadius: 10}} onClick={onStartScraping}>
+              开始抓取
+            </Button>
+          )}
+          {scrapingStatus === 'completed' && (
+            <div style={{display: 'flex', gap: 12}}>
+              <Button
+                type="primary"
+                icon={<ProfileOutlined />}
+                style={{borderRadius: 10, height: 40}}
+                onClick={() => setShowScrapingResultModal(true)}
+              >
+                查看抓取结果
+              </Button>
+              <div
+                className="refresh-btn"
+                onClick={onStartScraping}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: 44,
+                  height: 44,
+                  background: '#f1f5f9',
+                  borderRadius: 14,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                }}
+              >
+                <SyncOutlined style={{fontSize: 20, color: '#94a3b8'}} />
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
 
       <div className="cd">
         <div className="top">
           <div className="left">
             <img className="icon" src={itemDetail.logo} />
             <div className="cont">
-              <div className="title">{itemDetail.name}</div>
-            </div>
-            <div
-              className={styles.mask}
-              style={{
-                opacity: reportPolling ? 1 : undefined,
-                pointerEvents: reportPolling || itemDetail.status === '5' ? 'auto' : undefined,
-              }}
-            >
-              <Button
-                type="primary"
-                className={styles.mask_btn}
-                onClick={onRebuildReport}
-                loading={reportPolling}
-                disabled={itemDetail.status === '5'}
-              >
-                {reportPolling ? '报告生成中...' : itemDetail.status === '5' ? '已归档' : itemDetail.report?.id ? '重新生成' : '立即生成'}
-              </Button>
+              <div className="title" title={itemDetail.name}>
+                <span className="nameText">{itemDetail.name}</span>
+                <Tooltip title="编辑尽调">
+                  <EditOutlined className="editIcon" onClick={() => setIsEditModalVisible(true)} />
+                </Tooltip>
+              </div>
+              {(itemDetail.companyName || itemDetail.creditCode) && (
+                <div className={styles.compBanner}>
+                  <div className={styles.compIcon}>
+                    <BankOutlined />
+                  </div>
+                  <div className={styles.compInfo}>
+                    <div className={styles.compName} title={itemDetail.companyName}>
+                      {itemDetail.companyName || ''}
+                    </div>
+                    {itemDetail.creditCode && (
+                      <div className={styles.compCode} title={itemDetail.creditCode}>
+                        {itemDetail.creditCode}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
           <div className="center">
@@ -933,6 +1436,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
           </div>
         </div>
       </div>
+
       {/* <div className="bd">
         <Table rowKey="id" dataSource={TableSource} columns={TableColumns} pagination={false} />
       </div> */}
@@ -1277,7 +1781,376 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
             ))}
           </div>
         </div> */}
+        <div className="step">
+          <div className="subject" onClick={() => setIsQuestionListCollapsed(!isQuestionListCollapsed)}>
+            <div className="collapse-icon">{isQuestionListCollapsed ? <CaretRightOutlined /> : <CaretDownOutlined />}</div>
+            访谈问题清单
+            <div className={styles.qToolbar} onClick={(e) => e.stopPropagation()}>
+              {showAiInsightView ? (
+                <div style={{display: 'flex', gap: '8px', alignItems: 'center'}}>
+                  <Button
+                    type="primary"
+                    danger={false}
+                    icon={<RocketOutlined />}
+                    onClick={() => setShowAiInsightView(false)}
+                    className={styles.exitAiBtn}
+                  >
+                    退出AI洞察
+                  </Button>
+                  <Tooltip title="重新生成AI洞察">
+                    <Button
+                      className={styles.aiRefreshBtn}
+                      icon={<SyncOutlined spin={aiInsightStatus === 'loading'} />}
+                      onClick={() => executeAiInsight(true)}
+                    />
+                  </Tooltip>
+                  <Button className={styles.aiSwitchBtn} onClick={() => onQuestionListAction('switch')}>
+                    切换问题清单
+                  </Button>
+                </div>
+              ) : (
+                <>
+                  <Tooltip title="AI 洞察">
+                    <Button
+                      type="link"
+                      icon={<RocketOutlined />}
+                      onClick={() => onQuestionListAction('ai')}
+                      className={styles.aiBtn}
+                      disabled={isAIInsightDisabled}
+                    >
+                      AI 洞察
+                    </Button>
+                  </Tooltip>
+                  <Tooltip title="切换清单">
+                    <Button type="link" icon={<SwapOutlined />} onClick={() => onQuestionListAction('switch')}>
+                      切换清单
+                    </Button>
+                  </Tooltip>
+                  <Tooltip title="手动添加">
+                    <Button
+                      type={isAddingQuestion ? 'primary' : 'default'}
+                      icon={<PlusOutlined />}
+                      onClick={() => onQuestionListAction('add')}
+                      className={classNames(styles.addBtn, {[styles.active]: isAddingQuestion})}
+                    >
+                      手动添加
+                    </Button>
+                  </Tooltip>
+                </>
+              )}
+            </div>
+          </div>
+          <div className={`${styles.list} ${styles.fullWidthList} ${isQuestionListCollapsed ? styles.collapsed : ''}`}>
+            {showAiInsightView ? (
+              <div className={styles.aiInsightViewContainer}>
+                <div className={styles.aiViewHeader}>
+                  <div className={styles.left}>
+                    <div className={styles.vTitle}>AI洞察问题清单</div>
+                  </div>
+                  <div className={styles.right}>
+                    <Button
+                      className={styles.batchBtn}
+                      onClick={() => {
+                        if (selectedAiKeys.length === aiInsightList.length) {
+                          setSelectedAiKeys([]);
+                        } else {
+                          setSelectedAiKeys(aiInsightList.map((i) => i.id));
+                        }
+                      }}
+                    >
+                      {selectedAiKeys.length === aiInsightList.length ? '取消全选' : '全部选择'}
+                    </Button>
+                    <Button type="primary" className={styles.importBtn} onClick={onImportAiQuestions} disabled={selectedAiKeys.length === 0}>
+                      导入到当前清单
+                    </Button>
+                  </div>
+                </div>
+
+                <div className={styles.aiInfoBanner}>
+                  <div className={styles.bannerContent}>
+                    <div className={styles.bTitle}>AI洞察问题清单</div>
+                    <div className={styles.bDesc}>这里展示 AI 洞察生成的补充访谈问题，勾选后可一键导入到当前访谈问题清单。</div>
+                  </div>
+                  <div className={styles.bannerStats}>
+                    <span className={styles.totalBadge}>共 {aiInsightStatus === 'loading' ? 0 : aiInsightList.length} 个问题</span>
+                    <span className={styles.selectedBadge}>已选 {aiInsightStatus === 'loading' ? 0 : selectedAiKeys.length} 个</span>
+                  </div>
+                </div>
+
+                <div className={styles.aiQuestionsScroll}>
+                  {aiInsightStatus === 'loading' ? (
+                    <div className={styles.aiInsightLoadingCard} style={{margin: '20px 0', border: '1.5px solid #d0e6ff'}}>
+                      <div className={styles.aiTop}>
+                        <div className={styles.aiIconBox}>
+                          <div className={styles.aiIconSpin}>
+                            <RocketOutlined />
+                          </div>
+                        </div>
+                        <div className={styles.aiInfo}>
+                          <div className={styles.aiTitle}>AI 洞察生成中</div>
+                          <div className={styles.aiSub}>正在后台生成补充问题，你可以继续编辑当前问题清单。</div>
+                        </div>
+                        <div className={styles.aiStepBadge}>{Math.min(4, Math.floor(aiInsightProgress / 25) + 1)}/4</div>
+                      </div>
+                      <div className={styles.aiProgressWrap}>
+                        <Progress percent={aiInsightProgress} strokeColor={twoColors} showInfo={false} strokeWidth={6} style={{marginTop: 8}} />
+                      </div>
+                      <div className={styles.aiTasks}>
+                        <div className={classNames(styles.taskItem, {[styles.active]: aiInsightProgress >= 0})}>
+                          {aiInsightProgress > 25 ? <CheckCircleOutlined className={styles.done} /> : <LoadingOutlined className={styles.loading} />}
+                          <span>正在整理企业抓取结果与已有资料...</span>
+                        </div>
+                        {aiInsightProgress >= 25 && (
+                          <div className={classNames(styles.taskItem, styles.active)}>
+                            {aiInsightProgress > 50 ? (
+                              <CheckCircleOutlined className={styles.done} />
+                            ) : (
+                              <LoadingOutlined className={styles.loading} />
+                            )}
+                            <span>正在识别高风险追问点与管理层答复缺口...</span>
+                          </div>
+                        )}
+                        {aiInsightProgress >= 50 && (
+                          <div className={classNames(styles.taskItem, styles.active)}>
+                            {aiInsightProgress > 75 ? (
+                              <CheckCircleOutlined className={styles.done} />
+                            ) : (
+                              <LoadingOutlined className={styles.loading} />
+                            )}
+                            <span>正在生成分主题访谈问题，并进行重复问题合并...</span>
+                          </div>
+                        )}
+                        {aiInsightProgress >= 75 && (
+                          <div className={classNames(styles.taskItem, styles.active)}>
+                            {aiInsightProgress >= 100 ? (
+                              <CheckCircleOutlined className={styles.done} />
+                            ) : (
+                              <LoadingOutlined className={styles.loading} />
+                            )}
+                            <span>正在输出可直接导入的问题清单...</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ) : (
+                    aiInsightList.map((item) => (
+                      <div
+                        key={item.id}
+                        className={classNames(styles.aiQuestionCard, {[styles.selected]: selectedAiKeys.includes(item.id)})}
+                        onClick={() => {
+                          setSelectedAiKeys((prev) => (prev.includes(item.id) ? prev.filter((k) => k !== item.id) : [...prev, item.id]));
+                        }}
+                      >
+                        <div className={styles.cardSelect}>
+                          <div className={classNames(styles.customCheckbox, {[styles.checked]: selectedAiKeys.includes(item.id)})}>
+                            {selectedAiKeys.includes(item.id) && <CheckOutlined />}
+                          </div>
+                        </div>
+                        <div className={styles.cardMain}>
+                          <div className={styles.cTop}>
+                            <span className={styles.cTag}>AI洞察</span>
+                            <span className={styles.cTag}>补充建议</span>
+                          </div>
+                          <div className={styles.cTitle}>{item.questionContent}</div>
+                          <div className={styles.cBot}>
+                            <span className={styles.aiLabel}>AI 洞察</span>
+                            <span className={styles.aiReason}>根据企业经营风险及财务状况提炼生成</span>
+                          </div>
+                        </div>
+                        {selectedAiKeys.includes(item.id) && (
+                          <div className={styles.cardStatusBadge}>
+                            <span className={styles.statusTxt}>已选中</span>
+                            <CheckCircleFilled className={styles.statusIcon} />
+                          </div>
+                        )}
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            ) : questionList.length > 0 ? (
+              <div className={styles.qListContainer}>
+                {isAIInsightDisabled && (
+                  <div className={styles.aiDisabledHint}>存在企业名称、文档资料或文本资料中的任意一项后，即可使用 AI 洞察。</div>
+                )}
+                <div className={styles.qListHeader}>
+                  <div className={styles.leftTitle}>当前问题清单</div>
+                  <div className={styles.rightInfo}>当前模板：{currentTemplateName}</div>
+                </div>
+
+                {aiInsightStatus === 'loading' && (
+                  <div className={styles.aiInsightLoadingCard}>
+                    <div className={styles.aiTop}>
+                      <div className={styles.aiIconBox}>
+                        <div className={styles.aiIconSpin}>
+                          <RocketOutlined />
+                        </div>
+                      </div>
+                      <div className={styles.aiInfo}>
+                        <div className={styles.aiTitle}>AI 洞察生成中</div>
+                        <div className={styles.aiSub}>正在后台生成补充问题，你可以继续编辑当前问题清单。</div>
+                      </div>
+                      <div className={styles.aiStepBadge}>{Math.min(4, Math.floor(aiInsightProgress / 25) + 1)}/4</div>
+                    </div>
+                    <div className={styles.aiProgressWrap}>
+                      <Progress percent={aiInsightProgress} strokeColor={twoColors} showInfo={false} strokeWidth={6} style={{marginTop: 8}} />
+                    </div>
+                    <div className={styles.aiTasks}>
+                      <div className={classNames(styles.taskItem, {[styles.active]: aiInsightProgress >= 0})}>
+                        {aiInsightProgress > 25 ? <CheckCircleOutlined className={styles.done} /> : <LoadingOutlined className={styles.loading} />}
+                        <span>正在整理企业抓取结果与已有资料...</span>
+                      </div>
+                      {aiInsightProgress >= 25 && (
+                        <div className={classNames(styles.taskItem, styles.active)}>
+                          {aiInsightProgress > 50 ? <CheckCircleOutlined className={styles.done} /> : <LoadingOutlined className={styles.loading} />}
+                          <span>正在识别高风险追问点与管理层答复缺口...</span>
+                        </div>
+                      )}
+                      {aiInsightProgress >= 50 && (
+                        <div className={classNames(styles.taskItem, styles.active)}>
+                          {aiInsightProgress > 75 ? <CheckCircleOutlined className={styles.done} /> : <LoadingOutlined className={styles.loading} />}
+                          <span>正在生成分主题访谈问题，并进行重复问题合并...</span>
+                        </div>
+                      )}
+                      {aiInsightProgress >= 75 && (
+                        <div className={classNames(styles.taskItem, styles.active)}>
+                          {aiInsightProgress >= 100 ? (
+                            <CheckCircleOutlined className={styles.done} />
+                          ) : (
+                            <LoadingOutlined className={styles.loading} />
+                          )}
+                          <span>正在输出可直接导入的问题清单...</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                <div className={styles.qListBody}>
+                  {isAddingQuestion && (
+                    <div className={styles.addQuestionRow}>
+                      <Input
+                        placeholder="请输入访谈问题內容..."
+                        value={newQuestionValue}
+                        onChange={(e) => setNewQuestionValue(e.target.value)}
+                        onPressEnter={onConfirmAddQuestion}
+                        autoFocus
+                      />
+                      <div className={styles.addActions}>
+                        <span className={styles.confirmLink} onClick={onConfirmAddQuestion}>
+                          添加问题
+                        </span>
+                        <span className={styles.divider}>|</span>
+                        <span className={styles.cancelLink} onClick={() => setIsAddingQuestion(false)}>
+                          取消
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                  {questionList.map((q, index) => (
+                    <div key={q.id || index} className={styles.questionRow}>
+                      <div className={styles.rowTop}>
+                        <span className={`${styles.qTag} ${q.isManual ? styles.purple : styles.blue}`}>{q.isManual ? '手动添加' : '模板预设'}</span>
+                        {q.status === 'covered' && <span className={`${styles.qTag} ${styles.green}`}>已关联资料</span>}
+                      </div>
+                      <div className={styles.rowMid}>
+                        {editingQuestionId === q.id ? (
+                          <div className={styles.inlineEditWrap}>
+                            <Input
+                              value={editingQuestionValue}
+                              onChange={(e) => setEditingQuestionValue(e.target.value)}
+                              autoFocus
+                              onPressEnter={() => onConfirmEditQuestion(q.id)}
+                            />
+                            <div className={styles.editActions}>
+                              <div className={`${styles.iconBtn} ${styles.primary}`} onClick={() => onConfirmEditQuestion(q.id)}>
+                                <CheckOutlined />
+                              </div>
+                              <div className={styles.iconBtn} onClick={() => setEditingQuestionId(null)}>
+                                <CloseOutlined />
+                              </div>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className={styles.qTitle}>{q.title}</div>
+                        )}
+                      </div>
+                      {!editingQuestionId && q.desc && (
+                        <div className={styles.rowBot}>
+                          <div className={styles.qDesc}>{q.desc}</div>
+                        </div>
+                      )}
+                      {!editingQuestionId && (
+                        <div className={styles.rowActions}>
+                          <Tooltip title="编辑">
+                            <div
+                              className={styles.actionBtn}
+                              onClick={() => {
+                                setEditingQuestionId(q.id);
+                                setEditingQuestionValue(q.title);
+                              }}
+                            >
+                              <EditOutlined />
+                            </div>
+                          </Tooltip>
+                          <Tooltip title="删除">
+                            <div className={styles.actionBtn} onClick={() => onDeleteQuestion(q.id)}>
+                              <CloseOutlined />
+                            </div>
+                          </Tooltip>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                <div className={styles.qListFooter}>共 {questionList.length} 个访谈问题</div>
+              </div>
+            ) : (
+              <div className="empty">暂无问题清单</div>
+            )}
+          </div>
+        </div>
       </div>
+      <Modal
+        title={<div style={{fontSize: '15px'}}>选择问题清单</div>}
+        width={420}
+        open={isQuestionModalVisible}
+        footer={null}
+        centered
+        styles={{
+          mask: {backdropFilter: 'blur(4px)'},
+          header: {marginBottom: '8px'},
+          content: {borderRadius: '20px', padding: '12px 16px'},
+          body: {padding: '0'},
+        }}
+        onCancel={() => setIsQuestionModalVisible(false)}
+        afterOpenChange={(open: boolean) => {
+          showMask(open);
+        }}
+      >
+        <List
+          loading={switchingQuestion}
+          dataSource={allQuestionsTemplates}
+          renderItem={(item) => (
+            <List.Item
+              className={classNames(styles.tplSelectItem, String(item.id) === String(itemDetail.questionId) && styles.active)}
+              onClick={() => onSelectQuestionTemplate(item.id)}
+            >
+              <div className={styles.tplInfo}>
+                <Tooltip title={item.templateName}>
+                  <div className={styles.name}>{item.templateName}</div>
+                </Tooltip>
+                <div className={styles.count}>{item.questionList?.length || 0} 个预制问题</div>
+              </div>
+              <div className={styles.tplAction}>
+                {String(item.id) === String(itemDetail.questionId) && <div className={styles['current-tag']}>当前</div>}
+                <RightOutlined className="arrow" />
+              </div>
+            </List.Item>
+          )}
+        />
+      </Modal>
+
       <Modal
         title="问题清单"
         width={750}
@@ -1341,6 +2214,191 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
           setAudioPlayer({...audioPlayer, visible: false});
         }}
       />
+
+      {/* 企业数据抓取结果 Modal */}
+      <Modal
+        title={
+          <div style={{display: 'flex', alignItems: 'center', gap: 10}}>
+            <div
+              style={{
+                width: 36,
+                height: 36,
+                borderRadius: 10,
+                background: '#1677ff',
+                color: '#fff',
+                fontSize: 20,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <ApiOutlined />
+            </div>
+            <div style={{display: 'flex', flexDirection: 'column', justifyContent: 'center', lineHeight: 1.2}}>
+              <div style={{fontSize: 16, fontWeight: 800, color: '#1e293b', marginBottom: '4px'}}>企业数据抓取结果</div>
+              <div style={{fontSize: 12, color: '#1677ff', opacity: 0.8}}>深度扫描结果 ·</div>
+            </div>
+          </div>
+        }
+        open={showScrapingResultModal}
+        onCancel={() => setShowScrapingResultModal(false)}
+        footer={
+          <Button onClick={() => setShowScrapingResultModal(false)} style={{borderRadius: 8, padding: '0 24px'}}>
+            关闭
+          </Button>
+        }
+        width={760}
+        destroyOnClose
+        centered
+        className={styles.scrapingResultUiModal}
+      >
+        <div className={styles.scrapingResultBody}>
+          {isEnterpriseLoading ? (
+            <div style={{padding: '40px 0', textAlign: 'center'}}>
+              <SyncOutlined spin style={{fontSize: 24, color: '#1677ff', marginBottom: 12}} />
+              <div style={{fontSize: 13, color: '#64748b'}}>正在深度扫描全网线索...</div>
+            </div>
+          ) : (
+            <>
+              <div className={styles.sectionWrap}>
+                <div className={styles.secHeader}>
+                  <BankOutlined style={{color: '#1677ff', marginRight: 6}} /> 企业概况
+                </div>
+                <div className={styles.dataGrid}>
+                  <div className={styles.dataCard}>
+                    <div className={styles.label}>企业名称</div>
+                    <div className={styles.val}>{enterpriseInfo?.result?.name || itemDetail.companyName || '暂无'}</div>
+                  </div>
+                  <div className={styles.dataCard}>
+                    <div className={styles.label}>企业状态</div>
+                    <div className={styles.val}>{enterpriseInfo?.result?.regStatus || '暂无'}</div>
+                  </div>
+                  <div className={styles.dataCard}>
+                    <div className={styles.label}>法定代表人</div>
+                    <div className={styles.val}>{enterpriseInfo?.result?.legalPersonName || '暂无'}</div>
+                  </div>
+                  <div className={styles.dataCard}>
+                    <div className={styles.label}>统一社会信用代码</div>
+                    <div className={styles.val}>{enterpriseInfo?.result?.creditCode || itemDetail.creditCode || '暂无'}</div>
+                  </div>
+                  <div className={styles.dataCard}>
+                    <div className={styles.label}>注册资本</div>
+                    <div className={styles.val}>{enterpriseInfo?.result?.regCapital || '暂无'}</div>
+                  </div>
+                  <div className={styles.dataCard}>
+                    <div className={styles.label}>成立日期</div>
+                    <div className={styles.val}>
+                      {enterpriseInfo?.result?.estiblishTime ? new Date(enterpriseInfo.result.estiblishTime).toLocaleDateString() : '暂无'}
+                    </div>
+                  </div>
+                  <div className={styles.dataCard}>
+                    <div className={styles.label}>所属行业</div>
+                    <div className={styles.val}>{enterpriseInfo?.result?.industryAll?.category || enterpriseInfo?.result?.industry || '暂无'}</div>
+                  </div>
+                  <div className={styles.dataCard}>
+                    <div className={styles.label}>人员规模</div>
+                    <div className={styles.val}>{enterpriseInfo?.result?.staffNumRange || enterpriseInfo?.result?.staffSize || '暂无'}</div>
+                  </div>
+                  <div className={styles.dataCard}>
+                    <div className={styles.label}>注册地址</div>
+                    <div className={styles.val}>{enterpriseInfo?.result?.regLocation || '暂无'}</div>
+                  </div>
+                </div>
+              </div>
+
+              <div className={styles.sectionWrap} style={{marginTop: 24}}>
+                <div className={styles.secHeader}>
+                  <SafetyCertificateOutlined style={{color: '#1677ff', marginRight: 6}} /> 抓取结果明细
+                </div>
+                <div className={styles.dataGrid} style={{gridTemplateColumns: 'repeat(2, 1fr)'}}>
+                  <div className={styles.dataCard}>
+                    <div className={styles.label}>公司类型</div>
+                    <div className={styles.val}>{enterpriseInfo?.result?.companyOrgType || '暂无'}</div>
+                  </div>
+                  <div className={styles.dataCard}>
+                    <div className={styles.label}>股票简称</div>
+                    <div className={styles.val}>{enterpriseInfo?.result?.bondName || '暂无'}</div>
+                  </div>
+                  <div className={styles.dataCard}>
+                    <div className={styles.label}>股票代码</div>
+                    <div className={styles.val}>{enterpriseInfo?.result?.bondNum || '暂无'}</div>
+                  </div>
+                  <div className={styles.dataCard}>
+                    <div className={styles.label}>登记机关</div>
+                    <div className={styles.val}>{enterpriseInfo?.result?.regInstitute || '暂无'}</div>
+                  </div>
+                  <div className={styles.dataCard}>
+                    <div className={styles.label}>注册号</div>
+                    <div className={styles.val}>{enterpriseInfo?.result?.regNumber || '暂无'}</div>
+                  </div>
+                  <div className={styles.dataCard}>
+                    <div className={styles.label}>组织机构代码</div>
+                    <div className={styles.val}>{enterpriseInfo?.result?.orgNumber || '暂无'}</div>
+                  </div>
+                  <div className={styles.dataCard}>
+                    <div className={styles.label}>核准日期</div>
+                    <div className={styles.val}>
+                      {enterpriseInfo?.result?.approvedTime ? new Date(enterpriseInfo.result.approvedTime).toLocaleDateString() : '暂无'}
+                    </div>
+                  </div>
+                  <div className={styles.dataCard}>
+                    <div className={styles.label}>曾用名</div>
+                    <div className={styles.val}>{enterpriseInfo?.result?.historyNames || '暂无'}</div>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+      </Modal>
+
+      <Modal
+        width={590}
+        title="编辑尽调"
+        open={isEditModalVisible}
+        footer={null}
+        destroyOnClose
+        onCancel={() => {
+          showMask(false);
+          setIsEditModalVisible(false);
+        }}
+        afterOpenChange={(open: boolean) => {
+          showMask(open);
+        }}
+      >
+        <Edit
+          configs={configs!}
+          data={{
+            ...itemDetail,
+            questions: configs && {
+              tpl: String(
+                itemDetail.questionId ||
+                  configs.template.list.find((t) => String(t.id) === String(itemDetail.templateId))?.questionId ||
+                  configs.questions.selected
+              ),
+              list:
+                configs.questions.tpls.find(
+                  (q) =>
+                    String(q.value) ===
+                    String(
+                      itemDetail.questionId ||
+                        configs.template.list.find((t) => String(t.id) === String(itemDetail.templateId))?.questionId ||
+                        configs.questions.selected
+                    )
+                )?.list || [],
+            },
+            template: configs?.template.list.find((t) => String(t.id) === String(itemDetail.templateId)) && {
+              id: itemDetail.templateId!,
+              name: configs?.template.list.find((t) => String(t.id) === String(itemDetail.templateId))?.title || '',
+            },
+          }}
+          onCancel={() => {
+            showMask(false);
+            setIsEditModalVisible(false);
+          }}
+          onSubmit={onEditSubmit}
+        />
+      </Modal>
     </div>
   );
 };

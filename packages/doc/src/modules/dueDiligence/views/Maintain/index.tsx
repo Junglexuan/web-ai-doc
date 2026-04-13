@@ -71,6 +71,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
       id: data.id,
       name: data.name,
       logo: data.logo,
+      companyName: data.companyName,
       creditCode: data.creditCode,
       pathList: data.pathList,
       questions: {

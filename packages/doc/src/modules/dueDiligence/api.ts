@@ -90,6 +90,7 @@ export const DueDiligenceAPI = {
                 templateId: item.templateId,
                 questionId: item.questionId,
                 creditCode: item.creditCode,
+                companyName: item.companyName,
                 autoCreateFinalSheets: !!item.autoCreateFinalSheets,
                 updateDate:
                   item.updateDate || item.lastModifiedDate ? dayjs(item.updateDate || item.lastModifiedDate).format('YYYY-MM-DD HH:mm:ss') : '',
@@ -119,7 +120,9 @@ export const DueDiligenceAPI = {
         reportStatus: item.reportStatus,
         dealSummary: item.dealSummary || '',
         templateId: item.templateId,
+        questionId: item.questionId,
         creditCode: item.creditCode,
+        companyName: item.companyName,
         report,
         questionInfoList: (item.questionInfoList || []).map((q: any) => ({
           id: q.id || q.questionId || '',
@@ -151,9 +154,9 @@ export const DueDiligenceAPI = {
       } as any;
     });
   },
-  createItem(data: ListItem & {templateId?: string}): Promise<ListItem> {
+  createItem(data: ListItem & {templateId?: string; companyName?: string}): Promise<ListItem> {
     console.log(data, 'dataxxx====');
-    const {id, name, logo, templateId} = data;
+    const {id, name, logo, templateId, companyName} = data;
     return request
       .post('/api/deal/createOrUpdateDealInst', {
         id: id || undefined,
@@ -161,9 +164,13 @@ export const DueDiligenceAPI = {
         logo,
         templateId,
         creditCode: data.creditCode,
+        companyName: companyName || data.name, // 优先使用显式提供的公司名
         questionId: data.questions?.tpl || data.questionId,
       })
       .then((res) => res.data.data);
+  },
+  updateQuestionList(params: {id: string; questionId?: string; questionInfoList: any[]}): Promise<void> {
+    return request.post('/api/deal/createOrUpdateDealInst', params).then((res) => res.data.data);
   },
   deleteItem(id: string): Promise<void> {
     return request.post('/api/deal/delete', {id});
@@ -264,6 +271,10 @@ export const DueDiligenceAPI = {
 
   getTemplateList(): Promise<ReportTemplate[]> {
     return request.get('/api/template/list').then((res) => res.data.data);
+  },
+  /** 获取所有访谈问题模板清单 */
+  getTemplateInfoList(interviewDealInstId?: string): Promise<any[]> {
+    return request.get('/api/templateInfo/getTemplateList', {params: {interviewDealInstId}}).then((res) => res.data.data);
   },
 
   getTemplateDetail(id: string): Promise<ReportTemplate> {
@@ -394,6 +405,42 @@ export const DueDiligenceAPI = {
         total: data.total || 0,
       };
     });
+  },
+  /** 根据关键词搜索企业（天眼查接口） */
+  searchEnterprise(word: string): Promise<any[]> {
+    return request.get('/api/deal/tyc/search', {params: {word}}).then((res) => res.data.data || []);
+  },
+  /** 启动天眼查企业数据异步同步任务 */
+  syncEnterprise(dealId: string): Promise<void> {
+    return request.get('/api/deal/tyc/sync', {params: {dealId}});
+  },
+  /** 获取 AI 洞察结果 */
+  aiInsight(dealId: string, regenerate: boolean = false): Promise<any[]> {
+    return request.get('/api/deal/aiInsight', {params: {dealId, regenerate}}).then((res) => res.data.data || []);
+  },
+  /** 获取抓取后的企业基础信息 */
+  getEnterpriseBasicInfo(dealId: string): Promise<any> {
+    return request.get('/api/deal/tyc/basicInfo', {params: {dealId}}).then((res) => {
+      const data = res.data.data;
+      if (data && typeof data.basicInfo === 'string') {
+        try {
+          const parsed = JSON.parse(data.basicInfo);
+          // 将解析后的基础信息展开到外层，方便 UI 调用
+          return {...data, ...parsed};
+        } catch (e) {
+          console.error('Failed to parse basicInfo string:', e);
+        }
+      }
+      return data;
+    });
+  },
+  /** 清除 AI 洞察结果 */
+  clearAiInsight(dealId: string): Promise<void> {
+    return request.post('/api/deal/clearAiInsight', {dealId});
+  },
+  /** 采纳 AI 洞察建议 */
+  acceptAiInsight(dealId: string, aiInsights: any[]): Promise<void> {
+    return request.post('/api/deal/acceptAiInsight', {dealId, aiInsights}).then((res) => res.data.data);
   },
 };
 

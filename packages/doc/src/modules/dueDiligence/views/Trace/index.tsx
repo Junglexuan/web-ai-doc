@@ -2,7 +2,7 @@ import {LeftOutlined, RightOutlined} from '@ant-design/icons';
 import {Button, Skeleton, message} from 'antd';
 import {FC, useCallback, useEffect, useMemo, useState} from 'react';
 import {SiteInfo, useRouter} from '@/Global';
-import PdfLocater from '@/skill/pdf-highlighter/components/PdfLocater';
+import PdfLocater from '@/skills/pdf-highlighter/components/PdfLocater';
 import {IReferenceChunk} from '@/utils/document-util';
 import {useEvent, useThrottleEvent} from '@/utils/tools';
 import {DueDiligenceAPI} from '../../api';

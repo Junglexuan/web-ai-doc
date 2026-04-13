@@ -2,10 +2,10 @@
 // @ts-nocheck
 window.ApiBaseUrl = '';
 window.ApiPrefix = {
-  '/auth/': 'https://user.binarysee.com.cn/', //http://user.binarysee.com.cn/auth/ http://192.168.8.201:21000/
+  '/auth/': 'http://192.168.8.201:21000/', //http://user.binarysee.com.cn/auth/ http://192.168.8.201:21000/
   '/dream/': 'http://113.44.121.105/dream/', //http://verse.binarysee.com.cn/dream/ http://verse.binarysee.com/dream/
-  '/api/': 'http://68.79.42.215/report/', //http://192.168.8.201:20101/report/
-  '/ws/': 'ws://68.79.42.215/report/ws/', //ws://113.44.121.105/report/ws/ 192.168.8.201:20101
+  '/api/': 'http://192.168.8.201:20101/report/', //http://192.168.8.201:20101/report/ http://68.79.42.215/report/
+  '/ws/': 'ws://192.168.8.201:20101/report/ws/', //ws://113.44.121.105/report/ws/ 192.168.8.201:20101 ws://68.79.42.215/report/ws/
 };
 window.SitesUrl = {
   user: '//user.binarysee.com.cn',

@@ -19,6 +19,7 @@ export interface ListItem extends BaseListItem {
   name: string;
   logo: string;
   desc: string;
+  companyName?: string;
   creditCode?: string;
   progress: number;
   pathList: {uid: string; name: string; status: string; url: string; thumbUrl: string}[];
@@ -55,6 +56,8 @@ export interface ItemDetail {
   reportStatus?: string;
   dealSummary?: string;
   templateId?: string;
+  questionId?: string;
+  companyName?: string;
   updateDate?: string;
   // 报告
   report: {
