@@ -7,6 +7,7 @@ import Item from './Item';
 import Maintain from './Maintain';
 import MyReport from './MyReport';
 import MyTemplate from './MyTemplate';
+import QuestionLibrary from './QuestionLibrary';
 import ShareLink from './ShareLink';
 import Trace from './Trace';
 
@@ -44,6 +45,7 @@ const Component: FC<StoreProps & {dispatch: Dispatch}> = ({
         curRender === 'maintain' &&
         (listSummary ? <Maintain dispatch={dispatch} listSearch={listSearch!} list={list!} listSummary={listSummary!} /> : <div></div>)}
       {curView === 'list' && curRender === 'tpl' && <MyTemplate dispatch={dispatch} />}
+      {curView === 'list' && curRender === 'question' && <QuestionLibrary />}
       {curView === 'list' && curRender === 'trace' && <Trace />}
       {curView === 'list' && curRender === 'share' && <ShareLink />}
       {curView === 'list' && curRender === 'report' && (

@@ -130,6 +130,7 @@ export const DueDiligenceAPI = {
           questionAnswer: q.questionAnswer || q.answer || '',
           hitTime: q.questionAnswerTime || q.hitTime || '',
           CHECKED: q.CHECKED !== undefined ? q.CHECKED : !!(q.questionAnswer || q.answer),
+          questionType: q.questionType,
         })),
         // 准备资料
         resources: item.resources || [],
@@ -164,7 +165,7 @@ export const DueDiligenceAPI = {
         logo,
         templateId,
         creditCode: data.creditCode,
-        companyName: companyName || data.name, // 优先使用显式提供的公司名
+        companyName: companyName || undefined, // 修改：不再回退到 name，防止误报企业名称
         questionId: data.questions?.tpl || data.questionId,
       })
       .then((res) => res.data.data);

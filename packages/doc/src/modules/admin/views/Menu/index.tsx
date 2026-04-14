@@ -1,4 +1,4 @@
-import {FileTextOutlined, MessageOutlined} from '@ant-design/icons';
+import {FileTextOutlined, MessageOutlined, QuestionCircleOutlined} from '@ant-design/icons';
 import {Link} from '@elux/react-web';
 import {Menu} from 'antd';
 import {FC, useMemo} from 'react';
@@ -35,6 +35,15 @@ const items: any[] = [
     label: (
       <Link to="/admin/dueDiligence/list/tpl" action="relaunch" target="window">
         我的模版
+      </Link>
+    ),
+  },
+  {
+    key: '问题清单',
+    icon: <QuestionCircleOutlined />,
+    label: (
+      <Link to="/admin/dueDiligence/list/question" action="relaunch" target="window">
+        问题清单
       </Link>
     ),
   },
@@ -78,6 +87,9 @@ const Component: FC<{}> = () => {
     }
     if (pathname.startsWith('/admin/dueDiligence/list/tpl')) {
       return ['我的模版'];
+    }
+    if (pathname.startsWith('/admin/dueDiligence/list/question')) {
+      return ['问题清单'];
     }
     if (pathname.startsWith('/admin/dueDiligence/list/report')) {
       return ['我的报告'];

@@ -1,7 +1,7 @@
 import {BaseCurRender, BaseCurView, BaseListItem, BaseListSearch, BaseListSummary} from '@/utils/resource';
 
 export type CurView = BaseCurView;
-export type CurRender = BaseCurRender;
+export type CurRender = BaseCurRender | 'question';
 
 // 报告生成状态枚举
 export enum DealReportStatusEnum {
@@ -111,6 +111,7 @@ export interface ItemDetail {
     questionAnswer: string;
     hitTime: string;
     CHECKED: boolean;
+    questionType?: string | number;
   }[];
 }
 
@@ -227,6 +228,7 @@ export interface InterviewInstDetail {
     questionAnswer: string;
     hitTime: string;
     CHECKED: boolean;
+    questionType?: string | number;
   }[];
 }
 

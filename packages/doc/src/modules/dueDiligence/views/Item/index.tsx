@@ -85,7 +85,9 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
   const [isSupplementaryCollapsed, setIsSupplementaryCollapsed] = useState(false); //补充企业信息
   const [isInterviewCollapsed, setIsInterviewCollapsed] = useState(false);
   const [isQuestionListCollapsed, setIsQuestionListCollapsed] = useState(false); //访谈问题清单
-  const [questionList, setQuestionList] = useState<{id: string; title: string; desc: string; status: string; isManual?: boolean}[]>([]);
+  const [questionList, setQuestionList] = useState<
+    {id: string; title: string; desc: string; status: string; isManual?: boolean; questionType?: string}[]
+  >([]);
   const [reportPolling, setReportPolling] = useState(false);
   const [isSummaryCollapsed, setIsSummaryCollapsed] = useState(true);
   const [isQuestionModalVisible, setIsQuestionModalVisible] = useState(false);
@@ -146,22 +148,24 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
   }, [itemDetail.supplementary, scrapingStatus]);
 
   useEffect(() => {
-    if (showScrapingResultModal && itemDetail.id) {
+    // 只有填写了企业名称才自动抓取数据
+    if (showScrapingResultModal && itemDetail.id && itemDetail.companyName) {
       setIsEnterpriseLoading(true);
       DueDiligenceAPI.getEnterpriseBasicInfo(itemDetail.id)
         .then(setEnterpriseInfo)
         .finally(() => setIsEnterpriseLoading(false));
     }
-  }, [showScrapingResultModal, itemDetail.id]);
+  }, [showScrapingResultModal, itemDetail.id, itemDetail.companyName]);
 
   useEffect(() => {
     if (itemDetail.questionInfoList) {
       // 将后端字段映射到 UI 使用的字段格式
       const mappedList = (itemDetail.questionInfoList || []).map((q) => ({
-        id: q.id,
-        title: q.questionName,
-        desc: q.questionAnswer,
+        id: q.id || '',
+        title: q.questionName || '',
+        desc: q.questionAnswer || '',
         status: q.CHECKED ? 'covered' : 'uncovered', // 优先根据 CHECKED 字段判定状态
+        questionType: q.questionType !== undefined ? String(q.questionType) : undefined,
       }));
       setQuestionList(mappedList);
     }
@@ -534,6 +538,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
   });
 
   const executeScraping = useCallback(() => {
+    if (!itemDetail.companyName) return; // 安全防御：没有企业名称不执行抓取
     setScrapingStatus('loading');
     DueDiligenceAPI.syncEnterprise(itemDetail.id)
       .then(() => {
@@ -545,9 +550,16 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
         setScrapingStatus('ready');
         message.error('企业数据抓取失败，请稍后重试');
       });
-  }, [itemDetail.id, onShowScrapingSuccess, refreshPage]);
+  }, [itemDetail.id, itemDetail.companyName, onShowScrapingSuccess, refreshPage]);
 
   const onStartScraping = useThrottleEvent(() => {
+    // 如果没有企业名称，引导去编辑页面填写
+    if (!itemDetail.companyName) {
+      message.warning('请先完善企业名称后再进行数据抓取');
+      setIsEditModalVisible(true);
+      return;
+    }
+
     Modal.confirm({
       centered: true,
       width: 480,
@@ -593,21 +605,22 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
     });
   });
 
-  const hasAutoAttempted = useRef(false);
+  const lastAttemptedId = useRef<string | null>(null);
   useEffect(() => {
-    // 自动抓取逻辑：如果有关联企业（creditCode 或 companyName）且当前补充信息为空，则进入页面后自动启动静默抓取
-    const hasEnterpriseInfo = !!(itemDetail.creditCode || itemDetail.companyName);
+    // 自动抓取逻辑：仅当明确填写了“企业名称”且当前补充信息为空时，进入页面后自动启动静默抓取
+    // 逻辑：如果没有填写企业名称，不应该自动抓取；且每个项目 ID 只尝试一次
+    const hasEnterpriseName = !!itemDetail.companyName;
     const hasNoSupplementary = !itemDetail.supplementary || itemDetail.supplementary.length === 0;
 
-    if (hasEnterpriseInfo && hasNoSupplementary && scrapingStatus === 'ready' && !hasAutoAttempted.current) {
-      hasAutoAttempted.current = true;
+    if (hasEnterpriseName && hasNoSupplementary && scrapingStatus === 'ready' && lastAttemptedId.current !== itemDetail.id) {
+      lastAttemptedId.current = itemDetail.id;
       const timer = setTimeout(() => {
         executeScraping();
       }, 1000);
       return () => clearTimeout(timer);
     }
     return undefined;
-  }, [itemDetail.id, itemDetail.creditCode, itemDetail.companyName, scrapingStatus, executeScraping, itemDetail.supplementary]);
+  }, [itemDetail.id, itemDetail.companyName, scrapingStatus, executeScraping, itemDetail.supplementary]);
 
   const onShowAIInsightSuccess = useThrottleEvent((count: number) => {
     notification.open({
@@ -1294,20 +1307,17 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
                 </Tooltip>
               </div>
               {(itemDetail.companyName || itemDetail.creditCode) && (
-                <div className={styles.compBanner}>
-                  <div className={styles.compIcon}>
-                    <BankOutlined />
-                  </div>
-                  <div className={styles.compInfo}>
+                <div className={styles.compSimpleInfo}>
+                  {itemDetail.companyName && (
                     <div className={styles.compName} title={itemDetail.companyName}>
-                      {itemDetail.companyName || ''}
+                      {itemDetail.companyName}
                     </div>
-                    {itemDetail.creditCode && (
-                      <div className={styles.compCode} title={itemDetail.creditCode}>
-                        {itemDetail.creditCode}
-                      </div>
-                    )}
-                  </div>
+                  )}
+                  {itemDetail.creditCode && (
+                    <div className={styles.compCode} title={itemDetail.creditCode}>
+                      {itemDetail.creditCode}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -2049,7 +2059,11 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
                   {questionList.map((q, index) => (
                     <div key={q.id || index} className={styles.questionRow}>
                       <div className={styles.rowTop}>
-                        <span className={`${styles.qTag} ${q.isManual ? styles.purple : styles.blue}`}>{q.isManual ? '手动添加' : '模板预设'}</span>
+                        {q.questionType === '1' && <span className={`${styles.qTag} ${styles.blue}`}>模板预设问题</span>}
+                        {q.questionType === '2' && <span className={`${styles.qTag} ${styles.purple}`}>AI 洞察问题</span>}
+                        {!['1', '2'].includes(String(q.questionType)) && (
+                          <span className={`${styles.qTag} ${q.isManual ? styles.purple : styles.blue}`}>{q.isManual ? '手动添加' : '模板预设'}</span>
+                        )}
                         {q.status === 'covered' && <span className={`${styles.qTag} ${styles.green}`}>已关联资料</span>}
                       </div>
                       <div className={styles.rowMid}>
@@ -2059,10 +2073,10 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
                               value={editingQuestionValue}
                               onChange={(e) => setEditingQuestionValue(e.target.value)}
                               autoFocus
-                              onPressEnter={() => onConfirmEditQuestion(q.id)}
+                              onPressEnter={() => onConfirmEditQuestion(q.id!)}
                             />
                             <div className={styles.editActions}>
-                              <div className={`${styles.iconBtn} ${styles.primary}`} onClick={() => onConfirmEditQuestion(q.id)}>
+                              <div className={`${styles.iconBtn} ${styles.primary}`} onClick={() => onConfirmEditQuestion(q.id!)}>
                                 <CheckOutlined />
                               </div>
                               <div className={styles.iconBtn} onClick={() => setEditingQuestionId(null)}>
@@ -2130,23 +2144,31 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
         <List
           loading={switchingQuestion}
           dataSource={allQuestionsTemplates}
-          renderItem={(item) => (
-            <List.Item
-              className={classNames(styles.tplSelectItem, String(item.id) === String(itemDetail.questionId) && styles.active)}
-              onClick={() => onSelectQuestionTemplate(item.id)}
-            >
-              <div className={styles.tplInfo}>
-                <Tooltip title={item.templateName}>
-                  <div className={styles.name}>{item.templateName}</div>
-                </Tooltip>
-                <div className={styles.count}>{item.questionList?.length || 0} 个预制问题</div>
-              </div>
-              <div className={styles.tplAction}>
-                {String(item.id) === String(itemDetail.questionId) && <div className={styles['current-tag']}>当前</div>}
-                <RightOutlined className="arrow" />
-              </div>
-            </List.Item>
-          )}
+          renderItem={(item) => {
+            const isCurrent = String(item.id) === String(itemDetail.questionId);
+            return (
+              <List.Item
+                className={classNames(styles.tplSelectItem, isCurrent && styles.active, isCurrent && styles.disabled)}
+                onClick={() => {
+                  if (isCurrent) {
+                    setIsQuestionModalVisible(false);
+                    return;
+                  }
+                  onSelectQuestionTemplate(item.id);
+                }}
+              >
+                <div className={styles.tplInfo}>
+                  <Tooltip title={item.templateName}>
+                    <div className={styles.name}>{item.templateName}</div>
+                  </Tooltip>
+                  <div className={styles.count}>{item.questionList?.length || 0} 个预制问题</div>
+                </div>
+                <div className={styles.tplAction}>
+                  {isCurrent ? <div className={styles.currentBadge}>当前使用</div> : <RightOutlined className="arrow" />}
+                </div>
+              </List.Item>
+            );
+          }}
         />
       </Modal>
 

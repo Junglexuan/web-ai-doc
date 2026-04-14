@@ -430,61 +430,27 @@
               }
             }
 
-            :local(.compBanner) {
+            :local(.compSimpleInfo) {
               display: flex;
-              gap: 12px;
-              align-items: center;
-              padding: 10px 14px;
-              margin-top: 12px;
-              line-height: 1;
-              background: rgba(241, 245, 249, 0.5);
-              border: 1px solid rgba(226, 232, 240, 0.6);
-              border-radius: 12px;
-              transition: all 0.3s;
+              flex-direction: column;
+              gap: 4px;
+              margin-top: 8px;
+              line-height: 1.2;
 
-              &:hover {
-                background: rgba(239, 246, 255, 0.8);
-                border-color: #dbeafe;
+              :local(.compName) {
+                max-width: 400px;
+                overflow: hidden;
+                font-size: 14px;
+                font-weight: 500;
+                color: #475569;
+                text-overflow: ellipsis;
+                white-space: nowrap;
               }
 
-              :local(.compIcon) {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                width: 32px;
-                height: 32px;
-                color: #2563eb;
-                background: #fff;
-                border-radius: 8px;
-                box-shadow: 0 4px 10px rgba(37, 99, 235, 0.05);
-
-                :global(.anticon) {
-                  font-size: 16px;
-                }
-              }
-
-              :local(.compInfo) {
-                display: flex;
-                flex: 1;
-                flex-direction: column;
-                gap: 5px;
-                min-width: 0;
-
-                :local(.compName) {
-                  overflow: hidden;
-                  font-size: 13px;
-                  font-weight: 700;
-                  color: #1e293b;
-                  text-overflow: ellipsis;
-                  white-space: nowrap;
-                }
-
-                :local(.compCode) {
-                  font-size: 11px;
-                  font-weight: 500;
-                  color: #94a3b8;
-                  letter-spacing: 0.02em;
-                }
+              :local(.compCode) {
+                font-family: Monaco, Consolas, 'Courier New', monospace;
+                font-size: 13px;
+                color: #94a3b8;
               }
             }
 
@@ -2354,71 +2320,71 @@
 }
 
 :local(.tplSelectItem) {
-  position: relative;
-  padding: 12px 16px !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px !important;
   margin-bottom: 8px;
   cursor: pointer;
-  background: #fff;
-  border: 1px solid #e2e8f0 !important;
+  background: #f8fafc;
+  border: 1px solid #f1f5f9 !important;
   border-radius: 12px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-
-  &:last-child {
-    margin-bottom: 0;
-  }
+  transition: all 0.2s;
 
   &:hover {
-    background: #f8faff;
-    border-color: #3b82f6 !important;
-  }
-
-  &.active {
     background: #eff6ff;
     border-color: #3b82f6 !important;
-    border-width: 1.5px;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.08);
+    transform: translateY(-1px);
 
-    &:hover {
-      background: #eff6ff;
+    :global(.arrow) {
+      color: #3b82f6;
+      transform: translateX(2px);
     }
   }
 
-  :global(.ant-list-item-main) {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
+  &.active {
+    background: #f0f7ff;
+    border-color: #3b82f6 !important;
   }
 
-  .tplInfo {
+  &.disabled {
+    cursor: default;
+    background: #f1f5f9 !important;
+    box-shadow: none;
+    opacity: 0.6;
+    transform: none;
+  }
+
+  :local(.tplInfo) {
     display: flex;
     flex: 1;
     flex-direction: column;
-    gap: 2px;
+    gap: 4px;
     min-width: 0;
 
-    .name {
+    :local(.name) {
       overflow: hidden;
       font-size: 14px;
-      font-weight: 700;
-      color: #0f172a;
+      font-weight: 500;
+      color: #1e293b;
       text-overflow: ellipsis;
       white-space: nowrap;
     }
 
-    .count {
+    :local(.count) {
       font-size: 12px;
-      color: #71717a;
+      color: #94a3b8;
     }
   }
 
-  .tplAction {
+  :local(.tplAction) {
     display: flex;
-    flex-shrink: 0;
-    gap: 10px;
     align-items: center;
+    margin-left: 12px;
 
-    .current-tag {
-      padding: 2px 12px;
+    :local(.currentBadge) {
+      padding: 4px 10px;
       font-size: 11px;
       font-weight: 600;
       line-height: 1.5;

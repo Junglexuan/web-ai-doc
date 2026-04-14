@@ -145,9 +145,9 @@ const Component: FC<{
             handleCreateAgent(values);
           }}
         >
-          <Form.Item name="name" label="尽调对象" rules={[{required: true}]}>
+          <Form.Item name="name" label="尽调项目名称" rules={[{required: true}]}>
             <Input
-              placeholder="请输入尽调对象名称"
+              placeholder="请输入尽调项目名称"
               onChange={(e) => {
                 let val = e.target.value;
                 // 1. 限制最大长度 30
