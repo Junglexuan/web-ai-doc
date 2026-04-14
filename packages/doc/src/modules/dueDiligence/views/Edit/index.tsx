@@ -103,19 +103,26 @@ const Component: FC<{
     }
   };
 
-  const handleCreateAgent = async (data: any) => {
+  const handleCreateAgent = async (formData: any) => {
     try {
+      // 检测企业名称是否变更
+      if (data?.id && formData.companyName !== (data.companyName || '')) {
+        DueDiligenceAPI.clearAiInsight(String(data.id)).catch((e) => {
+          console.error('Clear AI Insight failed:', e);
+        });
+      }
+
       // 将表单数据和图标信息传递给外部处理
-      const formData = {
-        ...data,
+      const finalData = {
+        ...formData,
         logo: selectedIcon || uploadedImage || '',
       };
 
       if (onSubmit) {
-        onSubmit(formData);
+        onSubmit(finalData);
       }
     } catch (error) {
-      console.error('创建尽调失败:', error);
+      console.error('操作失败:', error);
       message.error('操作失败，请重试');
     }
   };

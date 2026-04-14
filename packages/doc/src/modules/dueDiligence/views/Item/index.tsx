@@ -331,13 +331,13 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
     };
 
     props.beforeUpload = (file, fileList) => {
-      // 检查当前选中的所有文件总大小 (50MB = 50 * 1024 * 1024 bytes)
+      // 检查当前选中的所有文件总大小 (120MB = 120 * 1024 * 1024 bytes)
       const totalSize = fileList.reduce((acc, f) => acc + (f.size || 0), 0);
-      const isLt50M = totalSize < 50 * 1024 * 1024;
-      if (!isLt50M) {
+      const isLt120M = totalSize < 120 * 1024 * 1024;
+      if (!isLt120M) {
         // 多个文件时只在处理第一个文件时提示一次
         if (file === fileList[0]) {
-          message.error('所选文件（或文件夹）总大小不能超过 50MB');
+          message.error('所选文件（或文件夹）总大小不能超过 120MB');
         }
         return Upload.LIST_IGNORE;
       }
@@ -701,9 +701,8 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
         if (aiInsightStatus !== 'completed' || needsAiRefreshRef.current) {
           executeAiInsight(false);
           needsAiRefreshRef.current = false;
-        } else {
-          setShowAiInsightView(true);
         }
+        setShowAiInsightView(true);
         break;
       case 'switch':
         setIsQuestionModalVisible(true);
