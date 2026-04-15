@@ -11,6 +11,35 @@ export enum DealReportStatusEnum {
   REPORT_FAILED = '4', // 报告生成失败
 }
 
+/**
+ * 模板类型枚举
+ */
+export enum TemplateTypeEnum {
+  /** 模板预设 */
+  PRESET = '1',
+  /** 个人 */
+  PERSONAL = '2',
+  /** 尽调 */
+  DUE_DILIGENCE = '3',
+}
+
+/**
+ * 模板类型映射文字
+ */
+export const TemplateTypeMap = {
+  [TemplateTypeEnum.PRESET]: '模板',
+  [TemplateTypeEnum.PERSONAL]: '个人',
+  [TemplateTypeEnum.DUE_DILIGENCE]: '尽调',
+};
+
+/**
+ * 模板类型选项列表 (常用于 Select 组件)
+ */
+export const TemplateTypeOptions = Object.entries(TemplateTypeMap).map(([value, label]) => ({
+  label,
+  value,
+}));
+
 export interface ListSearch extends BaseListSearch {
   keyWord?: string;
   status?: 'start' | 'end';

@@ -247,6 +247,33 @@ export const DueDiligenceAPI = {
       message: res?.data?.message,
     }));
   },
+  /** 向模板中新增问题 */
+  addQuestionItem(questionName: string, templateId: string): Promise<any> {
+    return request.post('/api/questionInfo/add', {questionName, templateId}).then((res) => res.data.data);
+  },
+  /** 更新模板中的问题 */
+  updateQuestionItem(params: {id: string; questionName: string}): Promise<any> {
+    return request.post('/api/questionInfo/update', params).then((res) => res.data.data);
+  },
+  /** 删除问题 */
+  deleteQuestionItem(id: string): Promise<any> {
+    return request.post('/api/questionInfo/delete', {id}).then((res) => res.data.data);
+  },
+  /** 批量删除问题 */
+  batchDeleteQuestionItems(ids: string[]): Promise<any> {
+    return request.post('/api/questionInfo/batchDelete', {ids}).then((res) => res.data.data);
+  },
+  addQuestionTemplate(templateName: string, templateDesc?: string): Promise<any> {
+    return request.post('/api/templateInfo/add', {templateName, templateDesc}).then((res) => res.data.data);
+  },
+  /** 更新问题模板 */
+  updateQuestionTemplate(params: {id: string; templateName: string; templateDesc?: string}): Promise<any> {
+    return request.post('/api/templateInfo/update', params).then((res) => res.data.data);
+  },
+  /** 删除问题模板 */
+  deleteQuestionTemplate(id: string): Promise<any> {
+    return request.post('/api/templateInfo/delete', {id}).then((res) => res.data.data);
+  },
 
   queryApproveReport(approveReportStatus?: number): Promise<TemplateRecord[]> {
     return request
