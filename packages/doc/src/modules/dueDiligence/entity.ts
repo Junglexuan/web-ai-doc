@@ -109,23 +109,10 @@ export interface ItemDetail {
     type: string;
   };
   // 准备资料
-  resources: {
-    id: string;
-    fileName: string;
-    fileUrl: string;
-    type: string;
-    lastModifiedTime: string;
-    fileTags?: string;
-  }[];
+  resources: DealResourceFile[];
   // 补充资料
-  supplementary: {
-    id: string;
-    fileName: string;
-    fileUrl: string;
-    type: string;
-    lastModifiedTime: string;
-    fileTags?: string;
-  }[];
+  supplementary: DealResourceFile[];
+  resourceTree: DealResourceNode[];
   // 访谈资料
   interviewInstList: {
     id: string;
@@ -144,9 +131,46 @@ export interface ItemDetail {
   }[];
 }
 
+export interface DealResourceFile {
+  id: string;
+  fileName: string;
+  fileUrl: string;
+  type: string;
+  lastModifiedTime: string;
+  fileTags?: string;
+  tagIds?: string[];
+  tags?: DealMaterialTagDef[];
+  folderId?: string;
+  parseStatus?: string;
+  progress?: number;
+}
+
+export interface DealResourceNode {
+  id: string;
+  nodeType: string;
+  name: string;
+  parentId?: string | null;
+  folderId?: string;
+  fileUrl?: string;
+  type?: string;
+  parseStatus?: string;
+  progress?: number;
+  fileTags?: string;
+  tagIds?: string[];
+  tags?: DealMaterialTagDef[];
+  hasChildren?: boolean;
+  children?: DealResourceNode[];
+}
+
 /**
  * 模板信息（后端返回的实际数据结构）- 用于 /reportApprove 接口
  */
+export interface DealMaterialTagDef {
+  id: string;
+  name: string;
+  templateId: string;
+}
+
 export interface TemplateRecord {
   id: string;
   agencyId: number;

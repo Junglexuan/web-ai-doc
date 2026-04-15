@@ -1,8 +1,9 @@
 import axios from 'axios';
 import dayjs from 'dayjs';
-import request, {replaceBaseUrl} from '@/utils/request';
+import request, {replaceBaseUrl, uploadFile as uploadFormData} from '@/utils/request';
 import {getCurUserId} from '@/utils/tools';
 import {
+  DealMaterialTagDef,
   DealReportStatusEnum,
   DueConfigs,
   DueSettings,
@@ -18,6 +19,44 @@ import {
 } from './entity';
 
 /** 与移动端对齐：尽调管理、创建尽调、上传资料、生成/重新生成报告、报告详情、资料管理 */
+
+const normalizeResourceFile = (item: any) => ({
+  id: String(item.id || ''),
+  fileName: item.fileName || item.name || '',
+  fileUrl: item.fileUrl || '',
+  type: item.type || '',
+  lastModifiedTime: item.lastModifiedTime || item.lastModifiedDate || item.createDate || '',
+  fileTags: item.fileTags,
+  tagIds: (item.tagIds || []).map((id: any) => String(id)),
+  tags: (item.tags || []).map(normalizeMaterialTag),
+  folderId: item.folderId ? String(item.folderId) : undefined,
+  parseStatus: item.parseStatus !== undefined && item.parseStatus !== null ? String(item.parseStatus) : undefined,
+  progress: item.progress !== undefined && item.progress !== null ? Number(item.progress) : 0,
+});
+
+const normalizeResourceTree = (nodes: any[] = []): any[] =>
+  nodes.map((node) => ({
+    id: String(node.id || ''),
+    nodeType: node.nodeType || '',
+    name: node.name || node.fileName || '',
+    parentId: node.parentId !== undefined && node.parentId !== null ? String(node.parentId) : node.parentId,
+    folderId: node.folderId ? String(node.folderId) : undefined,
+    fileUrl: node.fileUrl || '',
+    type: node.type || '',
+    parseStatus: node.parseStatus !== undefined && node.parseStatus !== null ? String(node.parseStatus) : undefined,
+    progress: node.progress !== undefined && node.progress !== null ? Number(node.progress) : 0,
+    fileTags: node.fileTags,
+    tagIds: (node.tagIds || []).map((id: any) => String(id)),
+    tags: (node.tags || []).map(normalizeMaterialTag),
+    hasChildren: !!node.hasChildren,
+    children: normalizeResourceTree(node.children || []),
+  }));
+
+const normalizeMaterialTag = (item: any): DealMaterialTagDef => ({
+  id: String(item.id || ''),
+  name: item.name || item.tagName || '',
+  templateId: String(item.templateId || ''),
+});
 
 export const DueDiligenceAPI = {
   getConfigs(): Promise<DueConfigs> {
@@ -107,9 +146,10 @@ export const DueDiligenceAPI = {
   getItem(id: string): Promise<ItemDetail> {
     return request.post(`/api/deal/dealInstDetail`, {id}).then((res) => {
       const item = res.data.data;
-      const {interviewCust, report, interviewInstList, supplementary} = item;
-      const questionInstList = interviewInstList[0].questionInstList || [];
-      const recordFile = interviewInstList[0].recordFileInstVo;
+      const {report, interviewInstList, supplementary} = item;
+      const currentInterviewInst = interviewInstList?.[0] || {};
+      const questionInstList = currentInterviewInst.questionInstList || [];
+      const recordFile = currentInterviewInst.recordFileInstVo;
       return {
         id: item.id,
         name: item.interviewCust,
@@ -133,8 +173,9 @@ export const DueDiligenceAPI = {
           questionType: q.questionType,
         })),
         // 准备资料
-        resources: item.resources || [],
-        supplementary,
+        resources: (item.resources || []).map(normalizeResourceFile),
+        supplementary: (supplementary || []).map(normalizeResourceFile),
+        resourceTree: normalizeResourceTree(item.resourceTree || []),
         interviewInstList: [
           questionInstList && {
             id: 'questionInstList',
@@ -154,6 +195,46 @@ export const DueDiligenceAPI = {
         ].filter(Boolean),
       } as any;
     });
+  },
+  uploadFolder(id: string, files: File[], folderId?: string, relativePaths?: string[]): Promise<any[]> {
+    const formData = new FormData();
+    formData.append('id', id);
+    if (folderId) {
+      formData.append('folderId', folderId);
+    }
+    files.forEach((file) => {
+      formData.append('file', file);
+    });
+    (relativePaths || []).forEach((relativePath) => {
+      formData.append('relativePaths', relativePath);
+    });
+    return uploadFormData('/api/deal/upload-folder', formData) as unknown as Promise<any[]>;
+  },
+  createFolder(dealId: string, folderName: string, parentId?: string): Promise<any> {
+    return request.post('/api/deal/create-folder', {dealId, folderName, parentId}).then((res) => res.data.data);
+  },
+  renameFolder(dealId: string, folderId: string, folderName: string): Promise<void> {
+    return request.post('/api/deal/rename-folder', {dealId, folderId, folderName}).then((res) => res.data.data);
+  },
+  deleteFolder(dealId: string, folderId: string): Promise<void> {
+    return request.post('/api/deal/delete-folder', {dealId, folderId}).then((res) => res.data.data);
+  },
+  listFileTags(templateId: string): Promise<DealMaterialTagDef[]> {
+    return request.get('/api/fileTag/list', {params: {templateId}}).then((res) => {
+      return (res.data.data || []).map(normalizeMaterialTag);
+    });
+  },
+  addFileTag(templateId: string, tagName: string): Promise<DealMaterialTagDef> {
+    return request.post('/api/fileTag/add', {templateId, tagName}).then((res) => normalizeMaterialTag(res.data.data || {}));
+  },
+  updateFileTag(id: string, tagName: string): Promise<DealMaterialTagDef> {
+    return request.post('/api/fileTag/update', {id, tagName}).then((res) => normalizeMaterialTag(res.data.data || {}));
+  },
+  deleteFileTag(id: string): Promise<void> {
+    return request.post('/api/fileTag/delete', {id}).then((res) => res.data.data);
+  },
+  saveFileTags(fileId: string, tagIds: string[]): Promise<void> {
+    return request.post('/api/fileTag/save', {fileId, tagIds}).then((res) => res.data.data);
   },
   createItem(data: ListItem & {templateId?: string; companyName?: string}): Promise<ListItem> {
     console.log(data, 'dataxxx====');

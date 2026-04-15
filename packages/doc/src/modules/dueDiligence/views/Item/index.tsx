@@ -48,12 +48,12 @@ import AudioPlayerModal from '@/components/AudioPlayerModal';
 import InterviewDetailModal from '@/components/InterviewDetailModal';
 import LoadingPanel from '@/components/LoadingPanel';
 import {GetActions, GetClientRouter, SiteInfo} from '@/Global';
-import request, {downloadFile, downloadPdfFromWord, getUploadProps, openDoc, replaceBaseUrl} from '@/utils/request';
+import request, {downloadFile, downloadPdfFromWord, getUploadProps, replaceBaseUrl} from '@/utils/request';
 import {getToken, message, showMask, useEvent, useThrottleEvent} from '@/utils/tools';
 import {DueDiligenceAPI} from '../../api';
 import QuestionsFile from '../../components/QuestionsFile';
 import TplSelect from '../../components/TplSelect';
-import {DealReportStatusEnum, DueConfigs, InterviewInstDetail, InterviewRecord, ItemDetail, StatusMap} from '../../entity';
+import {DealMaterialTagDef, DealReportStatusEnum, DealResourceFile, DealResourceNode, DueConfigs, InterviewInstDetail, InterviewRecord, ItemDetail, StatusMap} from '../../entity';
 import Edit from '../Edit';
 import _styles from './index.module.less';
 const styles: any = _styles;
@@ -62,6 +62,74 @@ const twoColors = {
   '0%': '#4f46e5',
   '100%': '#818cf8',
 };
+
+const ROOT_FOLDER_ID = '__resource_root__';
+const ROOT_FOLDER_NAME = '\u6839\u76ee\u5f55';
+const MAX_RESOURCE_UPLOAD_SIZE = 120 * 1024 * 1024;
+const RESOURCE_ACCEPT = '.docx,.xls,.pdf,.xlsx,.txt,.wav,.mp3,.m4a,.amr,.aac,.ogg,.flac,.png,.jpg,.jpeg';
+
+const sanitizeNodeName = (value: string) => value.replace(/[<>?/\\|*]|\.\.|[\r\n]/g, '').trim();
+
+const collectFolderIds = (nodes: DealResourceNode[] = [], result: Set<string> = new Set()) => {
+  nodes.forEach((node) => {
+    if (node.nodeType === 'folder') {
+      result.add(String(node.id));
+      collectFolderIds(node.children || [], result);
+    }
+  });
+  return result;
+};
+
+const buildFolderNodeMap = (rootNode: DealResourceNode) => {
+  const map = new Map<string, DealResourceNode>();
+  const walk = (node: DealResourceNode) => {
+    if (node.nodeType !== 'folder') {
+      return;
+    }
+    map.set(String(node.id), node);
+    (node.children || []).forEach(walk);
+  };
+  walk(rootNode);
+  return map;
+};
+
+/*
+const buildFolderPathMap = (rootNode: DealResourceNode) => {
+  const map = new Map<string, string>([[ROOT_FOLDER_ID, '根目录']]);
+  const walk = (nodes: DealResourceNode[], parentPath: string) => {
+    nodes.forEach((node) => {
+      if (node.nodeType !== 'folder') {
+        return;
+      }
+      const currentPath = `${parentPath} / ${node.name}`;
+      map.set(String(node.id), currentPath);
+      walk(node.children || [], currentPath);
+    });
+  };
+  walk(rootNode.children || [], '根目录');
+  return map;
+};
+
+*/
+
+const buildResourceFolderPathMap = (rootNode: DealResourceNode) => {
+  const map = new Map<string, string>([[ROOT_FOLDER_ID, ROOT_FOLDER_NAME]]);
+  const walk = (nodes: DealResourceNode[], parentPath: string) => {
+    nodes.forEach((node) => {
+      if (node.nodeType !== 'folder') {
+        return;
+      }
+      const currentPath = `${parentPath} / ${node.name}`;
+      map.set(String(node.id), currentPath);
+      walk(node.children || [], currentPath);
+    });
+  };
+  walk(rootNode.children || [], ROOT_FOLDER_NAME);
+  return map;
+};
+
+const isFolderNode = (node: DealResourceNode) => node.nodeType === 'folder';
+const isFileNode = (node: DealResourceNode) => node.nodeType === 'file';
 
 interface Props {
   itemDetail: ItemDetail;
@@ -107,13 +175,70 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
   const [selectedAiKeys, setSelectedAiKeys] = useState<string[]>([]);
   const [enterpriseInfo, setEnterpriseInfo] = useState<any>(null);
   const [isEnterpriseLoading, setIsEnterpriseLoading] = useState(false);
+  const [selectedFolderId, setSelectedFolderId] = useState(ROOT_FOLDER_ID);
+  const [selectedResourceId, setSelectedResourceId] = useState('');
+  const [expandedFolderIds, setExpandedFolderIds] = useState<string[]>([ROOT_FOLDER_ID]);
+  const [folderModal, setFolderModal] = useState<{mode: 'create' | 'rename'; folderId?: string; parentId?: string} | null>(null);
+  const [folderNameValue, setFolderNameValue] = useState('');
+  const [folderSubmitting, setFolderSubmitting] = useState(false);
   const needsAiRefreshRef = useRef(true); // 标记是否需要刷新 AI 洞察列表
   const summaryContentRef = useRef<HTMLDivElement>(null);
+  const fileUploadInputRef = useRef<HTMLInputElement>(null);
+  const folderUploadInputRef = useRef<HTMLInputElement>(null);
   const detailRef = useRef(itemDetail);
   detailRef.current = itemDetail;
   const currentTemplateName = useMemo(() => {
     return configs?.template.list.find((t) => String(t.id) === String(itemDetail.templateId))?.title || '-';
   }, [configs, itemDetail.templateId]);
+  const resourceRootNode = useMemo<DealResourceNode>(
+    () => ({
+      id: ROOT_FOLDER_ID,
+      nodeType: 'folder',
+      name: ROOT_FOLDER_NAME,
+      parentId: null,
+      hasChildren: !!itemDetail.resourceTree?.length,
+      children: itemDetail.resourceTree || [],
+    }),
+    [itemDetail.resourceTree]
+  );
+  const resourceFolderMap = useMemo(() => buildFolderNodeMap(resourceRootNode), [resourceRootNode]);
+  const resourceFolderPathMap = useMemo(() => buildResourceFolderPathMap(resourceRootNode), [resourceRootNode]);
+  const resourceFileMap = useMemo(() => {
+    return new Map<string, DealResourceFile>((itemDetail.resources || []).map((item) => [String(item.id), item]));
+  }, [itemDetail.resources]);
+  const selectedFolderNode = resourceFolderMap.get(selectedFolderId) || resourceRootNode;
+  const selectedFolderChildren = selectedFolderNode.children || [];
+  const selectedFolderDirectories = useMemo(() => selectedFolderChildren.filter(isFolderNode), [selectedFolderChildren]);
+  const selectedFolderFiles = useMemo(() => {
+    return selectedFolderChildren.filter(isFileNode).map((node) => {
+      const matchedFile = resourceFileMap.get(String(node.id));
+      return {
+        id: String(node.id),
+        fileName: matchedFile?.fileName || node.name,
+        fileUrl: matchedFile?.fileUrl || node.fileUrl || '',
+        type: matchedFile?.type || node.type || '',
+        lastModifiedTime: matchedFile?.lastModifiedTime || '',
+        fileTags: matchedFile?.fileTags || node.fileTags,
+        tagIds: matchedFile?.tagIds || node.tagIds,
+        tags: matchedFile?.tags || node.tags,
+        folderId: matchedFile?.folderId || node.folderId,
+        parseStatus: matchedFile?.parseStatus || node.parseStatus,
+        progress: matchedFile?.progress ?? node.progress ?? 0,
+      };
+    });
+  }, [resourceFileMap, selectedFolderChildren]);
+  const selectedFolderPath = resourceFolderPathMap.get(selectedFolderId) || ROOT_FOLDER_NAME;
+  const selectedResourceFile = useMemo(() => {
+    if (selectedResourceId) {
+      return selectedFolderFiles.find((item) => String(item.id) === String(selectedResourceId));
+    }
+    return selectedFolderFiles[0];
+  }, [selectedFolderFiles, selectedResourceId]);
+  const canEditResources = itemDetail.status !== '5';
+  const canUploadIntoFolder = canEditResources && !!selectedFolderNode;
+  const hasAnyResourceContent = useMemo(() => {
+    return (resourceRootNode.children || []).length > 0 || (itemDetail.resources || []).length > 0;
+  }, [itemDetail.resources, resourceRootNode.children]);
 
   const isReportGenerated = itemDetail.reportStatus === DealReportStatusEnum.REPORT_GENERATED;
   const isAIInsightDisabled = useMemo(() => {
@@ -123,6 +248,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
   const [fileProgressMap, setFileProgressMap] = useState<Record<string, {progress: number; status: string}>>({});
   console.log('fileProgressMap', fileProgressMap);
   const [interviewList, setInterviewList] = useState<InterviewRecord[]>([]);
+  const [resourceTagDefinitions, setResourceTagDefinitions] = useState<DealMaterialTagDef[]>([]);
   const [interviewDetailModal, setInterviewDetailModal] = useState<{visible: boolean; record: InterviewInstDetail | null}>({
     visible: false,
     record: null,
@@ -135,6 +261,42 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [itemDetail.id]);
+
+  useEffect(() => {
+    if (folderUploadInputRef.current) {
+      const input = folderUploadInputRef.current as HTMLInputElement & {webkitdirectory?: boolean; directory?: boolean};
+      input.webkitdirectory = true;
+      input.directory = true;
+      input.setAttribute('webkitdirectory', '');
+      input.setAttribute('directory', '');
+      input.removeAttribute('accept');
+    }
+  }, []);
+
+  useEffect(() => {
+    const folderIds = collectFolderIds(itemDetail.resourceTree || []);
+    setExpandedFolderIds((prev) => {
+      const nextExpandedIds = new Set<string>([ROOT_FOLDER_ID, ...prev.filter((id) => id === ROOT_FOLDER_ID || folderIds.has(id))]);
+      folderIds.forEach((id) => nextExpandedIds.add(id));
+      return Array.from(nextExpandedIds);
+    });
+    if (selectedFolderId !== ROOT_FOLDER_ID && !folderIds.has(selectedFolderId)) {
+      setSelectedFolderId(ROOT_FOLDER_ID);
+    }
+  }, [itemDetail.resourceTree, selectedFolderId]);
+
+  useEffect(() => {
+    if (!selectedFolderFiles.length) {
+      if (selectedResourceId) {
+        setSelectedResourceId('');
+      }
+      return;
+    }
+    const existsInCurrentFolder = selectedFolderFiles.some((item) => String(item.id) === String(selectedResourceId));
+    if (!selectedResourceId || !existsInCurrentFolder) {
+      setSelectedResourceId(selectedFolderFiles[0].id);
+    }
+  }, [selectedFolderFiles, selectedResourceId]);
 
   useEffect(() => {
     console.log(enterpriseInfo, 'enterpriseInfoxxx===');
@@ -308,6 +470,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
 
   const onFileClick = useEvent((e: React.MouseEvent<any>, item: {id: string; fileName: string; fileUrl: string; type?: string}) => {
     if (!e.currentTarget.contains(e.target as Node)) return;
+    setSelectedResourceId(item.id);
     onPreviewResource(item);
   });
 
@@ -350,6 +513,82 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
 
     return props;
   }, [itemDetail.id, refreshPage]);
+
+  const ensureFolderSelected = useCallback(() => {
+    if (!selectedFolderNode) {
+      message.warning('请先选择目录');
+      return false;
+    }
+    return true;
+  }, [selectedFolderNode]);
+
+  const validateUploadBatch = useCallback((files: File[]) => {
+    const totalSize = files.reduce((total, file) => total + (file.size || 0), 0);
+    if (totalSize >= MAX_RESOURCE_UPLOAD_SIZE) {
+      message.error('所选文件或文件夹总大小不能超过 120MB');
+      return false;
+    }
+    return true;
+  }, []);
+
+  const submitFolderUpload = useThrottleEvent(async (files: File[], relativePaths?: string[]) => {
+    if (!ensureFolderSelected()) {
+      return;
+    }
+    if (!files.length || !validateUploadBatch(files)) {
+      return;
+    }
+    try {
+      setUploading('upload');
+      await DueDiligenceAPI.uploadFolder(
+        itemDetail.id,
+        files,
+        selectedFolderId === ROOT_FOLDER_ID ? undefined : selectedFolderId,
+        relativePaths
+      );
+      message.success(relativePaths?.length ? '文件夹上传成功' : '文件上传成功');
+      refreshPage();
+    } finally {
+      setUploading('');
+    }
+  });
+
+  const onSelectLocalFiles = useEvent((event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files || []) as File[];
+    event.target.value = '';
+    submitFolderUpload(files);
+  });
+
+  const onSelectLocalFolder = useEvent((event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files || []) as File[];
+    const relativePaths = files.map((file) => ((file as File & {webkitRelativePath?: string}).webkitRelativePath || file.name).replace(/\\/g, '/'));
+    event.target.value = '';
+    submitFolderUpload(files, relativePaths);
+  });
+
+  const onTriggerFileUpload = useEvent(() => {
+    if (!ensureFolderSelected()) {
+      return;
+    }
+    fileUploadInputRef.current?.click();
+  });
+
+  const onTriggerFolderUpload = useEvent(() => {
+    if (!ensureFolderSelected()) {
+      return;
+    }
+    const input = folderUploadInputRef.current as (HTMLInputElement & {webkitdirectory?: boolean; directory?: boolean}) | null;
+    if (!input) {
+      return;
+    }
+    input.webkitdirectory = true;
+    input.directory = true;
+    input.setAttribute('webkitdirectory', '');
+    input.setAttribute('directory', '');
+    input.removeAttribute('accept');
+    input.value = '';
+    input.click();
+  });
 
   const onEditSubmit = useThrottleEvent((data: any) => {
     const formData = {...itemDetail, ...data};
@@ -888,6 +1127,105 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
     });
   });
 
+  const toggleFolderExpanded = useEvent((folderId: string) => {
+    setExpandedFolderIds((prev) => {
+      if (prev.includes(folderId)) {
+        return prev.filter((id) => id !== folderId);
+      }
+      return [...prev, folderId];
+    });
+  });
+
+  const openCreateFolderModal = useEvent((parentId?: string) => {
+    if (!canEditResources) {
+      return;
+    }
+    setFolderModal({mode: 'create', parentId});
+    setFolderNameValue('');
+  });
+
+  const openRenameFolderModal = useEvent((folder: DealResourceNode) => {
+    if (!canEditResources || folder.id === ROOT_FOLDER_ID) {
+      return;
+    }
+    setFolderModal({mode: 'rename', folderId: String(folder.id)});
+    setFolderNameValue(folder.name || '');
+  });
+
+  const closeFolderModal = useEvent(() => {
+    setFolderModal(null);
+    setFolderNameValue('');
+    setFolderSubmitting(false);
+  });
+
+  const onSubmitFolderModal = useThrottleEvent(async () => {
+    if (!folderModal) {
+      return;
+    }
+    const nextFolderName = sanitizeNodeName(folderNameValue);
+    if (!nextFolderName) {
+      message.warning('请输入目录名称');
+      return;
+    }
+    try {
+      setFolderSubmitting(true);
+      if (folderModal.mode === 'create') {
+        await DueDiligenceAPI.createFolder(
+          itemDetail.id,
+          nextFolderName,
+          folderModal.parentId && folderModal.parentId !== ROOT_FOLDER_ID ? folderModal.parentId : undefined
+        );
+        message.success('目录创建成功');
+      } else if (folderModal.folderId) {
+        await DueDiligenceAPI.renameFolder(itemDetail.id, folderModal.folderId, nextFolderName);
+        message.success('目录重命名成功');
+      }
+      closeFolderModal();
+      refreshPage();
+    } finally {
+      setFolderSubmitting(false);
+    }
+  });
+
+  const onDeleteFolder = useThrottleEvent((folder: DealResourceNode) => {
+    if (!canEditResources || folder.id === ROOT_FOLDER_ID) {
+      return;
+    }
+    Modal.confirm({
+      title: '确认删除目录',
+      centered: true,
+      okText: '确认',
+      cancelText: '取消',
+      content: `将递归删除“${folder.name}”及其包含的文件，操作无法撤销。`,
+      afterOpenChange: (open) => showMask(open),
+      onOk: async () => {
+        await DueDiligenceAPI.deleteFolder(itemDetail.id, String(folder.id));
+        message.success('目录删除成功');
+        if (selectedFolderId === String(folder.id)) {
+          setSelectedFolderId(ROOT_FOLDER_ID);
+        }
+        refreshPage();
+      },
+    });
+  });
+
+  const getResourceProgress = useCallback(
+    (item: Pick<DealResourceFile, 'id' | 'parseStatus' | 'progress'>) => {
+      const liveProgress = fileProgressMap[item.id];
+      if (liveProgress) {
+        return liveProgress;
+      }
+      if (item.parseStatus) {
+        return {
+          status: String(item.parseStatus),
+          progress: item.progress || 0,
+        };
+      }
+      return undefined;
+    },
+    [fileProgressMap]
+  );
+
   const onRefreshSummary = useThrottleEvent(async () => {
     try {
       message.loading({content: '总结提炼中...', key: 'refreshSummary'});
@@ -1037,6 +1375,202 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
     // 预留更改回调
   });
 
+  const renderResourceProgress = (item: DealResourceFile) => {
+    const fileProgress = getResourceProgress(item);
+    if (!fileProgress || fileProgress.status === '1') {
+      return null;
+    }
+    return (
+      <div
+        className="progress-wrap"
+        title={fileProgress.status === '3' ? '解析成功' : fileProgress.status === '4' ? '解析失败' : '解析中'}
+        style={{display: 'flex', alignItems: 'center', gap: 8}}
+      >
+        {fileProgress.status === '3' ? (
+          <CheckCircleFilled style={{color: '#10b981', fontSize: '20px'}} />
+        ) : fileProgress.status === '4' ? (
+          <div style={{display: 'flex', alignItems: 'center', gap: 8}}>
+            <ExclamationCircleFilled style={{color: '#f43f5e', fontSize: '20px'}} />
+            <Button
+              type="primary"
+              size="small"
+              onClick={(e) => {
+                e.stopPropagation();
+                onReparseFile(item.id);
+              }}
+              style={{fontSize: '12px', height: '24px', padding: '0 8px', borderRadius: '4px'}}
+            >
+              重新解析
+            </Button>
+          </div>
+        ) : (
+          <Progress type="circle" percent={Math.round(fileProgress.progress * 100)} size={24} status="active" strokeColor={twoColors} />
+        )}
+      </div>
+    );
+  };
+
+  const renderFolderRows = (nodes: DealResourceNode[]) => {
+    return nodes.filter(isFolderNode).map((node) => {
+      const folderId = String(node.id);
+      return (
+        <div key={folderId} className={styles.folderRow} onClick={() => setSelectedFolderId(folderId)}>
+          <div className={styles.folderRowMain}>
+            <FolderOpenOutlined className={styles.folderRowIcon} />
+            <span className={styles.folderRowName}>{node.name}</span>
+          </div>
+          {canEditResources && (
+            <div className={styles.folderRowActions} onClick={(e) => e.stopPropagation()}>
+              <Button type="text" size="small" icon={<PlusOutlined />} onClick={() => openCreateFolderModal(folderId)} />
+              <Button type="text" size="small" icon={<EditOutlined />} onClick={() => openRenameFolderModal(node)} />
+              <Button type="text" size="small" icon={<CloseOutlined />} onClick={() => onDeleteFolder(node)} />
+            </div>
+          )}
+        </div>
+      );
+    });
+  };
+
+  const resourceUploadMenu = {
+    onClick: ({key, domEvent}: {key: string; domEvent: any}) => {
+      domEvent.preventDefault();
+      domEvent.stopPropagation();
+      if (key === 'file') {
+        onTriggerFileUpload();
+        return;
+      }
+      onTriggerFolderUpload();
+    },
+    items: [
+      {
+        key: 'file',
+        disabled: !canUploadIntoFolder || !!uploading,
+        className: styles.dropdownMenuItem,
+        label: (
+          <div className={styles.menuItemContent}>
+            <div className={styles.iconBox}>
+              <FileAddOutlined />
+            </div>
+            <div className={styles.textBox}>
+              <div className={styles.mTitle}>上传文件</div>
+              <div className={styles.mDesc}>上传到当前选中的目录</div>
+            </div>
+          </div>
+        ),
+      },
+      {
+        key: 'directory',
+        disabled: !canUploadIntoFolder || !!uploading,
+        className: styles.dropdownMenuItem,
+        label: (
+          <div className={styles.menuItemContent}>
+            <div className={styles.iconBox}>
+              <FolderOpenOutlined />
+            </div>
+            <div className={styles.textBox}>
+              <div className={styles.mTitle}>上传文件夹</div>
+              <div className={styles.mDesc}>保留多级目录结构导入资料</div>
+            </div>
+          </div>
+        ),
+      },
+    ],
+  };
+
+  const selectedFolderDisplayName = selectedFolderId === ROOT_FOLDER_ID ? ROOT_FOLDER_NAME : selectedFolderNode?.name || ROOT_FOLDER_NAME;
+  const selectedResourceFolderPath = selectedResourceFile?.folderId
+    ? resourceFolderPathMap.get(String(selectedResourceFile.folderId)) || ROOT_FOLDER_NAME
+    : ROOT_FOLDER_NAME;
+  const selectedResourcePathInfo = useMemo(() => {
+    const rawFileName = selectedResourceFile?.fileName || '';
+    const normalizedFileName = rawFileName.replace(/\\/g, '/');
+    const pathSegments = normalizedFileName.split('/').filter(Boolean);
+    const displayFileName = pathSegments[pathSegments.length - 1] || rawFileName || '-';
+    const displayFolderPath = pathSegments.length > 1 ? pathSegments.slice(0, -1).join(' / ') : selectedResourceFolderPath;
+    return {
+      displayFileName,
+      displayFolderPath,
+    };
+  }, [selectedResourceFile?.fileName, selectedResourceFolderPath]);
+  const resourceTagNameMap = useMemo(() => {
+    return new Map(resourceTagDefinitions.map((item) => [String(item.id), item.name]));
+  }, [resourceTagDefinitions]);
+  const getResourceTagLabels = useCallback(
+    (item?: Pick<DealResourceFile, 'fileTags' | 'tags' | 'tagIds'>) => {
+      if (!item) {
+        return [];
+      }
+      if (item.tags?.length) {
+        return item.tags.map((tag) => tag.name).filter(Boolean);
+      }
+      if (item.fileTags) {
+        return item.fileTags
+          .split(',')
+          .map((tag) => tag.trim())
+          .filter(Boolean);
+      }
+      if (item.tagIds?.length) {
+        return item.tagIds.map((id) => resourceTagNameMap.get(String(id)) || String(id)).filter(Boolean);
+      }
+      return [];
+    },
+    [resourceTagNameMap]
+  );
+  const selectedResourceTags = useMemo(() => getResourceTagLabels(selectedResourceFile), [getResourceTagLabels, selectedResourceFile]);
+
+  const renderFolderNodes = (nodes: DealResourceNode[], depth: number = 0): React.ReactNode => {
+    return nodes.filter(isFolderNode).map((node) => {
+      const folderId = String(node.id);
+      const childFolders = (node.children || []).filter(isFolderNode);
+      const directFiles = (node.children || []).filter(isFileNode);
+      const isExpanded = expandedFolderIds.includes(folderId);
+      const isSelected = selectedFolderId === folderId;
+      return (
+        <div key={folderId} className={styles.treeNodeWrap}>
+          <div
+            className={classNames(styles.treeNode, {[styles.selectedTreeNode]: isSelected})}
+            style={{paddingLeft: 16 + depth * 18}}
+            onClick={() => setSelectedFolderId(folderId)}
+          >
+            <button
+              type="button"
+              className={styles.treeToggle}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (childFolders.length) {
+                  toggleFolderExpanded(folderId);
+                }
+              }}
+            >
+              {childFolders.length ? (isExpanded ? <CaretDownOutlined /> : <CaretRightOutlined />) : <span className={styles.treeTogglePlaceholder} />}
+            </button>
+            <FolderOpenOutlined className={styles.treeIcon} />
+            <div className={styles.treeContent}>
+              <span className={styles.treeLabel}>{node.name}</span>
+              <span className={styles.treeMeta}>
+                {childFolders.length} 个子目录 · {directFiles.length} 个文件
+              </span>
+            </div>
+            {canEditResources && (
+              <div className={styles.treeActions} onClick={(e) => e.stopPropagation()}>
+                <Tooltip title="新建子目录">
+                  <Button type="text" size="small" icon={<PlusOutlined />} onClick={() => openCreateFolderModal(folderId)} />
+                </Tooltip>
+                <Tooltip title="重命名">
+                  <Button type="text" size="small" icon={<EditOutlined />} onClick={() => openRenameFolderModal(node)} />
+                </Tooltip>
+                <Tooltip title="删除">
+                  <Button type="text" size="small" icon={<CloseOutlined />} onClick={() => onDeleteFolder(node)} />
+                </Tooltip>
+              </div>
+            )}
+          </div>
+          {isExpanded && childFolders.length > 0 && <div className={styles.treeChildren}>{renderFolderNodes(childFolders, depth + 1)}</div>}
+        </div>
+      );
+    });
+  };
+
   const TableColumns = useMemo(
     () => [
       {
@@ -1164,6 +1698,16 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
       DueDiligenceAPI.queryInterviewInstListByPage(itemDetail.id).then(setInterviewList);
     }
   }, [itemDetail.id]);
+
+  useEffect(() => {
+    if (!itemDetail.templateId) {
+      setResourceTagDefinitions([]);
+      return;
+    }
+    DueDiligenceAPI.listFileTags(String(itemDetail.templateId))
+      .then(setResourceTagDefinitions)
+      .catch(() => setResourceTagDefinitions([]));
+  }, [itemDetail.templateId]);
 
   const onBack = useEvent(() => {
     const router = GetClientRouter();
@@ -1458,7 +2002,258 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
             <div className="collapse-icon">{isResourcesCollapsed ? <CaretRightOutlined /> : <CaretDownOutlined />}</div>
             文档资料
           </div>
-          <div className={`${styles.list} ${isResourcesCollapsed ? styles.collapsed : ''}`}>
+          <div className={classNames(styles.resourceWorkspace, {[styles.collapsed]: isResourcesCollapsed})}>
+            <input ref={fileUploadInputRef} type="file" multiple accept={RESOURCE_ACCEPT} style={{display: 'none'}} onChange={onSelectLocalFiles} />
+            <input ref={folderUploadInputRef} type="file" multiple style={{display: 'none'}} onChange={onSelectLocalFolder} />
+
+            {!hasAnyResourceContent ? (
+              <div className={styles.resourceIntro}>
+                <div className={styles.resourceIntroIcon}>
+                  <FolderOpenOutlined />
+                </div>
+                <h3 className={styles.resourceIntroTitle}>按文件夹方式管理资料</h3>
+                <p className={styles.resourceIntroDesc}>
+                  目录区更轻，文件区更紧凑，摘要放到详情面板里。先建目录再上传，或者直接上传整个文件夹都可以。
+                </p>
+                <div className={styles.resourceIntroActions}>
+                  <Button
+                    color="primary"
+                    variant="outlined"
+                    icon={<PlusOutlined />}
+                    disabled={!canEditResources}
+                    onClick={() => openCreateFolderModal(selectedFolderId)}
+                  >
+                    新建目录
+                  </Button>
+                  <Dropdown trigger={['click']} overlayClassName={styles.uploadDropdown} placement="bottom" arrow={{pointAtCenter: true}} menu={resourceUploadMenu}>
+                    <Button type="primary" icon={<CloudUploadOutlined />} disabled={!canUploadIntoFolder || !!uploading}>
+                      {uploading ? '上传中...' : '上传资料'} <DownOutlined />
+                    </Button>
+                  </Dropdown>
+                </div>
+              </div>
+            ) : (
+              <div className={styles.resourceLayout}>
+                <div className={styles.resourceSidebar}>
+                  <div className={styles.resourcePanelHeader}>
+                    <div>
+                      <div className={styles.panelTitle}>目录结构</div>
+                      <div className={styles.panelDesc}>选择目录后在中间查看资料</div>
+                    </div>
+                    {canEditResources && (
+                      <Button type="text" icon={<PlusOutlined />} onClick={() => openCreateFolderModal(ROOT_FOLDER_ID)}>
+                        新建
+                      </Button>
+                    )}
+                  </div>
+                  <div className={styles.resourceSidebarBody}>
+                    <div className={styles.treeNodeWrap}>
+                      <div
+                        className={classNames(styles.treeNode, {[styles.selectedTreeNode]: selectedFolderId === ROOT_FOLDER_ID})}
+                        onClick={() => setSelectedFolderId(ROOT_FOLDER_ID)}
+                      >
+                        <button
+                          type="button"
+                          className={styles.treeToggle}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if ((resourceRootNode.children || []).length) {
+                              toggleFolderExpanded(ROOT_FOLDER_ID);
+                            }
+                          }}
+                        >
+                          {(resourceRootNode.children || []).length ? (
+                            expandedFolderIds.includes(ROOT_FOLDER_ID) ? (
+                              <CaretDownOutlined />
+                            ) : (
+                              <CaretRightOutlined />
+                            )
+                          ) : (
+                            <span className={styles.treeTogglePlaceholder} />
+                          )}
+                        </button>
+                        <BankOutlined className={styles.treeIcon} />
+                        <div className={styles.treeContent}>
+                          <span className={styles.treeLabel}>{ROOT_FOLDER_NAME}</span>
+                          <span className={styles.treeMeta}>根级资料入口</span>
+                        </div>
+                      </div>
+                      {expandedFolderIds.includes(ROOT_FOLDER_ID) && <div className={styles.treeChildren}>{renderFolderNodes(resourceRootNode.children || [])}</div>}
+                    </div>
+                  </div>
+                </div>
+
+                <div className={styles.resourceCenter}>
+                  <div className={styles.resourceCenterHeader}>
+                    <div>
+                      <div className={styles.panelTitle}>{selectedFolderDisplayName}</div>
+                      <div className={styles.panelDesc}>{selectedFolderPath}</div>
+                    </div>
+                    <div className={styles.resourceToolbar}>
+                      <Button disabled icon={<FileOutlined />}>
+                        合并文档
+                      </Button>
+                      <Button color="primary" variant="outlined" icon={<PlusOutlined />} disabled={!canEditResources} onClick={() => openCreateFolderModal(selectedFolderId)}>
+                        新建
+                      </Button>
+                      <Dropdown trigger={['click']} overlayClassName={styles.uploadDropdown} placement="bottomRight" arrow={{pointAtCenter: true}} menu={resourceUploadMenu}>
+                        <Button type="primary" icon={<CloudUploadOutlined />} disabled={!canUploadIntoFolder || !!uploading}>
+                          {uploading ? '上传中...' : '上传'} <DownOutlined />
+                        </Button>
+                      </Dropdown>
+                    </div>
+                  </div>
+
+                  <div className={styles.resourceCenterBody}>
+                    <div className={styles.resourceCenterScroll}>
+                      {selectedFolderDirectories.length > 0 && <div className={styles.folderRows}>{renderFolderRows(selectedFolderDirectories)}</div>}
+
+                      {selectedFolderFiles.length > 0 && (
+                        <div className={styles.resourceFileList}>
+                        {selectedFolderFiles.map((item) => {
+                          const tagLabels = getResourceTagLabels(item);
+                          return (
+                            <div
+                              key={item.id}
+                              className={classNames(styles.resourceFileRow, {[styles.selectedResourceFileRow]: selectedResourceFile?.id === item.id})}
+                              onClick={(e) => onFileClick(e, item)}
+                            >
+                              <div className={`g-doc-icon t-${item.fileName?.split('.').pop()?.toLowerCase() || 'doc'}`} />
+                              <div className={styles.resourceFileBody}>
+                                <div className={styles.resourceFileHead}>
+                                  <div className={styles.nameWrap}>
+                                    <div className={styles.name} title={item.fileName}>
+                                      {item.fileName}
+                                    </div>
+                                    <Popover
+                                      trigger="click"
+                                      destroyOnHidden
+                                      open={showRename === item.id}
+                                      onOpenChange={(open) => setShowRename(open ? item.id : '')}
+                                      content={
+                                        <div onClick={(e) => e.stopPropagation()}>
+                                          <Input
+                                            allowClear
+                                            autoFocus
+                                            style={{width: '200px'}}
+                                            defaultValue={item.fileName}
+                                            onBlur={(e: any) => {
+                                              const value = e.target.value.trim();
+                                              if (value && value !== item.fileName) {
+                                                onRenameReport(item.id, value);
+                                              }
+                                            }}
+                                            onChange={(e) => {
+                                              e.target.value = e.target.value.replace(/[<>?/\\|*]|\.\.|[\r\n]/g, '');
+                                            }}
+                                            onKeyDown={(e: any) => {
+                                              if (e.key === 'Enter') {
+                                                const value = e.target.value.trim();
+                                                if (value && value !== item.fileName) {
+                                                  onRenameReport(item.id, value);
+                                                }
+                                              }
+                                            }}
+                                          />
+                                        </div>
+                                      }
+                                    >
+                                      {canEditResources && (
+                                        <EditOutlined
+                                          className={styles.edit}
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                          }}
+                                        />
+                                      )}
+                                    </Popover>
+                                  </div>
+                                  {canEditResources && (
+                                    <CloseCircleFilled
+                                      className="close"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        onRemoveResource(item.id);
+                                      }}
+                                    />
+                                  )}
+                                </div>
+                                <div className={styles.resourceFileMeta}>
+                                  <span className={styles.resourceFileTime}>{item.lastModifiedTime || '暂无上传时间'}</span>
+                                  {tagLabels.length > 0 && (
+                                    <div className={styles.fileTagsWrap}>
+                                      {tagLabels.map((tag: string, index: number) => (
+                                        <span key={index} className={styles.tagItem} title={tag}>
+                                          {tag}
+                                        </span>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                              {renderResourceProgress(item)}
+                            </div>
+                          );
+                        })}
+                        </div>
+                      )}
+
+                      {!selectedFolderDirectories.length && !selectedFolderFiles.length && (
+                        <div className={styles.resourceCenterEmpty}>当前目录下还没有文件，可继续上传资料或新建子目录。</div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <div className={styles.resourceDetailPanel}>
+                  <div className={styles.resourcePanelHeader}>
+                    <div>
+                      <div className={styles.panelTitle}>文件详情</div>
+                      <div className={styles.panelDesc}>{selectedResourceFile ? '当前选中文件信息' : '选择文件后展示目录、上传时间和标签'}</div>
+                    </div>
+                  </div>
+                  <div className={styles.resourceDetailBody}>
+                    {selectedResourceFile ? (
+                      <>
+                        <div className={styles.detailFileName}>{selectedResourcePathInfo.displayFileName}</div>
+                        <div className={styles.detailFileMeta}>目录：{selectedResourcePathInfo.displayFolderPath}</div>
+
+                        <div className={styles.detailInfoCard}>
+                          <span className={styles.detailInfoLabel}>上传时间</span>
+                          <strong className={styles.detailInfoValue}>{selectedResourceFile.lastModifiedTime || '暂无时间'}</strong>
+                        </div>
+
+                        <div className={styles.detailTagsBlock}>
+                          <div className={styles.detailSectionLabel}>
+                            <ApiOutlined />
+                            标签
+                          </div>
+                          <div className={styles.detailTagList}>
+                            {selectedResourceTags.length > 0 ? (
+                              selectedResourceTags.map((tag, index) => (
+                                <span key={`${tag}-${index}`} className={styles.detailTag}>
+                                  {tag}
+                                </span>
+                              ))
+                            ) : (
+                              <span className={styles.detailEmptyText}>暂无标签</span>
+                            )}
+                          </div>
+                        </div>
+                      </>
+                    ) : (
+                      <div className={styles.resourceDetailEmpty}>
+                        <FileOutlined />
+                        <p>选择文件后，这里会展示目录、上传时间和标签信息。</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className={`${styles.list} ${isResourcesCollapsed ? styles.collapsed : ''}`} style={{display: 'none'}}>
             {itemDetail.resources.map((item) => {
               const fileProgress = fileProgressMap[item.id];
               return (
@@ -1520,9 +2315,9 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
                       )}
                     </Popover>
                   </div>
-                  {item.fileTags && (
+                  {getResourceTagLabels(item).length > 0 && (
                     <div className={styles.fileTagsWrap}>
-                      {item.fileTags.split(',').map((tag: string, index: number) => (
+                      {getResourceTagLabels(item).map((tag: string, index: number) => (
                         <span key={index} className={styles.tagItem} title={tag}>
                           {tag}
                         </span>
@@ -2370,6 +3165,37 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
               </div>
             </>
           )}
+        </div>
+      </Modal>
+
+      <Modal
+        width={520}
+        title={folderModal?.mode === 'rename' ? '重命名目录' : '新建目录'}
+        open={!!folderModal}
+        okText={folderModal?.mode === 'rename' ? '确认重命名' : '创建目录'}
+        cancelText="取消"
+        onOk={onSubmitFolderModal}
+        confirmLoading={folderSubmitting}
+        onCancel={closeFolderModal}
+        afterOpenChange={(open: boolean) => {
+          showMask(open);
+        }}
+      >
+        <div className={styles.folderModalBody}>
+          <div className={styles.folderModalHint}>
+            {folderModal?.mode === 'rename'
+              ? '目录重命名后，当前目录树会以服务端最新结果重新刷新。'
+              : `新目录将创建在 ${selectedFolderPath} 下。`}
+          </div>
+          <Input
+            allowClear
+            autoFocus
+            maxLength={60}
+            value={folderNameValue}
+            placeholder="请输入目录名称"
+            onChange={(e) => setFolderNameValue(sanitizeNodeName(e.target.value))}
+            onPressEnter={onSubmitFolderModal}
+          />
         </div>
       </Modal>
 
