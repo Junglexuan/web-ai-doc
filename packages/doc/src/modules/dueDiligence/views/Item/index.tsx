@@ -53,7 +53,17 @@ import {getToken, message, showMask, useEvent, useThrottleEvent} from '@/utils/t
 import {DueDiligenceAPI} from '../../api';
 import QuestionsFile from '../../components/QuestionsFile';
 import TplSelect from '../../components/TplSelect';
-import {DealMaterialTagDef, DealReportStatusEnum, DealResourceFile, DealResourceNode, DueConfigs, InterviewInstDetail, InterviewRecord, ItemDetail, StatusMap} from '../../entity';
+import {
+  DealMaterialTagDef,
+  DealReportStatusEnum,
+  DealResourceFile,
+  DealResourceNode,
+  DueConfigs,
+  InterviewInstDetail,
+  InterviewRecord,
+  ItemDetail,
+  StatusMap,
+} from '../../entity';
 import Edit from '../Edit';
 import _styles from './index.module.less';
 const styles: any = _styles;
@@ -540,12 +550,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
     }
     try {
       setUploading('upload');
-      await DueDiligenceAPI.uploadFolder(
-        itemDetail.id,
-        files,
-        selectedFolderId === ROOT_FOLDER_ID ? undefined : selectedFolderId,
-        relativePaths
-      );
+      await DueDiligenceAPI.uploadFolder(itemDetail.id, files, selectedFolderId === ROOT_FOLDER_ID ? undefined : selectedFolderId, relativePaths);
       message.success(relativePaths?.length ? '文件夹上传成功' : '文件上传成功');
       refreshPage();
     } finally {
@@ -1542,11 +1547,13 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
                 }
               }}
             >
-              {childFolders.length ? (isExpanded ? <CaretDownOutlined /> : <CaretRightOutlined />) : <span className={styles.treeTogglePlaceholder} />}
+              {childFolders.length ? isExpanded ? <CaretDownOutlined /> : <CaretRightOutlined /> : <span className={styles.treeTogglePlaceholder} />}
             </button>
             <FolderOpenOutlined className={styles.treeIcon} />
             <div className={styles.treeContent}>
-              <span className={styles.treeLabel}>{node.name}</span>
+              <Tooltip title={node.name}>
+                <span className={styles.treeLabel}>{node.name}</span>
+              </Tooltip>
               <span className={styles.treeMeta}>
                 {childFolders.length} 个子目录 · {directFiles.length} 个文件
               </span>
@@ -2025,7 +2032,13 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
                   >
                     新建目录
                   </Button>
-                  <Dropdown trigger={['click']} overlayClassName={styles.uploadDropdown} placement="bottom" arrow={{pointAtCenter: true}} menu={resourceUploadMenu}>
+                  <Dropdown
+                    trigger={['click']}
+                    overlayClassName={styles.uploadDropdown}
+                    placement="bottom"
+                    arrow={{pointAtCenter: true}}
+                    menu={resourceUploadMenu}
+                  >
                     <Button type="primary" icon={<CloudUploadOutlined />} disabled={!canUploadIntoFolder || !!uploading}>
                       {uploading ? '上传中...' : '上传资料'} <DownOutlined />
                     </Button>
@@ -2074,11 +2087,15 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
                         </button>
                         <BankOutlined className={styles.treeIcon} />
                         <div className={styles.treeContent}>
-                          <span className={styles.treeLabel}>{ROOT_FOLDER_NAME}</span>
+                          <Tooltip title={ROOT_FOLDER_NAME}>
+                            <span className={styles.treeLabel}>{ROOT_FOLDER_NAME}</span>
+                          </Tooltip>
                           <span className={styles.treeMeta}>根级资料入口</span>
                         </div>
                       </div>
-                      {expandedFolderIds.includes(ROOT_FOLDER_ID) && <div className={styles.treeChildren}>{renderFolderNodes(resourceRootNode.children || [])}</div>}
+                      {expandedFolderIds.includes(ROOT_FOLDER_ID) && (
+                        <div className={styles.treeChildren}>{renderFolderNodes(resourceRootNode.children || [])}</div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -2086,17 +2103,31 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
                 <div className={styles.resourceCenter}>
                   <div className={styles.resourceCenterHeader}>
                     <div>
-                      <div className={styles.panelTitle}>{selectedFolderDisplayName}</div>
+                      <Tooltip title={selectedFolderDisplayName}>
+                        <div className={styles.panelTitle}>{selectedFolderDisplayName}</div>
+                      </Tooltip>
                       <div className={styles.panelDesc}>{selectedFolderPath}</div>
                     </div>
                     <div className={styles.resourceToolbar}>
-                      <Button disabled icon={<FileOutlined />}>
+                      {/* <Button disabled icon={<FileOutlined />}>
                         合并文档
-                      </Button>
-                      <Button color="primary" variant="outlined" icon={<PlusOutlined />} disabled={!canEditResources} onClick={() => openCreateFolderModal(selectedFolderId)}>
+                      </Button> */}
+                      <Button
+                        color="primary"
+                        variant="outlined"
+                        icon={<PlusOutlined />}
+                        disabled={!canEditResources}
+                        onClick={() => openCreateFolderModal(selectedFolderId)}
+                      >
                         新建
                       </Button>
-                      <Dropdown trigger={['click']} overlayClassName={styles.uploadDropdown} placement="bottomRight" arrow={{pointAtCenter: true}} menu={resourceUploadMenu}>
+                      <Dropdown
+                        trigger={['click']}
+                        overlayClassName={styles.uploadDropdown}
+                        placement="bottomRight"
+                        arrow={{pointAtCenter: true}}
+                        menu={resourceUploadMenu}
+                      >
                         <Button type="primary" icon={<CloudUploadOutlined />} disabled={!canUploadIntoFolder || !!uploading}>
                           {uploading ? '上传中...' : '上传'} <DownOutlined />
                         </Button>
@@ -2110,91 +2141,93 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
 
                       {selectedFolderFiles.length > 0 && (
                         <div className={styles.resourceFileList}>
-                        {selectedFolderFiles.map((item) => {
-                          const tagLabels = getResourceTagLabels(item);
-                          return (
-                            <div
-                              key={item.id}
-                              className={classNames(styles.resourceFileRow, {[styles.selectedResourceFileRow]: selectedResourceFile?.id === item.id})}
-                              onClick={(e) => onFileClick(e, item)}
-                            >
-                              <div className={`g-doc-icon t-${item.fileName?.split('.').pop()?.toLowerCase() || 'doc'}`} />
-                              <div className={styles.resourceFileBody}>
-                                <div className={styles.resourceFileHead}>
-                                  <div className={styles.nameWrap}>
-                                    <div className={styles.name} title={item.fileName}>
-                                      {item.fileName}
-                                    </div>
-                                    <Popover
-                                      trigger="click"
-                                      destroyOnHidden
-                                      open={showRename === item.id}
-                                      onOpenChange={(open) => setShowRename(open ? item.id : '')}
-                                      content={
-                                        <div onClick={(e) => e.stopPropagation()}>
-                                          <Input
-                                            allowClear
-                                            autoFocus
-                                            style={{width: '200px'}}
-                                            defaultValue={item.fileName}
-                                            onBlur={(e: any) => {
-                                              const value = e.target.value.trim();
-                                              if (value && value !== item.fileName) {
-                                                onRenameReport(item.id, value);
-                                              }
-                                            }}
-                                            onChange={(e) => {
-                                              e.target.value = e.target.value.replace(/[<>?/\\|*]|\.\.|[\r\n]/g, '');
-                                            }}
-                                            onKeyDown={(e: any) => {
-                                              if (e.key === 'Enter') {
+                          {selectedFolderFiles.map((item) => {
+                            const tagLabels = getResourceTagLabels(item);
+                            return (
+                              <div
+                                key={item.id}
+                                className={classNames(styles.resourceFileRow, {
+                                  [styles.selectedResourceFileRow]: selectedResourceFile?.id === item.id,
+                                })}
+                                onClick={(e) => onFileClick(e, item)}
+                              >
+                                <div className={`g-doc-icon t-${item.fileName?.split('.').pop()?.toLowerCase() || 'doc'}`} />
+                                <div className={styles.resourceFileBody}>
+                                  <div className={styles.resourceFileHead}>
+                                    <div className={styles.nameWrap}>
+                                      <div className={styles.name} title={item.fileName}>
+                                        {item.fileName}
+                                      </div>
+                                      <Popover
+                                        trigger="click"
+                                        destroyOnHidden
+                                        open={showRename === item.id}
+                                        onOpenChange={(open) => setShowRename(open ? item.id : '')}
+                                        content={
+                                          <div onClick={(e) => e.stopPropagation()}>
+                                            <Input
+                                              allowClear
+                                              autoFocus
+                                              style={{width: '200px'}}
+                                              defaultValue={item.fileName}
+                                              onBlur={(e: any) => {
                                                 const value = e.target.value.trim();
                                                 if (value && value !== item.fileName) {
                                                   onRenameReport(item.id, value);
                                                 }
-                                              }
+                                              }}
+                                              onChange={(e) => {
+                                                e.target.value = e.target.value.replace(/[<>?/\\|*]|\.\.|[\r\n]/g, '');
+                                              }}
+                                              onKeyDown={(e: any) => {
+                                                if (e.key === 'Enter') {
+                                                  const value = e.target.value.trim();
+                                                  if (value && value !== item.fileName) {
+                                                    onRenameReport(item.id, value);
+                                                  }
+                                                }
+                                              }}
+                                            />
+                                          </div>
+                                        }
+                                      >
+                                        {canEditResources && (
+                                          <EditOutlined
+                                            className={styles.edit}
+                                            onClick={(e) => {
+                                              e.stopPropagation();
                                             }}
                                           />
-                                        </div>
-                                      }
-                                    >
-                                      {canEditResources && (
-                                        <EditOutlined
-                                          className={styles.edit}
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                          }}
-                                        />
-                                      )}
-                                    </Popover>
-                                  </div>
-                                  {canEditResources && (
-                                    <CloseCircleFilled
-                                      className="close"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        onRemoveResource(item.id);
-                                      }}
-                                    />
-                                  )}
-                                </div>
-                                <div className={styles.resourceFileMeta}>
-                                  <span className={styles.resourceFileTime}>{item.lastModifiedTime || '暂无上传时间'}</span>
-                                  {tagLabels.length > 0 && (
-                                    <div className={styles.fileTagsWrap}>
-                                      {tagLabels.map((tag: string, index: number) => (
-                                        <span key={index} className={styles.tagItem} title={tag}>
-                                          {tag}
-                                        </span>
-                                      ))}
+                                        )}
+                                      </Popover>
                                     </div>
-                                  )}
+                                    {canEditResources && (
+                                      <CloseCircleFilled
+                                        className="close"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          onRemoveResource(item.id);
+                                        }}
+                                      />
+                                    )}
+                                  </div>
+                                  <div className={styles.resourceFileMeta}>
+                                    <span className={styles.resourceFileTime}>{item.lastModifiedTime || '暂无上传时间'}</span>
+                                    {tagLabels.length > 0 && (
+                                      <div className={styles.fileTagsWrap}>
+                                        {tagLabels.map((tag: string, index: number) => (
+                                          <span key={index} className={styles.tagItem} title={tag}>
+                                            {tag}
+                                          </span>
+                                        ))}
+                                      </div>
+                                    )}
+                                  </div>
                                 </div>
+                                {renderResourceProgress(item)}
                               </div>
-                              {renderResourceProgress(item)}
-                            </div>
-                          );
-                        })}
+                            );
+                          })}
                         </div>
                       )}
 
@@ -3183,9 +3216,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
       >
         <div className={styles.folderModalBody}>
           <div className={styles.folderModalHint}>
-            {folderModal?.mode === 'rename'
-              ? '目录重命名后，当前目录树会以服务端最新结果重新刷新。'
-              : `新目录将创建在 ${selectedFolderPath} 下。`}
+            {folderModal?.mode === 'rename' ? '目录重命名后，当前目录树会以服务端最新结果重新刷新。' : `新目录将创建在 ${selectedFolderPath} 下。`}
           </div>
           <Input
             allowClear
