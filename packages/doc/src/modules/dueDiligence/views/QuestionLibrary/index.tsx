@@ -332,7 +332,9 @@ const QuestionLibrary: FC = () => {
                       <span className={styles.typeTag}>
                         {group.templateType === TemplateTypeEnum.PERSONAL && String(group.createUser) !== String(getCurUserId())
                           ? '组织'
-                          : TemplateTypeMap[group.templateType]}
+                          : group.templateType === TemplateTypeEnum.PRESET
+                            ? '内置'
+                            : TemplateTypeMap[group.templateType]}
                       </span>
                     )}
                     <span className={styles.name}>{group.templateName}</span>
