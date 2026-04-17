@@ -24,8 +24,6 @@
       margin-bottom: 16px;
 
       .title {
-        cursor: pointer;
-
         .label {
           display: block;
           margin-bottom: 4px;
@@ -137,7 +135,6 @@
       .item {
         padding: 14px 16px;
         margin-bottom: 8px;
-        cursor: pointer;
         background: #fff;
         border: 1px solid transparent; // 使用透明边框防止高亮时改变粗细导致抖动
         border-radius: 12px;
@@ -177,6 +174,7 @@
           align-items: center;
           justify-content: space-between;
           margin-bottom: 4px;
+          cursor: pointer;
 
           .nameWrapper {
             display: flex;
@@ -238,6 +236,7 @@
               font-size: 11px;
               font-weight: 700;
               color: #64748b;
+              cursor: default;
               background: #f1f5f9;
               border-radius: 50%;
             }
@@ -372,6 +371,11 @@
           font-size: 14px;
           font-weight: 700;
           color: #2563eb;
+
+          .required {
+            margin-left: 2px;
+            color: #ef4444;
+          }
         }
 
         :global(.ant-input) {
@@ -429,13 +433,24 @@
             color: #fff;
             background: #93c5fd;
             border: none;
+            transition: all 0.2s;
 
-            &:hover {
-              background: #60a5fa;
+            &.active {
+              background: #2563eb;
+
+              &:hover {
+                background: #1d4ed8;
+              }
+            }
+
+            &:disabled {
+              color: rgba(255, 255, 255, 0.8);
+              cursor: not-allowed;
+              background: #bfdbfe !important;
             }
 
             &:active {
-              background: #3b82f6;
+              background: #1e40af;
             }
           }
         }

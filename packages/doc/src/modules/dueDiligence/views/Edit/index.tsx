@@ -179,13 +179,15 @@ const Component: FC<{
               allowClear
               options={enterpriseOptions}
               onChange={(val, option: any) => {
+                const targetCreditCode = option?.value || val;
+                const targetCompanyName = option?.label || val;
                 form.setFieldsValue({
-                  creditCode: val,
-                  companyName: option?.label || val,
+                  creditCode: targetCreditCode,
+                  companyName: targetCompanyName,
                 });
                 // 如果尽调对象名称为空，自动回填企业名称
-                if (!form.getFieldValue('name') && option?.label) {
-                  form.setFieldsValue({name: option.label});
+                if (!form.getFieldValue('name') && targetCompanyName) {
+                  form.setFieldsValue({name: targetCompanyName});
                 }
               }}
             />

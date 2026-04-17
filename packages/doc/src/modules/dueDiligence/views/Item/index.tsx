@@ -652,12 +652,21 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
   });
 
   const onEditSubmit = useThrottleEvent((data: any) => {
-    const formData = {...itemDetail, ...data};
-    const isCompanyNameChanged = data.companyName && data.companyName !== itemDetail.companyName;
+    // 基础变更对象，始终包含 ID
+    const formData: any = {id: itemDetail.id};
 
-    // 如果在表单中更改了 templateId，则确保同步更新 questionId
-    if (data.templateId && configs) {
-      const selectedTpl = configs.template.list.find((t) => String(t.id) === String(data.templateId));
+    // 遍历提交的数据，只提取发生变更的字段
+    Object.keys(data).forEach((key) => {
+      if (data[key] !== (itemDetail as any)[key]) {
+        formData[key] = data[key];
+      }
+    });
+
+    const isCompanyNameChanged = !!formData.companyName && formData.companyName !== itemDetail.companyName;
+
+    // 如果更改了 templateId，则确保同步更新关联的 questionId
+    if (formData.templateId && configs) {
+      const selectedTpl = configs.template.list.find((t) => String(t.id) === String(formData.templateId));
       if (selectedTpl?.questionId) {
         formData.questionId = String(selectedTpl.questionId);
       }
@@ -665,12 +674,26 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
 
     DueDiligenceAPI.createItem(formData).then(() => {
       setIsEditModalVisible(false);
+      refreshPage(); // 先刷新页面，让名称等基本信息立即更新
+
       if (isCompanyNameChanged && itemDetail.id) {
+        // 清除旧的 AI 洞察
         DueDiligenceAPI.clearAiInsight(itemDetail.id).catch((err) => {
           console.error('Failed to clear AI Insight:', err);
         });
+
+        // 企业名称变更后，重新触发数据抓取；按钮进入 loading 态
+        setScrapingStatus('loading');
+        DueDiligenceAPI.syncEnterprise(itemDetail.id)
+          .then(() => {
+            setScrapingStatus('completed');
+            refreshPage(); // 抓取完成后再次刷新获取最新数据
+          })
+          .catch(() => {
+            setScrapingStatus('ready');
+            message.error('企业数据抓取失败，请稍后重试');
+          });
       }
-      refreshPage();
     });
   });
 
@@ -1072,9 +1095,10 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
   const onSelectQuestionTemplate = (tplId: string) => {
     setSwitchingQuestion(true);
     // 更新当前尽调实例关联的问题清单 ID
+    // 使用 forceQuestionId 强制传递，以区分普通的编辑场景
     DueDiligenceAPI.createItem({
       id: itemDetail.id,
-      questionId: tplId,
+      forceQuestionId: tplId,
     } as any)
       .then(() => {
         message.success('切换清单成功');
@@ -1994,7 +2018,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
                 }}
                 disabled={!isReportGenerated || !itemDetail.report?.id}
               >
-                下载WORD
+                下载报告
               </Button>
               {/* <Button
                 color="primary"

@@ -237,9 +237,9 @@ export const DueDiligenceAPI = {
   saveFileTags(fileId: string, tagIds: string[]): Promise<void> {
     return request.post('/api/fileTag/save', {fileId, tagIds}).then((res) => res.data.data);
   },
-  createItem(data: ListItem & {templateId?: string; companyName?: string}): Promise<ListItem> {
+  createItem(data: ListItem & {templateId?: string; companyName?: string; forceQuestionId?: string}): Promise<ListItem> {
     console.log(data, 'dataxxx====');
-    const {id, name, logo, templateId, companyName} = data;
+    const {id, name, logo, templateId, companyName, forceQuestionId} = data;
     return request
       .post('/api/deal/createOrUpdateDealInst', {
         id: id || undefined,
@@ -247,8 +247,8 @@ export const DueDiligenceAPI = {
         logo,
         templateId,
         creditCode: data.creditCode,
-        companyName: companyName || undefined, // 修改：不再回退到 name，防止误报企业名称
-        questionId: id ? undefined : data.questions?.tpl || data.questionId,
+        companyName: data.companyName || undefined,
+        questionId: forceQuestionId || (id ? undefined : data.questions?.tpl || data.questionId),
       })
       .then((res) => res.data.data);
   },

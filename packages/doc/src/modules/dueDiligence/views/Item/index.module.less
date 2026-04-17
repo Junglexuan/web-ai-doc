@@ -206,7 +206,7 @@
     border-color: #dbeafe;
 
     :local(.treeActions) {
-      opacity: 1;
+      display: flex;
     }
   }
 }
@@ -275,11 +275,10 @@
 }
 
 :local(.treeActions) {
-  display: flex;
+  display: none;
   gap: 2px;
   align-items: center;
-  opacity: 0;
-  transition: opacity 0.2s ease;
+  transition: all 0.2s ease;
 
   :global(.ant-btn) {
     width: 28px;
@@ -619,49 +618,10 @@
     }
   }
 
-  > .g-doc-icon {
+  .g-doc-icon {
     flex: 0 0 24px;
     width: 24px;
     height: 24px;
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: contain;
-
-    &.t-pdf {
-      background-image: url('@/assets/imgs/pdf.png');
-    }
-
-    &.t-doc,
-    &.t-docx {
-      background-image: url('@/assets/imgs/doc.svg');
-    }
-
-    &.t-xls,
-    &.t-xlsx {
-      background-image: url('@/assets/imgs/excel.png');
-    }
-
-    &.t-ppt,
-    &.t-pptx {
-      background-image: url('@/assets/imgs/ppt.png');
-    }
-
-    &.t-png,
-    &.t-jpg,
-    &.t-jpeg,
-    &.t-gif {
-      background-image: url('@/assets/imgs/image.png');
-    }
-
-    &.t-wav,
-    &.t-mp3,
-    &.t-m4a {
-      background-image: url('@/assets/imgs/wav.png');
-    }
-
-    &.t-txt {
-      background-image: url('@/assets/imgs/txt.png');
-    }
   }
 
   :global(.close) {
@@ -1015,6 +975,54 @@
 }
 
 :global {
+  .g-doc-icon {
+    // 默认图标
+    background-image: url('@/assets/imgs/doc.svg');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+
+    &.t-pdf {
+      background-image: url('@/assets/imgs/pdf.png') !important;
+    }
+
+    &.t-doc,
+    &.t-docx {
+      background-image: url('@/assets/imgs/doc.svg') !important;
+    }
+
+    &.t-xls,
+    &.t-xlsx {
+      background-image: url('@/assets/imgs/excel.png') !important;
+    }
+
+    &.t-ppt,
+    &.t-pptx {
+      background-image: url('@/assets/imgs/ppt.png') !important;
+    }
+
+    &.t-png,
+    &.t-jpg,
+    &.t-jpeg,
+    &.t-gif {
+      background-image: url('@/assets/imgs/image.png') !important;
+    }
+
+    &.t-wav,
+    &.t-mp3,
+    &.t-m4a,
+    &.t-amr,
+    &.t-aac,
+    &.t-ogg,
+    &.t-flac {
+      background-image: url('@/assets/imgs/wav.png') !important;
+    }
+
+    &.t-txt {
+      background-image: url('@/assets/imgs/txt.png') !important;
+    }
+  }
+
   :local(.root) {
     position: relative;
     display: flex;
@@ -1780,52 +1788,13 @@
       }
     }
 
-    > .g-doc-icon {
+    .g-doc-icon {
       position: absolute;
       top: 50%;
       left: 22px;
       width: 48px;
       height: 48px;
-      background-repeat: no-repeat;
-      background-position: center;
-      background-size: contain;
       transform: translateY(-50%);
-
-      &.t-pdf {
-        background-image: url('@/assets/imgs/pdf.png');
-      }
-
-      &.t-doc,
-      &.t-docx {
-        background-image: url('@/assets/imgs/doc.svg');
-      }
-
-      &.t-xls,
-      &.t-xlsx {
-        background-image: url('@/assets/imgs/excel.png');
-      }
-
-      &.t-ppt,
-      &.t-pptx {
-        background-image: url('@/assets/imgs/ppt.png');
-      }
-
-      &.t-png,
-      &.t-jpg,
-      &.t-jpeg,
-      &.t-gif {
-        background-image: url('@/assets/imgs/image.png');
-      }
-
-      &.t-wav,
-      &.t-mp3,
-      &.t-m4a {
-        background-image: url('@/assets/imgs/wav.png');
-      }
-
-      &.t-txt {
-        background-image: url('@/assets/imgs/txt.png');
-      }
     }
 
     :local(.nameWrap) {

@@ -1,5 +1,6 @@
 import {BookOutlined, DeleteOutlined, EditOutlined, LoadingOutlined, PlusOutlined} from '@ant-design/icons';
 import {Button, Card, Checkbox, Input, Modal, Popconfirm, Spin, Typography, message} from 'antd';
+import classNames from 'classnames';
 import {FC, useEffect, useState} from 'react';
 import {getCurUserId} from '@/utils/tools';
 import {DueDiligenceAPI} from '../../api';
@@ -372,7 +373,7 @@ const QuestionLibrary: FC = () => {
         <div className={styles.contentHeader}>
           <div className={styles.info}>
             <div className={styles.name}>{activeGroup?.templateName || '未选择集合'}</div>
-            <div className={styles.desc}>{activeGroup?.templateDesc || activeGroup?.remark || '关注访谈过程中的核心要点与风险'}</div>
+            <div className={styles.desc}>{activeGroup?.templateDesc || activeGroup?.remark || '暂无描述内容'}</div>
           </div>
           {hasEditPermission && (
             <Button type="primary" icon={<PlusOutlined />} onClick={() => setIsAddingQuestion(true)}>
@@ -387,6 +388,7 @@ const QuestionLibrary: FC = () => {
               <div className={styles.title}>
                 <PlusOutlined />
                 <span>新增问题</span>
+                <span className={styles.required}>*</span>
               </div>
               <Input.TextArea rows={4} placeholder="输入问题内容..." value={newQuestionName} onChange={(e) => setNewQuestionName(e.target.value)} />
               <div className={styles.footer}>
@@ -396,7 +398,11 @@ const QuestionLibrary: FC = () => {
                 <Button className={`${styles.btn} ${styles.saveBtn}`} onClick={() => handleSaveQuestion(false)}>
                   保存
                 </Button>
-                <Button className={`${styles.btn} ${styles.continueBtn}`} onClick={() => handleSaveQuestion(true)}>
+                <Button
+                  className={classNames(styles.btn, styles.continueBtn, {[styles.active]: !!newQuestionName.trim()})}
+                  onClick={() => handleSaveQuestion(true)}
+                  disabled={!newQuestionName.trim()}
+                >
                   保存并继续新增
                 </Button>
               </div>
