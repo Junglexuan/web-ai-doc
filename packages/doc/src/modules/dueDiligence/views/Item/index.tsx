@@ -1032,6 +1032,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
     const val = newQuestionValue.trim();
     if (!val) {
       setIsAddingQuestion(false);
+      setNewQuestionValue('');
       return;
     }
 
@@ -1061,6 +1062,11 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
       console.error(e);
       message.error(e?.message || '问题添加失败，请重试');
     }
+  });
+
+  const onCancelAddQuestion = useEvent(() => {
+    setNewQuestionValue('');
+    setIsAddingQuestion(false);
   });
 
   const onSelectQuestionTemplate = (tplId: string) => {
@@ -2927,7 +2933,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
                           添加问题
                         </span>
                         <span className={styles.divider}>|</span>
-                        <span className={styles.cancelLink} onClick={() => setIsAddingQuestion(false)}>
+                        <span className={styles.cancelLink} onClick={onCancelAddQuestion}>
                           取消
                         </span>
                       </div>
