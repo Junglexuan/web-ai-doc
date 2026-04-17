@@ -262,8 +262,8 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
                         <EllipsisOutlined className={styles.moreActions} onClick={(e) => e.stopPropagation()} />
                       </Dropdown>
                     </div>
-                    <Tooltip title={item.dealSummary || '访谈小总结未生成，请刷新生成。'} placement="bottomLeft">
-                      <div className="ft">{item.dealSummary || '访谈小总结未生成，请刷新生成。'}</div>
+                    <Tooltip title={item.dealSummary || '尽调小总结未生成，请刷新生成。'} placement="bottomLeft">
+                      <div className="ft">{item.dealSummary || '尽调小总结未生成，请刷新生成。'}</div>
                     </Tooltip>
                     {item.updateDate && (
                       <div className={styles.time}>

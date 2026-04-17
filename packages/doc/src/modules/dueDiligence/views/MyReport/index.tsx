@@ -105,8 +105,8 @@ const Component: FC<Props> = ({reportList, listSearch, reportListTotal, dispatch
                       <span className="name-text">{formatTitle(item.fileName)}</span>
                     </Tooltip>
                   </div>
-                  <Tooltip title={item.dealSummary || '访谈小总结未生成，请刷新生成。'} placement="bottomLeft">
-                    <div className="ft">{item.dealSummary || '访谈小总结未生成，请刷新生成。'}</div>
+                  <Tooltip title={item.dealSummary || '尽调小总结未生成，请刷新生成。'} placement="bottomLeft">
+                    <div className="ft">{item.dealSummary || '尽调小总结未生成，请刷新生成。'}</div>
                   </Tooltip>
                   <div className={styles.footer}>
                     <div className={styles.time}>

@@ -2052,7 +2052,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
         <div className={styles.summaryWrap}>
           <div className="summary-hd">
             <div className="title-group">
-              <span className="title">访谈小总结</span>
+              <span className="title">尽调小总结</span>
               <span className="tag">AI自动提炼，仅供参考</span>
               <Button
                 type="text"
@@ -2090,7 +2090,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
                 transition: 'all 0.3s',
               }}
             >
-              {itemDetail.dealSummary || '访谈小总结未生成，请刷新生成。'}
+              {itemDetail.dealSummary || '尽调小总结未生成，请刷新生成。'}
             </div>
           </div>
         </div>
