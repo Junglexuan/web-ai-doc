@@ -188,6 +188,11 @@ const QuestionLibrary: FC = () => {
       });
   };
 
+  const handleCancelAddQuestion = () => {
+    setNewQuestionName('');
+    setIsAddingQuestion(false);
+  };
+
   const handleStartEditQuestion = (q: QuestionItem) => {
     setEditingQuestionId(q.id);
     setEditQuestionName(q.questionName);
@@ -385,7 +390,7 @@ const QuestionLibrary: FC = () => {
               </div>
               <Input.TextArea rows={4} placeholder="输入问题内容..." value={newQuestionName} onChange={(e) => setNewQuestionName(e.target.value)} />
               <div className={styles.footer}>
-                <Button className={`${styles.btn} ${styles.cancelBtn}`} onClick={() => setIsAddingQuestion(false)}>
+                <Button className={`${styles.btn} ${styles.cancelBtn}`} onClick={handleCancelAddQuestion}>
                   取消
                 </Button>
                 <Button className={`${styles.btn} ${styles.saveBtn}`} onClick={() => handleSaveQuestion(false)}>
