@@ -306,8 +306,13 @@ const QuestionLibrary: FC = () => {
               <span>新建问题集合</span>
             </div>
             <div className={styles.inputGroup}>
+              <div className={styles.fieldLabel}>
+                问题集合名称
+                <span className={styles.required}>*</span>
+              </div>
               <Input placeholder="输入问题集合名称..." value={newGroupName} onChange={(e) => setNewGroupName(e.target.value)} />
-              <Input placeholder="输入问题集合说明（选填）..." value={newGroupRemark} onChange={(e) => setNewGroupRemark(e.target.value)} />
+              <div className={styles.fieldLabel}>描述</div>
+              <Input placeholder="请输入描述" value={newGroupRemark} onChange={(e) => setNewGroupRemark(e.target.value)} />
             </div>
             <div className={styles.footer}>
               <Button className={styles.cancelBtn} onClick={handleCancelCreateGroup}>
