@@ -2976,6 +2976,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
                       <div className={styles.rowMid}>
                         {editingQuestionId === q.id ? (
                           <div className={styles.inlineEditWrap}>
+                            <span className={styles.qIndex}>{index + 1}.</span>
                             <Input
                               value={editingQuestionValue}
                               onChange={(e) => setEditingQuestionValue(e.target.value)}
@@ -2992,7 +2993,10 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
                             </div>
                           </div>
                         ) : (
-                          <div className={styles.qTitle}>{q.title}</div>
+                          <div className={styles.qTitleWrap}>
+                            <span className={styles.qIndex}>{index + 1}.</span>
+                            <div className={styles.qTitle}>{q.title}</div>
+                          </div>
                         )}
                       </div>
                       {!editingQuestionId && q.desc && (

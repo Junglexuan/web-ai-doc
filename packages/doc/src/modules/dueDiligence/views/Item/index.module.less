@@ -3101,6 +3101,22 @@
     }
   }
 
+  :local(.qTitleWrap) {
+    display: flex;
+    gap: 0;
+    align-items: flex-start;
+  }
+
+  :local(.qIndex) {
+    flex: none;
+    min-width: auto;
+    margin-right: 4px;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.5;
+    color: #64748b;
+  }
+
   &:hover {
     background: #fcfdfe;
 
@@ -3146,11 +3162,16 @@
   }
 
   :local(.rowMid) {
+    min-width: 0;
+
     :local(.qTitle) {
+      flex: 1;
+      min-width: 0;
       font-size: 14px;
       font-weight: 750;
       line-height: 1.5;
       color: #1e293b;
+      word-break: break-word;
     }
   }
 
