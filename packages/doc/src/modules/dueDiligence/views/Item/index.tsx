@@ -2971,7 +2971,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
                         {!['1', '2'].includes(String(q.questionType)) && (
                           <span className={`${styles.qTag} ${q.isManual ? styles.purple : styles.blue}`}>{q.isManual ? '手动添加' : '模板预设'}</span>
                         )}
-                        {q.status === 'covered' && <span className={`${styles.qTag} ${styles.green}`}>已关联资料</span>}
+                        {q.status === 'covered' && <span className={`${styles.qTag} ${styles.green}`}>已访谈</span>}
                       </div>
                       <div className={styles.rowMid}>
                         {editingQuestionId === q.id ? (
