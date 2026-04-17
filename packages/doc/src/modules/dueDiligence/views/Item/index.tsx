@@ -1031,6 +1031,22 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
       });
   };
 
+  const onConfirmSelectQuestionTemplate = useEvent((tplId: string, templateName: string) => {
+    Modal.confirm({
+      title: '确认切换',
+      content: `确定切换到“${templateName}”问题清单吗？`,
+      cancelText: '取消',
+      okText: '确认切换',
+      centered: true,
+      onOk: () => {
+        onSelectQuestionTemplate(tplId);
+      },
+      afterOpenChange(open: boolean) {
+        showMask(open);
+      },
+    });
+  });
+
   const onConfirmEditQuestion = useEvent(async (id: string) => {
     const val = editingQuestionValue.trim();
     if (!val || !itemDetail.questionInfoList) {
@@ -2967,7 +2983,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
                     setIsQuestionModalVisible(false);
                     return;
                   }
-                  onSelectQuestionTemplate(item.id);
+                  onConfirmSelectQuestionTemplate(item.id, item.templateName);
                 }}
               >
                 <div className={styles.tplInfo}>
