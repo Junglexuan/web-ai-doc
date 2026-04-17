@@ -82,6 +82,22 @@ const RESOURCE_ACCEPT = '.docx,.xls,.pdf,.xlsx,.txt,.wav,.mp3,.m4a,.amr,.aac,.og
 
 const sanitizeNodeName = (value: string) => value.replace(/[<>?/\\|*]|\.\.|[\r\n]/g, '').trim();
 
+const hasEnterpriseBasicInfo = (data: any): boolean => {
+  const result = data?.result;
+  if (!result || typeof result !== 'object') {
+    return false;
+  }
+  return Object.values(result).some((value) => {
+    if (Array.isArray(value)) {
+      return value.length > 0;
+    }
+    if (value && typeof value === 'object') {
+      return Object.keys(value).length > 0;
+    }
+    return value !== undefined && value !== null && String(value).trim() !== '';
+  });
+};
+
 const collectFolderIds = (nodes: DealResourceNode[] = [], result: Set<string> = new Set()) => {
   nodes.forEach((node) => {
     if (node.nodeType === 'folder') {
@@ -189,6 +205,8 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
   const [selectedAiKeys, setSelectedAiKeys] = useState<string[]>([]);
   const [enterpriseInfo, setEnterpriseInfo] = useState<any>(null);
   const [isEnterpriseLoading, setIsEnterpriseLoading] = useState(false);
+  const [enterpriseInfoChecked, setEnterpriseInfoChecked] = useState(false);
+  const [hasExistingEnterpriseInfo, setHasExistingEnterpriseInfo] = useState(false);
   const [selectedFolderId, setSelectedFolderId] = useState(ROOT_FOLDER_ID);
   const [selectedResourceId, setSelectedResourceId] = useState('');
   const [expandedFolderIds, setExpandedFolderIds] = useState<string[]>([ROOT_FOLDER_ID]);
@@ -322,6 +340,40 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
       setScrapingStatus('completed');
     }
   }, [itemDetail.supplementary, scrapingStatus]);
+
+  useEffect(() => {
+    let canceled = false;
+    setEnterpriseInfoChecked(false);
+    setHasExistingEnterpriseInfo(false);
+    if (!itemDetail.id || !itemDetail.companyName) {
+      setEnterpriseInfoChecked(true);
+      return;
+    }
+    DueDiligenceAPI.getEnterpriseBasicInfo(itemDetail.id)
+      .then((data) => {
+        if (canceled) {
+          return;
+        }
+        const exists = hasEnterpriseBasicInfo(data);
+        setHasExistingEnterpriseInfo(exists);
+        if (exists) {
+          setScrapingStatus('completed');
+        }
+      })
+      .catch(() => {
+        if (!canceled) {
+          setHasExistingEnterpriseInfo(false);
+        }
+      })
+      .finally(() => {
+        if (!canceled) {
+          setEnterpriseInfoChecked(true);
+        }
+      });
+    return () => {
+      canceled = true;
+    };
+  }, [itemDetail.id, itemDetail.companyName]);
 
   useEffect(() => {
     // 只有填写了企业名称才自动抓取数据
@@ -770,7 +822,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
         </div>
       ),
       placement: 'bottomRight',
-      duration: 3,
+      duration: 0,
       className: styles.customNotification,
       style: {
         width: 360,
@@ -824,13 +876,6 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
               <ThunderboltOutlined className="lightning" />
               <span>系统将启动全网数据抓取引擎，深度检索工商、司法、舆情及行业研报。</span>
             </div>
-            <div className="item">
-              <ExclamationCircleOutlined className="warning" />
-              <span>
-                由于涉及大量实时数据处理与 AI 深度推理，<span className="highlight">整个过程预计需要 1-2 分钟</span>
-                ，请保持页面开启。
-              </span>
-            </div>
           </div>
         </div>
       ),
@@ -855,12 +900,16 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
 
   const lastAttemptedId = useRef<string | null>(null);
   useEffect(() => {
-    // 自动抓取逻辑：仅当明确填写了“企业名称”且当前补充信息为空时，进入页面后自动启动静默抓取
-    // 逻辑：如果没有填写企业名称，不应该自动抓取；且每个项目 ID 只尝试一次
+    // 自动抓取逻辑：仅当填写了企业名称，且后端确认还没有抓取结果时，进入页面后自动启动静默抓取
     const hasEnterpriseName = !!itemDetail.companyName;
-    const hasNoSupplementary = !itemDetail.supplementary || itemDetail.supplementary.length === 0;
 
-    if (hasEnterpriseName && hasNoSupplementary && scrapingStatus === 'ready' && lastAttemptedId.current !== itemDetail.id) {
+    if (
+      enterpriseInfoChecked &&
+      hasEnterpriseName &&
+      !hasExistingEnterpriseInfo &&
+      scrapingStatus === 'ready' &&
+      lastAttemptedId.current !== itemDetail.id
+    ) {
       lastAttemptedId.current = itemDetail.id;
       const timer = setTimeout(() => {
         executeScraping();
@@ -868,7 +917,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
       return () => clearTimeout(timer);
     }
     return undefined;
-  }, [itemDetail.id, itemDetail.companyName, scrapingStatus, executeScraping, itemDetail.supplementary]);
+  }, [enterpriseInfoChecked, hasExistingEnterpriseInfo, itemDetail.id, itemDetail.companyName, scrapingStatus, executeScraping]);
 
   const onShowAIInsightSuccess = useThrottleEvent((count: number) => {
     notification.open({
