@@ -95,7 +95,7 @@ const QuestionLibrary: FC = () => {
     setLoading(true);
     DueDiligenceAPI.addQuestionTemplate(newGroupName.trim(), newGroupRemark.trim())
       .then(() => {
-        message.success('模板创建成功');
+        message.success('问题集合创建成功');
         setIsCreatingGroup(false);
         setNewGroupName('');
         setNewGroupRemark('');
@@ -103,7 +103,7 @@ const QuestionLibrary: FC = () => {
       })
       .catch((err) => {
         console.error(err);
-        message.error('创建模板失败，请重试');
+        message.error('创建问题集合失败，请重试');
       })
       .finally(() => {
         setLoading(false);
@@ -134,13 +134,13 @@ const QuestionLibrary: FC = () => {
       templateDesc: editGroupDesc.trim(),
     })
       .then(() => {
-        message.success('模板更新成功');
+        message.success('问题集合更新成功');
         setEditingGroupId(null);
         fetchGroups();
       })
       .catch((err) => {
         console.error(err);
-        message.error('更新模板失败');
+        message.error('更新问题集合失败');
       })
       .finally(() => {
         setLoading(false);
@@ -151,7 +151,7 @@ const QuestionLibrary: FC = () => {
     setLoading(true);
     DueDiligenceAPI.deleteQuestionTemplate(id)
       .then(() => {
-        message.success('模板已删除');
+        message.success('问题集合已删除');
         if (activeGroupId === id) {
           setActiveGroupId(null);
         }
@@ -159,7 +159,7 @@ const QuestionLibrary: FC = () => {
       })
       .catch((err) => {
         console.error(err);
-        message.error('删除模板失败');
+        message.error('删除问题集合失败');
       })
       .finally(() => {
         setLoading(false);
@@ -318,7 +318,11 @@ const QuestionLibrary: FC = () => {
               <Button className={styles.cancelBtn} onClick={handleCancelCreateGroup}>
                 取消
               </Button>
-              <Button className={styles.submitBtn} onClick={handleCreateGroup}>
+              <Button
+                className={classNames(styles.submitBtn, {[styles.active]: !!newGroupName.trim()})}
+                onClick={handleCreateGroup}
+                disabled={!newGroupName.trim() || loading}
+              >
                 创建问题集合
               </Button>
             </div>

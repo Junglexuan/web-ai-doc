@@ -76,7 +76,7 @@ const twoColors = {
 };
 
 const ROOT_FOLDER_ID = '__resource_root__';
-const ROOT_FOLDER_NAME = '\u6839\u76ee\u5f55';
+const ROOT_FOLDER_NAME = '全部资料';
 const MAX_RESOURCE_UPLOAD_SIZE = 120 * 1024 * 1024;
 const RESOURCE_ACCEPT = '.docx,.xls,.pdf,.xlsx,.txt,.wav,.mp3,.m4a,.amr,.aac,.ogg,.flac,.png,.jpg,.jpeg';
 
@@ -222,6 +222,13 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
   const currentTemplateName = useMemo(() => {
     return configs?.template.list.find((t) => String(t.id) === String(itemDetail.templateId))?.title || '-';
   }, [configs, itemDetail.templateId]);
+  const currentQuestionListName = useMemo(() => {
+    // 优先从列表中查找
+    const matched = allQuestionsTemplates.find((t) => String(t.id) === String(itemDetail.questionId));
+    if (matched) return matched.templateName;
+    // 如果列表还没加载出来，尝试从 questionInfoList 的上下文中寻找（如果后端有返回的话）
+    return '-';
+  }, [allQuestionsTemplates, itemDetail.questionId]);
   const resourceRootNode = useMemo<DealResourceNode>(
     () => ({
       id: ROOT_FOLDER_ID,
@@ -290,6 +297,9 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
     dispatch(dueDiligenceActions.fetchItem(itemDetail.id));
     if (itemDetail.id) {
       DueDiligenceAPI.queryInterviewInstListByPage(itemDetail.id).then(setInterviewList);
+      DueDiligenceAPI.getTemplateInfoList(itemDetail.id).then((list) => {
+        setAllQuestionsTemplates(list || []);
+      });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [itemDetail.id]);
@@ -1802,6 +1812,9 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
     DueDiligenceAPI.getConfigs().then(setConfigs);
     if (itemDetail.id) {
       DueDiligenceAPI.queryInterviewInstListByPage(itemDetail.id).then(setInterviewList);
+      DueDiligenceAPI.getTemplateInfoList(itemDetail.id).then((list) => {
+        setAllQuestionsTemplates(list || []);
+      });
     }
   }, [itemDetail.id]);
 
@@ -2201,12 +2214,21 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
 
                 <div className={styles.resourceCenter}>
                   <div className={styles.resourceCenterHeader}>
-                    <div>
-                      <Tooltip title={selectedFolderDisplayName}>
-                        <div className={styles.panelTitle}>{selectedFolderDisplayName}</div>
-                      </Tooltip>
-                      <div className={styles.panelDesc}>{selectedFolderPath}</div>
-                    </div>
+                    {/* <div className={styles.breadcrumb}>
+                      {selectedFolderId === ROOT_FOLDER_ID ? (
+                        <div className={styles.panelTitle}>{ROOT_FOLDER_NAME}</div>
+                      ) : (
+                        <>
+                          <div className={styles.parentPath} onClick={() => setSelectedFolderId(ROOT_FOLDER_ID)}>
+                            {ROOT_FOLDER_NAME}
+                          </div>
+                          <span className={styles.separator}>/</span>
+                          <Tooltip title={selectedFolderNode?.name}>
+                            <div className={styles.panelTitle}>{selectedFolderNode?.name}</div>
+                          </Tooltip>
+                        </>
+                      )}
+                    </div> */}
                     <div className={styles.resourceToolbar}>
                       {/* <Button disabled icon={<FileOutlined />}>
                         合并文档
@@ -2328,7 +2350,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
                     {selectedResourceFile ? (
                       <>
                         <div className={styles.detailFileName}>{selectedResourcePathInfo.displayFileName}</div>
-                        <div className={styles.detailFileMeta}>目录：{selectedResourcePathInfo.displayFolderPath}</div>
+                        {/* <div className={styles.detailFileMeta}>目录：{selectedResourcePathInfo.displayFolderPath}</div> */}
 
                         <div className={styles.detailInfoCard}>
                           <span className={styles.detailInfoLabel}>上传时间</span>
@@ -2701,6 +2723,9 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
           <div className="subject" onClick={() => setIsQuestionListCollapsed(!isQuestionListCollapsed)}>
             <div className="collapse-icon">{isQuestionListCollapsed ? <CaretRightOutlined /> : <CaretDownOutlined />}</div>
             访谈问题清单
+            <span className={styles.countBadge} style={{marginLeft: 12, verticalAlign: 'middle'}}>
+              {questionList.filter((q) => q.status === 'covered').length}/{questionList.length}
+            </span>
             <div className={styles.qToolbar} onClick={(e) => e.stopPropagation()}>
               {showAiInsightView ? (
                 <div style={{display: 'flex', gap: '8px', alignItems: 'center'}}>
@@ -2890,8 +2915,11 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
                   <div className={styles.aiDisabledHint}>存在企业名称、文档资料或文本资料中的任意一项后，即可使用 AI 洞察。</div>
                 )}
                 <div className={styles.qListHeader}>
-                  <div className={styles.leftTitle}>当前问题清单</div>
-                  <div className={styles.rightInfo}>当前模板：{currentTemplateName}</div>
+                  <div className={styles.leftTitle}>
+                    当前问题清单：
+                    <span style={{color: '#1e293b', marginLeft: 4}}>{currentQuestionListName}</span>
+                  </div>
+                  {/* <div className={styles.rightInfo}>当前模板：{currentTemplateName}</div> */}
                 </div>
 
                 {aiInsightStatus === 'loading' && (
