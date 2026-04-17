@@ -171,6 +171,7 @@ export const DueDiligenceAPI = {
           hitTime: q.questionAnswerTime || q.hitTime || '',
           CHECKED: q.CHECKED !== undefined ? q.CHECKED : !!(q.questionAnswer || q.answer),
           questionType: q.questionType,
+          questionAnswerTime: q.questionAnswerTime || '',
         })),
         // 准备资料
         resources: (item.resources || []).map(normalizeResourceFile),
@@ -247,7 +248,7 @@ export const DueDiligenceAPI = {
         templateId,
         creditCode: data.creditCode,
         companyName: companyName || undefined, // 修改：不再回退到 name，防止误报企业名称
-        questionId: data.questions?.tpl || data.questionId,
+        questionId: id ? undefined : data.questions?.tpl || data.questionId,
       })
       .then((res) => res.data.data);
   },

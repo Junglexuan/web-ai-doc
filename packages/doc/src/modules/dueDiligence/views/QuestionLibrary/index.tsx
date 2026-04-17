@@ -3,7 +3,7 @@ import {Button, Card, Checkbox, Input, Modal, Popconfirm, Spin, Typography, mess
 import {FC, useEffect, useState} from 'react';
 import {getCurUserId} from '@/utils/tools';
 import {DueDiligenceAPI} from '../../api';
-import {TemplateTypeMap} from '../../entity';
+import {TemplateTypeEnum, TemplateTypeMap} from '../../entity';
 import styles from './index.module.less';
 
 const {Title, Text} = Typography;
@@ -25,6 +25,7 @@ interface QuestionGroup {
 interface QuestionItem {
   id: string;
   questionName: string;
+  CHECKED?: boolean;
 }
 
 const QuestionLibrary: FC = () => {
@@ -75,6 +76,15 @@ const QuestionLibrary: FC = () => {
   useEffect(() => {
     fetchGroups();
   }, []);
+
+  // 切换集合时，重置所有编辑/新增状态，并清空选择项
+  useEffect(() => {
+    setIsAddingQuestion(false);
+    setNewQuestionName('');
+    setEditingQuestionId(null);
+    setEditQuestionName('');
+    setSelectedQuestionIds([]);
+  }, [activeGroupId]);
 
   const handleCreateGroup = () => {
     if (!newGroupName.trim()) {
@@ -253,7 +263,7 @@ const QuestionLibrary: FC = () => {
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      setSelectedQuestionIds(currentQuestions.map((q) => q.id));
+      setSelectedQuestionIds(currentQuestions.filter((q) => !q.CHECKED).map((q) => q.id));
     } else {
       setSelectedQuestionIds([]);
     }
@@ -313,7 +323,11 @@ const QuestionLibrary: FC = () => {
                 <div className={styles.itemTitle}>
                   <div className={styles.nameWrapper}>
                     {group.templateType && TemplateTypeMap[group.templateType] && (
-                      <span className={styles.typeTag}>{TemplateTypeMap[group.templateType]}</span>
+                      <span className={styles.typeTag}>
+                        {group.templateType === TemplateTypeEnum.PERSONAL && String(group.createUser) !== String(getCurUserId())
+                          ? '组织'
+                          : TemplateTypeMap[group.templateType]}
+                      </span>
                     )}
                     <span className={styles.name}>{group.templateName}</span>
                   </div>
@@ -352,7 +366,6 @@ const QuestionLibrary: FC = () => {
       <div className={styles.content}>
         <div className={styles.contentHeader}>
           <div className={styles.info}>
-            <div className={styles.currentGroup}>当前集合</div>
             <div className={styles.name}>{activeGroup?.templateName || '未选择集合'}</div>
             <div className={styles.desc}>{activeGroup?.templateDesc || activeGroup?.remark || '关注访谈过程中的核心要点与风险'}</div>
           </div>
@@ -443,20 +456,17 @@ const QuestionLibrary: FC = () => {
                 }
                 return (
                   <div key={q.id || idx} className={`${styles.questionItem} ${selectedQuestionIds.includes(q.id) ? styles.selected : ''}`}>
-                    {hasEditPermission && (
+                    {hasEditPermission && !q.CHECKED && (
                       <div className={styles.checkboxWrapper}>
                         <Checkbox checked={selectedQuestionIds.includes(q.id)} onChange={() => toggleSelectQuestion(q.id)} />
                       </div>
                     )}
+                    <div className={styles.index}>{idx + 1}.</div>
                     <div className={styles.main}>
-                      <div className={styles.tags}>
-                        <span className={styles.category}>预设问题</span>
-                        <span className={styles.type}>访谈清单</span>
-                      </div>
                       <div className={styles.text}>{q.questionName}</div>
                     </div>
                     <div className={styles.actions}>
-                      {hasEditPermission && (
+                      {hasEditPermission && !q.CHECKED && (
                         <>
                           <Button type="text" icon={<EditOutlined />} onClick={() => handleStartEditQuestion(q)} />
                           <Popconfirm

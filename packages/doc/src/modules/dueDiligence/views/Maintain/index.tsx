@@ -95,7 +95,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
     console.log('data: onEditSubmit=', data);
     const formData = {...curEdit, ...data};
 
-    // 如果在表单中更改了 templateId，则确保同步更新 questionId
+    // 如果在表单中更改了 templateId，则确保同步更新 questionId (仅对新建操作有效，或者为了状态映射)
     if (data.templateId) {
       const selectedTpl = configs?.template.list.find((t) => String(t.id) === String(data.templateId));
       if (selectedTpl?.questionId) {
@@ -104,6 +104,11 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
           formData.questions.tpl = String(selectedTpl.questionId);
         }
       }
+    }
+
+    // 后端要求：更新操作不传 questionId
+    if (formData.id) {
+      delete formData.questionId;
     }
 
     console.log('formData: ', formData);

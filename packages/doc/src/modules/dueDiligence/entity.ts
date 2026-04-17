@@ -128,6 +128,7 @@ export interface ItemDetail {
     hitTime: string;
     CHECKED: boolean;
     questionType?: string | number;
+    questionAnswerTime?: string;
   }[];
 }
 

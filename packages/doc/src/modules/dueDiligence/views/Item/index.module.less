@@ -192,13 +192,13 @@
   display: flex;
   gap: 10px;
   align-items: center;
-  min-height: 50px;
-  padding: 10px 14px;
-  margin-bottom: 8px;
+  min-height: 32px;
+  padding: 4px 12px;
+  margin-bottom: 2px;
   cursor: pointer;
   background: transparent;
   border: 1px solid transparent;
-  border-radius: 12px;
+  border-radius: 10px;
   transition: all 0.2s ease;
 
   &:hover {
@@ -259,7 +259,7 @@
 
 :local(.treeLabel) {
   overflow: hidden;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
   color: #1e293b;
   text-overflow: ellipsis;
@@ -331,13 +331,13 @@
 :local(.folderModalBody) {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding-top: 8px;
+  padding: 4px 0;
 }
 
 :local(.folderModalHint) {
-  font-size: 13px;
-  line-height: 1.7;
+  margin-bottom: 8px;
+  font-size: 12px;
+  line-height: 1.5;
   color: #64748b;
 }
 
@@ -449,15 +449,14 @@
 :local(.resourceSidebar) {
   display: flex;
   flex-direction: column;
-  height: 100%;
-  min-height: 640px;
+  height: 700px;
+  overflow: hidden;
 }
 
 :local(.resourceCenter) {
   display: flex;
   flex-direction: column;
-  height: 100%;
-  min-height: 640px;
+  height: 700px;
   overflow: hidden;
 }
 
@@ -466,7 +465,7 @@
   gap: 12px;
   align-items: center;
   justify-content: space-between;
-  padding: 20px 22px;
+  padding: 12px 18px;
   border-bottom: 1px solid #edf1f6;
 
   :global(.ant-btn) {
@@ -489,8 +488,8 @@
   gap: 16px;
   align-items: center;
   justify-content: space-between;
-  min-height: 74px;
-  padding: 18px 22px;
+  min-height: 56px;
+  padding: 10px 18px;
   border-bottom: 1px solid #edf1f6;
 
   :local(.panelTitle) {
@@ -537,8 +536,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  min-height: 84px;
-  padding: 0 24px;
+  min-height: 54px;
+  padding: 0 18px;
   cursor: pointer;
   border-bottom: 1px solid #edf1f6;
   transition: background 0.2s ease;
@@ -601,10 +600,10 @@
 :local(.resourceFileRow) {
   position: relative;
   display: flex;
-  gap: 18px;
+  gap: 14px;
   align-items: center;
-  min-height: 84px;
-  padding: 0 64px 0 24px;
+  min-height: 52px;
+  padding: 0 40px 0 16px;
   cursor: pointer;
   border-bottom: 1px solid #edf1f6;
   transition: background 0.2s ease;
@@ -613,16 +612,17 @@
     background: rgba(248, 250, 252, 0.92);
 
     :global(.close),
-    :local(.edit) {
+    :local(.edit),
+    :local(.preview) {
       visibility: visible;
       opacity: 1;
     }
   }
 
   > .g-doc-icon {
-    flex: 0 0 46px;
-    width: 46px;
-    height: 46px;
+    flex: 0 0 24px;
+    width: 24px;
+    height: 24px;
     background-repeat: no-repeat;
     background-position: center;
     background-size: contain;
@@ -666,8 +666,8 @@
 
   :global(.close) {
     position: absolute;
-    top: 18px;
-    right: 20px;
+    top: 14px;
+    right: 16px;
     z-index: 5;
     font-size: 16px;
     color: #c6cfde;
@@ -695,9 +695,9 @@
   display: flex;
   flex: 1;
   flex-direction: column;
-  gap: 10px;
+  gap: 6px;
   min-width: 0;
-  padding: 16px 0;
+  padding: 8px 0;
 }
 
 :local(.nameWrap) {
@@ -716,16 +716,40 @@
   white-space: nowrap;
 }
 
-:local(.edit) {
-  font-size: 14px;
-  color: #94a3b8;
+:local(.edit),
+:local(.preview) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  font-size: 15px;
+  color: #64748b;
   cursor: pointer;
   visibility: hidden;
+  background: transparent;
+  border-radius: 50%;
   opacity: 0;
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: scale(0.85);
 
   &:hover {
-    color: #2f66f6;
+    color: #4f46e5;
+    background: #eef2ff;
+    box-shadow: 0 4px 10px rgba(79, 70, 229, 0.15);
+    transform: scale(1.1);
+  }
+
+  &:active {
+    background: #e0e7ff;
+    transform: scale(0.95);
+  }
+
+  &.activeIcon {
+    color: #4f46e5;
+    visibility: visible;
+    background: #eef2ff;
+    opacity: 1;
   }
 }
 
@@ -788,8 +812,8 @@
 :local(.resourceDetailPanel) {
   display: flex;
   flex-direction: column;
-  height: 100%;
-  min-height: 640px;
+  height: 700px;
+  overflow: hidden;
 }
 
 :local(.resourceDetailBody) {
@@ -798,11 +822,12 @@
   flex-direction: column;
   min-height: 0;
   padding: 20px 22px 22px;
+  overflow-y: auto;
 }
 
 :local(.detailFileName) {
   margin-top: 0;
-  font-size: 20px;
+  font-size: 15px;
   font-weight: 700;
   line-height: 1.5;
   color: #1e293b;
@@ -810,8 +835,8 @@
 }
 
 :local(.detailFileMeta) {
-  margin-top: 6px;
-  font-size: 12px;
+  margin-top: 4px;
+  font-size: 11px;
   color: #94a3b8;
   word-break: break-all;
 }
@@ -819,9 +844,9 @@
 :local(.detailInfoCard) {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding: 16px 18px;
-  margin-top: 18px;
+  gap: 8px;
+  padding: 12px 14px;
+  margin-top: 14px;
   background: rgba(248, 250, 252, 0.92);
   border: 1px solid #edf2f7;
   border-radius: 14px;
@@ -840,8 +865,8 @@
 }
 
 :local(.detailSummaryCard) {
-  padding: 16px 18px;
-  margin-top: 16px;
+  padding: 12px 14px;
+  margin-top: 12px;
   background: rgba(248, 250, 252, 0.92);
   border: 1px solid #edf2f7;
   border-radius: 14px;
@@ -3159,12 +3184,30 @@
   }
 
   :local(.rowBot) {
-    margin-top: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 10px;
 
     :local(.qDesc) {
-      font-size: 12px;
+      font-size: 13px;
       line-height: 1.6;
+      color: #7c8ba1;
+    }
+
+    :local(.answerTime) {
+      display: flex;
+      align-items: center;
+      align-self: flex-end;
+      padding: 2px 8px;
+      font-size: 11px;
       color: #94a3b8;
+      background: rgba(241, 245, 249, 0.5);
+      border-radius: 6px;
+
+      :global(.anticon) {
+        font-size: 12px;
+      }
     }
   }
 }

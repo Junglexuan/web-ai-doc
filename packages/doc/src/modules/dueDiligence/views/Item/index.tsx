@@ -15,6 +15,7 @@ import {
   EditOutlined,
   ExclamationCircleFilled,
   ExclamationCircleOutlined,
+  EyeOutlined,
   FileAddOutlined,
   FileOutlined,
   FolderOpenOutlined,
@@ -36,6 +37,7 @@ import {
 import {Dispatch, DocumentHead} from '@elux/react-web';
 import {Button, Dropdown, Input, List, Modal, Popover, Progress, Table, Tooltip, Upload, UploadProps, notification} from 'antd';
 import classNames from 'classnames';
+import dayjs from 'dayjs';
 import {FC, memo, useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import CollectIcon from '@/assets/images/collect.png';
 import InterviewIcon from '@/assets/images/interview.png';
@@ -157,6 +159,8 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
   const [showSupplementary, setShowSupplementary] = useState(false);
   const [editSupplementaryItem, setEditSupplementaryItem] = useState<{id: string; fileName: string; fileUrl?: string} | null>(null);
   const [scrapingStatus, setScrapingStatus] = useState<'ready' | 'loading' | 'completed'>('ready');
+  const [renameFileModal, setRenameFileModal] = useState<any>(null);
+  const [renameFileName, setRenameFileName] = useState('');
   const [showRename, setShowRename] = useState('');
   const [showQuestionsFile, setShowQuestionsFile] = useState<{id: string; question: string; answer: string}[]>();
   const [isResourcesCollapsed, setIsResourcesCollapsed] = useState(false); //上传企业资料
@@ -164,7 +168,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
   const [isInterviewCollapsed, setIsInterviewCollapsed] = useState(false);
   const [isQuestionListCollapsed, setIsQuestionListCollapsed] = useState(false); //访谈问题清单
   const [questionList, setQuestionList] = useState<
-    {id: string; title: string; desc: string; status: string; isManual?: boolean; questionType?: string}[]
+    {id: string; title: string; desc: string; status: string; isManual?: boolean; questionType?: string; answerTime?: string}[]
   >([]);
   const [reportPolling, setReportPolling] = useState(false);
   const [isSummaryCollapsed, setIsSummaryCollapsed] = useState(true);
@@ -338,6 +342,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
         desc: q.questionAnswer || '',
         status: q.CHECKED ? 'covered' : 'uncovered', // 优先根据 CHECKED 字段判定状态
         questionType: q.questionType !== undefined ? String(q.questionType) : undefined,
+        answerTime: q.questionAnswerTime || '',
       }));
       setQuestionList(mappedList);
     }
@@ -481,7 +486,6 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
   const onFileClick = useEvent((e: React.MouseEvent<any>, item: {id: string; fileName: string; fileUrl: string; type?: string}) => {
     if (!e.currentTarget.contains(e.target as Node)) return;
     setSelectedResourceId(item.id);
-    onPreviewResource(item);
   });
 
   const uploadProps: UploadProps = useMemo(() => {
@@ -2158,48 +2162,28 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
                                       <div className={styles.name} title={item.fileName}>
                                         {item.fileName}
                                       </div>
-                                      <Popover
-                                        trigger="click"
-                                        destroyOnHidden
-                                        open={showRename === item.id}
-                                        onOpenChange={(open) => setShowRename(open ? item.id : '')}
-                                        content={
-                                          <div onClick={(e) => e.stopPropagation()}>
-                                            <Input
-                                              allowClear
-                                              autoFocus
-                                              style={{width: '200px'}}
-                                              defaultValue={item.fileName}
-                                              onBlur={(e: any) => {
-                                                const value = e.target.value.trim();
-                                                if (value && value !== item.fileName) {
-                                                  onRenameReport(item.id, value);
-                                                }
-                                              }}
-                                              onChange={(e) => {
-                                                e.target.value = e.target.value.replace(/[<>?/\\|*]|\.\.|[\r\n]/g, '');
-                                              }}
-                                              onKeyDown={(e: any) => {
-                                                if (e.key === 'Enter') {
-                                                  const value = e.target.value.trim();
-                                                  if (value && value !== item.fileName) {
-                                                    onRenameReport(item.id, value);
-                                                  }
-                                                }
-                                              }}
-                                            />
-                                          </div>
-                                        }
-                                      >
-                                        {canEditResources && (
-                                          <EditOutlined
-                                            className={styles.edit}
+                                      {canEditResources && (
+                                        <EditOutlined
+                                          className={styles.edit}
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            e.preventDefault();
+                                            setRenameFileModal(item);
+                                            setRenameFileName(item.fileName);
+                                          }}
+                                        />
+                                      )}
+                                      {canEditResources && (
+                                        <Tooltip title="预览">
+                                          <EyeOutlined
+                                            className={styles.preview}
                                             onClick={(e) => {
                                               e.stopPropagation();
+                                              onPreviewResource(item);
                                             }}
                                           />
-                                        )}
-                                      </Popover>
+                                        </Tooltip>
+                                      )}
                                     </div>
                                     {canEditResources && (
                                       <CloseCircleFilled
@@ -2919,6 +2903,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
                       {!editingQuestionId && q.desc && (
                         <div className={styles.rowBot}>
                           <div className={styles.qDesc}>{q.desc}</div>
+                          {q.answerTime && <div className={styles.answerTime}>{dayjs(q.answerTime).format('YYYY-MM-DD HH:mm:ss')}</div>}
                         </div>
                       )}
                       {!editingQuestionId && (
@@ -2953,7 +2938,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
         </div>
       </div>
       <Modal
-        title={<div style={{fontSize: '15px'}}>选择问题清单</div>}
+        title={<div style={{fontSize: '18px', fontWeight: 600}}>选择问题清单</div>}
         width={420}
         open={isQuestionModalVisible}
         footer={null}
@@ -2962,7 +2947,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
           mask: {backdropFilter: 'blur(4px)'},
           header: {marginBottom: '8px'},
           content: {borderRadius: '20px', padding: '12px 16px'},
-          body: {padding: '0'},
+          body: {padding: '0', maxHeight: '600px', overflowY: 'auto'},
         }}
         onCancel={() => setIsQuestionModalVisible(false)}
         afterOpenChange={(open: boolean) => {
@@ -3202,8 +3187,9 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
       </Modal>
 
       <Modal
-        width={520}
-        title={folderModal?.mode === 'rename' ? '重命名目录' : '新建目录'}
+        width={440}
+        styles={{header: {marginBottom: 4}}}
+        title={<div style={{fontSize: '18px', fontWeight: 600}}>{folderModal?.mode === 'rename' ? '重命名目录' : '新建目录'}</div>}
         open={!!folderModal}
         okText={folderModal?.mode === 'rename' ? '确认重命名' : '创建目录'}
         cancelText="取消"
@@ -3276,6 +3262,39 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
           }}
           onSubmit={onEditSubmit}
         />
+      </Modal>
+      <Modal
+        width={440}
+        styles={{header: {marginBottom: 4}}}
+        title={<div style={{fontSize: '18px', fontWeight: 600}}>重命名文件</div>}
+        open={!!renameFileModal}
+        onOk={() => {
+          const value = renameFileName.trim();
+          if (value && value !== renameFileModal?.fileName) {
+            onRenameReport(renameFileModal!.id, value);
+          }
+          setRenameFileModal(null);
+        }}
+        onCancel={() => setRenameFileModal(null)}
+        destroyOnClose
+      >
+        <div style={{padding: '4px 0'}}>
+          <div style={{marginBottom: 8, color: '#64748b', fontSize: 12}}>请输入新的文件名称：</div>
+          <Input
+            allowClear
+            autoFocus
+            maxLength={255}
+            value={renameFileName}
+            onChange={(e) => setRenameFileName(e.target.value.replace(/[<>?/\\|*]|\.\.|[\r\n]/g, ''))}
+            onPressEnter={() => {
+              const value = renameFileName.trim();
+              if (value && value !== renameFileModal?.fileName) {
+                onRenameReport(renameFileModal!.id, value);
+              }
+              setRenameFileModal(null);
+            }}
+          />
+        </div>
       </Modal>
     </div>
   );
