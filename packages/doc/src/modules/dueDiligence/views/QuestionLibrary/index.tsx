@@ -110,6 +110,12 @@ const QuestionLibrary: FC = () => {
       });
   };
 
+  const handleCancelCreateGroup = () => {
+    setNewGroupName('');
+    setNewGroupRemark('');
+    setIsCreatingGroup(false);
+  };
+
   const handleEditGroup = (group: QuestionGroup) => {
     setEditingGroupId(group.id);
     setEditGroupName(group.templateName);
@@ -304,7 +310,7 @@ const QuestionLibrary: FC = () => {
               <Input placeholder="输入问题集合说明（选填）..." value={newGroupRemark} onChange={(e) => setNewGroupRemark(e.target.value)} />
             </div>
             <div className={styles.footer}>
-              <Button className={styles.cancelBtn} onClick={() => setIsCreatingGroup(false)}>
+              <Button className={styles.cancelBtn} onClick={handleCancelCreateGroup}>
                 取消
               </Button>
               <Button className={styles.submitBtn} onClick={handleCreateGroup}>
