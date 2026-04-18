@@ -180,12 +180,16 @@
 :local(.treeNodeWrap) {
   display: flex;
   flex-direction: column;
+  width: max-content;
+  min-width: 100%;
 }
 
 :local(.treeChildren) {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  width: max-content;
+  min-width: 100%;
 }
 
 :local(.treeNode) {
@@ -193,6 +197,8 @@
   gap: 10px;
   align-items: center;
   min-height: 32px;
+  width: max-content;
+  min-width: 100%;
   padding: 4px 12px;
   margin-bottom: 2px;
   cursor: pointer;
@@ -252,17 +258,15 @@
 
 :local(.treeContent) {
   display: flex;
-  flex: 1;
+  flex: none;
   flex-direction: column;
-  min-width: 0;
+  min-width: max-content;
 }
 
 :local(.treeLabel) {
-  overflow: hidden;
   font-size: 13px;
   font-weight: 700;
   color: #1e293b;
-  text-overflow: ellipsis;
   white-space: nowrap;
   // font-weight: 600;
 }
@@ -479,7 +483,22 @@
 :local(.resourceSidebarBody) {
   flex: 1;
   padding: 16px;
-  overflow: auto;
+  overflow-x: auto;
+  overflow-y: auto;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #dbe3ee;
+    border-radius: 999px;
+  }
 }
 
 :local(.resourceCenterHeader) {
