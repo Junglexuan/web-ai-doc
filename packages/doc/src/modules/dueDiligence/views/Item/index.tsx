@@ -2280,15 +2280,6 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
                       {/* <Button disabled icon={<FileOutlined />}>
                         合并文档
                       </Button> */}
-                      <Button
-                        color="primary"
-                        variant="outlined"
-                        icon={<PlusOutlined />}
-                        disabled={!canEditResources}
-                        onClick={() => openCreateFolderModal(selectedFolderId)}
-                      >
-                        新建
-                      </Button>
                       <Dropdown
                         trigger={['click']}
                         overlayClassName={styles.uploadDropdown}
