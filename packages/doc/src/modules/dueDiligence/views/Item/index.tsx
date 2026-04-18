@@ -1169,8 +1169,8 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
 
   const onConfirmSelectQuestionTemplate = useEvent((tplId: string, templateName: string) => {
     Modal.confirm({
-      title: '确认切换',
-      content: `确定切换到“${templateName}”问题清单吗？`,
+      title: '确认切换问题清单',
+      content: `切换后将使用“${templateName || '该问题清单'}”作为当前访谈问题清单，且会清空当前已生成的问题与相关数据，是否继续？`,
       cancelText: '取消',
       okText: '确认切换',
       centered: true,
