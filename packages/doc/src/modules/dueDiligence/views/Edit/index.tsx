@@ -137,7 +137,8 @@ const Component: FC<{
             ...data,
             templateId: data?.template?.id ? String(data.template.id) : undefined,
             logo: data?.logo || '',
-            creditCode: data?.companyName || data?.creditCode || undefined,
+            companyName: data?.companyName || undefined,
+            creditCode: data?.creditCode || undefined,
           }}
           form={form}
           onFinish={(values) => {
@@ -161,7 +162,7 @@ const Component: FC<{
             />
           </Form.Item>
           <Form.Item
-            name="creditCode"
+            name="companyName"
             label={
               <div style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-end'}}>
                 <span style={{lineHeight: 1.2}}>企业名称</span>
@@ -182,8 +183,8 @@ const Component: FC<{
                 const targetCreditCode = option?.value || val;
                 const targetCompanyName = option?.label || val;
                 form.setFieldsValue({
-                  creditCode: targetCreditCode,
                   companyName: targetCompanyName,
+                  creditCode: targetCreditCode,
                 });
                 // 如果尽调对象名称为空，自动回填企业名称
                 if (!form.getFieldValue('name') && targetCompanyName) {
@@ -192,7 +193,7 @@ const Component: FC<{
               }}
             />
           </Form.Item>
-          <Form.Item name="companyName" noStyle>
+          <Form.Item name="creditCode" noStyle>
             <Input type="hidden" />
           </Form.Item>
           <Form.Item name="templateId" label="选择模版" rules={[{required: true, message: '请选择模版'}]}>

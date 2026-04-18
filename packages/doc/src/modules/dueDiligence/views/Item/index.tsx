@@ -669,8 +669,34 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
 
     // 遍历提交的数据，只提取发生变更的字段
     Object.keys(data).forEach((key) => {
-      if (data[key] !== (itemDetail as any)[key]) {
-        formData[key] = data[key];
+      const newVal = data[key];
+      const oldVal = (itemDetail as any)[key];
+
+      // 如果是 ID 相关的字段，或者 creditCode（信用代码通常也是数字/字母混合），统一转成字符串比较
+      if (['templateId', 'questionId', 'id', 'creditCode'].includes(key)) {
+        // 关键：将所有空值（null, undefined, ""）统一视为相同，避免 "" !== undefined 的情况
+        const sNew = newVal === null || newVal === undefined ? '' : String(newVal).trim();
+        const sOld = oldVal === null || oldVal === undefined ? '' : String(oldVal).trim();
+
+        if (sNew !== sOld && newVal !== undefined) {
+          formData[key] = sNew;
+        }
+        return;
+      }
+
+      // 针对普通文本字段，也进行空值归一化处理
+      if (!['questions', 'pathList', 'template', 'companyName'].includes(key)) {
+        const normalizedNew = newVal || '';
+        const normalizedOld = oldVal || '';
+        if (normalizedNew !== normalizedOld) {
+          formData[key] = newVal;
+        }
+        return;
+      }
+
+      // 特殊处理 companyName
+      if (key === 'companyName' && newVal !== oldVal) {
+        formData[key] = newVal;
       }
     });
 
@@ -951,13 +977,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
   }, []);
 
   useEffect(() => {
-    if (
-      shouldAutoScrapeOnEntryRef.current &&
-      enterpriseInfoChecked &&
-      itemDetail.id &&
-      itemDetail.companyName &&
-      scrapingStatus === 'ready'
-    ) {
+    if (shouldAutoScrapeOnEntryRef.current && enterpriseInfoChecked && itemDetail.id && itemDetail.companyName && scrapingStatus === 'ready') {
       if (hasExistingEnterpriseInfo) {
         clearAutoScrapeQuery();
         return;
@@ -1122,6 +1142,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
       questionAnswer: '',
       CHECKED: false,
       isManual: true, // 标记为手动添加
+      questionType: '3',
     };
 
     // 构造全量上传列表
@@ -1421,6 +1442,13 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
 
   const onOpenInterviewDetail = useEvent((e: React.MouseEvent<any>, item: InterviewRecord) => {
     if (!e.currentTarget.contains(e.target as Node)) return;
+
+    // 录音状态判断：只有状态为 '2' (合并完成) 才允许查看详情
+    if (item.recordStatus !== '2') {
+      message.info('录音文件合并中，请稍后再查看！');
+      return;
+    }
+
     // 打开访谈详情弹框
     showMask(true);
     DueDiligenceAPI.getInterviewInstDetail(item.interviewInstId)
@@ -3033,7 +3061,8 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
                       <div className={styles.rowTop}>
                         {q.questionType === '1' && <span className={`${styles.qTag} ${styles.blue}`}>模板预设问题</span>}
                         {q.questionType === '2' && <span className={`${styles.qTag} ${styles.purple}`}>AI 洞察问题</span>}
-                        {!['1', '2'].includes(String(q.questionType)) && (
+                        {q.questionType === '3' && <span className={`${styles.qTag} ${styles.purple}`}>手动添加问题</span>}
+                        {!['1', '2', '3'].includes(String(q.questionType)) && (
                           <span className={`${styles.qTag} ${q.isManual ? styles.purple : styles.blue}`}>{q.isManual ? '手动添加' : '模板预设'}</span>
                         )}
                         {q.status === 'covered' && <span className={`${styles.qTag} ${styles.green}`}>已访谈</span>}
