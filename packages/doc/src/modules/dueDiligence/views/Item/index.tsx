@@ -79,6 +79,7 @@ const ROOT_FOLDER_ID = '__resource_root__';
 const ROOT_FOLDER_NAME = '全部资料';
 const MAX_RESOURCE_UPLOAD_SIZE = 120 * 1024 * 1024;
 const RESOURCE_ACCEPT = '.docx,.xls,.pdf,.xlsx,.txt,.wav,.mp3,.m4a,.amr,.aac,.ogg,.flac,.png,.jpg,.jpeg';
+const SCRAPING_NOTIFICATION_KEY = 'due-diligence-scraping-success';
 
 const sanitizeNodeName = (value: string) => value.replace(/[<>?/\\|*]|\.\.|[\r\n]/g, '').trim();
 
@@ -214,6 +215,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
   const [folderNameValue, setFolderNameValue] = useState('');
   const [folderSubmitting, setFolderSubmitting] = useState(false);
   const needsAiRefreshRef = useRef(true); // 标记是否需要刷新 AI 洞察列表
+  const shouldAutoScrapeOnEntryRef = useRef(new URLSearchParams(window.location.search).get('autoScrape') === '1');
   const summaryContentRef = useRef<HTMLDivElement>(null);
   const fileUploadInputRef = useRef<HTMLInputElement>(null);
   const folderUploadInputRef = useRef<HTMLInputElement>(null);
@@ -825,6 +827,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
 
   const onShowScrapingSuccess = useThrottleEvent(() => {
     notification.open({
+      key: SCRAPING_NOTIFICATION_KEY,
       message: null,
       description: (
         <div className={styles.scrapingNotification}>
@@ -845,7 +848,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
               block
               style={{height: 40, borderRadius: 14, fontSize: 14, fontWeight: 700}}
               onClick={() => {
-                notification.destroy();
+                notification.destroy(SCRAPING_NOTIFICATION_KEY);
                 setShowScrapingResultModal(true);
               }}
             >
@@ -869,6 +872,12 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
       ),
     });
   });
+
+  useEffect(() => {
+    return () => {
+      notification.destroy(SCRAPING_NOTIFICATION_KEY);
+    };
+  }, []);
 
   const executeScraping = useCallback(() => {
     if (!itemDetail.companyName) return; // 安全防御：没有企业名称不执行抓取
@@ -932,11 +941,49 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
   });
 
   const lastAttemptedId = useRef<string | null>(null);
+  const clearAutoScrapeQuery = useCallback(() => {
+    if (!shouldAutoScrapeOnEntryRef.current) {
+      return;
+    }
+    shouldAutoScrapeOnEntryRef.current = false;
+    const {pathname, hash} = window.location;
+    window.history.replaceState(window.history.state, '', `${pathname}${hash || ''}`);
+  }, []);
+
+  useEffect(() => {
+    if (
+      shouldAutoScrapeOnEntryRef.current &&
+      enterpriseInfoChecked &&
+      itemDetail.id &&
+      itemDetail.companyName &&
+      scrapingStatus === 'ready'
+    ) {
+      if (hasExistingEnterpriseInfo) {
+        clearAutoScrapeQuery();
+        return;
+      }
+      if (lastAttemptedId.current !== itemDetail.id) {
+        lastAttemptedId.current = itemDetail.id;
+        clearAutoScrapeQuery();
+        executeScraping();
+      }
+    }
+  }, [
+    clearAutoScrapeQuery,
+    enterpriseInfoChecked,
+    executeScraping,
+    hasExistingEnterpriseInfo,
+    itemDetail.companyName,
+    itemDetail.id,
+    scrapingStatus,
+  ]);
+
   useEffect(() => {
     // 自动抓取逻辑：仅当填写了企业名称，且后端确认还没有抓取结果时，进入页面后自动启动静默抓取
     const hasEnterpriseName = !!itemDetail.companyName;
 
     if (
+      !shouldAutoScrapeOnEntryRef.current &&
       enterpriseInfoChecked &&
       hasEnterpriseName &&
       !hasExistingEnterpriseInfo &&

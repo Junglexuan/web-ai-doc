@@ -52,8 +52,9 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
     });
   });
 
-  const onShowDetail = useThrottleEvent((data: ListItem) => {
-    GetClientRouter().push({url: `/admin/dueDiligence/item/edit/${data.id}`}, 'window');
+  const onShowDetail = useThrottleEvent((data: ListItem, options?: {autoScrape?: boolean}) => {
+    const query = options?.autoScrape ? '?autoScrape=1' : '';
+    GetClientRouter().push({url: `/admin/dueDiligence/item/edit/${data.id}${query}`}, 'window');
   });
 
   const onEdit = useThrottleEvent((data: ListItem) => {
@@ -115,7 +116,7 @@ const Component: FC<Props> = ({list, listSearch, listSummary, dispatch}) => {
     DueDiligenceAPI.createItem(formData).then((item) => {
       setCurEdit(undefined);
       refreshList();
-      !formData.id && onShowDetail(item);
+      !formData.id && onShowDetail(item, {autoScrape: !!formData.companyName});
     });
   });
 
