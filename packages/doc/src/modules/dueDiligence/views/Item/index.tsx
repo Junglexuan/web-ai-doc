@@ -76,7 +76,7 @@ const twoColors = {
 };
 
 const ROOT_FOLDER_ID = '__resource_root__';
-const ROOT_FOLDER_NAME = '全部资料';
+const ROOT_FOLDER_NAME = '文档目录';
 const MAX_RESOURCE_UPLOAD_SIZE = 120 * 1024 * 1024;
 const RESOURCE_ACCEPT = '.docx,.xls,.pdf,.xlsx,.txt,.wav,.mp3,.m4a,.amr,.aac,.ogg,.flac,.png,.jpg,.jpeg';
 const SCRAPING_NOTIFICATION_KEY = 'due-diligence-scraping-success';
@@ -2209,8 +2209,7 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
                 <div className={styles.resourceSidebar}>
                   <div className={styles.resourcePanelHeader}>
                     <div>
-                      <div className={styles.panelTitle}>目录结构</div>
-                      <div className={styles.panelDesc}>选择目录后在中间查看资料</div>
+                      <div className={styles.panelTitle}>目录</div>
                     </div>
                     {canEditResources && (
                       <Button type="text" icon={<PlusOutlined />} onClick={() => openCreateFolderModal(ROOT_FOLDER_ID)}>
