@@ -188,6 +188,13 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
     {id: string; title: string; desc: string; status: string; isManual?: boolean; questionType?: string; answerTime?: string}[]
   >([]);
   const [reportPolling, setReportPolling] = useState(false);
+  useEffect(() => {
+    // 初始化：如果进入页面时报告状态就是 “生成中”，则开启 Loading
+    if (itemDetail.reportStatus === DealReportStatusEnum.REPORT_GENERATING) {
+      setReportPolling(true);
+    }
+  }, []); // 仅在 mount 时执行一次
+
   const [isSummaryCollapsed, setIsSummaryCollapsed] = useState(true);
   const [isQuestionModalVisible, setIsQuestionModalVisible] = useState(false);
   const [allQuestionsTemplates, setAllQuestionsTemplates] = useState<any[]>([]);

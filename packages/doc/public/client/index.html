@@ -152,11 +152,22 @@
         animation: root-loading-text 1s infinite;
       }
     </style>
-    <script>
+    <!-- 👇🏻测试的百度统计的key -->
+    <!-- <script>
       var _hmt = _hmt || [];
       (function () {
         var hm = document.createElement('script');
         hm.src = 'https://hm.baidu.com/hm.js?565f1d7c349425e528407816179dfe19';
+        var s = document.getElementsByTagName('script')[0];
+        s.parentNode.insertBefore(hm, s);
+      })();
+    </script> -->
+    <!-- 👇🏻生产的百度统计的key -->
+    <script>
+      var _hmt = _hmt || [];
+      (function () {
+        var hm = document.createElement('script');
+        hm.src = 'https://hm.baidu.com/hm.js?30d4053f628f2e0e9fc82d20d2b0acec';
         var s = document.getElementsByTagName('script')[0];
         s.parentNode.insertBefore(hm, s);
       })();
