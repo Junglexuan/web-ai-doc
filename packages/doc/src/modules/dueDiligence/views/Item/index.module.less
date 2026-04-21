@@ -3573,6 +3573,69 @@
           }
         }
       }
+
+      .equityCard {
+        padding: 16px;
+        margin-bottom: 12px;
+        background: #f8fbff;
+        border: 1px solid #eef2f8;
+        border-radius: 12px;
+        transition: all 0.2s;
+
+        &:last-child {
+          margin-bottom: 0;
+        }
+
+        &:hover {
+          background: #fbfdff;
+          border-color: #dbeafe;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+          transform: translateY(-1px);
+        }
+
+        .eTop {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding-bottom: 10px;
+          margin-bottom: 12px;
+          border-bottom: 1px dashed rgba(226, 232, 240, 0.6);
+
+          .eName {
+            font-size: 15px;
+            font-weight: 800;
+            color: #1e293b;
+          }
+
+          .eDate {
+            font-size: 12px;
+            font-weight: 600;
+            color: #94a3b8;
+          }
+        }
+
+        .eBody {
+          display: flex;
+          gap: 40px;
+
+          .eItem {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+
+            .eLabel {
+              font-size: 12px;
+              color: #94a3b8;
+            }
+
+            .eVal {
+              font-size: 14px;
+              font-weight: 600;
+              color: #475569;
+            }
+          }
+        }
+      }
     }
   }
 }

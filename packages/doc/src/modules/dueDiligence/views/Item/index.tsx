@@ -628,6 +628,10 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
       await DueDiligenceAPI.uploadFolder(itemDetail.id, files, selectedFolderId === ROOT_FOLDER_ID ? undefined : selectedFolderId, relativePaths);
       message.success(relativePaths?.length ? '文件夹上传成功' : '文件上传成功');
       refreshPage();
+    } catch (e: any) {
+      if (e?.response?.status === 413) {
+        message.info('所选文件或文件夹总大小不能超过 120MB');
+      }
     } finally {
       setUploading('');
     }
@@ -3301,43 +3305,129 @@ const Component: FC<Props> = ({itemDetail, dispatch}) => {
                 <div className={styles.dataGrid}>
                   <div className={styles.dataCard}>
                     <div className={styles.label}>企业名称</div>
-                    <div className={styles.val}>{enterpriseInfo?.result?.name || itemDetail.companyName || '暂无'}</div>
+                    <div className={styles.val}>{enterpriseInfo?.name || enterpriseInfo?.result?.name || itemDetail.companyName || '暂无'}</div>
                   </div>
                   <div className={styles.dataCard}>
                     <div className={styles.label}>企业状态</div>
-                    <div className={styles.val}>{enterpriseInfo?.result?.regStatus || '暂无'}</div>
+                    <div className={styles.val}>{enterpriseInfo?.regStatus || enterpriseInfo?.result?.regStatus || '暂无'}</div>
                   </div>
                   <div className={styles.dataCard}>
                     <div className={styles.label}>法定代表人</div>
-                    <div className={styles.val}>{enterpriseInfo?.result?.legalPersonName || '暂无'}</div>
+                    <div className={styles.val}>{enterpriseInfo?.legalPersonName || enterpriseInfo?.result?.legalPersonName || '暂无'}</div>
                   </div>
                   <div className={styles.dataCard}>
                     <div className={styles.label}>统一社会信用代码</div>
-                    <div className={styles.val}>{enterpriseInfo?.result?.creditCode || itemDetail.creditCode || '暂无'}</div>
+                    <div className={styles.val}>
+                      {enterpriseInfo?.creditCode || enterpriseInfo?.result?.creditCode || itemDetail.creditCode || '暂无'}
+                    </div>
                   </div>
                   <div className={styles.dataCard}>
                     <div className={styles.label}>注册资本</div>
-                    <div className={styles.val}>{enterpriseInfo?.result?.regCapital || '暂无'}</div>
+                    <div className={styles.val}>{enterpriseInfo?.regCapital || enterpriseInfo?.result?.regCapital || '暂无'}</div>
                   </div>
                   <div className={styles.dataCard}>
                     <div className={styles.label}>成立日期</div>
                     <div className={styles.val}>
-                      {enterpriseInfo?.result?.estiblishTime ? new Date(enterpriseInfo.result.estiblishTime).toLocaleDateString() : '暂无'}
+                      {enterpriseInfo?.estiblishTime
+                        ? new Date(enterpriseInfo.estiblishTime).toLocaleDateString()
+                        : enterpriseInfo?.result?.estiblishTime
+                        ? new Date(enterpriseInfo.result.estiblishTime).toLocaleDateString()
+                        : '暂无'}
                     </div>
                   </div>
                   <div className={styles.dataCard}>
                     <div className={styles.label}>所属行业</div>
-                    <div className={styles.val}>{enterpriseInfo?.result?.industryAll?.category || enterpriseInfo?.result?.industry || '暂无'}</div>
+                    <div className={styles.val}>
+                      {enterpriseInfo?.industryAll?.category ||
+                        enterpriseInfo?.industry ||
+                        enterpriseInfo?.result?.industryAll?.category ||
+                        enterpriseInfo?.result?.industry ||
+                        '暂无'}
+                    </div>
                   </div>
                   <div className={styles.dataCard}>
                     <div className={styles.label}>人员规模</div>
-                    <div className={styles.val}>{enterpriseInfo?.result?.staffNumRange || enterpriseInfo?.result?.staffSize || '暂无'}</div>
+                    <div className={styles.val}>
+                      {enterpriseInfo?.staffNumRange ||
+                        enterpriseInfo?.staffSize ||
+                        enterpriseInfo?.result?.staffNumRange ||
+                        enterpriseInfo?.result?.staffSize ||
+                        '暂无'}
+                    </div>
                   </div>
                   <div className={styles.dataCard}>
                     <div className={styles.label}>注册地址</div>
-                    <div className={styles.val}>{enterpriseInfo?.result?.regLocation || '暂无'}</div>
+                    <div className={styles.val}>{enterpriseInfo?.regLocation || enterpriseInfo?.result?.regLocation || '暂无'}</div>
                   </div>
                 </div>
+              </div>
+
+              {/* 股权变更明细卡片 */}
+              <div className={styles.sectionWrap} style={{marginTop: 24}}>
+                <div className={styles.secHeader}>
+                  <ClockCircleOutlined style={{color: '#f97316', marginRight: 6}} /> 股权变更明细
+                </div>
+                {(() => {
+                  let list: any[] = [];
+                  try {
+                    // 同时尝试读取根级（展开后）和 result 层级
+                    const rawEquity = enterpriseInfo?.equityChange || enterpriseInfo?.result?.equityChange;
+                    console.log('[Debug] rawEquity source:', rawEquity);
+                    if (rawEquity) {
+                      const parsed = typeof rawEquity === 'string' ? JSON.parse(rawEquity) : rawEquity;
+                      console.log('[Debug] parsed equity:', parsed);
+                      list = parsed?.result?.items || (Array.isArray(parsed) ? parsed : []);
+                    }
+                  } catch (e) {
+                    console.error('Failed to parse equityChange JSON:', e);
+                  }
+                  console.log('[Debug] Final equity list:', list);
+
+                  if (!Array.isArray(list) || list.length === 0) {
+                    return (
+                      <div
+                        style={{
+                          padding: '30px 0',
+                          textAlign: 'center',
+                          color: '#94a3b8',
+                          border: '1px dashed #e2e8f0',
+                          borderRadius: 12,
+                          background: '#f8fafc',
+                        }}
+                      >
+                        暂无股权变更数据
+                      </div>
+                    );
+                  }
+                  return (
+                    <div style={{display: 'flex', flexDirection: 'column', gap: 12}}>
+                      {list.map((item: any, idx: number) => (
+                        <div key={idx} className={styles.equityCard}>
+                          <div className={styles.eTop}>
+                            <div className={styles.eName}>{item.investor_name || item.investorName || '-'}</div>
+                            <div className={styles.eDate}>
+                              {item.change_time ? dayjs(item.change_time).format('YYYY-MM-DD') : item.changeTime || '-'}
+                            </div>
+                          </div>
+                          <div className={styles.eBody}>
+                            <div className={styles.eItem}>
+                              <div className={styles.eLabel}>持股比例(前)</div>
+                              <div className={styles.eVal}>{item.ratio_before || item.ratioBefore || '0.0%'}</div>
+                            </div>
+                            <div className={styles.eItem}>
+                              <div className={styles.eLabel} style={{color: '#4f46e5'}}>
+                                持股比例(后)
+                              </div>
+                              <div className={styles.eVal} style={{color: '#4f46e5', fontWeight: 800}}>
+                                {item.ratio_after || item.ratioAfter || '-'}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  );
+                })()}
               </div>
 
               <div className={styles.sectionWrap} style={{marginTop: 24}}>
